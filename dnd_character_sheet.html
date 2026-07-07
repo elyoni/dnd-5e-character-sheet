@@ -2443,7 +2443,7 @@ function render(){
     <div class="dice-result">
       <div>
         <div class="roll-big ${mainDiceJustRolled?'rolling':''}">${diceState.lastRoll===null ? "—" : diceState.lastRoll}</div>
-        <div class="roll-label">d${diceState.sides}</div>
+        <div class="roll-label">${diceState.lastRoll===null ? "" : "d"+diceState.sides}</div>
       </div>
       <div class="dice-mod">
         <span class="dim-label">${t.diceModifier}</span>
