@@ -536,6 +536,7 @@ const T = {
   en:{
     title:"Character Scroll", sub:"an editable, self-explaining sheet",
     newChar:"New Character", del:"Delete", saved:"saved", saving:"saving…", sessionOnly:"not saved (session only)",
+    confirmRemoveTitle:"Remove this?", confirmRemoveMsg:"This can't be undone.",
     hideAll:"Hide All", showAll:"Show All",
     identity:"Identity", name:"Name", cls:"Class", level:"Level", race:"Race", subrace:"Subrace", bg:"Background",
     selectPlaceholder:"— select —", customOption:"Custom…", backToList:"← back to list",
@@ -642,6 +643,7 @@ const T = {
   he:{
     title:"מגילת הדמות", sub:"גיליון עריך עם הסברים מובנים",
     newChar:"דמות חדשה", del:"מחק", saved:"נשמר", saving:"שומר…", sessionOnly:"לא נשמר (הפעלה זו בלבד)",
+    confirmRemoveTitle:"למחוק?", confirmRemoveMsg:"לא ניתן לבטל פעולה זו.",
     hideAll:"הסתר הכל", showAll:"הצג הכל",
     identity:"זהות", name:"שם", cls:"מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע",
     selectPlaceholder:"— בחר —", customOption:"מותאם אישית…", backToList:"← חזרה לרשימה",
@@ -971,6 +973,10 @@ function buildReactionDecisionTree(){
   const no = lang==='en' ? 'Hold onto it — you keep it until the start of your next turn' : 'שמור אותה — היא נשארת עד תחילת התור הבא שלך';
   return buildSimpleDecisionTree(q, yes, no, "var(--blood)", "var(--gold)");
 }
+let pendingRemove = null;
+function confirmRemove(fn){ pendingRemove = fn; render(); }
+function cancelRemove(){ pendingRemove = null; render(); }
+function doRemove(){ const fn = pendingRemove; pendingRemove = null; if(fn) fn(); }
 let printModalOpen = false;
 let printOpts = {minimal:false, extraAttacks:0, extraSpells:0};
 let diceState = {sides:20, modifier:0, lastRoll:null, lastTotal:null, history:[], cubeRot:null};
@@ -1287,7 +1293,7 @@ function attackRow(a, i){
       </select>
       ${spellAbilSelect}
       <label class="atk-prof-chip"><input type="checkbox" ${a.prof?"checked":""} onchange="set('attacks.${i}.prof', this.checked)">${t.atkProf}</label>
-      <button class="remove-row no-print" onclick="removeAttack(${i})" title="${t.del}">🗑️</button>
+      <button class="remove-row no-print" onclick="confirmRemove(()=>removeAttack(${i}))" title="${t.del}">🗑️</button>
     </div>
     <div class="attack-card-mid">
       <div class="attack-stat">
@@ -1750,7 +1756,7 @@ function spellRow(sp, i){
         <label class="ctv-chip"><input type="checkbox" ${sp.somatic?"checked":""} title="${t.spSomaticFull}" onchange="set('spells.${i}.somatic', this.checked)">${t.spSomatic}</label>
         <label class="ctv-chip"><input type="checkbox" ${sp.material?"checked":""} title="${t.spMaterialFull}" onchange="set('spells.${i}.material', this.checked)">${t.spMaterial}</label>
       </div>
-      <button class="remove-row no-print" onclick="removeSpell(${i})" title="${t.del}">🗑️</button>
+      <button class="remove-row no-print" onclick="confirmRemove(()=>removeSpell(${i}))" title="${t.del}">🗑️</button>
     </div>
     <div class="spell-meta-row">
       <span class="spell-meta-item"><span class="dim-label">${t.spRange}</span><input type="text" value="${sp.range}" placeholder="60 ft" onchange="set('spells.${i}.range', this.value)"></span>
@@ -1834,7 +1840,7 @@ function featRow(f, i){
     <div class="feat-card-top">
       <span class="feat-name-display">${esc2(f.name)}</span>
       ${badge}
-      <button class="remove-row no-print" onclick="removeFeat(${i})" title="${t.del}">🗑️</button>
+      <button class="remove-row no-print" onclick="confirmRemove(()=>removeFeat(${i}))" title="${t.del}">🗑️</button>
     </div>
     <textarea class="feat-notes-input" rows="${estimateTextRows(f.notes)}" placeholder="${t.featNotes}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('feats.${i}.notes', this.value)">${f.notes}</textarea>
   </div>`;
@@ -1904,7 +1910,7 @@ function resourceRow(r, i){
         <option value="other" ${r.recharge==='other'?'selected':''}>${t.rOther}</option>
       </select>
     </td>
-    <td><button class="remove-row no-print" onclick="removeResource(${i})" title="${t.del}">🗑️</button></td>
+    <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeResource(${i}))" title="${t.del}">🗑️</button></td>
   </tr>`;
 }
 function addResource(name, total, recharge){
@@ -1925,7 +1931,7 @@ function itemRow(it, i){
     <td><input type="number" min="0" style="width:56px" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
     <td><input type="text" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)"></td>
     <td><input type="text" value="${it.notes}" onchange="set('inventory.items.${i}.notes', this.value)"></td>
-    <td><button class="remove-row no-print" onclick="removeItem(${i})" title="${t.del}">🗑️</button></td>
+    <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button></td>
   </tr>`;
 }
 function addItem(){ state.inventory.items.push({name:"", qty:1, notes:""}); render(); queueSave(); }
@@ -2614,6 +2620,18 @@ function render(){
       <div class="modal-actions">
         <button class="btn" onclick="closeFeatModal()">${t.printCancel}</button>
         <button class="btn primary" onclick="confirmAddFeat()">${t.doneBtn}</button>
+      </div>
+    </div>
+  </div>` : ""}
+
+  ${pendingRemove ? `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) cancelRemove()">
+    <div class="modal-box">
+      <h3>${t.confirmRemoveTitle}</h3>
+      <p>${t.confirmRemoveMsg}</p>
+      <div class="modal-actions">
+        <button class="btn" onclick="cancelRemove()">${t.printCancel}</button>
+        <button class="btn primary" onclick="doRemove()">${t.del}</button>
       </div>
     </div>
   </div>` : ""}
