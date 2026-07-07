@@ -114,6 +114,7 @@ select{
 .id-fields .field.field-level{flex:0 0 auto;}
 .id-fields select{width:auto;min-width:70px;}
 .id-fields input[type=text]{width:auto;}
+.id-fields .feat-name-display{display:inline-block;padding:8px 0;border:1px solid transparent;box-sizing:border-box;}
 @media(max-width:700px){.id-fields{grid-template-columns:1fr 1fr;}}
 .field label{display:block;font-size:11px;letter-spacing:2px;color:var(--ink-faint);text-transform:uppercase;margin-bottom:4px;}
 input[type=text], input[type=number], textarea{
@@ -236,7 +237,7 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--gold);cursor:pointer;display:inline-block;transition:background .1s;}
 .dot.filled{background:var(--gold);box-shadow:0 0 4px rgba(201,162,39,0.55);}
 .dot:hover{border-color:var(--gold-bright);}
-.dim-label{font-size:10.5px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase;margin-right:4px;margin-bottom: 5px;}
+.dim-label{font-size:10.5px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase;margin-right:4px;}
 
 /* ---------- turn / combat flow ---------- */
 .flow-list{list-style:none;counter-reset:flow;margin:0;padding:0;}
@@ -1627,7 +1628,7 @@ function setDiceModifier(v){
   if(diceState.lastRoll !== null) diceState.lastTotal = diceState.lastRoll + diceState.modifier;
   render();
 }
-function clearDiceHistory(){ diceState.history = []; diceState.lastRoll = null; diceState.lastTotal = null; diceState.cubeRot = null; diceState.cubeFaces = null; render(); }
+function clearDiceHistory(){ diceState.history = []; diceState.lastRoll = null; diceState.lastTotal = null; diceState.modifier = 0; diceState.cubeRot = null; diceState.cubeFaces = null; render(); }
 
 function exportCharacter(){
   const dataStr = JSON.stringify(state, null, 2);
