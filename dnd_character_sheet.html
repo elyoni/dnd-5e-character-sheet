@@ -144,6 +144,17 @@ input:disabled::-webkit-outer-spin-button, input:disabled::-webkit-inner-spin-bu
 input:disabled[type=number]{-moz-appearance:textfield;}
 textarea{resize:vertical;font-size:15.5px;line-height:1.5;}
 
+/* ---------- shared stat-display components ---------- */
+.ability .name, .combat-box .label, .summary-box .label, .passive-badge .label{
+  font-size:11px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;
+}
+.ability .mod, .combat-box .big, .summary-box .big, .passive-badge .val{
+  font-family:'Cinzel',serif;font-weight:700;
+}
+.list-row .val, .atk-bonus, .ref-body .f, .flow-list > li .f, .conc-val, .attack-stat-val, .feat-lvmark, .cube-bonus{
+  font-family:'IBM Plex Mono',monospace;color:var(--gold-bright);
+}
+
 /* ---------- ability scores ---------- */
 .abilities{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;}
 @media(max-width:820px){.abilities{grid-template-columns:repeat(3,1fr);}}
@@ -151,8 +162,8 @@ textarea{resize:vertical;font-size:15.5px;line-height:1.5;}
   background:var(--panel-2);border:1px solid var(--leather-line);border-radius:6px;
   text-align:center;padding:10px 6px 8px;position:relative;
 }
-.ability .name{font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;}
-.ability .mod{font-size:30px;font-weight:700;color:var(--ink);margin:2px 0;font-family:'Cinzel',serif;}
+.ability .name{font-size:12px;letter-spacing:2px;}
+.ability .mod{font-size:30px;color:var(--ink);margin:2px 0;}
 .ability .score-input{
   width:48px;margin:4px auto 0;text-align:center;font-size:14.5px;padding:4px;
 }
@@ -223,7 +234,7 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--gold);cursor:pointer;display:inline-block;transition:background .1s;}
 .dot.filled{background:var(--gold);box-shadow:0 0 4px rgba(201,162,39,0.55);}
 .dot:hover{border-color:var(--gold-bright);}
-.dim-label{font-size:10.5px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase;margin-right:4px;}
+.dim-label{font-size:10.5px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase;margin-right:4px;margin-bottom: 5px;}
 
 /* ---------- turn / combat flow ---------- */
 .flow-list{list-style:none;counter-reset:flow;margin:0;padding:0;}
@@ -372,10 +383,10 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 .die-btn:hover{border-color:var(--gold-bright);transform:translateY(-2px);}
 .die-btn:active{transform:translateY(0);}
 .dice-result{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
-.dice-result .roll-big{font-size:42px;font-weight:800;font-family:'Cinzel',serif;color:var(--gold-bright);min-width:70px;text-align:center;}
+.dice-result .roll-big{font-size:42px;font-weight:800;font-family:'Cinzel',serif;color:var(--gold-bright);min-width:40px;text-align:center;}
 .dice-result .roll-label{font-size:11px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase;}
 .dice-mod{display:flex;align-items:center;gap:6px;}
-.dice-mod input{width:56px;}
+.dice-mod input{width:44px;min-width:0;padding:8px 4px;text-align:center;}
 .dice-history{display:flex;gap:6px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-faint);}
 .dice-history.compact{flex-wrap:nowrap;overflow-x:auto;font-size:11px;padding-bottom:2px;}
 .dice-history.compact span{flex:0 0 auto;}
@@ -436,6 +447,7 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 .atk-cube-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
 .atk-cube-col .cube-bonus{min-height:14px;}
 .atk-cube-col .dim-label{font-size:9px;}
+.dice-row .atk-cube-col{padding:10px;}
 .cube-bonus{display:block;font-size:11px;font-weight:700;color:var(--gold-bright);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
 .flying-die{position:absolute;top:14px;left:-10%;width:54px;height:54px;opacity:0;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));}
 .flying-die.flying{animation:diceFly 0.85s cubic-bezier(.32,1.6,.55,1) forwards;}
@@ -991,8 +1003,9 @@ function rollSpellDamage(i){
   spellRollHistories[i] = spellRollHistories[i].slice(0, 5);
   render();
 }
+function dmgInputWidthCh(str){ return Math.max(5, String(str||"").length + 3); }
 function autoWidthInput(el){
-  el.style.width = Math.max(5, el.value.length + 1) + "ch";
+  el.style.width = dmgInputWidthCh(el.value) + "ch";
 }
 function rollAttack(i){
   lastRolledAttackIndex = i;
@@ -1283,7 +1296,7 @@ function attackRow(a, i){
       </div>
       <div class="attack-stat">
         <span class="dim-label">${t.atkDmg}</span>
-        <input type="text" value="${a.dmg}" class="attack-dmg-input" style="width:${Math.max(5,(a.dmg||"").length+1)}ch" oninput="autoWidthInput(this)" onchange="set('attacks.${i}.dmg', this.value)">
+        <input type="text" value="${a.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(a.dmg)}ch" oninput="autoWidthInput(this)" onchange="set('attacks.${i}.dmg', this.value)">
         <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}</span>
       </div>
       <div class="attack-roll-inline no-print">
@@ -1293,11 +1306,11 @@ function attackRow(a, i){
           ${attackRolls[i] ? buildSmallCubeHTML(attackRolls[i].hitCube, i===lastRolledAttackIndex) : `<div class="cube-scene small"></div>`}
           ${attackRolls[i] ? `<span class="cube-bonus">${fm(attackRolls[i].bonus)}</span>` : ""}
         </div>
-        ${attackRolls[i] && attackRolls[i].hasDmg ? `
+        ${parseDiceString(a.dmg) ? `
         <div class="atk-cube-col">
           <span class="dim-label">${t.atkDmg}</span>
-          ${buildSmallCubeHTML(attackRolls[i].dmgCube, i===lastRolledAttackIndex)}
-          <span class="cube-bonus">${fm(attackRolls[i].dmgBonus)}</span>
+          ${attackRolls[i] && attackRolls[i].hasDmg ? buildSmallCubeHTML(attackRolls[i].dmgCube, i===lastRolledAttackIndex) : `<div class="cube-scene small"></div>`}
+          ${attackRolls[i] && attackRolls[i].hasDmg ? `<span class="cube-bonus">${fm(attackRolls[i].dmgBonus)}</span>` : ""}
         </div>` : ""}
         ${attackRolls[i] ? `<div class="atk-roll-result">
           ${t.atkHit} <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}
@@ -1344,6 +1357,7 @@ function dieVisualSVG(n, number){
   </svg>`;
 }
 const DIE_FACE_ROTATION = { 1:{x:0,y:0}, 2:{x:0,y:-90}, 3:{x:-90,y:0}, 4:{x:90,y:0}, 5:{x:0,y:90}, 6:{x:0,y:180} };
+const CUBE_REST_TILT = { x:12, y:-18 };
 const PIP_LAYOUT = {
   1:[[1,1]],
   2:[[0,0],[2,2]],
@@ -1379,7 +1393,7 @@ function computeCubeRollData(sides, roll){
   const base = DIE_FACE_ROTATION[landingSlot];
   const extraX = 360 * (2 + Math.floor(Math.random()*2));
   const extraY = 360 * (2 + Math.floor(Math.random()*2));
-  return { rot: { x: base.x + extraX, y: base.y + extraY }, faces, sides };
+  return { rot: { x: base.x + extraX + CUBE_REST_TILT.x, y: base.y + extraY + CUBE_REST_TILT.y }, faces, sides };
 }
 function buildSmallCubeHTML(cube, animate){
   if(!cube) return "";
@@ -1417,7 +1431,7 @@ function setDiceModifier(v){
   if(diceState.lastRoll !== null) diceState.lastTotal = diceState.lastRoll + diceState.modifier;
   render();
 }
-function clearDiceHistory(){ diceState.history = []; diceState.lastRoll = null; diceState.lastTotal = null; render(); }
+function clearDiceHistory(){ diceState.history = []; diceState.lastRoll = null; diceState.lastTotal = null; diceState.cubeRot = null; diceState.cubeFaces = null; render(); }
 
 function exportCharacter(){
   const dataStr = JSON.stringify(state, null, 2);
@@ -1749,7 +1763,7 @@ function spellRow(sp, i){
     </div>
     <div class="spell-dmg-row no-print">
       <span class="dim-label">${t.spDmg}</span>
-      <input type="text" value="${sp.dmg}" class="attack-dmg-input" style="width:${Math.max(5,(sp.dmg||"").length+1)}ch" oninput="autoWidthInput(this)" placeholder="4d6" onchange="set('spells.${i}.dmg', this.value)">
+      <input type="text" value="${sp.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(sp.dmg)}ch" oninput="autoWidthInput(this)" placeholder="4d6" onchange="set('spells.${i}.dmg', this.value)">
       ${sp.dmg ? `
       <button class="atk-roll-btn" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
       <div class="atk-cube-col">
@@ -2164,7 +2178,7 @@ function render(){
       </div>
       <div class="dice-mod">
         <span class="dim-label">${t.diceModifier}</span>
-        <input type="number" style="width:44px;min-width:0;box-sizing:border-box;padding:8px 4px;text-align:center" value="${diceState.modifier}" onchange="setDiceModifier(this.value)">
+        <input type="number" value="${diceState.modifier}" onchange="setDiceModifier(this.value)">
       </div>
       ${diceState.lastTotal!==null ? `<div><div class="roll-big ${mainDiceJustRolled?'rolling':''}" style="color:var(--ink)">${diceState.lastTotal}</div><div class="roll-label">${lang==='en'?'total':'סה״כ'}</div></div>` : ""}
       <button class="btn" onclick="clearDiceHistory()">${t.diceClear}</button>
