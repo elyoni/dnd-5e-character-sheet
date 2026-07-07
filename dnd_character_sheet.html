@@ -1281,7 +1281,20 @@ function selectRace(value){
 
 let newCharModalOpen = false;
 function openNewCharModal(){ newCharModalOpen = true; render(); }
-function closeNewCharModal(){ newCharModalOpen = false; render(); }
+async function closeNewCharModal(){
+  newCharModalOpen = false;
+  if(charIndex.length===0){
+    // Backed out with no character left (e.g. cancelled onboarding, or just deleted the last
+    // one) — fall back to a blank one so the app always has something to show.
+    const id = "c"+Date.now();
+    charIndex.push({id, name:"New Adventurer"});
+    await saveIndex();
+    state = defaultChar(id);
+    try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+    await setLastUsedId(id);
+  }
+  render();
+}
 function modalRaceChanged(){
   const t = T[lang];
   const race = document.getElementById("modalNewRace").value;
@@ -1337,12 +1350,18 @@ async function switchCharacter(id){
   render();
 }
 async function deleteCharacter(){
-  if(charIndex.length<=1) return;
   try{ await storageDelete("dnd-char:"+state.id); }catch(e){}
   charIndex = charIndex.filter(c=>c.id!==state.id);
   await saveIndex();
-  await loadChar(charIndex[0].id);
-  render();
+  if(charIndex.length===0){
+    // No characters left — send them straight to the creation form instead of
+    // silently conjuring a blank one.
+    state = defaultChar("__pending__");
+    openNewCharModal();
+  } else {
+    await loadChar(charIndex[0].id);
+    render();
+  }
 }
 
 function attackRow(a, i){
@@ -1436,17 +1455,19 @@ async function switchLang(l){
 let onboardingModalOpen = false;
 let onboardingStep = 1;
 async function finishOnboarding(useDemo){
-  if(useDemo){
-    state = demoChar(state.id);
-    const idxEntry = charIndex.find(c=>c.id===state.id);
-    if(idxEntry) idxEntry.name = state.name;
-    await saveIndex();
-  }
   onboardingModalOpen = false;
-  try{ await storageSet("dnd-char:"+state.id, JSON.stringify(state)); }catch(e){}
   try{ await storageSet("dnd-onboarded", "1"); }catch(e){}
-  await setLastUsedId(state.id);
-  render();
+  if(useDemo){
+    const id = "c"+Date.now();
+    state = demoChar(id);
+    charIndex.push({id, name: state.name});
+    await saveIndex();
+    try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+    await setLastUsedId(id);
+    render();
+  } else {
+    openNewCharModal();
+  }
 }
 
 function doPrint(){ printModalOpen = true; render(); }
@@ -2254,7 +2275,7 @@ function render(){
           ${charIndex.map(c=>`<option value="${c.id}" ${c.id===state.id?"selected":""}>${c.name||"—"}</option>`).join("")}
           <option value="__new__">➕ ${t.newChar}</option>
         </select>
-        <button class="btn danger icon-btn" onclick="deleteCharacter()" title="${t.del}" ${charIndex.length<=1?"disabled":""}>🗑️</button>
+        <button class="btn danger icon-btn" onclick="deleteCharacter()" title="${t.del}">🗑️</button>
       </div>
       <button class="btn" onclick="setAllFolded(true)">${t.hideAll}</button>
       <button class="btn" onclick="setAllFolded(false)">${t.showAll}</button>
@@ -2922,13 +2943,17 @@ function render(){
       const onboardedRes = await storageGet("dnd-onboarded");
       const alreadyOnboarded = !!onboardedRes;
       if(charIndex.length===0){
-        const id = "c"+Date.now();
-        charIndex.push({id, name:"New Adventurer"});
-        await saveIndex();
-        state = defaultChar(id);
-        await storageSet("dnd-char:"+id, JSON.stringify(state));
-        await setLastUsedId(id);
-        if(!alreadyOnboarded){
+        if(alreadyOnboarded){
+          const id = "c"+Date.now();
+          charIndex.push({id, name:"New Adventurer"});
+          await saveIndex();
+          state = defaultChar(id);
+          await storageSet("dnd-char:"+id, JSON.stringify(state));
+          await setLastUsedId(id);
+        } else {
+          // Nothing created yet — the onboarding modal below decides (blank vs demo)
+          // and creates the actual character once the user picks.
+          state = defaultChar("__pending__");
           onboardingModalOpen = true;
           onboardingStep = 1;
         }

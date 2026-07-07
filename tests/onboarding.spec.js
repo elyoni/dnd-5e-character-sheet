@@ -21,11 +21,33 @@ test.describe('first-time onboarding', () => {
     await expect(page.locator('.modal-backdrop')).toHaveCount(0);
   });
 
-  test('"Create New Character" starts a blank character and dismisses the popup', async ({ page }) => {
-    await dismissOnboarding(page);
+  test('"Create New Character" opens the new-character creation form', async ({ page }) => {
+    await page.goto('/dnd_character_sheet.html');
+    await page.locator('.modal-backdrop button:has-text("OK")').click();
+    await page.locator('.modal-backdrop button:has-text("Create New Character")').click();
+    await expect(page.locator('.modal-box h3')).toHaveText('New Character');
+  });
+
+  test('completing the new-character form dismisses onboarding with the entered details', async ({ page }) => {
+    await page.goto('/dnd_character_sheet.html');
+    await page.locator('.modal-backdrop button:has-text("OK")').click();
+    await page.locator('.modal-backdrop button:has-text("Create New Character")').click();
+    await page.fill('#modalNewName', 'Borin Stonefist');
+    await page.locator('.modal-backdrop button:has-text("Done")').click();
+    await expect(page.locator('.modal-backdrop')).toHaveCount(0);
+    const name = await page.evaluate(() => state.name);
+    expect(name).toBe('Borin Stonefist');
+  });
+
+  test('cancelling the new-character form still leaves a usable blank character', async ({ page }) => {
+    await page.goto('/dnd_character_sheet.html');
+    await page.locator('.modal-backdrop button:has-text("OK")').click();
+    await page.locator('.modal-backdrop button:has-text("Create New Character")').click();
+    await page.locator('.modal-backdrop button:has-text("Cancel")').click();
     await expect(page.locator('.modal-backdrop')).toHaveCount(0);
     const name = await page.evaluate(() => state.name);
     expect(name).toBe('New Adventurer');
+    expect(await page.evaluate(() => charIndex.length)).toBe(1);
   });
 
   test('"Load Demo Character" fills in the pre-made sample character', async ({ page }) => {

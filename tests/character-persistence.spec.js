@@ -33,12 +33,32 @@ test.describe('multi-character persistence', () => {
     await page.waitForTimeout(300);
     expect(await page.evaluate(() => charIndex.length)).toBe(2);
 
-    await page.click('button[title="Delete"]');
+    await page.click('.char-select-group button[title="Delete"]');
     await page.waitForTimeout(300);
 
     expect(await page.evaluate(() => charIndex.length)).toBe(1);
     const remainingId = await page.evaluate(() => charIndex[0].id);
     const activeId = await page.evaluate(() => state.id);
     expect(activeId).toBe(remainingId);
+  });
+
+  test('the delete button is never disabled, even with a single character left', async ({ page }) => {
+    await dismissOnboarding(page);
+    expect(await page.evaluate(() => charIndex.length)).toBe(1);
+    await expect(page.locator('.char-select-group button[title="Delete"]')).toBeEnabled();
+  });
+
+  test('deleting the only remaining character sends you to the creation form instead of leaving you stuck', async ({ page }) => {
+    await dismissOnboarding(page);
+    expect(await page.evaluate(() => charIndex.length)).toBe(1);
+
+    await page.click('.char-select-group button[title="Delete"]');
+    await expect.poll(() => page.evaluate(() => charIndex.length)).toBe(0);
+    await expect(page.locator('.modal-box h3')).toHaveText('New Character');
+
+    await page.locator('.modal-backdrop button:has-text("Done")').click();
+    expect(await page.evaluate(() => charIndex.length)).toBe(1);
+    const name = await page.evaluate(() => state.name);
+    expect(name).toBe('New Adventurer');
   });
 });
