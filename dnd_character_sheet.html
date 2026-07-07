@@ -110,8 +110,10 @@ select{
 
 /* ---------- identity ---------- */
 .id-fields{display:flex;flex-wrap:wrap;gap:10px;}
-.id-fields .field{flex:1 1 130px;min-width:0;}
+.id-fields .field{flex:0 0 auto;}
 .id-fields .field.field-level{flex:0 0 auto;}
+.id-fields select{width:auto;min-width:70px;}
+.id-fields input[type=text]{width:auto;}
 @media(max-width:700px){.id-fields{grid-template-columns:1fr 1fr;}}
 .field label{display:block;font-size:11px;letter-spacing:2px;color:var(--ink-faint);text-transform:uppercase;margin-bottom:4px;}
 input[type=text], input[type=number], textarea{
@@ -386,12 +388,13 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 .dice-result{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
 .dice-result .roll-big{font-size:42px;font-weight:800;font-family:'Cinzel',serif;color:var(--gold-bright);min-width:40px;text-align:center;}
 .dice-result .roll-label{font-size:11px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase;}
-.dice-mod{display:flex;align-items:center;gap:6px;}
+.dice-mod{display:flex;flex-direction:column;align-items:center;gap:4px;}
 .dice-mod input{width:44px;min-width:0;padding:8px 4px;text-align:center;}
 .dice-history{display:flex;gap:6px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-faint);}
 .dice-history.compact{flex-wrap:nowrap;overflow-x:auto;font-size:11px;padding-bottom:2px;}
 .dice-history.compact span{flex:0 0 auto;}
 .dice-history span{border:1px solid var(--leather-line);border-radius:4px;padding:2px 7px;}
+.dice-history span.latest{border-color:var(--gold);color:var(--gold-bright);font-weight:700;background:rgba(201,162,39,0.14);}
 @keyframes diceRoll{0%{transform:scale(0.55) rotate(-18deg);opacity:0.25;}60%{transform:scale(1.18) rotate(10deg);opacity:1;}100%{transform:scale(1) rotate(0deg);}}
 .roll-big.rolling{animation:diceRoll 0.35s ease-out;}
 @keyframes diceJump{
@@ -552,23 +555,26 @@ const T = {
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
     diceRoller:"Dice Roller", diceModifier:"Modifier", diceClear:"Clear", diceNoRolls:"No rolls yet",
     saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception",
-    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", addRow:"+ Add attack",
+    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"+ Add attack",
     melee:"Melee", ranged:"Ranged", finesse:"Finesse", spell:"Spell",
     spellAbility:"Casting stat",
     notes:"Notes & Equipment",
     printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import",
+    exportModalTitle:"Export Character", exportAsFileBtn:"Download JSON file", exportAsLinkBtn:"🔗 Copy shareable link", copyLinkBtn:"Copy link",
+    linkReadyHint:"Link copied to clipboard — you can also copy it manually below.", linkCopied:"✓ Copied to clipboard.",
     printSettingsTitle:"Print Settings", printStyleLabel:"Layout:", printMinimal:"Minimal (sheet only)", printStandard:"Standard (+ flow & reference)",
     extraAttackRows:"Extra blank attack lines:", extraSpellRows:"Extra blank spell lines:", printGo:"Print", printCancel:"Cancel",
     spells:"Spells", spCastAbil:"Casting stat", spellSaveDC:"Spell Save DC", spellAtk:"Spell Attack Bonus",
     slotsLabel:"Spell Slots", slotLevel:"Lvl", slotTotal:"Total", slotUsed:"Used", cantrips:"Cantrips",
     quickSpellHint:"Type a spell name and hit Done (or Enter) to add it under that level — you can still edit prep/C/T/V/notes right in the row after.",
     quickSpellPh:"Spell name…", doneBtn:"Done",
-    spName:"Spell", spLevel:"Lv", spPrepared:"Prep.", spConc:"C", spTouch:"T", spVerbal:"V", spSomatic:"S", spMaterial:"M", spDmg:"Damage", spNotes:"Notes", addSpell:"Add spell",
+    spName:"Spell", spLevel:"Lv", spPrepared:"Prep.", spConc:"C", spTouch:"T", spVerbal:"V", spSomatic:"S", spMaterial:"M", spDmg:"Damage", spNotes:"Notes", addSpell:"Spell",
     spVerbalFull:"Verbal — spoken incantations", spSomaticFull:"Somatic — physical gestures", spMaterialFull:"Material — physical ingredients",
-    spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat",
+    spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", addAttackModalTitle:"New Attack",
+    spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
-    feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"+ Add feat",
+    feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
     featHP:"Max HP", featPerLevel:"/ level",
     featLevelHint:"\"Level\" here means your character's current level (set in Identity) — a feat with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
@@ -659,23 +665,26 @@ const T = {
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
     diceRoller:"הטלת קוביות", diceModifier:"מודיפייר", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
     saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית",
-    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", addRow:"+ הוסף התקפה",
+    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"+ הוסף התקפה",
     melee:"קרב מגע", ranged:"טווח", finesse:"זריזות/כוח", spell:"קסם",
     spellAbility:"תכונת כישוף",
     notes:"הערות וציוד",
     printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא",
+    exportModalTitle:"ייצוא דמות", exportAsFileBtn:"הורדת קובץ JSON", exportAsLinkBtn:"🔗 העתקת קישור לשיתוף", copyLinkBtn:"העתק קישור",
+    linkReadyHint:"הקישור הועתק ללוח — אפשר גם להעתיק ידנית למטה.", linkCopied:"✓ הועתק ללוח.",
     printSettingsTitle:"הגדרות הדפסה", printStyleLabel:"פריסה:", printMinimal:"מינימלי (גיליון בלבד)", printStandard:"סטנדרטי (+ תהליך והסבר)",
     extraAttackRows:"שורות התקפה ריקות נוספות:", extraSpellRows:"שורות קסם ריקות נוספות:", printGo:"הדפסה", printCancel:"ביטול",
     spells:"קסמים", spCastAbil:"תכונת כישוף", spellSaveDC:"קושי הצלה מקסם", spellAtk:"בונוס התקפת קסם",
     slotsLabel:"משבצות קסם", slotLevel:"רמה", slotTotal:"סה״כ", slotUsed:"נוצלו", cantrips:"קנטריפים",
     quickSpellHint:"הקלד שם קסם ולחץ סיום (או Enter) כדי להוסיף אותו ברמה הזו — עדיין אפשר לערוך הכנה/ר/מ/ד/הערות ישירות בשורה אחר כך.",
     quickSpellPh:"שם הקסם…", doneBtn:"סיום",
-    spName:"קסם", spLevel:"רמה", spPrepared:"מוכן", spConc:"ר", spTouch:"מ", spVerbal:"ד", spSomatic:"ת", spMaterial:"ח", spDmg:"נזק", spNotes:"הערות", addSpell:"הוסף קסם",
+    spName:"קסם", spLevel:"רמה", spPrepared:"מוכן", spConc:"ר", spTouch:"מ", spVerbal:"ד", spSomatic:"ת", spMaterial:"ח", spDmg:"נזק", spNotes:"הערות", addSpell:"קסם",
     spVerbalFull:"מילולי — לחישות מוטלות", spSomaticFull:"תנועתי — מחוות פיזיות", spMaterialFull:"חומרי — מרכיבים פיזיים",
-    spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה",
+    spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", addAttackModalTitle:"התקפה חדשה",
+    spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
-    feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"+ הוסף תכונה",
+    feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
     featHP:"נק״ח מקס", featPerLevel:"/ רמה",
     featLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
@@ -1007,7 +1016,7 @@ function rollSpellDamage(i){
   spellRolls[i] = {rolls, total, dmgCube};
   if(!spellRollHistories[i]) spellRollHistories[i] = [];
   spellRollHistories[i].unshift({total});
-  spellRollHistories[i] = spellRollHistories[i].slice(0, 5);
+  spellRollHistories[i] = spellRollHistories[i].slice(0, 10);
   render();
 }
 function dmgInputWidthCh(str){ return Math.max(5, String(str||"").length + 3); }
@@ -1040,7 +1049,7 @@ function rollAttack(i){
   attackRolls[i] = {hitRoll, hitTotal, bonus, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal, crit: hitRoll===20, fumble: hitRoll===1, hasDmg: !!parsed, hitCube, dmgCube};
   if(!attackRollHistories[i]) attackRollHistories[i] = [];
   attackRollHistories[i].unshift({hitTotal, dmgTotal: parsed ? dmgTotal : null, crit: hitRoll===20, fumble: hitRoll===1});
-  attackRollHistories[i] = attackRollHistories[i].slice(0, 5);
+  attackRollHistories[i] = attackRollHistories[i].slice(0, 10);
   render();
 }
 let persistent = true; // false only if neither window.storage nor localStorage is available
@@ -1325,7 +1334,7 @@ function attackRow(a, i){
         </div>` : ""}
       </div>
     </div>
-    ${(attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print"><span class="dim-label" style="flex:0 0 auto;margin-right:2px">${a.name||"?"}:</span>${attackRollHistories[i].map(h=>`<span>${t.atkHit} ${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}${h.dmgTotal!==null?` / ${t.atkDmg} ${h.dmgTotal}`:""}</span>`).join("")}</div>` : ""}
+    ${(attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print">${attackRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${t.atkHitAbbr}:${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}${h.dmgTotal!==null?`/${t.atkDmgAbbr}:${h.dmgTotal}`:""}</span>`).join("")}</div>` : ""}
     <input type="text" value="${a.notes}" class="attack-notes-input" placeholder="${t.atkNotes}" onchange="set('attacks.${i}.notes', this.value)">
   </div>`;
 }
@@ -1336,6 +1345,24 @@ function addAttack(){
 function removeAttack(i){
   state.attacks.splice(i,1);
   render(); queueSave();
+}
+let attackModalOpen = false;
+function openAttackModal(){ attackModalOpen = true; render(); }
+function closeAttackModal(){ attackModalOpen = false; render(); }
+function confirmAddAttack(){
+  const nameEl = document.getElementById("modalAttackName");
+  if(!nameEl) return;
+  const name = nameEl.value.trim();
+  if(!name) return;
+  const type = document.getElementById("modalAttackType").value;
+  const spellAbil = document.getElementById("modalAttackSpellAbil").value;
+  const prof = document.getElementById("modalAttackProf").checked;
+  const dmg = document.getElementById("modalAttackDmg").value.trim() || "1d6";
+  const notes = document.getElementById("modalAttackNotes").value;
+  state.attacks.push({name, type, dmg, spellAbil, prof, notes});
+  attackModalOpen = false;
+  render();
+  queueSave();
 }
 function toggleRef(){ refOpen = !refOpen; render(); }
 function switchLang(l){ lang = l; render(); }
@@ -1455,6 +1482,14 @@ function exportCharacter(){
 function triggerImport(){
   document.getElementById("importFileInput").click();
 }
+async function importParsedCharacter(parsed){
+  const id = "c"+Date.now();
+  parsed.id = id;
+  state = hydrate(parsed);
+  charIndex.push({id, name: state.name || "Imported"});
+  await saveIndex();
+  await storageSet("dnd-char:"+id, JSON.stringify(state));
+}
 function handleImportFile(input){
   const file = input.files && input.files[0];
   if(!file) return;
@@ -1462,12 +1497,7 @@ function handleImportFile(input){
   reader.onload = async (e) => {
     try{
       const parsed = JSON.parse(e.target.result);
-      const id = "c"+Date.now();
-      parsed.id = id;
-      state = hydrate(parsed);
-      charIndex.push({id, name: state.name || "Imported"});
-      await saveIndex();
-      await storageSet("dnd-char:"+id, JSON.stringify(state));
+      await importParsedCharacter(parsed);
       render();
     }catch(err){
       alert(lang==='he' ? "לא הצלחתי לקרוא את הקובץ הזה. ודא שזה קובץ JSON שיוצא מהגיליון הזה." : "Couldn't read that file. Make sure it's a JSON file exported from this sheet.");
@@ -1475,6 +1505,51 @@ function handleImportFile(input){
   };
   reader.readAsText(file);
   input.value = "";
+}
+function encodeStateToBase64(obj){
+  return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+}
+function decodeBase64ToState(b64){
+  return JSON.parse(decodeURIComponent(escape(atob(b64))));
+}
+function buildShareURL(){
+  const base = location.href.split('#')[0].split('?')[0];
+  return base + "#char=" + encodeURIComponent(encodeStateToBase64(state));
+}
+async function checkURLImport(){
+  const m = /(?:^|[#&])char=([^&]+)/.exec(location.hash);
+  if(!m) return false;
+  try{
+    const parsed = decodeBase64ToState(decodeURIComponent(m[1]));
+    await importParsedCharacter(parsed);
+    history.replaceState(null, "", location.pathname + location.search);
+    return true;
+  }catch(err){
+    return false;
+  }
+}
+let exportModalOpen = false;
+let exportLinkValue = "";
+let exportLinkCopied = false;
+function openExportModal(){ exportModalOpen = true; exportLinkValue = ""; exportLinkCopied = false; render(); }
+function closeExportModal(){ exportModalOpen = false; render(); }
+function exportAsFile(){ exportCharacter(); closeExportModal(); }
+async function generateShareLink(){
+  exportLinkValue = buildShareURL();
+  exportLinkCopied = false;
+  render();
+  try{
+    await navigator.clipboard.writeText(exportLinkValue);
+    exportLinkCopied = true;
+    render();
+  }catch(err){}
+}
+function copyShareLinkManually(){
+  const input = document.getElementById("shareLinkInput");
+  if(!input) return;
+  input.select();
+  input.setSelectionRange(0, 99999);
+  try{ document.execCommand("copy"); exportLinkCopied = true; render(); }catch(err){}
 }
 
 function confirmPrint(){
@@ -1747,6 +1822,7 @@ function buildPrintHTML(opts){
 function spellRow(sp, i){
   const t = T[lang];
   const saveLabel = sp.save ? t[sp.save] : "";
+  const spellDC = 8 + profByLevel(state.level) + mod(getEffectiveAbilities(state)[state.spellcasting.abil]);
   return `<div class="spell-item">
     <div class="spell-item-top">
       <input type="checkbox" ${sp.prepared?"checked":""} title="${t.spPrepared}" onchange="set('spells.${i}.prepared', this.checked)">
@@ -1768,6 +1844,7 @@ function spellRow(sp, i){
         </select>
       </span>
     </div>
+    ${sp.save ? `<div class="formula-note">${t.spSaveLabel} d20+${saveLabel} ≥ ${spellDC} (8+prof+${t[state.spellcasting.abil]})</div>` : ""}
     <div class="spell-dmg-row no-print">
       <span class="dim-label">${t.spDmg}</span>
       <input type="text" value="${sp.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(sp.dmg)}ch" oninput="autoWidthInput(this)" placeholder="4d6" onchange="set('spells.${i}.dmg', this.value)">
@@ -1777,7 +1854,7 @@ function spellRow(sp, i){
         ${spellRolls[i] ? buildSmallCubeHTML(spellRolls[i].dmgCube, i===lastRolledSpellIndex) : `<div class="cube-scene small"></div>`}
         <span class="cube-bonus">${spellRolls[i] ? spellRolls[i].total : ""}</span>
       </div>
-      ${(spellRollHistories[i]||[]).length ? `<div class="dice-history compact" style="margin:0">${spellRollHistories[i].map(h=>`<span>${h.total}</span>`).join("")}</div>` : ""}
+      ${(spellRollHistories[i]||[]).length ? `<div class="dice-history compact" style="margin:0">${spellRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${h.total}</span>`).join("")}</div>` : ""}
       ` : ""}
     </div>
     <textarea rows="1" class="spell-notes-input" placeholder="${t.spNotes}" onchange="set('spells.${i}.notes', this.value)">${sp.notes}</textarea>
@@ -2099,7 +2176,7 @@ function render(){
       <button class="btn" onclick="setAllFolded(true)">${t.hideAll}</button>
       <button class="btn" onclick="setAllFolded(false)">${t.showAll}</button>
       <button class="btn primary" onclick="doPrint()">${t.printBtn}</button>
-      <button class="btn" onclick="exportCharacter()">${t.exportBtn}</button>
+      <button class="btn" onclick="openExportModal()">${t.exportBtn}</button>
       <button class="btn" onclick="triggerImport()">${t.importBtn}</button>
       <input type="file" id="importFileInput" accept="application/json,.json" style="display:none" onchange="handleImportFile(this)">
       <span class="save-status" id="saveStatus">✓ ${t.saved}</span>
@@ -2109,11 +2186,11 @@ function render(){
     <h2 class="ref-toggle" onclick="togglePanelFold('identity')">${t.identity} ${foldIcon('identity')}</h2>
     <div class="id-fields">
       <div class="field"><label>${t.name}</label>
-        ${identityUnlocked ? `<input type="text" value="${state.name}" onchange="set('name', this.value)">` : `<span class="feat-name-display">${esc2(state.name)||"—"}</span>`}
+        ${identityUnlocked ? `<input type="text" value="${state.name}" style="width:${dmgInputWidthCh(state.name)}ch" oninput="autoWidthInput(this)" onchange="set('name', this.value)">` : `<span class="feat-name-display">${esc2(state.name)||"—"}</span>`}
       </div>
       <div class="field"><label>${t.cls}</label>
         ${identityUnlocked ? (state.clsCustom ? `
-          <input type="text" value="${state.cls}" onchange="set('cls', this.value)" placeholder="Wizard">
+          <input type="text" value="${state.cls}" style="width:${dmgInputWidthCh(state.cls)}ch" oninput="autoWidthInput(this)" onchange="set('cls', this.value)" placeholder="Wizard">
           <button class="btn no-print" style="margin-top:4px;padding:3px 8px;font-size:11px" onclick="set('clsCustom', false)">${t.backToList}</button>
         ` : `
           <select onchange="if(this.value==='__custom__'){set('clsCustom', true);} else {selectClass(this.value)}">
@@ -2126,7 +2203,7 @@ function render(){
       <div class="field field-level"><label>${t.level}</label><input type="number" min="1" max="20" class="no-spinner" style="width:44px;min-width:0;box-sizing:border-box;padding:8px 4px;text-align:center" value="${state.level}" onchange="set('level', Math.max(1, Math.min(20, parseInt(this.value)||1)))"></div>
       <div class="field"><label>${t.race}</label>
         ${identityUnlocked ? (state.raceCustom ? `
-          <input type="text" value="${state.race}" onchange="set('race', this.value)">
+          <input type="text" value="${state.race}" style="width:${dmgInputWidthCh(state.race)}ch" oninput="autoWidthInput(this)" onchange="set('race', this.value)">
           <button class="btn no-print" style="margin-top:4px;padding:3px 8px;font-size:11px" onclick="set('raceCustom', false)">${t.backToList}</button>
         ` : `
           <select onchange="if(this.value==='__custom__'){set('raceCustom', true);} else {selectRace(this.value)}">
@@ -2138,7 +2215,7 @@ function render(){
       </div>
       <div class="field"><label>${t.subrace}</label>
         ${identityUnlocked ? (state.subraceCustom ? `
-          <input type="text" value="${state.subrace}" onchange="set('subrace', this.value)">
+          <input type="text" value="${state.subrace}" style="width:${dmgInputWidthCh(state.subrace)}ch" oninput="autoWidthInput(this)" onchange="set('subrace', this.value)">
           <button class="btn no-print" style="margin-top:4px;padding:3px 8px;font-size:11px" onclick="set('subraceCustom', false)">${t.backToList}</button>
         ` : `
           <select onchange="if(this.value==='__custom__'){set('subraceCustom', true);} else {set('subrace', this.value)}">
@@ -2148,7 +2225,7 @@ function render(){
           </select>
         `) : `<span class="feat-name-display">${esc2(state.subrace)||"—"}</span>`}
       </div>
-      <div class="field"><label>${t.bg}</label><input type="text" value="${state.bg}" onchange="set('bg', this.value)"></div>
+      <div class="field"><label>${t.bg}</label><input type="text" value="${state.bg}" style="width:${dmgInputWidthCh(state.bg)}ch" oninput="autoWidthInput(this)" onchange="set('bg', this.value)"></div>
     </div>
     ${identityUnlocked ? `<div class="formula-note" style="margin-top:6px">${t.clsAutoNote}</div>` : ""}
     <div class="formula-note no-print" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
@@ -2190,7 +2267,7 @@ function render(){
       ${diceState.lastTotal!==null ? `<div><div class="roll-big ${mainDiceJustRolled?'rolling':''}" style="color:var(--ink)">${diceState.lastTotal}</div><div class="roll-label">${lang==='en'?'total':'סה״כ'}</div></div>` : ""}
       <button class="btn" onclick="clearDiceHistory()">${t.diceClear}</button>
     </div>
-    <div class="dice-history" style="justify-content:center">${diceState.history.length ? diceState.history.map(h=>`<span>d${h.sides}: ${h.roll}${h.total!==h.roll?` (${fm(h.total-h.roll)}=${h.total})`:""}</span>`).join("") : `<span class="dim">${t.diceNoRolls}</span>`}</div>
+    <div class="dice-history" style="justify-content:center">${diceState.history.length ? diceState.history.map((h,hi)=>`<span class="${hi===0?'latest':''}">d${h.sides}: ${h.roll}${h.total!==h.roll?` (${fm(h.total-h.roll)}=${h.total})`:""}</span>`).join("") : `<span class="dim">${t.diceNoRolls}</span>`}</div>
     `}
   </div>
 
@@ -2232,7 +2309,7 @@ function render(){
         ${effSpeed!==state.speed ? `<div class="formula-note">${effSpeed} ft ${lang==='en'?'w/ feat':'עם תכונה'}</div>` : ""}
         <div class="rowin" style="margin-top:8px;padding-top:7px;border-top:1px dashed var(--leather-line)">
           <span class="dim-label">🕷️ ${t.climbSpeed}</span>
-          <input type="number" min="0" style="width:64px" value="${state.climbSpeed}" onchange="set('climbSpeed', parseInt(this.value)||0)">
+          <input type="number" min="0" style="width:64px;text-align:center" value="${state.climbSpeed}" onchange="set('climbSpeed', parseInt(this.value)||0)">
         </div>
         ${getFeatBonus(state,"climb")!==0 ? `<div class="formula-note">${state.climbSpeed + getFeatBonus(state,"climb")} ft ${lang==='en'?'w/ feat':'עם תכונה'}</div>` : ""}
       </div>
@@ -2341,7 +2418,7 @@ function render(){
     <div class="armor-row" style="margin-top:0;padding-top:0;border-top:none">
       <div class="grp">
         <span class="dim-label">${t.currency}</span>
-        ${["cp","sp","ep","gp","pp"].map(c=>`<span class="dim-label" style="text-transform:uppercase">${c}</span><input type="number" min="0" value="${state.inventory.currency[c]}" style="width:64px" onchange="set('inventory.currency.${c}', parseInt(this.value)||0)">`).join("")}
+        ${["cp","sp","ep","gp","pp"].map(c=>`<span class="dim-label" style="text-transform:uppercase">${c}</span><input type="number" min="0" value="${state.inventory.currency[c]}" style="width:64px;text-align:center" onchange="set('inventory.currency.${c}', parseInt(this.value)||0)">`).join("")}
       </div>
     </div>
     <div class="table-scroll"><table>
@@ -2354,7 +2431,7 @@ function render(){
   <div class="panel ${foldedPanels['attacks'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('attacks')">${t.attacks} ${foldIcon('attacks')}</h2>
     <div class="attack-list">${state.attacks.map(attackRow).join("")}</div>
-    <button class="btn no-print" style="margin-top:10px" onclick="addAttack()">${t.addRow}</button>
+    <button class="btn primary no-print" style="margin-top:10px" onclick="openAttackModal()">${t.addRow}</button>
   </div>
 
   <div class="panel ${foldedPanels['spells'] ? 'folded' : ''}">
@@ -2526,6 +2603,43 @@ function render(){
     </div>
   </div>` : ""}
 
+  ${attackModalOpen ? `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeAttackModal()">
+    <div class="modal-box">
+      <h3>${t.addAttackModalTitle}</h3>
+      <div class="modal-row" style="display:flex;gap:10px">
+        <div style="flex:1"><label>${t.atkName}</label><input type="text" id="modalAttackName" placeholder="Longsword"></div>
+        <div style="flex:0 0 110px">
+          <label>${t.atkType}</label>
+          <select id="modalAttackType" onchange="document.getElementById('modalAttackSpellAbilWrap').style.display=this.value==='spell'?'block':'none'">
+            <option value="melee">${t.melee}</option>
+            <option value="ranged">${t.ranged}</option>
+            <option value="finesse">${t.finesse}</option>
+            <option value="spell">${t.spell}</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-row" id="modalAttackSpellAbilWrap" style="display:none">
+        <label>${t.spCastAbil}</label>
+        <select id="modalAttackSpellAbil">
+          ${ABILS.filter(x=>["int","wis","cha"].includes(x)).map(x=>`<option value="${x}">${t[x]}</option>`).join("")}
+        </select>
+      </div>
+      <div class="modal-row" style="display:flex;gap:10px;align-items:end">
+        <div style="flex:1"><label>${t.atkDmg}</label><input type="text" id="modalAttackDmg" placeholder="1d8"></div>
+        <label class="atk-prof-chip" style="margin-bottom:9px"><input type="checkbox" id="modalAttackProf" checked>${t.atkProf}</label>
+      </div>
+      <div class="modal-row">
+        <label>${t.atkNotes}</label>
+        <textarea id="modalAttackNotes" rows="2"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeAttackModal()">${t.printCancel}</button>
+        <button class="btn primary" onclick="confirmAddAttack()">${t.doneBtn}</button>
+      </div>
+    </div>
+  </div>` : ""}
+
   ${newCharModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeNewCharModal()">
     <div class="modal-box">
@@ -2636,6 +2750,26 @@ function render(){
     </div>
   </div>` : ""}
 
+  ${exportModalOpen ? `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeExportModal()">
+    <div class="modal-box">
+      <h3>${t.exportModalTitle}</h3>
+      <div class="modal-row" style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn primary" onclick="exportAsFile()">⬇ ${t.exportAsFileBtn}</button>
+        <button class="btn" onclick="generateShareLink()">${t.exportAsLinkBtn}</button>
+      </div>
+      ${exportLinkValue ? `
+      <div class="modal-row">
+        <input type="text" id="shareLinkInput" readonly value="${esc2(exportLinkValue)}" onclick="this.select()" style="width:100%;box-sizing:border-box">
+        <div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${exportLinkCopied ? t.linkCopied : t.linkReadyHint}</div>
+        <button class="btn" style="margin-top:8px" onclick="copyShareLinkManually()">${t.copyLinkBtn}</button>
+      </div>` : ""}
+      <div class="modal-actions">
+        <button class="btn" onclick="closeExportModal()">${t.printCancel}</button>
+      </div>
+    </div>
+  </div>` : ""}
+
   ${printModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) cancelPrint()">
     <div class="modal-box">
@@ -2667,14 +2801,17 @@ function render(){
   document.getElementById("app").innerHTML = `<div style="padding:40px;text-align:center;color:#b8a97e">Loading…</div>`;
   try{
     await loadIndex();
-    if(charIndex.length===0){
-      const id = "c"+Date.now();
-      charIndex.push({id, name:"New Adventurer"});
-      await saveIndex();
-      state = defaultChar(id);
-      await storageSet("dnd-char:"+id, JSON.stringify(state));
-    } else {
-      await loadChar(charIndex[0].id);
+    const importedFromURL = await checkURLImport();
+    if(!importedFromURL){
+      if(charIndex.length===0){
+        const id = "c"+Date.now();
+        charIndex.push({id, name:"New Adventurer"});
+        await saveIndex();
+        state = defaultChar(id);
+        await storageSet("dnd-char:"+id, JSON.stringify(state));
+      } else {
+        await loadChar(charIndex[0].id);
+      }
     }
   }catch(e){
     // Absolute fallback: never leave the user stuck on "Loading…"
