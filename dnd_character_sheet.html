@@ -114,6 +114,7 @@ select{
 .id-fields .field.field-level{flex:0 0 auto;}
 .id-fields select{width:auto;min-width:70px;}
 .id-fields input[type=text]{width:auto;}
+.id-fields .feat-name-display{display:inline-block;padding:8px 0;border:1px solid transparent;box-sizing:border-box;}
 @media(max-width:700px){.id-fields{grid-template-columns:1fr 1fr;}}
 .field label{display:block;font-size:11px;letter-spacing:2px;color:var(--ink-faint);text-transform:uppercase;margin-bottom:4px;}
 input[type=text], input[type=number], textarea{
@@ -236,7 +237,7 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--gold);cursor:pointer;display:inline-block;transition:background .1s;}
 .dot.filled{background:var(--gold);box-shadow:0 0 4px rgba(201,162,39,0.55);}
 .dot:hover{border-color:var(--gold-bright);}
-.dim-label{font-size:10.5px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase;margin-right:4px;margin-bottom: 5px;}
+.dim-label{font-size:10.5px;color:var(--ink-faint);letter-spacing:1px;text-transform:uppercase;margin-right:4px;}
 
 /* ---------- turn / combat flow ---------- */
 .flow-list{list-style:none;counter-reset:flow;margin:0;padding:0;}
@@ -573,6 +574,10 @@ const T = {
     spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", addAttackModalTitle:"New Attack",
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
+    onboardTitle:"Welcome to Character Scroll", onboardBody:"A free, self-explaining D&D 5e character sheet. Everything you enter is saved automatically in this browser — nothing is uploaded anywhere. Pick a language to get started:",
+    onboardLangLabel:"Language", onboardOk:"OK",
+    onboardNewChar:"+ Create New Character", onboardDemoChar:"🎲 Load Demo Character",
+    noCharTitle:"No characters yet", noCharBody:"Create a blank character and build it up yourself, or load a pre-filled demo character to see how the sheet works.",
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
     feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
@@ -683,6 +688,10 @@ const T = {
     spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", addAttackModalTitle:"התקפה חדשה",
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
+    onboardTitle:"ברוכים הבאים למגילת הדמות", onboardBody:"גיליון דמות חופשי ל-D&D 5e שמסביר את עצמו. כל מה שתזין נשמר אוטומטית בדפדפן הזה — שום דבר לא מועלה לשום מקום. בחר שפה כדי להתחיל:",
+    onboardLangLabel:"שפה", onboardOk:"אישור",
+    onboardNewChar:"+ צור דמות חדשה", onboardDemoChar:"🎲 טען דמות הדגמה",
+    noCharTitle:"עדיין אין דמויות", noCharBody:"צור דמות ריקה ובנה אותה בעצמך, או טען דמות הדגמה מוכנה מראש כדי לראות איך הגיליון עובד.",
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
     feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
@@ -833,6 +842,52 @@ function hydrate(s){
   if(typeof s.subrace !== "string") s.subrace = "";
   if(typeof s.subraceCustom !== "boolean") s.subraceCustom = false;
   return s;
+}
+function demoChar(id){
+  const isHe = lang === 'he';
+  return {
+    id, name: isHe ? "אלריק חוד־הפלדה" : "Elric Steeledge",
+    cls:"Fighter", race:"Human", bg: isHe ? "חייל" : "Soldier",
+    clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
+    abilities:{str:16, dex:14, con:15, int:10, wis:12, cha:8},
+    level:3,
+    armor:{base:16, dexApplies:false, shieldEquipped:true, shieldBonus:2, shieldName: isHe ? "מגן" : "Shield"},
+    speed:30, climbSpeed:0, hpCur:28, hpMax:28, hitDice:"3d10", hpAutoCalc:true,
+    saveProf:{str:true,dex:false,con:true,int:false,wis:false,cha:false},
+    skillProf:{athletics:true, perception:true, intimidation:true},
+    proficiencies:{
+      armor: isHe ? "שריון קל, בינוני, כבד; מגנים" : "Light, Medium, Heavy armor; Shields",
+      weapons: isHe ? "נשקים פשוטים וצבאיים" : "Simple and Martial weapons",
+      tools:"",
+      languages: isHe ? "משותפת, אורקית" : "Common, Orc"
+    },
+    inventory:{
+      currency:{cp:0,sp:0,ep:0,gp:15,pp:0},
+      items:[
+        {name: isHe ? "שריון שרשראות" : "Chain Mail", qty:1, notes:""},
+        {name: isHe ? "מגן" : "Shield", qty:1, notes:""},
+        {name: isHe ? "חרב ארוכה" : "Longsword", qty:1, notes:""},
+        {name: isHe ? "קשת קצרה + 20 חצים" : "Shortbow + 20 arrows", qty:1, notes:""},
+        {name: isHe ? "ערכת נוסע" : "Explorer's Pack", qty:1, notes:""}
+      ]
+    },
+    attacks:[
+      {name: isHe ? "חרב ארוכה" : "Longsword", type:"melee", dmg:"1d8+3", spellAbil:"cha", prof:true, notes: isHe ? "רב-תכליתי (1ד10 בשתי ידיים)" : "Versatile (1d10 two-handed)"},
+      {name: isHe ? "קשת קצרה" : "Shortbow", type:"ranged", dmg:"1d6+2", spellAbil:"cha", prof:true, notes: isHe ? "טווח 80/320" : "Range 80/320"}
+    ],
+    spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
+    spells:[],
+    feats:[
+      {name: isHe ? "תושייה" : "Resourceful", notes: isHe ? "מקבל השראה הרואית בכל סיום מנוחה ארוכה." : "You gain Heroic Inspiration whenever you finish a Long Rest.", mod:{stat:"", amount:0, perLevel:false}},
+      {name: isHe ? "מיומן" : "Skillful", notes: isHe ? "מיומנות בכישור אחד לבחירה." : "Proficiency in one skill of your choice.", mod:{stat:"", amount:0, perLevel:false}}
+    ],
+    resources:[
+      {name: isHe ? "רוח שנייה" : "Second Wind", total:1, used:0, recharge:"short"},
+      {name: isHe ? "זינוק פעולה" : "Action Surge", total:1, used:0, recharge:"short"}
+    ],
+    concentration:{active:false, spell:"", dmg:0},
+    notes: isHe ? "חייל לשעבר שעזב את הצבא כדי לחפש הרפתקאות. ישר, נאמן לחבריו, ולא בורח מקרב." : "A former soldier who left the army seeking adventure. Straightforward, loyal to allies, and never backs down from a fight."
+  };
 }
 
 let state = null;
@@ -1174,11 +1229,18 @@ async function loadIndex(){
 async function saveIndex(){
   try{ await storageSet("dnd-char-index", JSON.stringify(charIndex)); }catch(e){}
 }
+async function getLastUsedId(){
+  try{ const r = await storageGet("dnd-last-char"); return r ? r.value : null; }catch(e){ return null; }
+}
+async function setLastUsedId(id){
+  try{ await storageSet("dnd-last-char", id); }catch(e){}
+}
 async function loadChar(id){
   try{
     const r = await storageGet("dnd-char:"+id);
     state = r ? hydrate(JSON.parse(r.value)) : defaultChar(id);
   }catch(e){ state = defaultChar(id); }
+  await setLastUsedId(id);
 }
 function queueSave(){
   const statusEl = document.getElementById("saveStatus");
@@ -1221,6 +1283,53 @@ function selectRace(value){
 let newCharModalOpen = false;
 function openNewCharModal(){ newCharModalOpen = true; render(); }
 function closeNewCharModal(){ newCharModalOpen = false; render(); }
+function newCharModalHTML(t){
+  return `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeNewCharModal()">
+    <div class="modal-box">
+      <h3>${t.newCharModalTitle}</h3>
+      <div class="modal-row">
+        <label>${t.name}</label>
+        <input type="text" id="modalNewName" placeholder="New Adventurer">
+      </div>
+      <div class="modal-row">
+        <label>${t.cls}</label>
+        <select id="modalNewClass" onchange="modalClassChanged()">
+          <option value="">${t.selectPlaceholder}</option>
+          ${CLASS_LIST.map(c=>`<option value="${c}">${c}</option>`).join("")}
+          <option value="__custom__">${t.customOption}</option>
+        </select>
+        <input type="text" id="modalNewClassCustom" placeholder="${t.cls}" style="display:none;margin-top:6px">
+      </div>
+      <div class="modal-row">
+        <label>${t.race}</label>
+        <select id="modalNewRace" onchange="modalRaceChanged()">
+          <option value="">${t.selectPlaceholder}</option>
+          ${RACE_LIST.map(r=>`<option value="${r}">${r}</option>`).join("")}
+          <option value="__custom__">${t.customOption}</option>
+        </select>
+        <input type="text" id="modalNewRaceCustom" placeholder="${t.race}" style="display:none;margin-top:6px">
+      </div>
+      <div class="modal-row">
+        <label>${t.subrace}</label>
+        <select id="modalNewSubrace" onchange="modalSubraceChanged()">
+          <option value="">${t.selectPlaceholder}</option>
+          <option value="__custom__">${t.customOption}</option>
+        </select>
+        <input type="text" id="modalNewSubraceCustom" placeholder="${t.subrace}" style="display:none;margin-top:6px">
+      </div>
+      <div class="modal-row">
+        <label>${t.level}</label>
+        <input type="number" id="modalNewLevel" min="1" max="20" value="1" style="width:60px">
+      </div>
+      <div class="formula-note">${t.newCharHint}</div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeNewCharModal()">${t.printCancel}</button>
+        <button class="btn primary" onclick="confirmNewChar()">${t.doneBtn}</button>
+      </div>
+    </div>
+  </div>`;
+}
 function modalRaceChanged(){
   const t = T[lang];
   const race = document.getElementById("modalNewRace").value;
@@ -1259,6 +1368,7 @@ async function confirmNewChar(){
   if(subrace){ state.subrace = subrace; state.subraceCustom = !(SUBRACE_MAP[race]||[]).includes(subrace); }
   newCharModalOpen = false;
   try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+  await setLastUsedId(id);
   if(cls && CLASS_LIST.includes(cls)){ applyTemplate(cls); } else { render(); queueSave(); }
 }
 async function newCharacter(){
@@ -1267,6 +1377,7 @@ async function newCharacter(){
   await saveIndex();
   state = defaultChar(id);
   try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+  await setLastUsedId(id);
   render();
 }
 async function switchCharacter(id){
@@ -1274,11 +1385,14 @@ async function switchCharacter(id){
   render();
 }
 async function deleteCharacter(){
-  if(charIndex.length<=1) return;
   try{ await storageDelete("dnd-char:"+state.id); }catch(e){}
   charIndex = charIndex.filter(c=>c.id!==state.id);
   await saveIndex();
-  await loadChar(charIndex[0].id);
+  if(charIndex.length===0){
+    state = null;
+  } else {
+    await loadChar(charIndex[0].id);
+  }
   render();
 }
 
@@ -1365,7 +1479,56 @@ function confirmAddAttack(){
   queueSave();
 }
 function toggleRef(){ refOpen = !refOpen; render(); }
-function switchLang(l){ lang = l; render(); }
+async function switchLang(l){
+  lang = l;
+  render();
+  try{ await storageSet("dnd-lang", l); }catch(e){}
+}
+let onboardingModalOpen = false;
+async function closeOnboardingWelcome(){
+  onboardingModalOpen = false;
+  try{ await storageSet("dnd-onboarded", "1"); }catch(e){}
+  render();
+}
+async function loadDemoCharacter(){
+  const id = "c"+Date.now();
+  state = demoChar(id);
+  charIndex.push({id, name: state.name});
+  await saveIndex();
+  try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+  await setLastUsedId(id);
+  render();
+}
+function onboardingModalHTML(t){
+  return `
+  <div class="modal-backdrop no-print">
+    <div class="modal-box">
+      <h3>${t.onboardTitle}</h3>
+      <p>${t.onboardBody}</p>
+      <div class="modal-row">
+        <label>${t.onboardLangLabel}</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn ${lang==='en'?'primary':''}" onclick="switchLang('en')">EN</button>
+          <button class="btn ${lang==='he'?'primary':''}" onclick="switchLang('he')">עב</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary" onclick="closeOnboardingWelcome()">${t.onboardOk}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function noCharactersHTML(t){
+  return `
+  <div class="panel" style="text-align:center;padding:48px 24px">
+    <h2 style="margin-top:0">${t.noCharTitle}</h2>
+    <p class="formula-note" style="font-size:14px;margin:0 auto 22px;max-width:420px">${t.noCharBody}</p>
+    <div style="display:flex;flex-direction:column;gap:10px;max-width:280px;margin:0 auto">
+      <button class="btn primary" onclick="openNewCharModal()">${t.onboardNewChar}</button>
+      <button class="btn" onclick="loadDemoCharacter()">${t.onboardDemoChar}</button>
+    </div>
+  </div>`;
+}
 
 function doPrint(){ printModalOpen = true; render(); }
 function cancelPrint(){ printModalOpen = false; render(); }
@@ -1465,7 +1628,7 @@ function setDiceModifier(v){
   if(diceState.lastRoll !== null) diceState.lastTotal = diceState.lastRoll + diceState.modifier;
   render();
 }
-function clearDiceHistory(){ diceState.history = []; diceState.lastRoll = null; diceState.lastTotal = null; diceState.cubeRot = null; diceState.cubeFaces = null; render(); }
+function clearDiceHistory(){ diceState.history = []; diceState.lastRoll = null; diceState.lastTotal = null; diceState.modifier = 0; diceState.cubeRot = null; diceState.cubeFaces = null; render(); }
 
 function exportCharacter(){
   const dataStr = JSON.stringify(state, null, 2);
@@ -1489,6 +1652,7 @@ async function importParsedCharacter(parsed){
   charIndex.push({id, name: state.name || "Imported"});
   await saveIndex();
   await storageSet("dnd-char:"+id, JSON.stringify(state));
+  await setLastUsedId(id);
 }
 function handleImportFile(input){
   const file = input.files && input.files[0];
@@ -2142,6 +2306,27 @@ function slotDotsInteractive(i){
 function render(){
   const t = T[lang];
   const app = document.getElementById("app");
+
+  if(!state){
+    app.innerHTML = `
+    <div class="topbar">
+      <div class="title-block">
+        <h1 class="deco">${t.title}</h1>
+        <div class="sub">${t.sub}</div>
+      </div>
+      <div class="lang-corner no-print">
+        <button class="btn ${lang==='en'?'primary':''}" onclick="switchLang('en')">EN</button>
+        <button class="btn ${lang==='he'?'primary':''}" onclick="switchLang('he')">עב</button>
+      </div>
+    </div>
+    ${noCharactersHTML(t)}
+    ${onboardingModalOpen ? onboardingModalHTML(t) : ""}
+    ${newCharModalOpen ? newCharModalHTML(t) : ""}
+    `;
+    document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
+    return;
+  }
+
   const prof = profByLevel(state.level);
   const effAbil = getEffectiveAbilities(state);
   const effSpeed = getEffectiveSpeed(state);
@@ -2171,7 +2356,7 @@ function render(){
           ${charIndex.map(c=>`<option value="${c.id}" ${c.id===state.id?"selected":""}>${c.name||"—"}</option>`).join("")}
           <option value="__new__">➕ ${t.newChar}</option>
         </select>
-        <button class="btn danger icon-btn" onclick="deleteCharacter()" title="${t.del}" ${charIndex.length<=1?"disabled":""}>🗑️</button>
+        <button class="btn danger icon-btn" onclick="confirmRemove(deleteCharacter)" title="${t.del}">🗑️</button>
       </div>
       <button class="btn" onclick="setAllFolded(true)">${t.hideAll}</button>
       <button class="btn" onclick="setAllFolded(false)">${t.showAll}</button>
@@ -2258,7 +2443,7 @@ function render(){
     <div class="dice-result">
       <div>
         <div class="roll-big ${mainDiceJustRolled?'rolling':''}">${diceState.lastRoll===null ? "—" : diceState.lastRoll}</div>
-        <div class="roll-label">d${diceState.sides}</div>
+        <div class="roll-label">${diceState.lastRoll===null ? "" : "d"+diceState.sides}</div>
       </div>
       <div class="dice-mod">
         <span class="dim-label">${t.diceModifier}</span>
@@ -2509,7 +2694,6 @@ function render(){
         <span>${t.turnFlowTitle}</span>
         <span class="view-toggle-group no-print" onclick="event.stopPropagation()">
           <button class="btn ${turnViewMode==='list'?'primary':''}" onclick="setTurnView('list')">${t.viewList}</button>
-          <button class="btn ${turnViewMode==='diagram'?'primary':''}" onclick="setTurnView('diagram')">${t.viewDiagram}</button>
         </span>
         ${foldIcon('turnFlow')}
       </h2>
@@ -2564,7 +2748,7 @@ function render(){
       : (lang==='en' ? "⚠ This browser is blocking storage right now (e.g. private/incognito mode), so changes only last for this session. Use Print or Export to keep a copy." : "⚠ הדפדפן הזה חוסם אחסון כרגע (למשל מצב פרטי), אז שינויים נשמרים רק להפעלה הנוכחית. השתמש בהדפסה או ייצוא כדי לשמור עותק.")
   }</div>
 
-  <div class="credit-footer">Crafted for Yoni · v1.0</div>
+  <div class="credit-footer">Yoni Elentok · __DEPLOY_TIME__</div>
 
   ${spellModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeSpellModal()">
@@ -2640,51 +2824,7 @@ function render(){
     </div>
   </div>` : ""}
 
-  ${newCharModalOpen ? `
-  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeNewCharModal()">
-    <div class="modal-box">
-      <h3>${t.newCharModalTitle}</h3>
-      <div class="modal-row">
-        <label>${t.name}</label>
-        <input type="text" id="modalNewName" placeholder="New Adventurer">
-      </div>
-      <div class="modal-row">
-        <label>${t.cls}</label>
-        <select id="modalNewClass" onchange="modalClassChanged()">
-          <option value="">${t.selectPlaceholder}</option>
-          ${CLASS_LIST.map(c=>`<option value="${c}">${c}</option>`).join("")}
-          <option value="__custom__">${t.customOption}</option>
-        </select>
-        <input type="text" id="modalNewClassCustom" placeholder="${t.cls}" style="display:none;margin-top:6px">
-      </div>
-      <div class="modal-row">
-        <label>${t.race}</label>
-        <select id="modalNewRace" onchange="modalRaceChanged()">
-          <option value="">${t.selectPlaceholder}</option>
-          ${RACE_LIST.map(r=>`<option value="${r}">${r}</option>`).join("")}
-          <option value="__custom__">${t.customOption}</option>
-        </select>
-        <input type="text" id="modalNewRaceCustom" placeholder="${t.race}" style="display:none;margin-top:6px">
-      </div>
-      <div class="modal-row">
-        <label>${t.subrace}</label>
-        <select id="modalNewSubrace" onchange="modalSubraceChanged()">
-          <option value="">${t.selectPlaceholder}</option>
-          <option value="__custom__">${t.customOption}</option>
-        </select>
-        <input type="text" id="modalNewSubraceCustom" placeholder="${t.subrace}" style="display:none;margin-top:6px">
-      </div>
-      <div class="modal-row">
-        <label>${t.level}</label>
-        <input type="number" id="modalNewLevel" min="1" max="20" value="1" style="width:60px">
-      </div>
-      <div class="formula-note">${t.newCharHint}</div>
-      <div class="modal-actions">
-        <button class="btn" onclick="closeNewCharModal()">${t.printCancel}</button>
-        <button class="btn primary" onclick="confirmNewChar()">${t.doneBtn}</button>
-      </div>
-    </div>
-  </div>` : ""}
+  ${newCharModalOpen ? newCharModalHTML(t) : ""}
 
   ${featModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeFeatModal()">
@@ -2800,17 +2940,29 @@ function render(){
 (async function init(){
   document.getElementById("app").innerHTML = `<div style="padding:40px;text-align:center;color:#b8a97e">Loading…</div>`;
   try{
+    try{
+      const langRes = await storageGet("dnd-lang");
+      if(langRes && (langRes.value==='en' || langRes.value==='he')) lang = langRes.value;
+    }catch(e){}
     await loadIndex();
     const importedFromURL = await checkURLImport();
-    if(!importedFromURL){
+    if(importedFromURL){
+      try{ await storageSet("dnd-onboarded", "1"); }catch(e){}
+    } else {
+      const onboardedRes = await storageGet("dnd-onboarded");
+      const alreadyOnboarded = !!onboardedRes;
       if(charIndex.length===0){
-        const id = "c"+Date.now();
-        charIndex.push({id, name:"New Adventurer"});
-        await saveIndex();
-        state = defaultChar(id);
-        await storageSet("dnd-char:"+id, JSON.stringify(state));
+        // No character to load — the "no characters" screen lets them create one
+        // (blank or demo) themselves; nothing is created on their behalf.
+        state = null;
+        if(!alreadyOnboarded){
+          onboardingModalOpen = true;
+        }
       } else {
-        await loadChar(charIndex[0].id);
+        if(!alreadyOnboarded){ try{ await storageSet("dnd-onboarded", "1"); }catch(e){} }
+        const lastId = await getLastUsedId();
+        const targetId = (lastId && charIndex.some(c=>c.id===lastId)) ? lastId : charIndex[0].id;
+        await loadChar(targetId);
       }
     }
   }catch(e){
