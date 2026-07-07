@@ -573,6 +573,10 @@ const T = {
     spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", addAttackModalTitle:"New Attack",
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
+    onboardTitle:"Welcome to Character Scroll", onboardBody:"A free, self-explaining D&D 5e character sheet. Everything you enter is saved automatically in this browser — nothing is uploaded anywhere. Pick a language to get started:",
+    onboardLangLabel:"Language", onboardOk:"OK",
+    onboardStep2Title:"Let's get started", onboardStep2Body:"Create a blank character and build it up yourself, or load a pre-filled demo character to see how the sheet works.",
+    onboardNewChar:"+ Create New Character", onboardDemoChar:"🎲 Load Demo Character",
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
     feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
@@ -683,6 +687,10 @@ const T = {
     spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", addAttackModalTitle:"התקפה חדשה",
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
+    onboardTitle:"ברוכים הבאים למגילת הדמות", onboardBody:"גיליון דמות חופשי ל-D&D 5e שמסביר את עצמו. כל מה שתזין נשמר אוטומטית בדפדפן הזה — שום דבר לא מועלה לשום מקום. בחר שפה כדי להתחיל:",
+    onboardLangLabel:"שפה", onboardOk:"אישור",
+    onboardStep2Title:"בואו נתחיל", onboardStep2Body:"צור דמות ריקה ובנה אותה בעצמך, או טען דמות הדגמה מוכנה מראש כדי לראות איך הגיליון עובד.",
+    onboardNewChar:"+ צור דמות חדשה", onboardDemoChar:"🎲 טען דמות הדגמה",
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
     feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
@@ -833,6 +841,52 @@ function hydrate(s){
   if(typeof s.subrace !== "string") s.subrace = "";
   if(typeof s.subraceCustom !== "boolean") s.subraceCustom = false;
   return s;
+}
+function demoChar(id){
+  const isHe = lang === 'he';
+  return {
+    id, name: isHe ? "אלריק חוד־הפלדה" : "Elric Steeledge",
+    cls:"Fighter", race:"Human", bg: isHe ? "חייל" : "Soldier",
+    clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
+    abilities:{str:16, dex:14, con:15, int:10, wis:12, cha:8},
+    level:3,
+    armor:{base:16, dexApplies:false, shieldEquipped:true, shieldBonus:2, shieldName: isHe ? "מגן" : "Shield"},
+    speed:30, climbSpeed:0, hpCur:28, hpMax:28, hitDice:"3d10", hpAutoCalc:true,
+    saveProf:{str:true,dex:false,con:true,int:false,wis:false,cha:false},
+    skillProf:{athletics:true, perception:true, intimidation:true},
+    proficiencies:{
+      armor: isHe ? "שריון קל, בינוני, כבד; מגנים" : "Light, Medium, Heavy armor; Shields",
+      weapons: isHe ? "נשקים פשוטים וצבאיים" : "Simple and Martial weapons",
+      tools:"",
+      languages: isHe ? "משותפת, אורקית" : "Common, Orc"
+    },
+    inventory:{
+      currency:{cp:0,sp:0,ep:0,gp:15,pp:0},
+      items:[
+        {name: isHe ? "שריון שרשראות" : "Chain Mail", qty:1, notes:""},
+        {name: isHe ? "מגן" : "Shield", qty:1, notes:""},
+        {name: isHe ? "חרב ארוכה" : "Longsword", qty:1, notes:""},
+        {name: isHe ? "קשת קצרה + 20 חצים" : "Shortbow + 20 arrows", qty:1, notes:""},
+        {name: isHe ? "ערכת נוסע" : "Explorer's Pack", qty:1, notes:""}
+      ]
+    },
+    attacks:[
+      {name: isHe ? "חרב ארוכה" : "Longsword", type:"melee", dmg:"1d8+3", spellAbil:"cha", prof:true, notes: isHe ? "רב-תכליתי (1ד10 בשתי ידיים)" : "Versatile (1d10 two-handed)"},
+      {name: isHe ? "קשת קצרה" : "Shortbow", type:"ranged", dmg:"1d6+2", spellAbil:"cha", prof:true, notes: isHe ? "טווח 80/320" : "Range 80/320"}
+    ],
+    spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
+    spells:[],
+    feats:[
+      {name: isHe ? "תושייה" : "Resourceful", notes: isHe ? "מקבל השראה הרואית בכל סיום מנוחה ארוכה." : "You gain Heroic Inspiration whenever you finish a Long Rest.", mod:{stat:"", amount:0, perLevel:false}},
+      {name: isHe ? "מיומן" : "Skillful", notes: isHe ? "מיומנות בכישור אחד לבחירה." : "Proficiency in one skill of your choice.", mod:{stat:"", amount:0, perLevel:false}}
+    ],
+    resources:[
+      {name: isHe ? "רוח שנייה" : "Second Wind", total:1, used:0, recharge:"short"},
+      {name: isHe ? "זינוק פעולה" : "Action Surge", total:1, used:0, recharge:"short"}
+    ],
+    concentration:{active:false, spell:"", dmg:0},
+    notes: isHe ? "חייל לשעבר שעזב את הצבא כדי לחפש הרפתקאות. ישר, נאמן לחבריו, ולא בורח מקרב." : "A former soldier who left the army seeking adventure. Straightforward, loyal to allies, and never backs down from a fight."
+  };
 }
 
 let state = null;
@@ -1174,11 +1228,18 @@ async function loadIndex(){
 async function saveIndex(){
   try{ await storageSet("dnd-char-index", JSON.stringify(charIndex)); }catch(e){}
 }
+async function getLastUsedId(){
+  try{ const r = await storageGet("dnd-last-char"); return r ? r.value : null; }catch(e){ return null; }
+}
+async function setLastUsedId(id){
+  try{ await storageSet("dnd-last-char", id); }catch(e){}
+}
 async function loadChar(id){
   try{
     const r = await storageGet("dnd-char:"+id);
     state = r ? hydrate(JSON.parse(r.value)) : defaultChar(id);
   }catch(e){ state = defaultChar(id); }
+  await setLastUsedId(id);
 }
 function queueSave(){
   const statusEl = document.getElementById("saveStatus");
@@ -1259,6 +1320,7 @@ async function confirmNewChar(){
   if(subrace){ state.subrace = subrace; state.subraceCustom = !(SUBRACE_MAP[race]||[]).includes(subrace); }
   newCharModalOpen = false;
   try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+  await setLastUsedId(id);
   if(cls && CLASS_LIST.includes(cls)){ applyTemplate(cls); } else { render(); queueSave(); }
 }
 async function newCharacter(){
@@ -1267,6 +1329,7 @@ async function newCharacter(){
   await saveIndex();
   state = defaultChar(id);
   try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+  await setLastUsedId(id);
   render();
 }
 async function switchCharacter(id){
@@ -1365,7 +1428,26 @@ function confirmAddAttack(){
   queueSave();
 }
 function toggleRef(){ refOpen = !refOpen; render(); }
-function switchLang(l){ lang = l; render(); }
+async function switchLang(l){
+  lang = l;
+  render();
+  try{ await storageSet("dnd-lang", l); }catch(e){}
+}
+let onboardingModalOpen = false;
+let onboardingStep = 1;
+async function finishOnboarding(useDemo){
+  if(useDemo){
+    state = demoChar(state.id);
+    const idxEntry = charIndex.find(c=>c.id===state.id);
+    if(idxEntry) idxEntry.name = state.name;
+    await saveIndex();
+  }
+  onboardingModalOpen = false;
+  try{ await storageSet("dnd-char:"+state.id, JSON.stringify(state)); }catch(e){}
+  try{ await storageSet("dnd-onboarded", "1"); }catch(e){}
+  await setLastUsedId(state.id);
+  render();
+}
 
 function doPrint(){ printModalOpen = true; render(); }
 function cancelPrint(){ printModalOpen = false; render(); }
@@ -1489,6 +1571,7 @@ async function importParsedCharacter(parsed){
   charIndex.push({id, name: state.name || "Imported"});
   await saveIndex();
   await storageSet("dnd-char:"+id, JSON.stringify(state));
+  await setLastUsedId(id);
 }
 function handleImportFile(input){
   const file = input.files && input.files[0];
@@ -2640,6 +2723,33 @@ function render(){
     </div>
   </div>` : ""}
 
+  ${onboardingModalOpen ? `
+  <div class="modal-backdrop no-print">
+    <div class="modal-box">
+      ${onboardingStep===1 ? `
+        <h3>${t.onboardTitle}</h3>
+        <p>${t.onboardBody}</p>
+        <div class="modal-row">
+          <label>${t.onboardLangLabel}</label>
+          <div style="display:flex;gap:8px">
+            <button class="btn ${lang==='en'?'primary':''}" onclick="switchLang('en')">EN</button>
+            <button class="btn ${lang==='he'?'primary':''}" onclick="switchLang('he')">עב</button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn primary" onclick="onboardingStep=2; render();">${t.onboardOk}</button>
+        </div>
+      ` : `
+        <h3>${t.onboardStep2Title}</h3>
+        <p>${t.onboardStep2Body}</p>
+        <div class="modal-actions" style="flex-direction:column;align-items:stretch;gap:8px">
+          <button class="btn primary" onclick="finishOnboarding(false)">${t.onboardNewChar}</button>
+          <button class="btn" onclick="finishOnboarding(true)">${t.onboardDemoChar}</button>
+        </div>
+      `}
+    </div>
+  </div>` : ""}
+
   ${newCharModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeNewCharModal()">
     <div class="modal-box">
@@ -2800,17 +2910,33 @@ function render(){
 (async function init(){
   document.getElementById("app").innerHTML = `<div style="padding:40px;text-align:center;color:#b8a97e">Loading…</div>`;
   try{
+    try{
+      const langRes = await storageGet("dnd-lang");
+      if(langRes && (langRes.value==='en' || langRes.value==='he')) lang = langRes.value;
+    }catch(e){}
     await loadIndex();
     const importedFromURL = await checkURLImport();
-    if(!importedFromURL){
+    if(importedFromURL){
+      try{ await storageSet("dnd-onboarded", "1"); }catch(e){}
+    } else {
+      const onboardedRes = await storageGet("dnd-onboarded");
+      const alreadyOnboarded = !!onboardedRes;
       if(charIndex.length===0){
         const id = "c"+Date.now();
         charIndex.push({id, name:"New Adventurer"});
         await saveIndex();
         state = defaultChar(id);
         await storageSet("dnd-char:"+id, JSON.stringify(state));
+        await setLastUsedId(id);
+        if(!alreadyOnboarded){
+          onboardingModalOpen = true;
+          onboardingStep = 1;
+        }
       } else {
-        await loadChar(charIndex[0].id);
+        if(!alreadyOnboarded){ try{ await storageSet("dnd-onboarded", "1"); }catch(e){} }
+        const lastId = await getLastUsedId();
+        const targetId = (lastId && charIndex.some(c=>c.id===lastId)) ? lastId : charIndex[0].id;
+        await loadChar(targetId);
       }
     }
   }catch(e){
