@@ -7,14 +7,23 @@ test.describe('first-time onboarding', () => {
     await expect(page.locator('.modal-box h3')).toHaveText('Welcome to Character Scroll');
   });
 
+  test('dismissing the welcome modal leaves a "no characters yet" screen, not an auto-created character', async ({ page }) => {
+    await page.goto('/dnd_character_sheet.html');
+    await page.locator('.modal-backdrop button:has-text("OK")').click();
+    await expect(page.locator('.modal-backdrop')).toHaveCount(0);
+    await expect(page.locator('h2:has-text("No characters yet")')).toBeVisible();
+    expect(await page.evaluate(() => charIndex.length)).toBe(0);
+    expect(await page.evaluate(() => state)).toBeNull();
+  });
+
   test('switching language flips layout to RTL and persists across reload', async ({ page }) => {
     await page.goto('/dnd_character_sheet.html');
     await page.locator('.modal-backdrop button:has-text("עב")').click();
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
 
     await page.locator('.modal-backdrop button:has-text("אישור")').click();
-    await page.locator('.modal-backdrop button:has-text("טען דמות הדגמה")').click();
     await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+    await page.locator('button:has-text("טען דמות הדגמה")').click();
 
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
@@ -24,30 +33,31 @@ test.describe('first-time onboarding', () => {
   test('"Create New Character" opens the new-character creation form', async ({ page }) => {
     await page.goto('/dnd_character_sheet.html');
     await page.locator('.modal-backdrop button:has-text("OK")').click();
-    await page.locator('.modal-backdrop button:has-text("Create New Character")').click();
+    await page.locator('button:has-text("Create New Character")').click();
     await expect(page.locator('.modal-box h3')).toHaveText('New Character');
   });
 
-  test('completing the new-character form dismisses onboarding with the entered details', async ({ page }) => {
+  test('completing the new-character form creates exactly one character with the entered details', async ({ page }) => {
     await page.goto('/dnd_character_sheet.html');
     await page.locator('.modal-backdrop button:has-text("OK")').click();
-    await page.locator('.modal-backdrop button:has-text("Create New Character")').click();
+    await page.locator('button:has-text("Create New Character")').click();
     await page.fill('#modalNewName', 'Borin Stonefist');
     await page.locator('.modal-backdrop button:has-text("Done")').click();
     await expect(page.locator('.modal-backdrop')).toHaveCount(0);
     const name = await page.evaluate(() => state.name);
     expect(name).toBe('Borin Stonefist');
+    expect(await page.evaluate(() => charIndex.length)).toBe(1);
   });
 
-  test('cancelling the new-character form still leaves a usable blank character', async ({ page }) => {
+  test('cancelling the new-character form creates nothing and returns to the "no characters" screen', async ({ page }) => {
     await page.goto('/dnd_character_sheet.html');
     await page.locator('.modal-backdrop button:has-text("OK")').click();
-    await page.locator('.modal-backdrop button:has-text("Create New Character")').click();
+    await page.locator('button:has-text("Create New Character")').click();
     await page.locator('.modal-backdrop button:has-text("Cancel")').click();
     await expect(page.locator('.modal-backdrop')).toHaveCount(0);
-    const name = await page.evaluate(() => state.name);
-    expect(name).toBe('New Adventurer');
-    expect(await page.evaluate(() => charIndex.length)).toBe(1);
+    await expect(page.locator('h2:has-text("No characters yet")')).toBeVisible();
+    expect(await page.evaluate(() => charIndex.length)).toBe(0);
+    expect(await page.evaluate(() => state)).toBeNull();
   });
 
   test('"Load Demo Character" fills in the pre-made sample character', async ({ page }) => {

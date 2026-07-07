@@ -5,17 +5,27 @@
 
 async function dismissOnboarding(page, { demo = false } = {}) {
   await page.goto('/dnd_character_sheet.html');
+  // Dismissing the welcome modal leaves you on a plain "no characters yet" screen
+  // (not another modal) with "Create New Character" / "Load Demo Character" buttons.
   await page.locator('.modal-backdrop button:has-text("OK")').click();
+  await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
   if (demo) {
-    await page.locator('.modal-backdrop button:has-text("Load Demo Character")').click();
-    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+    await page.locator('button:has-text("Load Demo Character")').click();
   } else {
     // "Create New Character" opens the New Character creation form; accept the
     // defaults (blank name -> "New Adventurer") to get back to a plain sheet.
-    await page.locator('.modal-backdrop button:has-text("Create New Character")').click();
+    await page.locator('button:has-text("Create New Character")').click();
     await page.locator('.modal-backdrop button:has-text("Done")').click();
     await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
   }
 }
 
-module.exports = { dismissOnboarding };
+// Clicks the trash-bin icon in the character selector, then confirms in the
+// "Remove this?" popup that guards it (same pattern as attacks/spells/feats/etc).
+async function deleteActiveCharacter(page) {
+  await page.click('.char-select-group button[title="Delete"]');
+  await page.locator('.modal-box h3:has-text("Remove this?")').waitFor({ state: 'visible' });
+  await page.locator('.modal-backdrop button:has-text("Delete")').click();
+}
+
+module.exports = { dismissOnboarding, deleteActiveCharacter };

@@ -575,8 +575,8 @@ const T = {
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
     onboardTitle:"Welcome to Character Scroll", onboardBody:"A free, self-explaining D&D 5e character sheet. Everything you enter is saved automatically in this browser — nothing is uploaded anywhere. Pick a language to get started:",
     onboardLangLabel:"Language", onboardOk:"OK",
-    onboardStep2Title:"Let's get started", onboardStep2Body:"Create a blank character and build it up yourself, or load a pre-filled demo character to see how the sheet works.",
     onboardNewChar:"+ Create New Character", onboardDemoChar:"🎲 Load Demo Character",
+    noCharTitle:"No characters yet", noCharBody:"Create a blank character and build it up yourself, or load a pre-filled demo character to see how the sheet works.",
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
     feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
@@ -689,8 +689,8 @@ const T = {
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
     onboardTitle:"ברוכים הבאים למגילת הדמות", onboardBody:"גיליון דמות חופשי ל-D&D 5e שמסביר את עצמו. כל מה שתזין נשמר אוטומטית בדפדפן הזה — שום דבר לא מועלה לשום מקום. בחר שפה כדי להתחיל:",
     onboardLangLabel:"שפה", onboardOk:"אישור",
-    onboardStep2Title:"בואו נתחיל", onboardStep2Body:"צור דמות ריקה ובנה אותה בעצמך, או טען דמות הדגמה מוכנה מראש כדי לראות איך הגיליון עובד.",
     onboardNewChar:"+ צור דמות חדשה", onboardDemoChar:"🎲 טען דמות הדגמה",
+    noCharTitle:"עדיין אין דמויות", noCharBody:"צור דמות ריקה ובנה אותה בעצמך, או טען דמות הדגמה מוכנה מראש כדי לראות איך הגיליון עובד.",
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
     feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
@@ -1281,19 +1281,53 @@ function selectRace(value){
 
 let newCharModalOpen = false;
 function openNewCharModal(){ newCharModalOpen = true; render(); }
-async function closeNewCharModal(){
-  newCharModalOpen = false;
-  if(charIndex.length===0){
-    // Backed out with no character left (e.g. cancelled onboarding, or just deleted the last
-    // one) — fall back to a blank one so the app always has something to show.
-    const id = "c"+Date.now();
-    charIndex.push({id, name:"New Adventurer"});
-    await saveIndex();
-    state = defaultChar(id);
-    try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
-    await setLastUsedId(id);
-  }
-  render();
+function closeNewCharModal(){ newCharModalOpen = false; render(); }
+function newCharModalHTML(t){
+  return `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeNewCharModal()">
+    <div class="modal-box">
+      <h3>${t.newCharModalTitle}</h3>
+      <div class="modal-row">
+        <label>${t.name}</label>
+        <input type="text" id="modalNewName" placeholder="New Adventurer">
+      </div>
+      <div class="modal-row">
+        <label>${t.cls}</label>
+        <select id="modalNewClass" onchange="modalClassChanged()">
+          <option value="">${t.selectPlaceholder}</option>
+          ${CLASS_LIST.map(c=>`<option value="${c}">${c}</option>`).join("")}
+          <option value="__custom__">${t.customOption}</option>
+        </select>
+        <input type="text" id="modalNewClassCustom" placeholder="${t.cls}" style="display:none;margin-top:6px">
+      </div>
+      <div class="modal-row">
+        <label>${t.race}</label>
+        <select id="modalNewRace" onchange="modalRaceChanged()">
+          <option value="">${t.selectPlaceholder}</option>
+          ${RACE_LIST.map(r=>`<option value="${r}">${r}</option>`).join("")}
+          <option value="__custom__">${t.customOption}</option>
+        </select>
+        <input type="text" id="modalNewRaceCustom" placeholder="${t.race}" style="display:none;margin-top:6px">
+      </div>
+      <div class="modal-row">
+        <label>${t.subrace}</label>
+        <select id="modalNewSubrace" onchange="modalSubraceChanged()">
+          <option value="">${t.selectPlaceholder}</option>
+          <option value="__custom__">${t.customOption}</option>
+        </select>
+        <input type="text" id="modalNewSubraceCustom" placeholder="${t.subrace}" style="display:none;margin-top:6px">
+      </div>
+      <div class="modal-row">
+        <label>${t.level}</label>
+        <input type="number" id="modalNewLevel" min="1" max="20" value="1" style="width:60px">
+      </div>
+      <div class="formula-note">${t.newCharHint}</div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeNewCharModal()">${t.printCancel}</button>
+        <button class="btn primary" onclick="confirmNewChar()">${t.doneBtn}</button>
+      </div>
+    </div>
+  </div>`;
 }
 function modalRaceChanged(){
   const t = T[lang];
@@ -1354,14 +1388,11 @@ async function deleteCharacter(){
   charIndex = charIndex.filter(c=>c.id!==state.id);
   await saveIndex();
   if(charIndex.length===0){
-    // No characters left — send them straight to the creation form instead of
-    // silently conjuring a blank one.
-    state = defaultChar("__pending__");
-    openNewCharModal();
+    state = null;
   } else {
     await loadChar(charIndex[0].id);
-    render();
   }
+  render();
 }
 
 function attackRow(a, i){
@@ -1453,21 +1484,49 @@ async function switchLang(l){
   try{ await storageSet("dnd-lang", l); }catch(e){}
 }
 let onboardingModalOpen = false;
-let onboardingStep = 1;
-async function finishOnboarding(useDemo){
+async function closeOnboardingWelcome(){
   onboardingModalOpen = false;
   try{ await storageSet("dnd-onboarded", "1"); }catch(e){}
-  if(useDemo){
-    const id = "c"+Date.now();
-    state = demoChar(id);
-    charIndex.push({id, name: state.name});
-    await saveIndex();
-    try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
-    await setLastUsedId(id);
-    render();
-  } else {
-    openNewCharModal();
-  }
+  render();
+}
+async function loadDemoCharacter(){
+  const id = "c"+Date.now();
+  state = demoChar(id);
+  charIndex.push({id, name: state.name});
+  await saveIndex();
+  try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+  await setLastUsedId(id);
+  render();
+}
+function onboardingModalHTML(t){
+  return `
+  <div class="modal-backdrop no-print">
+    <div class="modal-box">
+      <h3>${t.onboardTitle}</h3>
+      <p>${t.onboardBody}</p>
+      <div class="modal-row">
+        <label>${t.onboardLangLabel}</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn ${lang==='en'?'primary':''}" onclick="switchLang('en')">EN</button>
+          <button class="btn ${lang==='he'?'primary':''}" onclick="switchLang('he')">עב</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary" onclick="closeOnboardingWelcome()">${t.onboardOk}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function noCharactersHTML(t){
+  return `
+  <div class="panel" style="text-align:center;padding:48px 24px">
+    <h2 style="margin-top:0">${t.noCharTitle}</h2>
+    <p class="formula-note" style="font-size:14px;margin:0 auto 22px;max-width:420px">${t.noCharBody}</p>
+    <div style="display:flex;flex-direction:column;gap:10px;max-width:280px;margin:0 auto">
+      <button class="btn primary" onclick="openNewCharModal()">${t.onboardNewChar}</button>
+      <button class="btn" onclick="loadDemoCharacter()">${t.onboardDemoChar}</button>
+    </div>
+  </div>`;
 }
 
 function doPrint(){ printModalOpen = true; render(); }
@@ -2246,6 +2305,27 @@ function slotDotsInteractive(i){
 function render(){
   const t = T[lang];
   const app = document.getElementById("app");
+
+  if(!state){
+    app.innerHTML = `
+    <div class="topbar">
+      <div class="title-block">
+        <h1 class="deco">${t.title}</h1>
+        <div class="sub">${t.sub}</div>
+      </div>
+      <div class="lang-corner no-print">
+        <button class="btn ${lang==='en'?'primary':''}" onclick="switchLang('en')">EN</button>
+        <button class="btn ${lang==='he'?'primary':''}" onclick="switchLang('he')">עב</button>
+      </div>
+    </div>
+    ${noCharactersHTML(t)}
+    ${onboardingModalOpen ? onboardingModalHTML(t) : ""}
+    ${newCharModalOpen ? newCharModalHTML(t) : ""}
+    `;
+    document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
+    return;
+  }
+
   const prof = profByLevel(state.level);
   const effAbil = getEffectiveAbilities(state);
   const effSpeed = getEffectiveSpeed(state);
@@ -2275,7 +2355,7 @@ function render(){
           ${charIndex.map(c=>`<option value="${c.id}" ${c.id===state.id?"selected":""}>${c.name||"—"}</option>`).join("")}
           <option value="__new__">➕ ${t.newChar}</option>
         </select>
-        <button class="btn danger icon-btn" onclick="deleteCharacter()" title="${t.del}">🗑️</button>
+        <button class="btn danger icon-btn" onclick="confirmRemove(deleteCharacter)" title="${t.del}">🗑️</button>
       </div>
       <button class="btn" onclick="setAllFolded(true)">${t.hideAll}</button>
       <button class="btn" onclick="setAllFolded(false)">${t.showAll}</button>
@@ -2744,78 +2824,7 @@ function render(){
     </div>
   </div>` : ""}
 
-  ${onboardingModalOpen ? `
-  <div class="modal-backdrop no-print">
-    <div class="modal-box">
-      ${onboardingStep===1 ? `
-        <h3>${t.onboardTitle}</h3>
-        <p>${t.onboardBody}</p>
-        <div class="modal-row">
-          <label>${t.onboardLangLabel}</label>
-          <div style="display:flex;gap:8px">
-            <button class="btn ${lang==='en'?'primary':''}" onclick="switchLang('en')">EN</button>
-            <button class="btn ${lang==='he'?'primary':''}" onclick="switchLang('he')">עב</button>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button class="btn primary" onclick="onboardingStep=2; render();">${t.onboardOk}</button>
-        </div>
-      ` : `
-        <h3>${t.onboardStep2Title}</h3>
-        <p>${t.onboardStep2Body}</p>
-        <div class="modal-actions" style="flex-direction:column;align-items:stretch;gap:8px">
-          <button class="btn primary" onclick="finishOnboarding(false)">${t.onboardNewChar}</button>
-          <button class="btn" onclick="finishOnboarding(true)">${t.onboardDemoChar}</button>
-        </div>
-      `}
-    </div>
-  </div>` : ""}
-
-  ${newCharModalOpen ? `
-  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeNewCharModal()">
-    <div class="modal-box">
-      <h3>${t.newCharModalTitle}</h3>
-      <div class="modal-row">
-        <label>${t.name}</label>
-        <input type="text" id="modalNewName" placeholder="New Adventurer">
-      </div>
-      <div class="modal-row">
-        <label>${t.cls}</label>
-        <select id="modalNewClass" onchange="modalClassChanged()">
-          <option value="">${t.selectPlaceholder}</option>
-          ${CLASS_LIST.map(c=>`<option value="${c}">${c}</option>`).join("")}
-          <option value="__custom__">${t.customOption}</option>
-        </select>
-        <input type="text" id="modalNewClassCustom" placeholder="${t.cls}" style="display:none;margin-top:6px">
-      </div>
-      <div class="modal-row">
-        <label>${t.race}</label>
-        <select id="modalNewRace" onchange="modalRaceChanged()">
-          <option value="">${t.selectPlaceholder}</option>
-          ${RACE_LIST.map(r=>`<option value="${r}">${r}</option>`).join("")}
-          <option value="__custom__">${t.customOption}</option>
-        </select>
-        <input type="text" id="modalNewRaceCustom" placeholder="${t.race}" style="display:none;margin-top:6px">
-      </div>
-      <div class="modal-row">
-        <label>${t.subrace}</label>
-        <select id="modalNewSubrace" onchange="modalSubraceChanged()">
-          <option value="">${t.selectPlaceholder}</option>
-          <option value="__custom__">${t.customOption}</option>
-        </select>
-        <input type="text" id="modalNewSubraceCustom" placeholder="${t.subrace}" style="display:none;margin-top:6px">
-      </div>
-      <div class="modal-row">
-        <label>${t.level}</label>
-        <input type="number" id="modalNewLevel" min="1" max="20" value="1" style="width:60px">
-      </div>
-      <div class="formula-note">${t.newCharHint}</div>
-      <div class="modal-actions">
-        <button class="btn" onclick="closeNewCharModal()">${t.printCancel}</button>
-        <button class="btn primary" onclick="confirmNewChar()">${t.doneBtn}</button>
-      </div>
-    </div>
-  </div>` : ""}
+  ${newCharModalOpen ? newCharModalHTML(t) : ""}
 
   ${featModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeFeatModal()">
@@ -2943,19 +2952,11 @@ function render(){
       const onboardedRes = await storageGet("dnd-onboarded");
       const alreadyOnboarded = !!onboardedRes;
       if(charIndex.length===0){
-        if(alreadyOnboarded){
-          const id = "c"+Date.now();
-          charIndex.push({id, name:"New Adventurer"});
-          await saveIndex();
-          state = defaultChar(id);
-          await storageSet("dnd-char:"+id, JSON.stringify(state));
-          await setLastUsedId(id);
-        } else {
-          // Nothing created yet — the onboarding modal below decides (blank vs demo)
-          // and creates the actual character once the user picks.
-          state = defaultChar("__pending__");
+        // No character to load — the "no characters" screen lets them create one
+        // (blank or demo) themselves; nothing is created on their behalf.
+        state = null;
+        if(!alreadyOnboarded){
           onboardingModalOpen = true;
-          onboardingStep = 1;
         }
       } else {
         if(!alreadyOnboarded){ try{ await storageSet("dnd-onboarded", "1"); }catch(e){} }

@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { dismissOnboarding } = require('./helpers');
+const { dismissOnboarding, deleteActiveCharacter } = require('./helpers');
 
 test.describe('multi-character persistence', () => {
   test('remembers the last-used character across reloads', async ({ page }) => {
@@ -33,7 +33,7 @@ test.describe('multi-character persistence', () => {
     await page.waitForTimeout(300);
     expect(await page.evaluate(() => charIndex.length)).toBe(2);
 
-    await page.click('.char-select-group button[title="Delete"]');
+    await deleteActiveCharacter(page);
     await page.waitForTimeout(300);
 
     expect(await page.evaluate(() => charIndex.length)).toBe(1);
@@ -48,17 +48,28 @@ test.describe('multi-character persistence', () => {
     await expect(page.locator('.char-select-group button[title="Delete"]')).toBeEnabled();
   });
 
-  test('deleting the only remaining character sends you to the creation form instead of leaving you stuck', async ({ page }) => {
+  test('deleting a character always asks for confirmation first', async ({ page }) => {
+    await dismissOnboarding(page);
+
+    await page.click('.char-select-group button[title="Delete"]');
+    await expect(page.locator('.modal-box h3')).toHaveText('Remove this?');
+    // still there — confirming was never clicked
+    expect(await page.evaluate(() => charIndex.length)).toBe(1);
+
+    await page.locator('.modal-backdrop button:has-text("Cancel")').click();
+    await expect(page.locator('.modal-backdrop')).toHaveCount(0);
+    expect(await page.evaluate(() => charIndex.length)).toBe(1);
+  });
+
+  test('deleting the only remaining character returns to the "no characters" screen without creating a replacement', async ({ page }) => {
     await dismissOnboarding(page);
     expect(await page.evaluate(() => charIndex.length)).toBe(1);
 
-    await page.click('.char-select-group button[title="Delete"]');
-    await expect.poll(() => page.evaluate(() => charIndex.length)).toBe(0);
-    await expect(page.locator('.modal-box h3')).toHaveText('New Character');
+    await deleteActiveCharacter(page);
 
-    await page.locator('.modal-backdrop button:has-text("Done")').click();
-    expect(await page.evaluate(() => charIndex.length)).toBe(1);
-    const name = await page.evaluate(() => state.name);
-    expect(name).toBe('New Adventurer');
+    await expect.poll(() => page.evaluate(() => charIndex.length)).toBe(0);
+    expect(await page.evaluate(() => state)).toBeNull();
+    await expect(page.locator('h2:has-text("No characters yet")')).toBeVisible();
+    await expect(page.locator('.modal-backdrop')).toHaveCount(0);
   });
 });
