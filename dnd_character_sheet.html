@@ -191,6 +191,7 @@ textarea{resize:vertical;font-size:15.5px;line-height:1.5;}
   display:grid;grid-template-columns:22px 1fr 40px;align-items:center;gap:8px;
   padding:6px 4px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:16px;
 }
+.list-row.skill-row{grid-template-columns:22px 22px 1fr 40px;}
 .list-row:last-child{border-bottom:none;}
 .list-row .ability-tag{font-size:11.5px;color:var(--ink-faint);margin-left:6px;}
 
@@ -209,6 +210,8 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .atk-bonus{font-family:'IBM Plex Mono',monospace;color:var(--gold-bright);font-weight:600;text-align:center;}
 .remove-row{background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:16px;}
 .remove-row:hover{color:var(--blood-bright);}
+.edit-row{background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:16px;}
+.edit-row:hover{color:var(--gold-bright);}
 
 /* ---------- reference panel ---------- */
 .ref-toggle{cursor:pointer;user-select:none;}
@@ -364,6 +367,8 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 .feat-badge{background:rgba(201,162,39,0.12);border:1px solid var(--leather-line);border-radius:4px;padding:3px 8px;font-size:12px;color:var(--ink-dim);white-space:nowrap;}
 .feat-lvmark{color:var(--gold-bright);font-family:'IBM Plex Mono',monospace;font-weight:700;}
 .feat-notes-input{width:100%;margin-top:6px;font-size:13.5px;line-height:1.4;resize:vertical;overflow:hidden;}
+input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
+.item-notes-input{width:100%;resize:vertical;overflow:hidden;}
 .spell-level-header{
   display:flex;justify-content:space-between;align-items:center;
   font-family:'Cinzel',serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);
@@ -393,6 +398,7 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 .dice-mod input{width:44px;min-width:0;padding:8px 4px;text-align:center;}
 .dice-history{display:flex;gap:6px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-faint);}
 .dice-history.compact{flex-wrap:nowrap;overflow-x:auto;font-size:11px;padding-bottom:2px;}
+.dice-history.compact.no-print{justify-content:flex-end;}
 .dice-history.compact span{flex:0 0 auto;}
 .dice-history span{border:1px solid var(--leather-line);border-radius:4px;padding:2px 7px;}
 .dice-history span.latest{border-color:var(--gold);color:var(--gold-bright);font-weight:700;background:rgba(201,162,39,0.14);}
@@ -473,7 +479,7 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 .atk-roll-btn:hover{border-color:var(--gold-bright);}
 .atk-roll-btn:disabled{opacity:0.35;cursor:not-allowed;}
 .atk-roll-btn:disabled:hover{border-color:var(--gold);}
-.atk-roll-result{font-size:11.5px;color:var(--ink-dim);margin-top:4px;line-height:1.4;white-space:nowrap;}
+.atk-roll-result{font-size:14px;color:var(--ink-dim);margin-top:4px;line-height:1.4;white-space:nowrap;}
 .atk-roll-result .crit{color:var(--blood-bright);font-weight:700;}
 
 /* ---------- passive stat badge ---------- */
@@ -486,6 +492,7 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 
 /* RTL */
 [dir="rtl"] .list-row{grid-template-columns:40px 1fr 22px;}
+[dir="rtl"] .list-row.skill-row{grid-template-columns:40px 40px 1fr 22px;}
 [dir="rtl"] .id-fields{direction:rtl;}
 
 /* ---------- print ---------- */
@@ -539,7 +546,7 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 const T = {
   en:{
     title:"Character Scroll", sub:"an editable, self-explaining sheet",
-    newChar:"New Character", del:"Delete", saved:"saved", saving:"saving…", sessionOnly:"not saved (session only)",
+    newChar:"New Character", del:"Delete", edit:"Edit", saved:"saved", saving:"saving…", sessionOnly:"not saved (session only)",
     confirmRemoveTitle:"Remove this?", confirmRemoveMsg:"This can't be undone.",
     hideAll:"Hide All", showAll:"Show All",
     identity:"Identity", name:"Name", cls:"Class", level:"Level", race:"Race", subrace:"Subrace", bg:"Background",
@@ -548,16 +555,16 @@ const T = {
     identityLockedHint:"Name, Class, Race, and Subrace are locked to prevent accidental changes. Level stays editable since it changes often.",
     identityUnlockedHint:"Unlocked — Name/Class/Race/Subrace can be edited now.",
     identityUnlockBtn:"🔓 Unlock to edit", identityLockNow:"🔒 Lock again",
-    armorBase:"Base AC", armorDex:"DEX applies", shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped",
+    armorBase:"Base AC", armorDex:"Ability applies", shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped",
     proficiencies:"Proficiencies & Languages", profArmor:"Armor", profWeapons:"Weapons", profTools:"Tools", profLanguages:"Languages",
-    inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"+ Add item",
+    inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
     abilities:"Ability Scores", str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA",
-    combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", climbSpeed:"Climb Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
+    combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
     diceRoller:"Dice Roller", diceModifier:"Modifier", diceClear:"Clear", diceNoRolls:"No rolls yet",
-    saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception",
-    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"+ Add attack",
-    melee:"Melee", ranged:"Ranged", finesse:"Finesse", spell:"Spell",
+    saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception", proficient:"Proficient", expertise:"Expertise",
+    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"Attack",
+    melee:"Melee", ranged:"Ranged", finesse:"Finesse", natural:"Natural", spell:"Spell",
     spellAbility:"Casting stat",
     notes:"Notes & Equipment",
     printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import",
@@ -571,20 +578,21 @@ const T = {
     quickSpellPh:"Spell name…", doneBtn:"Done",
     spName:"Spell", spLevel:"Lv", spPrepared:"Prep.", spConc:"C", spTouch:"T", spVerbal:"V", spSomatic:"S", spMaterial:"M", spDmg:"Damage", spNotes:"Notes", addSpell:"Spell",
     spVerbalFull:"Verbal — spoken incantations", spSomaticFull:"Somatic — physical gestures", spMaterialFull:"Material — physical ingredients",
-    spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", addAttackModalTitle:"New Attack",
+    spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", editFeatModalTitle:"Edit Feat", addAttackModalTitle:"New Attack",
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
+    charTypeLabel:"Type", charTypePc:"Player Character", charTypeAnimal:"Animal", species:"Species",
     onboardTitle:"Welcome to Character Scroll", onboardBody:"A free, self-explaining D&D 5e character sheet. Everything you enter is saved automatically in this browser — nothing is uploaded anywhere. Pick a language to get started:",
     onboardLangLabel:"Language", onboardOk:"OK",
     onboardNewChar:"+ Create New Character", onboardDemoChar:"🎲 Load Demo Character",
     noCharTitle:"No characters yet", noCharBody:"Create a blank character and build it up yourself, or load a pre-filled demo character to see how the sheet works.",
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
-    feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat",
+    feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat", featLvlAbbr:"Lvl",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
-    featHP:"Max HP", featPerLevel:"/ level",
+    featHP:"Max HP", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed",
     featLevelHint:"\"Level\" here means your character's current level (set in Identity) — a feat with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
     featDmgGroup:"Damage rolls", featDmgAll:"All damage", featDmgMelee:"Melee damage", featDmgRanged:"Ranged damage", featDmgFinesse:"Finesse damage", featDmgSpell:"Spell damage",
-    resources:"Class Resources", resName:"Resource", resUses:"Uses", resRecharge:"Recharges", addResource:"+ Add resource",
+    resources:"Class Resources", resName:"Resource", resUses:"Uses", resRecharge:"Recharges", addResource:"Resource",
     rShort:"Short Rest", rLong:"Long Rest", rOther:"Other",
     quickAdd:"Quick add: Class", tplPlaceholder:"— choose to add —", tplFighter:"Fighter", tplCleric:"Cleric", tplMonk:"Monk", tplRanged:"Ranged",
     quickAddRace:"Quick add: Race", raceHuman:"Human", raceDwarf:"Dwarf", raceElf:"Elf", raceHalfling:"Halfling", raceDragonborn:"Dragonborn", raceGnome:"Gnome", raceHalfOrc:"Half-Orc", raceTiefling:"Tiefling",
@@ -653,7 +661,7 @@ const T = {
   },
   he:{
     title:"מגילת הדמות", sub:"גיליון עריך עם הסברים מובנים",
-    newChar:"דמות חדשה", del:"מחק", saved:"נשמר", saving:"שומר…", sessionOnly:"לא נשמר (הפעלה זו בלבד)",
+    newChar:"דמות חדשה", del:"מחק", edit:"עריכה", saved:"נשמר", saving:"שומר…", sessionOnly:"לא נשמר (הפעלה זו בלבד)",
     confirmRemoveTitle:"למחוק?", confirmRemoveMsg:"לא ניתן לבטל פעולה זו.",
     hideAll:"הסתר הכל", showAll:"הצג הכל",
     identity:"זהות", name:"שם", cls:"מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע",
@@ -662,16 +670,16 @@ const T = {
     identityLockedHint:"שם, מחלקה, גזע ותת-גזע נעולים כדי למנוע שינויים בטעות. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
     identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/גזע/תת-גזע עכשיו.",
     identityUnlockBtn:"🔓 פתח לעריכה", identityLockNow:"🔒 נעל שוב",
-    armorBase:"בסיס שריון", armorDex:"זריזות חלה", shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש",
+    armorBase:"בסיס שריון", armorDex:"תכונה חלה", shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש",
     proficiencies:"מיומנויות ושפות", profArmor:"שריון", profWeapons:"נשקים", profTools:"כלים", profLanguages:"שפות",
-    inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"+ הוסף פריט",
+    inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
     abilities:"תכונות", str:"כוח",dex:"זריזות",con:"חוסן",int:"אינטליגנציה",wis:"חוכמה",cha:"כריזמה",
-    combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", climbSpeed:"מהירות טיפוס", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
+    combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
     diceRoller:"הטלת קוביות", diceModifier:"מודיפייר", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
-    saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית",
-    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"+ הוסף התקפה",
-    melee:"קרב מגע", ranged:"טווח", finesse:"זריזות/כוח", spell:"קסם",
+    saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית", proficient:"מיומן", expertise:"מומחיות",
+    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"הוסף התקפה",
+    melee:"קרב מגע", ranged:"טווח", finesse:"זריזות/כוח", natural:"טבעי", spell:"קסם",
     spellAbility:"תכונת כישוף",
     notes:"הערות וציוד",
     printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא",
@@ -685,20 +693,21 @@ const T = {
     quickSpellPh:"שם הקסם…", doneBtn:"סיום",
     spName:"קסם", spLevel:"רמה", spPrepared:"מוכן", spConc:"ר", spTouch:"מ", spVerbal:"ד", spSomatic:"ת", spMaterial:"ח", spDmg:"נזק", spNotes:"הערות", addSpell:"קסם",
     spVerbalFull:"מילולי — לחישות מוטלות", spSomaticFull:"תנועתי — מחוות פיזיות", spMaterialFull:"חומרי — מרכיבים פיזיים",
-    spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", addAttackModalTitle:"התקפה חדשה",
+    spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", editFeatModalTitle:"עריכת תכונה", addAttackModalTitle:"התקפה חדשה",
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
+    charTypeLabel:"סוג", charTypePc:"דמות שחקן", charTypeAnimal:"חיה", species:"מין",
     onboardTitle:"ברוכים הבאים למגילת הדמות", onboardBody:"גיליון דמות חופשי ל-D&D 5e שמסביר את עצמו. כל מה שתזין נשמר אוטומטית בדפדפן הזה — שום דבר לא מועלה לשום מקום. בחר שפה כדי להתחיל:",
     onboardLangLabel:"שפה", onboardOk:"אישור",
     onboardNewChar:"+ צור דמות חדשה", onboardDemoChar:"🎲 טען דמות הדגמה",
     noCharTitle:"עדיין אין דמויות", noCharBody:"צור דמות ריקה ובנה אותה בעצמך, או טען דמות הדגמה מוכנה מראש כדי לראות איך הגיליון עובד.",
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
-    feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה",
+    feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה", featLvlAbbr:"רמה",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
-    featHP:"נק״ח מקס", featPerLevel:"/ רמה",
+    featHP:"נק״ח מקס", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות",
     featLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
     featDmgGroup:"הטלות נזק", featDmgAll:"כל הנזק", featDmgMelee:"נזק קרב מגע", featDmgRanged:"נזק טווח", featDmgFinesse:"נזק זריזות", featDmgSpell:"נזק קסם",
-    resources:"משאבי מחלקה", resName:"משאב", resUses:"שימושים", resRecharge:"מתאפס ב", addResource:"+ הוסף משאב",
+    resources:"משאבי מחלקה", resName:"משאב", resUses:"שימושים", resRecharge:"מתאפס ב", addResource:"הוסף משאב",
     rShort:"מנוחה קצרה", rLong:"מנוחה ארוכה", rOther:"אחר",
     quickAdd:"הוספה מהירה: מחלקה", tplPlaceholder:"— בחר להוספה —", tplFighter:"לוחם", tplCleric:"כומר", tplMonk:"נזיר", tplRanged:"טווח",
     quickAddRace:"הוספה מהירה: גזע", raceHuman:"אדם", raceDwarf:"גמד", raceElf:"אלף", raceHalfling:"הוביט", raceDragonborn:"דרקוני", raceGnome:"גנום", raceHalfOrc:"חצי-אורק", raceTiefling:"טיפלינג",
@@ -794,13 +803,13 @@ const SUBRACE_MAP = {
 
 function defaultChar(id){
   return {
-    id, name:"New Adventurer", cls:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
+    id, name:"New Adventurer", charType:"pc", cls:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
     abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
     level:1,
-    armor:{base:10, dexApplies:true, shieldEquipped:false, shieldBonus:2, shieldName:"Shield"},
-    speed:30, climbSpeed:0, hpCur:10, hpMax:10, hitDice:"1d8", hpAutoCalc:true,
+    armor:{base:10, dexApplies:true, acAbility:"dex", shieldEquipped:false, shieldBonus:2, shieldName:"Shield"},
+    speed:30, climbSpeed:0, swimSpeed:0, hpCur:10, hpMax:10, hitDice:"1d8", hpAutoCalc:true,
     saveProf:{str:false,dex:false,con:false,int:false,wis:false,cha:false},
-    skillProf:{},
+    skillProf:{}, skillExpertise:{},
     proficiencies:{armor:"", weapons:"", tools:"", languages:""},
     inventory:{currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]},
     attacks:[{name:"Shortsword", type:"finesse", dmg:"1d6", spellAbil:"cha", prof:true, notes:""}],
@@ -812,13 +821,24 @@ function defaultChar(id){
     notes:""
   };
 }
+function animalChar(id){
+  const c = defaultChar(id);
+  c.name = "New Animal";
+  c.charType = "animal";
+  c.abilities = {str:14, dex:14, con:12, int:2, wis:12, cha:6};
+  c.armor.acAbility = "wis";
+  c.attacks = [{name:"Bite", type:"natural", dmg:"1d6", spellAbil:"cha", prof:true, notes:""}];
+  return c;
+}
 function hydrate(s){
   if(!s.spellcasting) s.spellcasting = {abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))};
   if(!s.spells) s.spells = [];
   if(!s.feats) s.feats = [];
   if(!s.resources) s.resources = [];
   if(!s.concentration) s.concentration = {active:false, spell:"", dmg:0};
-  if(!s.armor) s.armor = {base: (typeof s.ac==='number'?s.ac:10), dexApplies:true, shieldEquipped:false, shieldBonus:2, shieldName:"Shield"};
+  if(!s.armor) s.armor = {base: (typeof s.ac==='number'?s.ac:10), dexApplies:true, acAbility:"dex", shieldEquipped:false, shieldBonus:2, shieldName:"Shield"};
+  if(!s.armor.acAbility) s.armor.acAbility = "dex";
+  if(!s.charType) s.charType = "pc";
   if(!s.proficiencies) s.proficiencies = {armor:"", weapons:"", tools:"", languages:""};
   if(!s.inventory) s.inventory = {currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]};
   if(typeof s.level !== "number") s.level = 1;
@@ -834,9 +854,11 @@ function hydrate(s){
     if(typeof sp.castTime !== "string") sp.castTime = "";
     if(typeof sp.save !== "string") sp.save = "";
   });
-  if(s.feats) s.feats.forEach(f=>{ if(!f.mod) f.mod = {stat:"", amount:0, perLevel:false}; if(typeof f.mod.perLevel !== "boolean") f.mod.perLevel = false; });
+  if(s.feats) s.feats.forEach(f=>{ if(!f.mod) f.mod = {stat:"", amount:0, perLevel:false}; if(typeof f.mod.perLevel !== "boolean") f.mod.perLevel = false; if(typeof f.mod.matchSpeed !== "boolean") f.mod.matchSpeed = false; if(typeof f.level !== "number") f.level = 1; });
   if(typeof s.hpAutoCalc !== "boolean") s.hpAutoCalc = false;
   if(typeof s.climbSpeed !== "number") s.climbSpeed = 0;
+  if(typeof s.swimSpeed !== "number") s.swimSpeed = 0;
+  if(!s.skillExpertise) s.skillExpertise = {};
   if(typeof s.clsCustom !== "boolean") s.clsCustom = !!(s.cls && !CLASS_LIST.includes(s.cls));
   if(typeof s.raceCustom !== "boolean") s.raceCustom = !!(s.race && !RACE_LIST.includes(s.race));
   if(typeof s.subrace !== "string") s.subrace = "";
@@ -846,15 +868,15 @@ function hydrate(s){
 function demoChar(id){
   const isHe = lang === 'he';
   return {
-    id, name: isHe ? "אלריק חוד־הפלדה" : "Elric Steeledge",
+    id, name: isHe ? "אלריק חוד־הפלדה" : "Elric Steeledge", charType:"pc",
     cls:"Fighter", race:"Human", bg: isHe ? "חייל" : "Soldier",
     clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
     abilities:{str:16, dex:14, con:15, int:10, wis:12, cha:8},
     level:3,
-    armor:{base:16, dexApplies:false, shieldEquipped:true, shieldBonus:2, shieldName: isHe ? "מגן" : "Shield"},
-    speed:30, climbSpeed:0, hpCur:28, hpMax:28, hitDice:"3d10", hpAutoCalc:true,
+    armor:{base:16, dexApplies:false, acAbility:"dex", shieldEquipped:true, shieldBonus:2, shieldName: isHe ? "מגן" : "Shield"},
+    speed:30, climbSpeed:0, swimSpeed:0, hpCur:28, hpMax:28, hitDice:"3d10", hpAutoCalc:true,
     saveProf:{str:true,dex:false,con:true,int:false,wis:false,cha:false},
-    skillProf:{athletics:true, perception:true, intimidation:true},
+    skillProf:{athletics:true, perception:true, intimidation:true}, skillExpertise:{},
     proficiencies:{
       armor: isHe ? "שריון קל, בינוני, כבד; מגנים" : "Light, Medium, Heavy armor; Shields",
       weapons: isHe ? "נשקים פשוטים וצבאיים" : "Simple and Martial weapons",
@@ -878,8 +900,8 @@ function demoChar(id){
     spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
     spells:[],
     feats:[
-      {name: isHe ? "תושייה" : "Resourceful", notes: isHe ? "מקבל השראה הרואית בכל סיום מנוחה ארוכה." : "You gain Heroic Inspiration whenever you finish a Long Rest.", mod:{stat:"", amount:0, perLevel:false}},
-      {name: isHe ? "מיומן" : "Skillful", notes: isHe ? "מיומנות בכישור אחד לבחירה." : "Proficiency in one skill of your choice.", mod:{stat:"", amount:0, perLevel:false}}
+      {name: isHe ? "תושייה" : "Resourceful", level:1, notes: isHe ? "מקבל השראה הרואית בכל סיום מנוחה ארוכה." : "You gain Heroic Inspiration whenever you finish a Long Rest.", mod:{stat:"", amount:0, perLevel:false}},
+      {name: isHe ? "מיומן" : "Skillful", level:3, notes: isHe ? "מיומנות בכישור אחד לבחירה." : "Proficiency in one skill of your choice.", mod:{stat:"", amount:0, perLevel:false}}
     ],
     resources:[
       {name: isHe ? "רוח שנייה" : "Second Wind", total:1, used:0, recharge:"short"},
@@ -1196,25 +1218,37 @@ function getEffectiveAbilities(s){
   return eff;
 }
 function getEffectiveSpeed(s){ return s.speed + getFeatBonus(s, "speed"); }
+function getEffectiveSecondarySpeed(s, kind){ // kind: "climb" | "swim"
+  const overridden = (s.feats||[]).some(f => f.mod && f.mod.stat===kind && f.mod.matchSpeed);
+  if(overridden) return getEffectiveSpeed(s);
+  const base = kind==="climb" ? s.climbSpeed : s.swimSpeed;
+  return base + getFeatBonus(s, kind);
+}
+function getEffectiveInitiative(s){ return mod(getEffectiveAbilities(s).dex) + getFeatBonus(s, "init"); }
 function computeMaxHP(s){
+  const lvl = Math.max(1, parseInt(s.level)||1);
+  if(s.charType==="animal") return 5 + 5*lvl;
   const m = /d\s*(\d+)/i.exec(s.hitDice || "");
   const die = m ? parseInt(m[1]) : 8;
-  const lvl = Math.max(1, parseInt(s.level)||1);
   const conMod = mod(getEffectiveAbilities(s).con);
   const avgPerLevel = Math.floor(die/2) + 1; // standard 5e "average" rounding, e.g. d8 -> 5
   const total = (die + conMod) + (lvl-1) * (avgPerLevel + conMod);
   return Math.max(1, total);
 }
+function computeHitDice(s){
+  return s.charType==="animal" ? `${Math.max(1, parseInt(s.level)||1)}d8` : s.hitDice;
+}
 function computePassivePerception(s){
   const eff = getEffectiveAbilities(s);
   const prof = profByLevel(s.level);
-  return 10 + mod(eff.wis) + (s.skillProf.perception ? prof : 0);
+  return 10 + mod(eff.wis) + (s.skillProf.perception ? prof * (s.skillExpertise.perception ? 2 : 1) : 0);
 }
-const computeAC = s => s.armor.base + (s.armor.dexApplies ? mod(s.abilities.dex + getFeatBonus(s,"dex")) : 0) + (s.armor.shieldEquipped ? (parseInt(s.armor.shieldBonus)||0) : 0);
+const computeAC = s => s.armor.base + (s.armor.dexApplies ? mod(s.abilities[s.armor.acAbility] + getFeatBonus(s,s.armor.acAbility)) : 0) + (s.armor.shieldEquipped ? (parseInt(s.armor.shieldBonus)||0) : 0);
 
 function abilForAttack(a){
   if(a.type==="melee") return "str";
   if(a.type==="ranged") return "dex";
+  if(a.type==="natural") return "wis";
   if(a.type==="spell") return a.spellAbil||"cha";
   if(a.type==="finesse") return mod(state.abilities.str+getFeatBonus(state,"str")) >= mod(state.abilities.dex+getFeatBonus(state,"dex")) ? "str":"dex";
   return "str";
@@ -1289,10 +1323,17 @@ function newCharModalHTML(t){
     <div class="modal-box">
       <h3>${t.newCharModalTitle}</h3>
       <div class="modal-row">
+        <label>${t.charTypeLabel}</label>
+        <select id="modalNewCharType" onchange="modalCharTypeChanged()">
+          <option value="pc">${t.charTypePc}</option>
+          <option value="animal">${t.charTypeAnimal}</option>
+        </select>
+      </div>
+      <div class="modal-row">
         <label>${t.name}</label>
         <input type="text" id="modalNewName" placeholder="New Adventurer">
       </div>
-      <div class="modal-row">
+      <div class="modal-row" id="modalNewClassRow">
         <label>${t.cls}</label>
         <select id="modalNewClass" onchange="modalClassChanged()">
           <option value="">${t.selectPlaceholder}</option>
@@ -1301,7 +1342,7 @@ function newCharModalHTML(t){
         </select>
         <input type="text" id="modalNewClassCustom" placeholder="${t.cls}" style="display:none;margin-top:6px">
       </div>
-      <div class="modal-row">
+      <div class="modal-row" id="modalNewRaceRow">
         <label>${t.race}</label>
         <select id="modalNewRace" onchange="modalRaceChanged()">
           <option value="">${t.selectPlaceholder}</option>
@@ -1310,13 +1351,17 @@ function newCharModalHTML(t){
         </select>
         <input type="text" id="modalNewRaceCustom" placeholder="${t.race}" style="display:none;margin-top:6px">
       </div>
-      <div class="modal-row">
+      <div class="modal-row" id="modalNewSubraceRow">
         <label>${t.subrace}</label>
         <select id="modalNewSubrace" onchange="modalSubraceChanged()">
           <option value="">${t.selectPlaceholder}</option>
           <option value="__custom__">${t.customOption}</option>
         </select>
         <input type="text" id="modalNewSubraceCustom" placeholder="${t.subrace}" style="display:none;margin-top:6px">
+      </div>
+      <div class="modal-row" id="modalNewSpeciesRow" style="display:none">
+        <label>${t.species}</label>
+        <input type="text" id="modalNewSpecies" placeholder="Wolf">
       </div>
       <div class="modal-row">
         <label>${t.level}</label>
@@ -1347,19 +1392,42 @@ function modalClassChanged(){
   const val = document.getElementById("modalNewClass").value;
   document.getElementById("modalNewClassCustom").style.display = val==='__custom__' ? "block" : "none";
 }
+function modalCharTypeChanged(){
+  const isAnimal = document.getElementById("modalNewCharType").value === "animal";
+  document.getElementById("modalNewClassRow").style.display = isAnimal ? "none" : "";
+  document.getElementById("modalNewRaceRow").style.display = isAnimal ? "none" : "";
+  document.getElementById("modalNewSubraceRow").style.display = isAnimal ? "none" : "";
+  document.getElementById("modalNewSpeciesRow").style.display = isAnimal ? "" : "none";
+}
 async function confirmNewChar(){
-  const name = document.getElementById("modalNewName").value.trim() || "New Adventurer";
+  const charType = document.getElementById("modalNewCharType").value === "animal" ? "animal" : "pc";
+  const name = document.getElementById("modalNewName").value.trim() || (charType==="animal" ? "New Animal" : "New Adventurer");
+  const level = Math.max(1, Math.min(20, parseInt(document.getElementById("modalNewLevel").value)||1));
+
+  const id = "c"+Date.now();
+  charIndex.push({id, name});
+  await saveIndex();
+
+  if(charType === "animal"){
+    const species = document.getElementById("modalNewSpecies").value.trim();
+    state = animalChar(id);
+    state.name = name;
+    state.level = level;
+    if(species){ state.race = species; state.raceCustom = true; }
+    newCharModalOpen = false;
+    try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
+    await setLastUsedId(id);
+    render(); queueSave();
+    return;
+  }
+
   const clsSel = document.getElementById("modalNewClass").value;
   const cls = clsSel==='__custom__' ? document.getElementById("modalNewClassCustom").value.trim() : clsSel;
   const raceSel = document.getElementById("modalNewRace").value;
   const race = raceSel==='__custom__' ? document.getElementById("modalNewRaceCustom").value.trim() : raceSel;
   const subraceSel = document.getElementById("modalNewSubrace").value;
   const subrace = subraceSel==='__custom__' ? document.getElementById("modalNewSubraceCustom").value.trim() : subraceSel;
-  const level = Math.max(1, Math.min(20, parseInt(document.getElementById("modalNewLevel").value)||1));
 
-  const id = "c"+Date.now();
-  charIndex.push({id, name});
-  await saveIndex();
   state = defaultChar(id);
   state.name = name;
   state.level = level;
@@ -1412,6 +1480,7 @@ function attackRow(a, i){
         <option value="melee" ${a.type==="melee"?"selected":""}>${t.melee}</option>
         <option value="ranged" ${a.type==="ranged"?"selected":""}>${t.ranged}</option>
         <option value="finesse" ${a.type==="finesse"?"selected":""}>${t.finesse}</option>
+        <option value="natural" ${a.type==="natural"?"selected":""}>${t.natural}</option>
         <option value="spell" ${a.type==="spell"?"selected":""}>${t.spell}</option>
       </select>
       ${spellAbilSelect}
@@ -1449,7 +1518,7 @@ function attackRow(a, i){
       </div>
     </div>
     ${(attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print">${attackRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${t.atkHitAbbr}:${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}${h.dmgTotal!==null?`/${t.atkDmgAbbr}:${h.dmgTotal}`:""}</span>`).join("")}</div>` : ""}
-    <input type="text" value="${a.notes}" class="attack-notes-input" placeholder="${t.atkNotes}" onchange="set('attacks.${i}.notes', this.value)">
+    <textarea rows="1" class="attack-notes-input" placeholder="${t.atkNotes}" onchange="set('attacks.${i}.notes', this.value)">${a.notes}</textarea>
   </div>`;
 }
 function addAttack(){
@@ -1756,7 +1825,9 @@ function buildPrintHTML(opts){
   const dir = lang==='he' ? 'rtl' : 'ltr';
   const effAbil = getEffectiveAbilities(state);
   const effSpeed = getEffectiveSpeed(state);
+  const effInit = getEffectiveInitiative(state);
   const dexMod = mod(effAbil.dex), conMod = mod(effAbil.con);
+  const acMod = mod(effAbil[state.armor.acAbility]);
 
   const abilBoxes = ABILS.map(a=>`
     <div class="ability">
@@ -1772,15 +1843,16 @@ function buildPrintHTML(opts){
   }).join("");
   const skillRows = SKILLS.map(([key,abil,en,he])=>{
     const p = !!state.skillProf[key];
-    const val = mod(effAbil[abil]) + (p?prof:0);
-    return `<div class="list-row"><span class="mark">${p?"●":"○"}</span><span>${ABIL_ICON[abil]} ${lang==='he'?he:en} <span class="ability-tag">(${t[abil]})</span></span><span class="val">${fm(val)}</span></div>`;
+    const e = !!state.skillExpertise[key];
+    const val = mod(effAbil[abil]) + (p?prof*(e?2:1):0);
+    return `<div class="list-row skill-row"><span class="mark">${p?"●":"○"}</span><span class="mark">${e?"★":""}</span><span>${ABIL_ICON[abil]} ${lang==='he'?he:en} <span class="ability-tag">(${t[abil]})</span></span><span class="val">${fm(val)}</span></div>`;
   }).join("");
 
   const blankAttackRow = `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
   const attackRows = state.attacks.map(a=>{
     const abil = abilForAttack(a);
     const bonus = mod(effAbil[abil]) + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type);
-    const typeLabel = a.type==="melee"?t.melee:a.type==="ranged"?t.ranged:a.type==="finesse"?t.finesse:t.spell;
+    const typeLabel = a.type==="melee"?t.melee:a.type==="ranged"?t.ranged:a.type==="finesse"?t.finesse:a.type==="natural"?t.natural:t.spell;
     return `<tr><td>${esc(a.name)}</td><td>${typeLabel}</td><td class="num">${a.prof?"●":"○"}</td><td class="num">${fm(bonus)}</td><td>${esc(a.dmg)}</td><td>${esc(a.notes)}</td></tr>`;
   }).join("") + blankAttackRow.repeat(extraAttacks);
 
@@ -1791,6 +1863,8 @@ function buildPrintHTML(opts){
   const spellRows = state.spells.map(sp=>`<tr><td class="num">${sp.level}</td><td class="num">${sp.prepared?"✓":""}</td><td>${esc(sp.name)}</td><td>${esc(sp.range)}</td><td>${esc(sp.castTime)}</td><td>${sp.save?t[sp.save]:""}</td><td class="num">${sp.verbal?"●":""}</td><td class="num">${sp.somatic?"●":""}</td><td class="num">${sp.material?"●":""}</td><td>${esc(sp.dmg)}</td><td style="white-space:pre-wrap">${esc(sp.notes)}</td></tr>`).join("") + blankSpellRow.repeat(extraSpells);
   const featModLabel = stat => {
     if(stat==='speed') return t.speed;
+    if(stat==='climb') return t.climbSpeed;
+    if(stat==='swim') return t.swimSpeed;
     if(stat==='hp') return t.featHP;
     if(stat==='atk_all') return t.featAtkAll;
     if(stat==='atk_melee') return t.featAtkMelee;
@@ -1804,9 +1878,9 @@ function buildPrintHTML(opts){
     if(stat==='dmg_spell') return t.featDmgSpell;
     return t[stat] || stat;
   };
-  const featRows = state.feats.map(f=>{
-    const modText = (f.mod && f.mod.stat) ? ` <span class="f">(${featModLabel(f.mod.stat)} ${fm(parseInt(f.mod.amount)||0)}${f.mod.perLevel?t.featPerLevel:""})</span>` : "";
-    return `<tr><td>${esc(f.name)}</td><td style="white-space:pre-wrap">${esc(f.notes)}${modText}</td></tr>`;
+  const featRows = state.feats.slice().sort((a,b)=>(a.level||1)-(b.level||1)).map(f=>{
+    const modText = (f.mod && f.mod.stat) ? ` <span class="f">(${featModLabel(f.mod.stat)} ${f.mod.matchSpeed ? `= ${t.speed}` : `${fm(parseInt(f.mod.amount)||0)}${f.mod.perLevel?t.featPerLevel:""}`})</span>` : "";
+    return `<tr><td class="num">${f.level||1}</td><td>${esc(f.name)}</td><td style="white-space:pre-wrap">${esc(f.notes)}${modText}</td></tr>`;
   }).join("");
   const resourceRows = state.resources.map(r=>{
     const rechargeLabel = r.recharge==='short'?t.rShort:r.recharge==='long'?t.rLong:t.rOther;
@@ -1860,6 +1934,8 @@ function buildPrintHTML(opts){
     @media(max-width:640px){.two-col-13{grid-template-columns:1fr;}}
     .list-row{display:grid;grid-template-columns:18px 1fr 36px;gap:5px;padding:2.5px 2px;border-bottom:1px solid #e6dcc0;font-size:12.5px;align-items:center;}
     [dir="rtl"] .list-row{grid-template-columns:36px 1fr 18px;}
+    .list-row.skill-row{grid-template-columns:18px 18px 1fr 36px;}
+    [dir="rtl"] .list-row.skill-row{grid-template-columns:36px 36px 1fr 18px;}
     .list-row .mark{color:var(--gold-bright);text-align:center;}
     .list-row .val{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:center;color:var(--gold);}
     .ability-tag{font-size:9.5px;color:var(--ink-faint);}
@@ -1905,14 +1981,14 @@ function buildPrintHTML(opts){
         <div class="combat-box ac-box"><span class="label">🛡️ ${t.ac}</span>
           <div class="shape-wrap"><svg class="shape-bg" viewBox="0 0 100 112" preserveAspectRatio="none"><path d="M50 3 L94 16 L94 54 Q94 90 50 109 Q6 90 6 54 L6 16 Z"/></svg><div class="shape-content"><span class="big">${computeAC(state)}</span></div></div>
         </div>
-        <div class="combat-box"><span class="label">${t.init}</span><span class="big">${fm(dexMod)}</span></div>
-        <div class="combat-box"><span class="label">🐇 ${t.speed}</span><span class="big">${effSpeed} <span style="font-size:11px">(${Math.floor(effSpeed/5)} sq)</span></span><div class="formula-note">🕷️ ${t.climbSpeed}: ${state.climbSpeed + getFeatBonus(state,"climb")} ft</div></div>
-        <div class="combat-box"><span class="label">${t.hitdice}</span><span class="big" style="font-size:15px">${esc(state.hitDice)}</span></div>
+        <div class="combat-box"><span class="label">${t.init}</span><span class="big">${fm(effInit)}</span></div>
+        <div class="combat-box"><span class="label">🐇 ${t.speed}</span><span class="big">${effSpeed} <span style="font-size:11px">(${Math.floor(effSpeed/5)} sq)</span></span><div class="formula-note">🕷️ ${t.climbSpeed}: ${getEffectiveSecondarySpeed(state,"climb")} ft · 🏊 ${t.swimSpeed}: ${getEffectiveSecondarySpeed(state,"swim")} ft</div></div>
+        <div class="combat-box"><span class="label">${t.hitdice}</span><span class="big" style="font-size:15px">${esc(computeHitDice(state))}</span></div>
         <div class="combat-box"><span class="label">${t.prof}</span><span class="big">${fm(prof)}</span></div>
         <div class="combat-box hp-box"><svg class="hp-heart-bg" viewBox="0 0 100 100"><path d="M50 90 C18 66 2 46 2 25 C2 8 15 2 27 2 C38 2 46 8 50 19 C54 8 62 2 73 2 C85 2 98 8 98 25 C98 46 82 66 50 90 Z"/></svg><span class="label">❤️ ${t.hp}${state.hpAutoCalc?" (auto)":""}</span><span class="big">${state.hpCur} / ${state.hpMax + getFeatBonus(state,"hp")}</span></div>
       </div>
       <div class="conc-row">
-        <span><b>${t.armorBase}:</b> ${state.armor.base}${state.armor.dexApplies?` + DEX (${fm(dexMod)})`:""}${state.armor.shieldEquipped?` + ${esc(state.armor.shieldName)} (${state.armor.shieldBonus})`:""}</span>
+        <span><b>${t.armorBase}:</b> ${state.armor.base}${state.armor.dexApplies?` + ${t[state.armor.acAbility]} (${fm(acMod)})`:""}${state.armor.shieldEquipped?` + ${esc(state.armor.shieldName)} (${state.armor.shieldBonus})`:""}</span>
       </div>
     </div>
 
@@ -1929,7 +2005,7 @@ function buildPrintHTML(opts){
         <div class="pdim" style="margin-bottom:6px;line-height:1.4">${lang==='en' ? 'd20 + ability mod (in parens) + prof (● only)' : 'd20 + מודיפייר תכונה (בסוגריים) + מיומנות (● בלבד)'}</div>
         <div class="skills-grid">${skillRows}</div>
         <div class="conc-row" style="margin-top:8px;padding-top:8px">
-          <span><b>${t.passivePerception}:</b> ${computePassivePerception(state)} <span class="pdim">(10 + WIS ${fm(mod(effAbil.wis))}${state.skillProf.perception?` + prof ${fm(prof)}`:""})</span></span>
+          <span><b>${t.passivePerception}:</b> ${computePassivePerception(state)} <span class="pdim">(10 + WIS ${fm(mod(effAbil.wis))}${state.skillProf.perception?` + prof ${fm(prof*(state.skillExpertise.perception?2:1))}`:""})</span></span>
         </div>
       </div>
     </div>
@@ -1961,7 +2037,7 @@ function buildPrintHTML(opts){
       ${(state.spells.length || extraSpells) ? `<div class="pdim" style="margin-bottom:6px">${t.spLegend}</div><div class="table-scroll"><table><thead><tr><th>${t.spLevel}</th><th>${t.spPrepared}</th><th>${t.spName}</th><th>${t.spRange}</th><th>${t.spCastTime}</th><th>${t.spSave}</th><th>${t.spVerbal}</th><th>${t.spSomatic}</th><th>${t.spMaterial}</th><th>${t.spDmg}</th><th>${t.spNotes}</th></tr></thead><tbody>${spellRows}</tbody></table></div>` : ""}
     </div>
 
-    ${state.feats.length ? `<div class="panel"><h2>${t.feats}</h2><div class="table-scroll"><table><thead><tr><th>${t.featName}</th><th>${t.featNotes}</th></tr></thead><tbody>${featRows}</tbody></table></div></div>` : ""}
+    ${state.feats.length ? `<div class="panel"><h2>${t.feats}</h2><div class="table-scroll"><table><thead><tr><th>${t.featLvlAbbr}</th><th>${t.featName}</th><th>${t.featNotes}</th></tr></thead><tbody>${featRows}</tbody></table></div></div>` : ""}
 
     ${state.resources.length ? `<div class="panel"><h2>${t.resources}</h2><div class="table-scroll"><table><thead><tr><th>${t.resName}</th><th>${t.resUses}</th><th></th><th>${t.resRecharge}</th></tr></thead><tbody>${resourceRows}</tbody></table></div></div>` : ""}
 
@@ -2049,9 +2125,23 @@ function confirmAddSpell(){
 }
 function removeSpell(i){ state.spells.splice(i,1); render(); queueSave(); }
 
+function secondarySpeedRowHTML(t, kind, icon){
+  const overridden = (state.feats||[]).some(f => f.mod && f.mod.stat===kind && f.mod.matchSpeed);
+  const val = getEffectiveSecondarySpeed(state, kind);
+  const base = kind==="climb" ? state.climbSpeed : state.swimSpeed;
+  const featBonus = getFeatBonus(state, kind);
+  const label = kind==="climb" ? t.climbSpeed : t.swimSpeed;
+  return `<div class="speed-value-group" style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--leather-line)">
+    <span class="dim-label" title="${label}">${icon}</span>
+    <span class="mono" style="font-weight:700">${val}</span>
+    ${overridden ? "" : `<span class="dim-label">${t.speedBase}</span><input type="number" min="0" style="width:34px;text-align:center;padding:0" value="${base}" onchange="set('${kind==="climb"?"climbSpeed":"swimSpeed"}', parseInt(this.value)||0)">`}
+  </div>
+  <div class="formula-note">${overridden ? `= ${t.speed} (${lang==='en'?'feat':'תכונה'})` : `${base}${featBonus!==0 ? ` ${fm(featBonus)} ${lang==='en'?'feat':'תכונה'}` : ""}`}</div>`;
+}
 function featModLabelForRow(t, stat){
   if(stat==='speed') return t.speed;
   if(stat==='climb') return t.climbSpeed;
+  if(stat==='swim') return t.swimSpeed;
   if(stat==='hp') return t.featHP;
   if(stat==='atk_all') return t.featAtkAll;
   if(stat==='atk_melee') return t.featAtkMelee;
@@ -2069,18 +2159,22 @@ function estimateTextRows(text){
   const lines = String(text||"").split("\n");
   let rows = 0;
   lines.forEach(l => { rows += Math.max(1, Math.ceil(l.length/48)); });
-  return Math.max(2, Math.min(14, rows));
+  return Math.max(1, Math.min(14, rows));
 }
 function featRow(f, i){
   const t = T[lang];
   const modStat = (f.mod && f.mod.stat) || "";
   const modAmt = (f.mod && f.mod.amount) || 0;
   const perLevel = !!(f.mod && f.mod.perLevel);
-  const badge = modStat ? `<span class="feat-badge">${featModLabelForRow(t,modStat)} ${fm(modAmt)}${perLevel ? ` <span class="feat-lvmark">× Lv${state.level} = ${fm(modAmt*Math.max(1,state.level))}</span>` : ""}</span>` : "";
+  const matchSpeed = !!(f.mod && f.mod.matchSpeed);
+  const badge = modStat ? `<span class="feat-badge">${featModLabelForRow(t,modStat)} ${matchSpeed ? `= ${t.speed}` : `${fm(modAmt)}${perLevel ? ` <span class="feat-lvmark">× Lv${state.level} = ${fm(modAmt*Math.max(1,state.level))}</span>` : ""}`}</span>` : "";
   return `<div class="feat-card">
     <div class="feat-card-top">
+      <span class="feat-name-display">${t.featLvlAbbr}${lang==='he'?' ':''}${f.level||1}</span>
+      <span class="feat-name-display">|</span>
       <span class="feat-name-display">${esc2(f.name)}</span>
       ${badge}
+      <button class="edit-row no-print" onclick="openEditFeatModal(${i})" title="${t.edit}">✏️</button>
       <button class="remove-row no-print" onclick="confirmRemove(()=>removeFeat(${i}))" title="${t.del}">🗑️</button>
     </div>
     <textarea class="feat-notes-input" rows="${estimateTextRows(f.notes)}" placeholder="${t.featNotes}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('feats.${i}.notes', this.value)">${f.notes}</textarea>
@@ -2088,18 +2182,25 @@ function featRow(f, i){
 }
 function esc2(s){ return String(s??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 let featModalOpen = false;
-function openFeatModal(){ featModalOpen = true; render(); }
-function closeFeatModal(){ featModalOpen = false; render(); }
-function confirmAddFeat(){
+let editingFeatIndex = null;
+function openFeatModal(){ editingFeatIndex = null; featModalOpen = true; render(); }
+function openEditFeatModal(i){ editingFeatIndex = i; featModalOpen = true; render(); }
+function closeFeatModal(){ featModalOpen = false; editingFeatIndex = null; render(); }
+function confirmFeatModal(){
   const nameEl = document.getElementById("modalFeatName");
   const name = nameEl.value.trim();
   if(!name) return;
+  const level = Math.max(1, Math.min(20, parseInt(document.getElementById("modalFeatLevel").value)||1));
   const stat = document.getElementById("modalFeatAffects").value;
   const amount = parseInt(document.getElementById("modalFeatAmount").value)||0;
   const perLevel = document.getElementById("modalFeatPerLevel").checked;
+  const matchSpeed = (stat==='climb'||stat==='swim') && document.getElementById("modalFeatMatchSpeed").checked;
   const notes = document.getElementById("modalFeatNotes").value;
-  state.feats.push({name, notes, mod:{stat, amount: stat?amount:0, perLevel: stat?perLevel:false}});
+  const feat = {name, level, notes, mod:{stat, amount: stat?amount:0, perLevel: stat && !matchSpeed ? perLevel:false, matchSpeed}};
+  if(editingFeatIndex===null) state.feats.push(feat);
+  else state.feats[editingFeatIndex] = feat;
   featModalOpen = false;
+  editingFeatIndex = null;
   render();
   queueSave();
 }
@@ -2169,9 +2270,9 @@ function setResourceTotal(i, value){
 function itemRow(it, i){
   const t = T[lang];
   return `<tr>
-    <td><input type="number" min="0" style="width:56px" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
-    <td><input type="text" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)"></td>
-    <td><input type="text" value="${it.notes}" onchange="set('inventory.items.${i}.notes', this.value)"></td>
+    <td><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td><input type="text" class="item-name-input" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)"></td>
+    <td><textarea class="item-notes-input" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea></td>
     <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button></td>
   </tr>`;
 }
@@ -2330,11 +2431,13 @@ function render(){
   const prof = profByLevel(state.level);
   const effAbil = getEffectiveAbilities(state);
   const effSpeed = getEffectiveSpeed(state);
+  const effInit = getEffectiveInitiative(state);
   if(state.hpAutoCalc){
     state.hpMax = computeMaxHP(state);
   }
   const dexMod = mod(effAbil.dex);
   const conMod = mod(effAbil.con);
+  const acMod = mod(effAbil[state.armor.acAbility]);
   const effMaxHP = state.hpMax + getFeatBonus(state, "hp");
   if(state.hpCur > effMaxHP) state.hpCur = effMaxHP;
   const hpPct = Math.max(0, Math.min(100, (state.hpCur/Math.max(1,effMaxHP))*100));
@@ -2478,29 +2581,28 @@ function render(){
           <svg class="shape-bg" viewBox="0 0 100 112" preserveAspectRatio="none"><path d="M50 3 L94 16 L94 54 Q94 90 50 109 Q6 90 6 54 L6 16 Z"/></svg>
           <div class="shape-content"><div class="big mono">${computeAC(state)}</div></div>
         </div>
-        <div class="formula-note">${state.armor.base}${state.armor.dexApplies?`+DEX(${fm(dexMod)})`:""}${state.armor.shieldEquipped?`+${t.shieldName}(${state.armor.shieldBonus})`:""}</div>
+        <div class="formula-note">${state.armor.base}${state.armor.dexApplies?`+${t[state.armor.acAbility]}(${fm(acMod)})`:""}${state.armor.shieldEquipped?`+${t.shieldName}(${state.armor.shieldBonus})`:""}</div>
       </div>
       <div class="combat-box">
         <span class="label">${t.init}</span>
-        <div class="big mono">${fm(dexMod)}</div>
-        <div class="formula-note">d20+DEX</div>
+        <div class="big mono">${fm(effInit)}</div>
+        <div class="formula-note">d20+DEX${getFeatBonus(state,"init")!==0 ? ` ${fm(getFeatBonus(state,"init"))} ${lang==='en'?'feat':'תכונה'}` : ""}</div>
       </div>
       <div class="combat-box">
         <span class="label">🐇 ${t.speed}</span>
         <div class="speed-value-group">
-          <input type="number" class="big" style="width:76px;text-align:center;font-size:19px;padding-right:2px" value="${state.speed}" onchange="set('speed', parseInt(this.value)||30)">
+          <div class="big mono">${effSpeed}</div>
           <span class="speed-sq-badge">${Math.floor(effSpeed/5)} ${lang==='en'?'sq':'מש'}</span>
+          <span class="dim-label">${t.speedBase}</span>
+          <input type="number" min="0" style="width:34px;text-align:center;padding:0" value="${state.speed}" onchange="set('speed', parseInt(this.value)||30)">
         </div>
-        ${effSpeed!==state.speed ? `<div class="formula-note">${effSpeed} ft ${lang==='en'?'w/ feat':'עם תכונה'}</div>` : ""}
-        <div class="rowin" style="margin-top:8px;padding-top:7px;border-top:1px dashed var(--leather-line)">
-          <span class="dim-label">🕷️ ${t.climbSpeed}</span>
-          <input type="number" min="0" style="width:64px;text-align:center" value="${state.climbSpeed}" onchange="set('climbSpeed', parseInt(this.value)||0)">
-        </div>
-        ${getFeatBonus(state,"climb")!==0 ? `<div class="formula-note">${state.climbSpeed + getFeatBonus(state,"climb")} ft ${lang==='en'?'w/ feat':'עם תכונה'}</div>` : ""}
+        <div class="formula-note">${state.speed}${getFeatBonus(state,"speed")!==0 ? ` ${fm(getFeatBonus(state,"speed"))} ${lang==='en'?'feat':'תכונה'}` : ""}</div>
+        ${secondarySpeedRowHTML(t, "climb", "🕷️")}
+        ${secondarySpeedRowHTML(t, "swim", "🏊")}
       </div>
       <div class="combat-box">
         <span class="label">${t.hitdice}</span>
-        <input type="text" class="big" style="width:70px;text-align:center;font-size:16px" value="${state.hitDice}" onchange="set('hitDice', this.value)">
+        <input type="text" class="big" style="width:70px;text-align:center;font-size:16px" value="${computeHitDice(state)}" ${state.charType==="animal"?"disabled":""} onchange="set('hitDice', this.value)">
       </div>
       <div class="combat-box">
         <span class="label">${t.prof}</span>
@@ -2530,6 +2632,9 @@ function render(){
         <span class="dim-label">${t.armorBase}</span>
         <input type="number" min="0" value="${state.armor.base}" onchange="set('armor.base', parseInt(this.value)||0)">
         <label><input type="checkbox" ${state.armor.dexApplies?"checked":""} onchange="set('armor.dexApplies', this.checked)">${t.armorDex}</label>
+        <select onchange="set('armor.acAbility', this.value)">
+          ${ABILS.map(a=>`<option value="${a}" ${state.armor.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
+        </select>
       </div>
       <div class="grp">
         <span class="dim-label">${t.shieldName}</span>
@@ -2565,14 +2670,16 @@ function render(){
     <div class="panel ${foldedPanels['skills'] ? 'folded' : ''}">
       <h2 class="ref-toggle" onclick="togglePanelFold('skills')">${t.skills} ${foldIcon('skills')}</h2>
       <div class="formula-note" style="margin-bottom:8px;line-height:1.5">${lang==='en'
-        ? 'd20 + ability mod (shown in parentheses) + prof (only if the checkbox is on). The ability differs per skill — Stealth uses DEX, Medicine uses WIS, and so on.'
-        : 'd20 + מודיפייר תכונה (מוצג בסוגריים) + מיומנות (רק אם התיבה מסומנת). התכונה משתנה לפי הכישור — התגנבות משתמשת בזריזות, רפואה בחוכמה, וכו׳.'}</div>
+        ? 'd20 + ability mod (shown in parentheses) + prof (only if the checkbox is on). The ability differs per skill — Stealth uses DEX, Medicine uses WIS, and so on. The second checkbox is Expertise (doubles the prof bonus) and only matters if the skill is also checked proficient.'
+        : 'd20 + מודיפייר תכונה (מוצג בסוגריים) + מיומנות (רק אם התיבה מסומנת). התכונה משתנה לפי הכישור — התגנבות משתמשת בזריזות, רפואה בחוכמה, וכו׳. התיבה השנייה היא מומחיות (מכפילה את בונוס המיומנות) ומשנה משהו רק אם גם התיבה הראשונה מסומנת.'}</div>
       <div class="skills-grid">
         ${SKILLS.map(([key,abil,en,he])=>{
           const p = !!state.skillProf[key];
-          const val = mod(effAbil[abil]) + (p?prof:0);
-          return `<div class="list-row">
-            <input type="checkbox" ${p?"checked":""} onchange="set('skillProf.${key}', this.checked)">
+          const e = !!state.skillExpertise[key];
+          const val = mod(effAbil[abil]) + (p?prof*(e?2:1):0);
+          return `<div class="list-row skill-row">
+            <input type="checkbox" ${p?"checked":""} onchange="set('skillProf.${key}', this.checked)" title="${t.proficient}">
+            <input type="checkbox" ${e?"checked":""} ${p?"":"disabled"} onchange="set('skillExpertise.${key}', this.checked)" title="${t.expertise}">
             <span>${ABIL_ICON[abil]} ${lang==='he'?he:en}<span class="ability-tag">(${t[abil]})</span></span>
             <span class="val">${fm(val)}</span>
           </div>`;
@@ -2583,8 +2690,8 @@ function render(){
         <span class="val">${computePassivePerception(state)}</span>
       </div>
       <div class="formula-note" style="margin-top:6px">${lang==='en'
-        ? `10 + WIS mod (${fm(mod(effAbil.wis))}) ${state.skillProf.perception?`+ prof (${fm(prof)}, proficient in Perception)`:'(not proficient in Perception, so no prof bonus)'} = ${computePassivePerception(state)}`
-        : `10 + מודיפייר חוכמה (${fm(mod(effAbil.wis))}) ${state.skillProf.perception?`+ מיומנות (${fm(prof)}, מיומן בתפיסה)`:'(לא מיומן בתפיסה, אז בלי בונוס מיומנות)'} = ${computePassivePerception(state)}`}</div>
+        ? `10 + WIS mod (${fm(mod(effAbil.wis))}) ${state.skillProf.perception?`+ prof (${fm(prof*(state.skillExpertise.perception?2:1))}, proficient in Perception${state.skillExpertise.perception?' with Expertise':''})`:'(not proficient in Perception, so no prof bonus)'} = ${computePassivePerception(state)}`
+        : `10 + מודיפייר חוכמה (${fm(mod(effAbil.wis))}) ${state.skillProf.perception?`+ מיומנות (${fm(prof*(state.skillExpertise.perception?2:1))}, מיומן בתפיסה${state.skillExpertise.perception?' עם מומחיות':''})`:'(לא מיומן בתפיסה, אז בלי בונוס מיומנות)'} = ${computePassivePerception(state)}`}</div>
     </div>
   </div>
 
@@ -2610,13 +2717,13 @@ function render(){
       <thead><tr><th>${t.itemQty}</th><th>${t.itemName}</th><th>${t.itemNotes}</th><th></th></tr></thead>
       <tbody>${state.inventory.items.map(itemRow).join("")}</tbody>
     </table></div>
-    <button class="btn no-print" style="margin-top:10px" onclick="addItem()">${t.addItem}</button>
+    <button class="btn primary no-print" style="margin-top:10px" onclick="addItem()">➕ ${t.addItem}</button>
   </div>
 
   <div class="panel ${foldedPanels['attacks'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('attacks')">${t.attacks} ${foldIcon('attacks')}</h2>
     <div class="attack-list">${state.attacks.map(attackRow).join("")}</div>
-    <button class="btn primary no-print" style="margin-top:10px" onclick="openAttackModal()">${t.addRow}</button>
+    <button class="btn primary no-print" style="margin-top:10px" onclick="openAttackModal()">➕ ${t.addRow}</button>
   </div>
 
   <div class="panel ${foldedPanels['spells'] ? 'folded' : ''}">
@@ -2670,7 +2777,7 @@ function render(){
   <div class="panel ${foldedPanels['feats'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('feats')">${t.feats} ${foldIcon('feats')}</h2>
     <div class="formula-note" style="margin-bottom:8px;line-height:1.5">${t.featLevelHint}</div>
-    <div class="attack-list">${state.feats.map(featRow).join("")}</div>
+    <div class="attack-list">${state.feats.map((f,i)=>({f,i})).sort((a,b)=>(a.f.level||1)-(b.f.level||1)).map(x=>featRow(x.f,x.i)).join("")}</div>
     <button class="btn primary no-print" style="margin-top:10px" onclick="openFeatModal()">➕ ${t.addFeat}</button>
   </div>
 
@@ -2680,7 +2787,7 @@ function render(){
       <thead><tr><th>${t.resName}</th><th>${t.resUses}</th><th></th><th>${t.resRecharge}</th><th></th></tr></thead>
       <tbody>${state.resources.map(resourceRow).join("")}</tbody>
     </table></div>
-    <button class="btn no-print" style="margin-top:10px" onclick="addResource()">${t.addResource}</button>
+    <button class="btn primary no-print" style="margin-top:10px" onclick="addResource()">➕ ${t.addResource}</button>
   </div>
 
   <div class="panel ${foldedPanels['notes'] ? 'folded' : ''}">
@@ -2826,57 +2933,82 @@ function render(){
 
   ${newCharModalOpen ? newCharModalHTML(t) : ""}
 
-  ${featModalOpen ? `
+  ${featModalOpen ? (()=>{
+    const ef = editingFeatIndex!==null ? state.feats[editingFeatIndex] : null;
+    const efStat = ef ? (ef.mod.stat||"") : "";
+    const selOpt = v => efStat===v ? "selected" : "";
+    const efIsSpd = efStat==='climb' || efStat==='swim';
+    const efMatchSpeed = efIsSpd && !!(ef && ef.mod.matchSpeed);
+    const amtDisabled = !efStat || efMatchSpeed;
+    return `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeFeatModal()">
     <div class="modal-box">
-      <h3>${t.addFeatModalTitle}</h3>
-      <div class="modal-row">
-        <label>${t.featName}</label>
-        <input type="text" id="modalFeatName" placeholder="Darkvision">
+      <h3>${ef ? t.editFeatModalTitle : t.addFeatModalTitle}</h3>
+      <div class="modal-row" style="display:flex;gap:10px">
+        <div style="flex:0 0 70px">
+          <label>${t.featLvlAbbr}</label>
+          <input type="number" id="modalFeatLevel" min="1" max="20" value="${ef ? (ef.level||1) : 1}" class="no-spinner" style="text-align:center">
+        </div>
+        <div style="flex:2">
+          <label>${t.featName}</label>
+          <input type="text" id="modalFeatName" placeholder="Darkvision" value="${ef ? esc2(ef.name) : ""}">
+        </div>
       </div>
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:2">
           <label>${t.featAffects}</label>
-          <select id="modalFeatAffects" onchange="document.getElementById('modalFeatAmount').disabled=!this.value;document.getElementById('modalFeatPerLevel').disabled=!this.value;">
-            <option value="">${t.featModNone}</option>
-            <option value="speed">${t.speed}</option>
-            <option value="climb">${t.climbSpeed}</option>
-            <option value="hp">${t.featHP}</option>
-            ${ABILS.map(a=>`<option value="${a}">${t[a]}</option>`).join("")}
+          <select id="modalFeatAffects" onchange="
+            var isSpd=(this.value==='climb'||this.value==='swim');
+            document.getElementById('modalFeatMatchSpeedWrap').style.display=isSpd?'flex':'none';
+            var msChecked=isSpd &amp;&amp; document.getElementById('modalFeatMatchSpeed').checked;
+            document.getElementById('modalFeatAmount').disabled=!this.value||msChecked;
+            document.getElementById('modalFeatPerLevel').disabled=!this.value||msChecked;
+          ">
+            <option value="" ${selOpt("")}>${t.featModNone}</option>
+            <option value="speed" ${selOpt("speed")}>${t.speed}</option>
+            <option value="init" ${selOpt("init")}>${t.init}</option>
+            <option value="climb" ${selOpt("climb")}>${t.climbSpeed}</option>
+            <option value="swim" ${selOpt("swim")}>${t.swimSpeed}</option>
+            <option value="hp" ${selOpt("hp")}>${t.featHP}</option>
+            ${ABILS.map(a=>`<option value="${a}" ${selOpt(a)}>${t[a]}</option>`).join("")}
             <optgroup label="${t.featAtkGroup}">
-              <option value="atk_all">${t.featAtkAll}</option>
-              <option value="atk_melee">${t.featAtkMelee}</option>
-              <option value="atk_ranged">${t.featAtkRanged}</option>
-              <option value="atk_finesse">${t.featAtkFinesse}</option>
-              <option value="atk_spell">${t.featAtkSpell}</option>
+              <option value="atk_all" ${selOpt("atk_all")}>${t.featAtkAll}</option>
+              <option value="atk_melee" ${selOpt("atk_melee")}>${t.featAtkMelee}</option>
+              <option value="atk_ranged" ${selOpt("atk_ranged")}>${t.featAtkRanged}</option>
+              <option value="atk_finesse" ${selOpt("atk_finesse")}>${t.featAtkFinesse}</option>
+              <option value="atk_spell" ${selOpt("atk_spell")}>${t.featAtkSpell}</option>
             </optgroup>
             <optgroup label="${t.featDmgGroup}">
-              <option value="dmg_all">${t.featDmgAll}</option>
-              <option value="dmg_melee">${t.featDmgMelee}</option>
-              <option value="dmg_ranged">${t.featDmgRanged}</option>
-              <option value="dmg_finesse">${t.featDmgFinesse}</option>
-              <option value="dmg_spell">${t.featDmgSpell}</option>
+              <option value="dmg_all" ${selOpt("dmg_all")}>${t.featDmgAll}</option>
+              <option value="dmg_melee" ${selOpt("dmg_melee")}>${t.featDmgMelee}</option>
+              <option value="dmg_ranged" ${selOpt("dmg_ranged")}>${t.featDmgRanged}</option>
+              <option value="dmg_finesse" ${selOpt("dmg_finesse")}>${t.featDmgFinesse}</option>
+              <option value="dmg_spell" ${selOpt("dmg_spell")}>${t.featDmgSpell}</option>
             </optgroup>
           </select>
         </div>
         <div style="flex:0 0 70px">
           <label>${t.featAmount}</label>
-          <input type="number" id="modalFeatAmount" value="0" disabled>
+          <input type="number" id="modalFeatAmount" value="${ef ? (ef.mod.amount||0) : 0}" ${amtDisabled ? "disabled" : ""}>
         </div>
       </div>
+      <div class="modal-row" id="modalFeatMatchSpeedWrap" style="display:${efIsSpd ? 'flex' : 'none'};align-items:center">
+        <label class="atk-prof-chip"><input type="checkbox" id="modalFeatMatchSpeed" ${efMatchSpeed ? "checked" : ""} onchange="document.getElementById('modalFeatAmount').disabled=this.checked;document.getElementById('modalFeatPerLevel').disabled=this.checked;">${t.featMatchSpeed}</label>
+      </div>
       <div class="modal-row">
-        <label class="atk-prof-chip"><input type="checkbox" id="modalFeatPerLevel" disabled>${t.featPerLevel}</label>
+        <label class="atk-prof-chip"><input type="checkbox" id="modalFeatPerLevel" ${ef && ef.mod.perLevel ? "checked" : ""} ${amtDisabled ? "disabled" : ""}>${t.featPerLevel}</label>
       </div>
       <div class="modal-row">
         <label>${t.featNotes}</label>
-        <textarea id="modalFeatNotes" rows="3"></textarea>
+        <textarea id="modalFeatNotes" rows="3">${ef ? ef.notes : ""}</textarea>
       </div>
       <div class="modal-actions">
         <button class="btn" onclick="closeFeatModal()">${t.printCancel}</button>
-        <button class="btn primary" onclick="confirmAddFeat()">${t.doneBtn}</button>
+        <button class="btn primary" onclick="confirmFeatModal()">${t.doneBtn}</button>
       </div>
     </div>
-  </div>` : ""}
+  </div>`;
+  })() : ""}
 
   ${pendingRemove ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) cancelRemove()">
