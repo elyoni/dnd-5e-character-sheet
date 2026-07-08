@@ -25,7 +25,7 @@ test.describe('character sheet editing', () => {
   test('adding an attack via the modal adds it to state', async ({ page }) => {
     await dismissOnboarding(page);
 
-    await page.click('button:has-text("+ Add attack")');
+    await page.click('button:has-text("Attack")');
     await page.fill('#modalAttackName', 'Dagger');
     await page.fill('#modalAttackDmg', '1d4');
     await page.locator('.modal-backdrop button:has-text("Done")').click();
