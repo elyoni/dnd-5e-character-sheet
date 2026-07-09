@@ -555,9 +555,12 @@ const T = {
     identityLockedHint:"Name, Class, Race, and Subrace are locked to prevent accidental changes. Level stays editable since it changes often.",
     identityUnlockedHint:"Unlocked — Name/Class/Race/Subrace can be edited now.",
     identityUnlockBtn:"🔓 Unlock to edit", identityLockNow:"🔒 Lock again",
-    armorBase:"Base AC", armorDex:"Ability applies", shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped",
+    shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped",
     proficiencies:"Proficiencies & Languages", profArmor:"Armor", profWeapons:"Weapons", profTools:"Tools", profLanguages:"Languages",
     inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
+    itemType:"Type", itemTypeGear:"Gear", itemTypeWeapon:"Weapon", itemTypeArmor:"Armor", itemTypeShield:"Shield",
+    itemAC:"AC", acBreakdown:"AC breakdown", unarmoredAbilHint:"Ability that governs AC when no armor is equipped",
+    noneOption:"— none —",
     abilities:"Ability Scores", str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA",
     combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
@@ -649,7 +652,7 @@ const T = {
         <dt>Saving throw proficiency</dt><dd>Each class grants proficiency in exactly two saves at level 1 (e.g. wizards get INT & WIS). That's fixed for the character's life — check the "prof" checkbox for those two and leave the rest unchecked.</dd>
         <dt>Death saving throw</dt><dd>A special case, only rolled at 0 HP: <span class="f">d20, no modifiers at all</span>, needs 10+. Three successes stabilizes you; three failures (a natural 1 counts as two failures, a natural 20 instead pops you back up with 1 HP) means you die. Ability score and proficiency don't apply here.</dd>
         <dt>Skill check</dt><dd><span class="f">d20 + governing ability mod + prof (if proficient)</span></dd>
-        <dt>Armor Class</dt><dd>Computed as <span class="f">Base AC + DEX mod (if it applies) + Shield bonus (if equipped)</span> — set these in the Armor & Shield row under Combat. Base 10 with DEX applying is unarmored; heavier armor raises the base and may cap or remove the DEX bonus (turn "DEX applies" off for that). A shield only counts toward AC while its "Equipped" box is checked.</dd>
+        <dt>Armor Class</dt><dd>Computed as <span class="f">Armor's base AC + governing ability mod (if any) + Shield bonus(es) (if equipped)</span>. Mark an Armor item "Equipped" in Inventory to set the base and its own governing ability (or None); with no Armor equipped, AC falls back to 10 + the ability picked on the AC box itself (Dex by default, None to drop the ability mod entirely). Every equipped Shield item adds its bonus on top.</dd>
         <dt>Proficiencies</dt><dd>Armor, weapons, tools, and languages you're trained in don't add a number to anything by themselves — armor/weapon proficiency is what lets you add your proficiency bonus to attacks with them at all (unproficient = no bonus, sometimes a penalty). Track them as a reference list, not a roll.</dd>
         <dt>Spell save DC</dt><dd><span class="f">8 + prof + casting stat mod</span> — the number <em>other creatures</em> must meet or beat when one of your spells forces them to save.</dd>
         <dt>Spell attack bonus</dt><dd><span class="f">prof + casting stat mod</span> — used instead of a save DC for spells that say "make a ranged/melee spell attack" (e.g. Fire Bolt).</dd>
@@ -670,9 +673,12 @@ const T = {
     identityLockedHint:"שם, מחלקה, גזע ותת-גזע נעולים כדי למנוע שינויים בטעות. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
     identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/גזע/תת-גזע עכשיו.",
     identityUnlockBtn:"🔓 פתח לעריכה", identityLockNow:"🔒 נעל שוב",
-    armorBase:"בסיס שריון", armorDex:"תכונה חלה", shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש",
+    shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש",
     proficiencies:"מיומנויות ושפות", profArmor:"שריון", profWeapons:"נשקים", profTools:"כלים", profLanguages:"שפות",
     inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
+    itemType:"סוג", itemTypeGear:"ציוד כללי", itemTypeWeapon:"נשק", itemTypeArmor:"שריון", itemTypeShield:"מגן",
+    itemAC:"שריון", acBreakdown:"פירוט שריון", unarmoredAbilHint:"התכונה שקובעת את השריון כשאין שריון חבוש",
+    noneOption:"— ללא —",
     abilities:"תכונות", str:"כוח",dex:"זריזות",con:"חוסן",int:"אינטליגנציה",wis:"חוכמה",cha:"כריזמה",
     combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
@@ -764,7 +770,7 @@ const T = {
         <dt>מיומנות בהצלות</dt><dd>כל מחלקה נותנת מיומנות בדיוק בשתי הצלות ברמה 1 (למשל קוסמים מקבלים אינטליגנציה וחוכמה). זה קבוע לכל חיי הדמות — סמן את התיבה בשתי אלה והשאר את השאר לא מסומן.</dd>
         <dt>הצלת מוות</dt><dd>מקרה מיוחד, נזרק רק ב-0 נקודות חיים: <span class="f">d20 בלי שום מודיפייר</span>, צריך 10+. שלוש הצלחות מייצבות אותך; שלוש כישלונות (1 טבעי נחשב שני כישלונות, 20 טבעי מחזיר אותך עם 1 נקודת חיים) — ומתים. תכונה ומיומנות לא רלוונטיים כאן.</dd>
         <dt>בדיקת כישור</dt><dd><span class="f">d20 + מודיפייר תכונה שולטת + מיומנות</span></dd>
-        <dt>דירוג שריון</dt><dd>מחושב כ-<span class="f">בסיס AC + מודיפייר זריזות (אם רלוונטי) + בונוס מגן (אם חבוש)</span> — קובעים את אלה בשורת שריון ומגן תחת קרב. בסיס 10 עם זריזות רלוונטית זה בלי שריון; שריון כבד מעלה את הבסיס ולפעמים מגביל או מבטל את בונוס הזריזות (כבה את "זריזות חלה" במקרה כזה). מגן נספר ל-AC רק כשתיבת "חבוש" מסומנת.</dd>
+        <dt>דירוג שריון</dt><dd>מחושב כ-<span class="f">בסיס AC של השריון + מודיפייר התכונה הקובעת (אם יש) + בונוס(י) מגן (אם חבושים)</span>. סמן פריט שריון כ"חבוש" בציוד כדי לקבוע את הבסיס ואת התכונה הקובעת שלו (או ללא); כשאין שריון חבוש, ה-AC חוזר ל-10 + התכונה שנבחרה בתיבת ה-AC עצמה (זריזות כברירת מחדל, או ללא כדי לבטל את מודיפייר התכונה לגמרי). כל פריט מגן חבוש מוסיף את הבונוס שלו בנוסף.</dd>
         <dt>מיומנויות</dt><dd>שריון, נשקים, כלים ושפות שאתה מאומן בהם לא מוסיפים מספר לשום דבר בעצמם — מיומנות בשריון/נשק היא מה שמאפשר להוסיף את בונוס המיומנות שלך להתקפות איתם בכלל (לא מיומן = בלי בונוס, לפעמים קנס). נהל אותם כרשימת עזר, לא כהטלה.</dd>
         <dt>קושי הצלה מקסם</dt><dd><span class="f">8 + מיומנות + מודיפייר תכונת כישוף</span> — המספר שאחרים צריכים להשוות או לעבור כשקסם שלך מכריח אותם להציל.</dd>
         <dt>בונוס התקפת קסם</dt><dd><span class="f">מיומנות + מודיפייר תכונת כישוף</span> — לקסמים שדורשים הטלת פגיעה במקום הצלה.</dd>
@@ -806,7 +812,7 @@ function defaultChar(id){
     id, name:"New Adventurer", charType:"pc", cls:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
     abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
     level:1,
-    armor:{base:10, dexApplies:true, acAbility:"dex", shieldEquipped:false, shieldBonus:2, shieldName:"Shield"},
+    armor:{acAbility:"dex", migrated:true},
     speed:30, climbSpeed:0, swimSpeed:0, hpCur:10, hpMax:10, hitDice:"1d8", hpAutoCalc:true,
     saveProf:{str:false,dex:false,con:false,int:false,wis:false,cha:false},
     skillProf:{}, skillExpertise:{},
@@ -836,11 +842,40 @@ function hydrate(s){
   if(!s.feats) s.feats = [];
   if(!s.resources) s.resources = [];
   if(!s.concentration) s.concentration = {active:false, spell:"", dmg:0};
-  if(!s.armor) s.armor = {base: (typeof s.ac==='number'?s.ac:10), dexApplies:true, acAbility:"dex", shieldEquipped:false, shieldBonus:2, shieldName:"Shield"};
-  if(!s.armor.acAbility) s.armor.acAbility = "dex";
   if(!s.charType) s.charType = "pc";
+  if(!s.armor) s.armor = {acAbility: s.charType==="animal" ? "wis" : "dex"};
+  if(!s.armor.acAbility) s.armor.acAbility = s.charType==="animal" ? "wis" : "dex";
   if(!s.proficiencies) s.proficiencies = {armor:"", weapons:"", tools:"", languages:""};
   if(!s.inventory) s.inventory = {currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]};
+  s.inventory.items.forEach(it=>{
+    if(typeof it.type !== "string") it.type = "gear";
+    if(typeof it.equipped !== "boolean") it.equipped = false;
+    if(typeof it.acBase !== "number") it.acBase = 10;
+    if(typeof it.acAbility !== "string") it.acAbility = "dex";
+    if(typeof it.shieldBonus !== "number") it.shieldBonus = 2;
+  });
+  if(!s.armor.migrated){
+    const hasRealArmor = typeof s.armor.base === "number" && s.armor.base !== 10;
+    const hasRealShield = s.armor.shieldEquipped === true;
+    if(hasRealArmor){
+      s.inventory.items.push({
+        name: "Armor", qty:1, notes:"",
+        type:"armor", equipped:true,
+        acBase: s.armor.base,
+        acAbility: s.armor.dexApplies===false ? "none" : (s.armor.acAbility || "dex"),
+        shieldBonus:2
+      });
+    }
+    if(hasRealShield){
+      s.inventory.items.push({
+        name: s.armor.shieldName || "Shield", qty:1, notes:"",
+        type:"shield", equipped:true,
+        acBase:10, acAbility:"dex",
+        shieldBonus: (typeof s.armor.shieldBonus==="number" ? s.armor.shieldBonus : 2)
+      });
+    }
+    s.armor.migrated = true;
+  }
   if(typeof s.level !== "number") s.level = 1;
   if(s.attacks) s.attacks.forEach(a=>{ if(typeof a.prof !== "boolean") a.prof = true; });
   if(s.spells) s.spells.forEach(sp=>{
@@ -873,7 +908,7 @@ function demoChar(id){
     clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
     abilities:{str:16, dex:14, con:15, int:10, wis:12, cha:8},
     level:3,
-    armor:{base:16, dexApplies:false, acAbility:"dex", shieldEquipped:true, shieldBonus:2, shieldName: isHe ? "מגן" : "Shield"},
+    armor:{acAbility:"dex", migrated:true},
     speed:30, climbSpeed:0, swimSpeed:0, hpCur:28, hpMax:28, hitDice:"3d10", hpAutoCalc:true,
     saveProf:{str:true,dex:false,con:true,int:false,wis:false,cha:false},
     skillProf:{athletics:true, perception:true, intimidation:true}, skillExpertise:{},
@@ -886,11 +921,11 @@ function demoChar(id){
     inventory:{
       currency:{cp:0,sp:0,ep:0,gp:15,pp:0},
       items:[
-        {name: isHe ? "שריון שרשראות" : "Chain Mail", qty:1, notes:""},
-        {name: isHe ? "מגן" : "Shield", qty:1, notes:""},
-        {name: isHe ? "חרב ארוכה" : "Longsword", qty:1, notes:""},
-        {name: isHe ? "קשת קצרה + 20 חצים" : "Shortbow + 20 arrows", qty:1, notes:""},
-        {name: isHe ? "ערכת נוסע" : "Explorer's Pack", qty:1, notes:""}
+        {name: isHe ? "שריון שרשראות" : "Chain Mail", qty:1, notes:"", type:"armor", equipped:true, acBase:16, acAbility:"none", shieldBonus:2},
+        {name: isHe ? "מגן" : "Shield", qty:1, notes:"", type:"shield", equipped:true, acBase:10, acAbility:"dex", shieldBonus:2},
+        {name: isHe ? "חרב ארוכה" : "Longsword", qty:1, notes:"", type:"weapon", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2},
+        {name: isHe ? "קשת קצרה + 20 חצים" : "Shortbow + 20 arrows", qty:1, notes:"", type:"weapon", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2},
+        {name: isHe ? "ערכת נוסע" : "Explorer's Pack", qty:1, notes:"", type:"gear", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}
       ]
     },
     attacks:[
@@ -1243,7 +1278,30 @@ function computePassivePerception(s){
   const prof = profByLevel(s.level);
   return 10 + mod(eff.wis) + (s.skillProf.perception ? prof * (s.skillExpertise.perception ? 2 : 1) : 0);
 }
-const computeAC = s => s.armor.base + (s.armor.dexApplies ? mod(s.abilities[s.armor.acAbility] + getFeatBonus(s,s.armor.acAbility)) : 0) + (s.armor.shieldEquipped ? (parseInt(s.armor.shieldBonus)||0) : 0);
+function getEquippedArmor(s){
+  return (s.inventory.items||[]).find(it => it.type==="armor" && it.equipped) || null;
+}
+function getEquippedShieldBonus(s){
+  return (s.inventory.items||[]).filter(it => it.type==="shield" && it.equipped)
+    .reduce((sum,it)=> sum + (parseInt(it.shieldBonus)||0), 0);
+}
+function computeAC(s){
+  const armorItem = getEquippedArmor(s);
+  const base = armorItem ? (parseInt(armorItem.acBase)||10) : 10;
+  const abil = armorItem ? armorItem.acAbility : s.armor.acAbility;
+  const eff = getEffectiveAbilities(s);
+  const abilMod = (abil && abil!=="none") ? mod(eff[abil]) : 0;
+  return base + abilMod + getEquippedShieldBonus(s);
+}
+function acFormulaNote(s, t){
+  const armorItem = getEquippedArmor(s);
+  const eff = getEffectiveAbilities(s);
+  const base = armorItem ? (parseInt(armorItem.acBase)||10) : 10;
+  const abil = armorItem ? armorItem.acAbility : s.armor.acAbility;
+  const abilPart = (abil && abil!=="none") ? `+${t[abil]}(${fm(mod(eff[abil]))})` : "";
+  const shieldPart = getEquippedShieldBonus(s) ? `+${t.shieldName}(${getEquippedShieldBonus(s)})` : "";
+  return `${base}${abilPart}${shieldPart}`;
+}
 
 function abilForAttack(a){
   if(a.type==="melee") return "str";
@@ -1827,7 +1885,6 @@ function buildPrintHTML(opts){
   const effSpeed = getEffectiveSpeed(state);
   const effInit = getEffectiveInitiative(state);
   const dexMod = mod(effAbil.dex), conMod = mod(effAbil.con);
-  const acMod = mod(effAbil[state.armor.acAbility]);
 
   const abilBoxes = ABILS.map(a=>`
     <div class="ability">
@@ -1988,7 +2045,7 @@ function buildPrintHTML(opts){
         <div class="combat-box hp-box"><svg class="hp-heart-bg" viewBox="0 0 100 100"><path d="M50 90 C18 66 2 46 2 25 C2 8 15 2 27 2 C38 2 46 8 50 19 C54 8 62 2 73 2 C85 2 98 8 98 25 C98 46 82 66 50 90 Z"/></svg><span class="label">❤️ ${t.hp}${state.hpAutoCalc?" (auto)":""}</span><span class="big">${state.hpCur} / ${state.hpMax + getFeatBonus(state,"hp")}</span></div>
       </div>
       <div class="conc-row">
-        <span><b>${t.armorBase}:</b> ${state.armor.base}${state.armor.dexApplies?` + ${t[state.armor.acAbility]} (${fm(acMod)})`:""}${state.armor.shieldEquipped?` + ${esc(state.armor.shieldName)} (${state.armor.shieldBonus})`:""}</span>
+        <span><b>${t.acBreakdown}:</b> ${acFormulaNote(state, t)}</span>
       </div>
     </div>
 
@@ -2019,7 +2076,11 @@ function buildPrintHTML(opts){
 
     <div class="panel"><h2>${t.inventory}</h2>
       <div style="font-size:13px;margin-bottom:8px"><b>${t.currency}:</b> ${["cp","sp","ep","gp","pp"].map(c=>`${state.inventory.currency[c]} ${c.toUpperCase()}`).join(" · ")}</div>
-      ${state.inventory.items.length ? `<div class="table-scroll"><table><thead><tr><th>${t.itemQty}</th><th>${t.itemName}</th><th>${t.itemNotes}</th></tr></thead><tbody>${state.inventory.items.map(it=>`<tr><td class="num">${it.qty}</td><td>${esc(it.name)}</td><td>${esc(it.notes)}</td></tr>`).join("")}</tbody></table></div>` : ""}
+      ${state.inventory.items.length ? `<div class="table-scroll"><table><thead><tr><th>${t.itemType}</th><th>${t.itemName}</th><th>${t.itemQty}</th><th>${t.shieldOn}</th><th>${t.itemAC}</th><th>${t.itemNotes}</th></tr></thead><tbody>${state.inventory.items.map(it=>{
+        const typeLabel = {gear:t.itemTypeGear, weapon:t.itemTypeWeapon, armor:t.itemTypeArmor, shield:t.itemTypeShield}[it.type] || t.itemTypeGear;
+        const acCell = it.type==="armor" ? `${it.acBase}${it.acAbility!=='none'?` +${t[it.acAbility]}`:''}` : (it.type==="shield" ? `+${it.shieldBonus}` : "");
+        return `<tr><td>${esc(typeLabel)}</td><td>${esc(it.name)}</td><td class="num">${it.qty}</td><td>${it.equipped ? "✓" : ""}</td><td>${acCell}</td><td>${esc(it.notes)}</td></tr>`;
+      }).join("")}</tbody></table></div>` : ""}
     </div>
 
     <div class="panel"><h2>${t.attacks}</h2>
@@ -2269,14 +2330,35 @@ function setResourceTotal(i, value){
 
 function itemRow(it, i){
   const t = T[lang];
+  const equippedCell = (it.type==="armor" || it.type==="shield")
+    ? `<input type="checkbox" ${it.equipped?"checked":""} onchange="set('inventory.items.${i}.equipped', this.checked)" title="${t.shieldOn}">`
+    : "";
+  let acCell = "";
+  if(it.type==="armor"){
+    acCell = `<input type="number" min="0" style="width:48px;text-align:center" value="${it.acBase}" onchange="set('inventory.items.${i}.acBase', parseInt(this.value)||0)">
+      <select onchange="set('inventory.items.${i}.acAbility', this.value)">
+        ${ABILS.map(a=>`<option value="${a}" ${it.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
+        <option value="none" ${it.acAbility==="none"?"selected":""}>${t.noneOption}</option>
+      </select>`;
+  } else if(it.type==="shield"){
+    acCell = `<input type="number" min="0" style="width:48px;text-align:center" value="${it.shieldBonus}" onchange="set('inventory.items.${i}.shieldBonus', parseInt(this.value)||0)">`;
+  }
   return `<tr>
-    <td><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td><select onchange="set('inventory.items.${i}.type', this.value)">
+      <option value="gear" ${it.type==="gear"?"selected":""}>${t.itemTypeGear}</option>
+      <option value="weapon" ${it.type==="weapon"?"selected":""}>${t.itemTypeWeapon}</option>
+      <option value="armor" ${it.type==="armor"?"selected":""}>${t.itemTypeArmor}</option>
+      <option value="shield" ${it.type==="shield"?"selected":""}>${t.itemTypeShield}</option>
+    </select></td>
     <td><input type="text" class="item-name-input" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)"></td>
+    <td><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td>${equippedCell}</td>
+    <td>${acCell}</td>
     <td><textarea class="item-notes-input" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea></td>
     <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button></td>
   </tr>`;
 }
-function addItem(){ state.inventory.items.push({name:"", qty:1, notes:""}); render(); queueSave(); }
+function addItem(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"gear", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}); render(); queueSave(); }
 function removeItem(i){ state.inventory.items.splice(i,1); render(); queueSave(); }
 
 /* Quick-start templates: add a class's signature resources/attacks without
@@ -2437,7 +2519,6 @@ function render(){
   }
   const dexMod = mod(effAbil.dex);
   const conMod = mod(effAbil.con);
-  const acMod = mod(effAbil[state.armor.acAbility]);
   const effMaxHP = state.hpMax + getFeatBonus(state, "hp");
   if(state.hpCur > effMaxHP) state.hpCur = effMaxHP;
   const hpPct = Math.max(0, Math.min(100, (state.hpCur/Math.max(1,effMaxHP))*100));
@@ -2581,7 +2662,11 @@ function render(){
           <svg class="shape-bg" viewBox="0 0 100 112" preserveAspectRatio="none"><path d="M50 3 L94 16 L94 54 Q94 90 50 109 Q6 90 6 54 L6 16 Z"/></svg>
           <div class="shape-content"><div class="big mono">${computeAC(state)}</div></div>
         </div>
-        <div class="formula-note">${state.armor.base}${state.armor.dexApplies?`+${t[state.armor.acAbility]}(${fm(acMod)})`:""}${state.armor.shieldEquipped?`+${t.shieldName}(${state.armor.shieldBonus})`:""}</div>
+        <select class="ac-abil-select" style="font-size:11px;margin-top:2px" title="${t.unarmoredAbilHint}" onchange="set('armor.acAbility', this.value)">
+          ${ABILS.map(a=>`<option value="${a}" ${state.armor.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
+          <option value="none" ${state.armor.acAbility==="none"?"selected":""}>${t.noneOption}</option>
+        </select>
+        <div class="formula-note">${acFormulaNote(state, t)}</div>
       </div>
       <div class="combat-box">
         <span class="label">${t.init}</span>
@@ -2625,23 +2710,6 @@ function render(){
           ${t.hpAuto}
         </label>
         <div class="formula-note">${state.hpAutoCalc ? t.hpAutoNote : (lang==='en'?'CON mod / level → max HP':'מודיפייר חוסן / רמה → נק"ח מקס')}${getFeatBonus(state,'hp')!==0 ? `<br>${lang==='en'?'includes':'כולל'} ${fm(getFeatBonus(state,'hp'))} ${lang==='en'?'from feats':'מתכונות'} (${lang==='en'?'base':'בסיס'} ${state.hpMax})` : ""}</div>
-      </div>
-    </div>
-    <div class="armor-row">
-      <div class="grp">
-        <span class="dim-label">${t.armorBase}</span>
-        <input type="number" min="0" value="${state.armor.base}" onchange="set('armor.base', parseInt(this.value)||0)">
-        <label><input type="checkbox" ${state.armor.dexApplies?"checked":""} onchange="set('armor.dexApplies', this.checked)">${t.armorDex}</label>
-        <select onchange="set('armor.acAbility', this.value)">
-          ${ABILS.map(a=>`<option value="${a}" ${state.armor.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
-        </select>
-      </div>
-      <div class="grp">
-        <span class="dim-label">${t.shieldName}</span>
-        <input type="text" value="${state.armor.shieldName}" onchange="set('armor.shieldName', this.value)">
-        <span class="dim-label">${t.shieldBonus}</span>
-        <input type="number" min="0" value="${state.armor.shieldBonus}" onchange="set('armor.shieldBonus', parseInt(this.value)||0)">
-        <label><input type="checkbox" ${state.armor.shieldEquipped?"checked":""} onchange="set('armor.shieldEquipped', this.checked)">${t.shieldOn}</label>
       </div>
     </div>
   </div>
@@ -2714,7 +2782,7 @@ function render(){
       </div>
     </div>
     <div class="table-scroll"><table>
-      <thead><tr><th>${t.itemQty}</th><th>${t.itemName}</th><th>${t.itemNotes}</th><th></th></tr></thead>
+      <thead><tr><th>${t.itemType}</th><th>${t.itemName}</th><th>${t.itemQty}</th><th>${t.shieldOn}</th><th>${t.itemAC}</th><th>${t.itemNotes}</th><th></th></tr></thead>
       <tbody>${state.inventory.items.map(itemRow).join("")}</tbody>
     </table></div>
     <button class="btn primary no-print" style="margin-top:10px" onclick="addItem()">➕ ${t.addItem}</button>
