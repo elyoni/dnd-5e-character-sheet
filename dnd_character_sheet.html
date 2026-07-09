@@ -549,17 +549,18 @@ const T = {
     newChar:"New Character", del:"Delete", edit:"Edit", saved:"saved", saving:"saving…", sessionOnly:"not saved (session only)",
     confirmRemoveTitle:"Remove this?", confirmRemoveMsg:"This can't be undone.",
     hideAll:"Hide All", showAll:"Show All",
-    identity:"Identity", name:"Name", cls:"Class", level:"Level", race:"Race", subrace:"Subrace", bg:"Background",
-    selectPlaceholder:"— select —", customOption:"Custom…", backToList:"← back to list",
+    identity:"Identity", name:"Name", cls:"Class", level:"Level", race:"Race", subrace:"Subrace", bg:"Background", size:"Size",
+    sizeTiny:"Tiny", sizeSmall:"Small", sizeMedium:"Medium", sizeLarge:"Large", sizeHuge:"Huge", sizeGargantuan:"Gargantuan",
+    selectPlaceholder:"— select —", customOption:"Custom…", backToList:"← back to list", noneOption:"None",
     clsAutoNote:"Picking a Class from the list fills in its two fixed Saving Throw proficiencies, a couple of thematically common skills as a starting suggestion (adjust to your actual picks), and class resources (Rage, Second Wind, etc.). It only adds — switching classes won't remove saves/skills you already set.",
-    identityLockedHint:"Name, Class, Race, and Subrace are locked to prevent accidental changes. Level stays editable since it changes often.",
-    identityUnlockedHint:"Unlocked — Name/Class/Race/Subrace can be edited now.",
+    identityLockedHint:"Name, Class, Race, Subrace, and Size are locked to prevent accidental changes. Level stays editable since it changes often.",
+    identityUnlockedHint:"Unlocked — Name/Class/Race/Subrace/Size can be edited now.",
     identityUnlockBtn:"🔓 Unlock to edit", identityLockNow:"🔒 Lock again",
     armorBase:"Base AC", armorDex:"Ability applies", shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped",
     proficiencies:"Proficiencies & Languages", profArmor:"Armor", profWeapons:"Weapons", profTools:"Tools", profLanguages:"Languages",
     inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
     abilities:"Ability Scores", str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA",
-    combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
+    combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", flySpeed:"Fly Speed", hasFlySpeed:"Has Fly Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
     diceRoller:"Dice Roller", diceModifier:"Modifier", diceClear:"Clear", diceNoRolls:"No rolls yet",
     saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception", proficient:"Proficient", expertise:"Expertise",
@@ -664,17 +665,18 @@ const T = {
     newChar:"דמות חדשה", del:"מחק", edit:"עריכה", saved:"נשמר", saving:"שומר…", sessionOnly:"לא נשמר (הפעלה זו בלבד)",
     confirmRemoveTitle:"למחוק?", confirmRemoveMsg:"לא ניתן לבטל פעולה זו.",
     hideAll:"הסתר הכל", showAll:"הצג הכל",
-    identity:"זהות", name:"שם", cls:"מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע",
-    selectPlaceholder:"— בחר —", customOption:"מותאם אישית…", backToList:"← חזרה לרשימה",
+    identity:"זהות", name:"שם", cls:"מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע", size:"גודל",
+    sizeTiny:"זעיר", sizeSmall:"קטן", sizeMedium:"בינוני", sizeLarge:"גדול", sizeHuge:"ענק", sizeGargantuan:"עצום",
+    selectPlaceholder:"— בחר —", customOption:"מותאם אישית…", backToList:"← חזרה לרשימה", noneOption:"ללא",
     clsAutoNote:"בחירת מחלקה מהרשימה ממלאת את שתי מיומנויות ההצלה הקבועות שלה, כמה כישורים נפוצים כהצעת התחלה (התאם לבחירות האמיתיות שלך), ומשאבי מחלקה (Rage, Second Wind וכו'). זה רק מוסיף — החלפת מחלקה לא תסיר הצלות/כישורים שכבר סימנת.",
-    identityLockedHint:"שם, מחלקה, גזע ותת-גזע נעולים כדי למנוע שינויים בטעות. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
-    identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/גזע/תת-גזע עכשיו.",
+    identityLockedHint:"שם, מחלקה, גזע, תת-גזע וגודל נעולים כדי למנוע שינויים בטעות. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
+    identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/גזע/תת-גזע/גודל עכשיו.",
     identityUnlockBtn:"🔓 פתח לעריכה", identityLockNow:"🔒 נעל שוב",
     armorBase:"בסיס שריון", armorDex:"תכונה חלה", shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש",
     proficiencies:"מיומנויות ושפות", profArmor:"שריון", profWeapons:"נשקים", profTools:"כלים", profLanguages:"שפות",
     inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
     abilities:"תכונות", str:"כוח",dex:"זריזות",con:"חוסן",int:"אינטליגנציה",wis:"חוכמה",cha:"כריזמה",
-    combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
+    combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", flySpeed:"מהירות מעוף", hasFlySpeed:"בעל מהירות מעוף", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
     diceRoller:"הטלת קוביות", diceModifier:"מודיפייר", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
     saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית", proficient:"מיומן", expertise:"מומחיות",
@@ -791,7 +793,8 @@ const SKILLS = [
 const ABILS = ["str","dex","con","int","wis","cha"];
 const ABIL_ICON = {str:"💪", dex:"🏹", con:"🛡️", int:"🧠", wis:"👁️", cha:"✨"};
 const CLASS_LIST = ["Barbarian","Bard","Cleric","Druid","Fighter","Monk","Paladin","Ranger","Rogue","Sorcerer","Warlock","Wizard","Artificer"];
-const RACE_LIST = ["Human","Dwarf","Elf","Halfling","Dragonborn","Gnome","Half-Elf","Half-Orc","Tiefling","Orc","Aasimar"];
+const RACE_LIST = ["Human","Dwarf","Elf","Halfling","Dragonborn","Gnome","Half-Elf","Half-Orc","Tiefling","Orc","Aasimar","Fairy","Minotaur"];
+const SIZE_LIST = ["Tiny","Small","Medium","Large","Huge","Gargantuan"];
 const SUBRACE_MAP = {
   "Dwarf": ["Hill Dwarf","Mountain Dwarf","Gold Dwarf","Gray Dwarf (Duergar)"],
   "Elf": ["High Elf","Wood Elf","Drow","Eladrin","Sea Elf","Shadar-kai"],
@@ -805,9 +808,9 @@ function defaultChar(id){
   return {
     id, name:"New Adventurer", charType:"pc", cls:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
     abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
-    level:1,
+    level:1, size:"Medium",
     armor:{base:10, dexApplies:true, acAbility:"dex", shieldEquipped:false, shieldBonus:2, shieldName:"Shield"},
-    speed:30, climbSpeed:0, swimSpeed:0, hpCur:10, hpMax:10, hitDice:"1d8", hpAutoCalc:true,
+    speed:30, climbSpeed:0, swimSpeed:0, flySpeed:0, hasFlySpeed:false, hpCur:10, hpMax:10, hitDice:"1d8", hpAutoCalc:true,
     saveProf:{str:false,dex:false,con:false,int:false,wis:false,cha:false},
     skillProf:{}, skillExpertise:{},
     proficiencies:{armor:"", weapons:"", tools:"", languages:""},
@@ -858,6 +861,9 @@ function hydrate(s){
   if(typeof s.hpAutoCalc !== "boolean") s.hpAutoCalc = false;
   if(typeof s.climbSpeed !== "number") s.climbSpeed = 0;
   if(typeof s.swimSpeed !== "number") s.swimSpeed = 0;
+  if(typeof s.flySpeed !== "number") s.flySpeed = 0;
+  if(typeof s.hasFlySpeed !== "boolean") s.hasFlySpeed = false;
+  if(typeof s.size !== "string" || !s.size) s.size = "Medium";
   if(!s.skillExpertise) s.skillExpertise = {};
   if(typeof s.clsCustom !== "boolean") s.clsCustom = !!(s.cls && !CLASS_LIST.includes(s.cls));
   if(typeof s.raceCustom !== "boolean") s.raceCustom = !!(s.race && !RACE_LIST.includes(s.race));
@@ -872,9 +878,9 @@ function demoChar(id){
     cls:"Fighter", race:"Human", bg: isHe ? "חייל" : "Soldier",
     clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
     abilities:{str:16, dex:14, con:15, int:10, wis:12, cha:8},
-    level:3,
+    level:3, size:"Medium",
     armor:{base:16, dexApplies:false, acAbility:"dex", shieldEquipped:true, shieldBonus:2, shieldName: isHe ? "מגן" : "Shield"},
-    speed:30, climbSpeed:0, swimSpeed:0, hpCur:28, hpMax:28, hitDice:"3d10", hpAutoCalc:true,
+    speed:30, climbSpeed:0, swimSpeed:0, flySpeed:0, hasFlySpeed:false, hpCur:28, hpMax:28, hitDice:"3d10", hpAutoCalc:true,
     saveProf:{str:true,dex:false,con:true,int:false,wis:false,cha:false},
     skillProf:{athletics:true, perception:true, intimidation:true}, skillExpertise:{},
     proficiencies:{
@@ -1218,10 +1224,11 @@ function getEffectiveAbilities(s){
   return eff;
 }
 function getEffectiveSpeed(s){ return s.speed + getFeatBonus(s, "speed"); }
-function getEffectiveSecondarySpeed(s, kind){ // kind: "climb" | "swim"
+const SECONDARY_SPEED_FIELD = {climb:"climbSpeed", swim:"swimSpeed", fly:"flySpeed"};
+function getEffectiveSecondarySpeed(s, kind){ // kind: "climb" | "swim" | "fly"
   const overridden = (s.feats||[]).some(f => f.mod && f.mod.stat===kind && f.mod.matchSpeed);
   if(overridden) return getEffectiveSpeed(s);
-  const base = kind==="climb" ? s.climbSpeed : s.swimSpeed;
+  const base = s[SECONDARY_SPEED_FIELD[kind]];
   return base + getFeatBonus(s, kind);
 }
 function getEffectiveInitiative(s){ return mod(getEffectiveAbilities(s).dex) + getFeatBonus(s, "init"); }
@@ -1310,8 +1317,7 @@ function selectRace(value){
     state.subrace = "";
     state.subraceCustom = false;
   }
-  render();
-  queueSave();
+  applyRaceTemplate(raceToKind(value));
 }
 
 let newCharModalOpen = false;
@@ -1354,7 +1360,7 @@ function newCharModalHTML(t){
       <div class="modal-row" id="modalNewSubraceRow">
         <label>${t.subrace}</label>
         <select id="modalNewSubrace" onchange="modalSubraceChanged()">
-          <option value="">${t.selectPlaceholder}</option>
+          <option value="">${t.noneOption}</option>
           <option value="__custom__">${t.customOption}</option>
         </select>
         <input type="text" id="modalNewSubraceCustom" placeholder="${t.subrace}" style="display:none;margin-top:6px">
@@ -1381,7 +1387,7 @@ function modalRaceChanged(){
   document.getElementById("modalNewRaceCustom").style.display = race==='__custom__' ? "block" : "none";
   const subraceSel = document.getElementById("modalNewSubrace");
   const opts = SUBRACE_MAP[race] || [];
-  subraceSel.innerHTML = `<option value="">${t.selectPlaceholder}</option>` + opts.map(s=>`<option value="${s}">${s}</option>`).join("") + `<option value="__custom__">${t.customOption}</option>`;
+  subraceSel.innerHTML = `<option value="">${t.noneOption}</option>` + opts.map(s=>`<option value="${s}">${s}</option>`).join("") + `<option value="__custom__">${t.customOption}</option>`;
   document.getElementById("modalNewSubraceCustom").style.display = "none";
 }
 function modalSubraceChanged(){
@@ -1437,7 +1443,10 @@ async function confirmNewChar(){
   newCharModalOpen = false;
   try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
   await setLastUsedId(id);
-  if(cls && CLASS_LIST.includes(cls)){ applyTemplate(cls); } else { render(); queueSave(); }
+  if(cls && CLASS_LIST.includes(cls)){ applyTemplate(cls); }
+  if(race){ applyRaceTemplate(raceToKind(race)); }
+  if(subrace){ applySubraceTemplate(race, subrace); }
+  if(!(cls && CLASS_LIST.includes(cls)) && !race && !subrace){ render(); queueSave(); }
 }
 async function newCharacter(){
   const id = "c"+Date.now();
@@ -1865,6 +1874,7 @@ function buildPrintHTML(opts){
     if(stat==='speed') return t.speed;
     if(stat==='climb') return t.climbSpeed;
     if(stat==='swim') return t.swimSpeed;
+    if(stat==='fly') return t.flySpeed;
     if(stat==='hp') return t.featHP;
     if(stat==='atk_all') return t.featAtkAll;
     if(stat==='atk_melee') return t.featAtkMelee;
@@ -1972,7 +1982,7 @@ function buildPrintHTML(opts){
   </style></head><body>
     <h1>${esc(state.name)}</h1>
     <div class="sub">${t.title}</div>
-    <div class="identity-row"><span><b>${t.cls}:</b> ${esc(state.cls)}</span><span><b>${t.level}:</b> ${state.level}</span><span><b>${t.race}:</b> ${esc(state.race)}${state.subrace?` (${esc(state.subrace)})`:""}</span><span><b>${t.bg}:</b> ${esc(state.bg)}</span></div>
+    <div class="identity-row"><span><b>${t.cls}:</b> ${esc(state.cls)}</span><span><b>${t.level}:</b> ${state.level}</span><span><b>${t.race}:</b> ${esc(state.race)}${state.subrace?` (${esc(state.subrace)})`:""}</span><span><b>${t.bg}:</b> ${esc(state.bg)}</span><span><b>${t.size}:</b> ${t["size"+state.size]||esc(state.size)}</span></div>
 
     <div class="panel"><h2>📊 ${t.abilities} 💪🏹🛡️🧠👁️✨</h2><div class="abilities">${abilBoxes}</div></div>
 
@@ -1982,7 +1992,7 @@ function buildPrintHTML(opts){
           <div class="shape-wrap"><svg class="shape-bg" viewBox="0 0 100 112" preserveAspectRatio="none"><path d="M50 3 L94 16 L94 54 Q94 90 50 109 Q6 90 6 54 L6 16 Z"/></svg><div class="shape-content"><span class="big">${computeAC(state)}</span></div></div>
         </div>
         <div class="combat-box"><span class="label">${t.init}</span><span class="big">${fm(effInit)}</span></div>
-        <div class="combat-box"><span class="label">🐇 ${t.speed}</span><span class="big">${effSpeed} <span style="font-size:11px">(${Math.floor(effSpeed/5)} sq)</span></span><div class="formula-note">🕷️ ${t.climbSpeed}: ${getEffectiveSecondarySpeed(state,"climb")} ft · 🏊 ${t.swimSpeed}: ${getEffectiveSecondarySpeed(state,"swim")} ft</div></div>
+        <div class="combat-box"><span class="label">🐇 ${t.speed}</span><span class="big">${effSpeed} <span style="font-size:11px">(${Math.floor(effSpeed/5)} sq)</span></span><div class="formula-note">🕷️ ${t.climbSpeed}: ${getEffectiveSecondarySpeed(state,"climb")} ft · 🏊 ${t.swimSpeed}: ${getEffectiveSecondarySpeed(state,"swim")} ft${state.hasFlySpeed ? ` · 🦅 ${t.flySpeed}: ${getEffectiveSecondarySpeed(state,"fly")} ft` : ""}</div></div>
         <div class="combat-box"><span class="label">${t.hitdice}</span><span class="big" style="font-size:15px">${esc(computeHitDice(state))}</span></div>
         <div class="combat-box"><span class="label">${t.prof}</span><span class="big">${fm(prof)}</span></div>
         <div class="combat-box hp-box"><svg class="hp-heart-bg" viewBox="0 0 100 100"><path d="M50 90 C18 66 2 46 2 25 C2 8 15 2 27 2 C38 2 46 8 50 19 C54 8 62 2 73 2 C85 2 98 8 98 25 C98 46 82 66 50 90 Z"/></svg><span class="label">❤️ ${t.hp}${state.hpAutoCalc?" (auto)":""}</span><span class="big">${state.hpCur} / ${state.hpMax + getFeatBonus(state,"hp")}</span></div>
@@ -2125,16 +2135,18 @@ function confirmAddSpell(){
 }
 function removeSpell(i){ state.spells.splice(i,1); render(); queueSave(); }
 
+const SECONDARY_SPEED_LABEL_KEY = {climb:"climbSpeed", swim:"swimSpeed", fly:"flySpeed"};
 function secondarySpeedRowHTML(t, kind, icon){
+  const field = SECONDARY_SPEED_FIELD[kind];
   const overridden = (state.feats||[]).some(f => f.mod && f.mod.stat===kind && f.mod.matchSpeed);
   const val = getEffectiveSecondarySpeed(state, kind);
-  const base = kind==="climb" ? state.climbSpeed : state.swimSpeed;
+  const base = state[field];
   const featBonus = getFeatBonus(state, kind);
-  const label = kind==="climb" ? t.climbSpeed : t.swimSpeed;
+  const label = t[SECONDARY_SPEED_LABEL_KEY[kind]];
   return `<div class="speed-value-group" style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--leather-line)">
     <span class="dim-label" title="${label}">${icon}</span>
     <span class="mono" style="font-weight:700">${val}</span>
-    ${overridden ? "" : `<span class="dim-label">${t.speedBase}</span><input type="number" min="0" style="width:34px;text-align:center;padding:0" value="${base}" onchange="set('${kind==="climb"?"climbSpeed":"swimSpeed"}', parseInt(this.value)||0)">`}
+    ${overridden ? "" : `<span class="dim-label">${t.speedBase}</span><input type="number" min="0" style="width:34px;text-align:center;padding:0" value="${base}" onchange="set('${field}', parseInt(this.value)||0)">`}
   </div>
   <div class="formula-note">${overridden ? `= ${t.speed} (${lang==='en'?'feat':'תכונה'})` : `${base}${featBonus!==0 ? ` ${fm(featBonus)} ${lang==='en'?'feat':'תכונה'}` : ""}`}</div>`;
 }
@@ -2142,6 +2154,7 @@ function featModLabelForRow(t, stat){
   if(stat==='speed') return t.speed;
   if(stat==='climb') return t.climbSpeed;
   if(stat==='swim') return t.swimSpeed;
+  if(stat==='fly') return t.flySpeed;
   if(stat==='hp') return t.featHP;
   if(stat==='atk_all') return t.featAtkAll;
   if(stat==='atk_melee') return t.featAtkMelee;
@@ -2194,7 +2207,7 @@ function confirmFeatModal(){
   const stat = document.getElementById("modalFeatAffects").value;
   const amount = parseInt(document.getElementById("modalFeatAmount").value)||0;
   const perLevel = document.getElementById("modalFeatPerLevel").checked;
-  const matchSpeed = (stat==='climb'||stat==='swim') && document.getElementById("modalFeatMatchSpeed").checked;
+  const matchSpeed = (stat==='climb'||stat==='swim'||stat==='fly') && document.getElementById("modalFeatMatchSpeed").checked;
   const notes = document.getElementById("modalFeatNotes").value;
   const feat = {name, level, notes, mod:{stat, amount: stat?amount:0, perLevel: stat && !matchSpeed ? perLevel:false, matchSpeed}};
   if(editingFeatIndex===null) state.feats.push(feat);
@@ -2377,8 +2390,35 @@ function applyRaceTemplate(kind){
     addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).");
     addFeat("Otherworldly Presence", "You know the Thaumaturgy cantrip.");
     addFeat("Fiendish Resilience", "Resistance to one damage type tied to your Fiendish Legacy (commonly Fire).");
+  } else if(kind==="fairy"){
+    addFeat("Fairy Magic", "You know the Druidcraft cantrip. At 3rd level, cast Faerie Fire once per Long Rest (or with a spell slot). At 5th level, also cast Enlarge/Reduce the same way. Spellcasting ability: Int, Wis, or Cha (your choice).");
+    addFeat("Flight", "You have a flying speed equal to your walking speed. You can't use it while wearing medium or heavy armor.", {stat:"fly", amount:0, perLevel:false, matchSpeed:true});
+    if(!state.hasFlySpeed) state.hasFlySpeed = true;
+    if(state.size === "Medium") state.size = "Small";
+  } else if(kind==="minotaur"){
+    addFeat("Horns", "Natural melee weapon: 1d6 + Strength modifier piercing damage.");
+    addFeat("Goring Rush", "Immediately after you use the Dash action and move at least 20 feet, you can make one attack with your Horns as a Bonus Action.");
+    addFeat("Hammering Horns", "Immediately after you hit a creature with a melee attack on your turn, you can use a Bonus Action to attempt to shove that creature (Strength save DC 8 + proficiency + STR mod) up to 10 feet away.");
+    addFeat("Labyrinthine Recall", "You can perfectly recall any path you've traveled and always know which way is north. Advantage on Survival checks to avoid getting lost.");
   }
   render(); queueSave();
+}
+function raceToKind(race){ return (race||"").toLowerCase().replace(/[^a-z]+/g,"_").replace(/^_+|_+$/g,""); }
+function applySubraceTemplate(race, subrace){
+  const hasFeat = name => state.feats.some(f => f.name.toLowerCase()===name.toLowerCase());
+  const addFeat = (name, notes, mod) => { if(!hasFeat(name)) state.feats.push({name, notes, mod: mod || {stat:"", amount:0, perLevel:false}}); };
+
+  if(subrace==="Drow"){
+    addFeat("Superior Darkvision", "120 ft — double the range of standard Darkvision.");
+    addFeat("Sunlight Sensitivity", "Disadvantage on attack rolls and Wisdom (Perception) checks that rely on sight when you, the target, or whatever you're perceiving is in direct sunlight.");
+    addFeat("Drow Magic", "You know the Dancing Lights cantrip. At 3rd level, cast Faerie Fire once per Long Rest. At 5th level, cast Darkness once per Long Rest. Charisma is your spellcasting ability.");
+    if(!state.proficiencies.weapons) state.proficiencies.weapons = "Rapiers, shortswords, hand crossbows";
+  }
+  render(); queueSave();
+}
+function selectSubrace(value){
+  state.subrace = value;
+  applySubraceTemplate(state.race, value);
 }
 
 function setSlot(i, field, value){
@@ -2506,14 +2546,21 @@ function render(){
           <input type="text" value="${state.subrace}" style="width:${dmgInputWidthCh(state.subrace)}ch" oninput="autoWidthInput(this)" onchange="set('subrace', this.value)">
           <button class="btn no-print" style="margin-top:4px;padding:3px 8px;font-size:11px" onclick="set('subraceCustom', false)">${t.backToList}</button>
         ` : `
-          <select onchange="if(this.value==='__custom__'){set('subraceCustom', true);} else {set('subrace', this.value)}">
-            <option value="" ${state.subrace===''?"selected":""}>${t.selectPlaceholder}</option>
+          <select onchange="if(this.value==='__custom__'){set('subraceCustom', true);} else {selectSubrace(this.value)}">
+            <option value="" ${state.subrace===''?"selected":""}>${t.noneOption}</option>
             ${(SUBRACE_MAP[state.race]||[]).map(sr=>`<option value="${sr}" ${state.subrace===sr?"selected":""}>${sr}</option>`).join("")}
             <option value="__custom__">${t.customOption}</option>
           </select>
         `) : `<span class="feat-name-display">${esc2(state.subrace)||"—"}</span>`}
       </div>
       <div class="field"><label>${t.bg}</label><input type="text" value="${state.bg}" style="width:${dmgInputWidthCh(state.bg)}ch" oninput="autoWidthInput(this)" onchange="set('bg', this.value)"></div>
+      <div class="field"><label>${t.size}</label>
+        ${identityUnlocked ? `
+          <select onchange="set('size', this.value)">
+            ${SIZE_LIST.map(sz=>`<option value="${sz}" ${state.size===sz?"selected":""}>${t["size"+sz]}</option>`).join("")}
+          </select>
+        ` : `<span class="feat-name-display">${t["size"+state.size]||esc2(state.size)}</span>`}
+      </div>
     </div>
     ${identityUnlocked ? `<div class="formula-note" style="margin-top:6px">${t.clsAutoNote}</div>` : ""}
     <div class="formula-note no-print" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
@@ -2599,6 +2646,11 @@ function render(){
         <div class="formula-note">${state.speed}${getFeatBonus(state,"speed")!==0 ? ` ${fm(getFeatBonus(state,"speed"))} ${lang==='en'?'feat':'תכונה'}` : ""}</div>
         ${secondarySpeedRowHTML(t, "climb", "🕷️")}
         ${secondarySpeedRowHTML(t, "swim", "🏊")}
+        ${state.hasFlySpeed ? secondarySpeedRowHTML(t, "fly", "🦅") : ""}
+        <label style="display:flex;align-items:center;gap:5px;margin-top:6px;padding-top:6px;border-top:1px dashed var(--leather-line);font-size:10.5px;color:var(--ink-faint)" class="no-print">
+          <input type="checkbox" ${state.hasFlySpeed?"checked":""} onchange="set('hasFlySpeed', this.checked)">
+          🦅 ${t.hasFlySpeed}
+        </label>
       </div>
       <div class="combat-box">
         <span class="label">${t.hitdice}</span>
@@ -2937,7 +2989,7 @@ function render(){
     const ef = editingFeatIndex!==null ? state.feats[editingFeatIndex] : null;
     const efStat = ef ? (ef.mod.stat||"") : "";
     const selOpt = v => efStat===v ? "selected" : "";
-    const efIsSpd = efStat==='climb' || efStat==='swim';
+    const efIsSpd = efStat==='climb' || efStat==='swim' || efStat==='fly';
     const efMatchSpeed = efIsSpd && !!(ef && ef.mod.matchSpeed);
     const amtDisabled = !efStat || efMatchSpeed;
     return `
@@ -2958,7 +3010,7 @@ function render(){
         <div style="flex:2">
           <label>${t.featAffects}</label>
           <select id="modalFeatAffects" onchange="
-            var isSpd=(this.value==='climb'||this.value==='swim');
+            var isSpd=(this.value==='climb'||this.value==='swim'||this.value==='fly');
             document.getElementById('modalFeatMatchSpeedWrap').style.display=isSpd?'flex':'none';
             var msChecked=isSpd &amp;&amp; document.getElementById('modalFeatMatchSpeed').checked;
             document.getElementById('modalFeatAmount').disabled=!this.value||msChecked;
@@ -2969,6 +3021,7 @@ function render(){
             <option value="init" ${selOpt("init")}>${t.init}</option>
             <option value="climb" ${selOpt("climb")}>${t.climbSpeed}</option>
             <option value="swim" ${selOpt("swim")}>${t.swimSpeed}</option>
+            <option value="fly" ${selOpt("fly")}>${t.flySpeed}</option>
             <option value="hp" ${selOpt("hp")}>${t.featHP}</option>
             ${ABILS.map(a=>`<option value="${a}" ${selOpt(a)}>${t[a]}</option>`).join("")}
             <optgroup label="${t.featAtkGroup}">
