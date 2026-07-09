@@ -369,6 +369,7 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 .feat-notes-input{width:100%;margin-top:6px;font-size:13.5px;line-height:1.4;resize:vertical;overflow:hidden;}
 input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 .item-notes-input{width:100%;resize:vertical;overflow:hidden;}
+.res-notes-input{width:100%;font-size:13.5px;line-height:1.4;resize:vertical;overflow:hidden;}
 .spell-level-header{
   display:flex;justify-content:space-between;align-items:center;
   font-family:'Cinzel',serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);
@@ -592,7 +593,7 @@ const T = {
     featHP:"Max HP", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed",
     featLevelHint:"\"Level\" here means your character's current level (set in Identity) — a feat with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
     featDmgGroup:"Damage rolls", featDmgAll:"All damage", featDmgMelee:"Melee damage", featDmgRanged:"Ranged damage", featDmgFinesse:"Finesse damage", featDmgSpell:"Spell damage",
-    resources:"Class Resources", resName:"Resource", resUses:"Uses", resRecharge:"Recharges", addResource:"Resource",
+    resources:"Class Resources", resName:"Resource", resUses:"Uses", resRecharge:"Recharges", resNotes:"What it does", addResource:"Resource",
     rShort:"Short Rest", rLong:"Long Rest", rOther:"Other",
     quickAdd:"Quick add: Class", tplPlaceholder:"— choose to add —", tplFighter:"Fighter", tplCleric:"Cleric", tplMonk:"Monk", tplRanged:"Ranged",
     quickAddRace:"Quick add: Race", raceHuman:"Human", raceDwarf:"Dwarf", raceElf:"Elf", raceHalfling:"Halfling", raceDragonborn:"Dragonborn", raceGnome:"Gnome", raceHalfOrc:"Half-Orc", raceTiefling:"Tiefling",
@@ -707,7 +708,7 @@ const T = {
     featHP:"נק״ח מקס", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות",
     featLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
     featDmgGroup:"הטלות נזק", featDmgAll:"כל הנזק", featDmgMelee:"נזק קרב מגע", featDmgRanged:"נזק טווח", featDmgFinesse:"נזק זריזות", featDmgSpell:"נזק קסם",
-    resources:"משאבי מחלקה", resName:"משאב", resUses:"שימושים", resRecharge:"מתאפס ב", addResource:"הוסף משאב",
+    resources:"משאבי מחלקה", resName:"משאב", resUses:"שימושים", resRecharge:"מתאפס ב", resNotes:"מה זה עושה", addResource:"הוסף משאב",
     rShort:"מנוחה קצרה", rLong:"מנוחה ארוכה", rOther:"אחר",
     quickAdd:"הוספה מהירה: מחלקה", tplPlaceholder:"— בחר להוספה —", tplFighter:"לוחם", tplCleric:"כומר", tplMonk:"נזיר", tplRanged:"טווח",
     quickAddRace:"הוספה מהירה: גזע", raceHuman:"אדם", raceDwarf:"גמד", raceElf:"אלף", raceHalfling:"הוביט", raceDragonborn:"דרקוני", raceGnome:"גנום", raceHalfOrc:"חצי-אורק", raceTiefling:"טיפלינג",
@@ -835,6 +836,7 @@ function hydrate(s){
   if(!s.spells) s.spells = [];
   if(!s.feats) s.feats = [];
   if(!s.resources) s.resources = [];
+  s.resources.forEach(r=>{ if(typeof r.notes !== "string") r.notes = ""; });
   if(!s.concentration) s.concentration = {active:false, spell:"", dmg:0};
   if(!s.armor) s.armor = {base: (typeof s.ac==='number'?s.ac:10), dexApplies:true, acAbility:"dex", shieldEquipped:false, shieldBonus:2, shieldName:"Shield"};
   if(!s.armor.acAbility) s.armor.acAbility = "dex";
@@ -904,8 +906,8 @@ function demoChar(id){
       {name: isHe ? "מיומן" : "Skillful", level:3, notes: isHe ? "מיומנות בכישור אחד לבחירה." : "Proficiency in one skill of your choice.", mod:{stat:"", amount:0, perLevel:false}}
     ],
     resources:[
-      {name: isHe ? "רוח שנייה" : "Second Wind", total:1, used:0, recharge:"short"},
-      {name: isHe ? "זינוק פעולה" : "Action Surge", total:1, used:0, recharge:"short"}
+      {name: isHe ? "רוח שנייה" : "Second Wind", total:1, used:0, recharge:"short", notes: isHe ? "פעולת בונוס להחלים 1ד10 + רמת הלוחם נקודות חיים." : "Bonus action to heal 1d10 + fighter level hit points."},
+      {name: isHe ? "זינוק פעולה" : "Action Surge", total:1, used:0, recharge:"short", notes: isHe ? "מקבל פעולה נוספת בתור הזה." : "Take one additional action on this turn."}
     ],
     concentration:{active:false, spell:"", dmg:0},
     notes: isHe ? "חייל לשעבר שעזב את הצבא כדי לחפש הרפתקאות. ישר, נאמן לחבריו, ולא בורח מקרב." : "A former soldier who left the army seeking adventure. Straightforward, loyal to allies, and never backs down from a fight."
@@ -1884,7 +1886,7 @@ function buildPrintHTML(opts){
   }).join("");
   const resourceRows = state.resources.map(r=>{
     const rechargeLabel = r.recharge==='short'?t.rShort:r.recharge==='long'?t.rLong:t.rOther;
-    return `<tr><td>${esc(r.name)}</td><td class="num">${r.total}</td><td><div class="dots-row" style="justify-content:${dir==='rtl'?'flex-end':'flex-start'}">${resourceDotsStatic(r)}</div></td><td>${rechargeLabel}</td></tr>`;
+    return `<tr><td>${esc(r.name)}</td><td class="num">${r.total}</td><td><div class="dots-row" style="justify-content:${dir==='rtl'?'flex-end':'flex-start'}">${resourceDotsStatic(r)}</div></td><td>${rechargeLabel}</td><td style="white-space:pre-wrap">${esc(r.notes)}</td></tr>`;
   }).join("");
 
   const turnStepsFilled = t.turnSteps.map(s=>s.replace("{SPEED}", effSpeed).replace("{SQUARES}", Math.floor(effSpeed/5)));
@@ -2039,7 +2041,7 @@ function buildPrintHTML(opts){
 
     ${state.feats.length ? `<div class="panel"><h2>${t.feats}</h2><div class="table-scroll"><table><thead><tr><th>${t.featLvlAbbr}</th><th>${t.featName}</th><th>${t.featNotes}</th></tr></thead><tbody>${featRows}</tbody></table></div></div>` : ""}
 
-    ${state.resources.length ? `<div class="panel"><h2>${t.resources}</h2><div class="table-scroll"><table><thead><tr><th>${t.resName}</th><th>${t.resUses}</th><th></th><th>${t.resRecharge}</th></tr></thead><tbody>${resourceRows}</tbody></table></div></div>` : ""}
+    ${state.resources.length ? `<div class="panel"><h2>${t.resources}</h2><div class="table-scroll"><table><thead><tr><th>${t.resName}</th><th>${t.resUses}</th><th></th><th>${t.resRecharge}</th><th>${t.resNotes}</th></tr></thead><tbody>${resourceRows}</tbody></table></div></div>` : ""}
 
     <div class="panel"><h2>${t.notes}</h2><div class="notes-box">${esc(state.notes)}</div></div>
 
@@ -2242,7 +2244,7 @@ function toggleResourceDot(ri, di){
 function resourceRow(r, i){
   const t = T[lang];
   return `<tr>
-    <td><input type="text" value="${r.name}" style="width:140px" onchange="set('resources.${i}.name', this.value)"></td>
+    <td><input type="text" value="${r.name}" style="width:${dmgInputWidthCh(r.name)}ch" oninput="autoWidthInput(this)" onchange="set('resources.${i}.name', this.value)"></td>
     <td><input type="number" min="0" max="20" style="width:50px" value="${r.total}" onchange="setResourceTotal(${i}, this.value)"></td>
     <td><div class="dots-row" style="justify-content:flex-start">${resourceDots(i)}</div></td>
     <td>
@@ -2252,11 +2254,12 @@ function resourceRow(r, i){
         <option value="other" ${r.recharge==='other'?'selected':''}>${t.rOther}</option>
       </select>
     </td>
+    <td><textarea class="res-notes-input" rows="${estimateTextRows(r.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('resources.${i}.notes', this.value)">${r.notes}</textarea></td>
     <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeResource(${i}))" title="${t.del}">🗑️</button></td>
   </tr>`;
 }
-function addResource(name, total, recharge){
-  state.resources.push({name:name||"", total: total ?? 1, used:0, recharge: recharge||"short"});
+function addResource(name, total, recharge, notes){
+  state.resources.push({name:name||"", total: total ?? 1, used:0, recharge: recharge||"short", notes: notes||""});
   render(); queueSave();
 }
 function removeResource(i){ state.resources.splice(i,1); render(); queueSave(); }
@@ -2294,7 +2297,7 @@ const CLASS_SKILL_SUGGEST = {
 };
 function applyTemplate(cls){
   const hasRes = name => state.resources.some(r => r.name.toLowerCase()===name.toLowerCase());
-  const addRes = (name, total, recharge) => { if(!hasRes(name)) state.resources.push({name, total, used:0, recharge}); };
+  const addRes = (name, total, recharge) => { if(!hasRes(name)) state.resources.push({name, total, used:0, recharge, notes:""}); };
   const attacksAreDefault = state.attacks.length===1 && state.attacks[0].name==="Shortsword";
 
   (CLASS_SAVES[cls]||[]).forEach(a => state.saveProf[a] = true);
@@ -2338,7 +2341,7 @@ function selectClass(value){
 
 function applyRaceTemplate(kind){
   const hasRes = name => state.resources.some(r => r.name.toLowerCase()===name.toLowerCase());
-  const addRes = (name, total, recharge) => { if(!hasRes(name)) state.resources.push({name, total, used:0, recharge}); };
+  const addRes = (name, total, recharge) => { if(!hasRes(name)) state.resources.push({name, total, used:0, recharge, notes:""}); };
   const hasFeat = name => state.feats.some(f => f.name.toLowerCase()===name.toLowerCase());
   const addFeat = (name, notes, mod) => { if(!hasFeat(name)) state.feats.push({name, notes, mod: mod || {stat:"", amount:0, perLevel:false}}); };
   const prof = profByLevel(state.level);
@@ -2784,7 +2787,7 @@ function render(){
   <div class="panel ${foldedPanels['resources'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('resources')">${t.resources} ${foldIcon('resources')}</h2>
     <div class="table-scroll"><table>
-      <thead><tr><th>${t.resName}</th><th>${t.resUses}</th><th></th><th>${t.resRecharge}</th><th></th></tr></thead>
+      <thead><tr><th>${t.resName}</th><th>${t.resUses}</th><th></th><th>${t.resRecharge}</th><th>${t.resNotes}</th><th></th></tr></thead>
       <tbody>${state.resources.map(resourceRow).join("")}</tbody>
     </table></div>
     <button class="btn primary no-print" style="margin-top:10px" onclick="addResource()">➕ ${t.addResource}</button>
