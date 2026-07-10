@@ -803,6 +803,10 @@ const ABILS = ["str","dex","con","int","wis","cha"];
 const ABIL_ICON = {str:"💪", dex:"🏹", con:"🛡️", int:"🧠", wis:"👁️", cha:"✨"};
 const CLASS_LIST = ["Barbarian","Bard","Cleric","Druid","Fighter","Monk","Paladin","Ranger","Rogue","Sorcerer","Warlock","Wizard","Artificer"];
 const RACE_LIST = ["Human","Dwarf","Elf","Halfling","Dragonborn","Gnome","Half-Elf","Half-Orc","Tiefling","Orc","Aasimar","Fairy","Minotaur"];
+const CLASS_LIST_HE = {Barbarian:"ברברי", Bard:"בארד", Cleric:"כומר", Druid:"דרואיד", Fighter:"לוחם", Monk:"נזיר", Paladin:"פלדין", Ranger:"סייר", Rogue:"נוכל", Sorcerer:"קוסם מלידה", Warlock:"מכשף", Wizard:"קוסם", Artificer:"ממציא"};
+const RACE_LIST_HE = {Human:"אדם", Dwarf:"גמד", Elf:"אלף", Halfling:"הוביט", Dragonborn:"דרקוני", Gnome:"גנום", "Half-Elf":"חצי-אלף", "Half-Orc":"חצי-אורק", Tiefling:"טיפלינג", Orc:"אורק", Aasimar:"אסימר", Fairy:"פיה", Minotaur:"מינוטאור"};
+function clsLabel(c, lang){ return lang==='he' ? (CLASS_LIST_HE[c]||c) : c; }
+function raceLabel(r, lang){ return lang==='he' ? (RACE_LIST_HE[r]||r) : r; }
 const SIZE_LIST = ["Tiny","Small","Medium","Large","Huge","Gargantuan"];
 const SUBRACE_MAP = {
   "Dwarf": ["Hill Dwarf","Mountain Dwarf","Gold Dwarf","Gray Dwarf (Duergar)"],
@@ -1428,7 +1432,7 @@ function newCharModalHTML(t){
         <label>${t.cls}</label>
         <select id="modalNewClass" onchange="modalClassChanged()">
           <option value="">${t.selectPlaceholder}</option>
-          ${CLASS_LIST.map(c=>`<option value="${c}">${c}</option>`).join("")}
+          ${CLASS_LIST.map(c=>`<option value="${c}">${clsLabel(c,lang)}</option>`).join("")}
           <option value="__custom__">${t.customOption}</option>
         </select>
         <input type="text" id="modalNewClassCustom" placeholder="${t.cls}" style="display:none;margin-top:6px">
@@ -1437,7 +1441,7 @@ function newCharModalHTML(t){
         <label>${t.race}</label>
         <select id="modalNewRace" onchange="modalRaceChanged()">
           <option value="">${t.selectPlaceholder}</option>
-          ${RACE_LIST.map(r=>`<option value="${r}">${r}</option>`).join("")}
+          ${RACE_LIST.map(r=>`<option value="${r}">${raceLabel(r,lang)}</option>`).join("")}
           <option value="__custom__">${t.customOption}</option>
         </select>
         <input type="text" id="modalNewRaceCustom" placeholder="${t.race}" style="display:none;margin-top:6px">
@@ -2655,7 +2659,7 @@ function render(){
         ` : `
           <select onchange="if(this.value==='__custom__'){set('clsCustom', true);} else {selectClass(this.value)}">
             <option value="" ${state.cls===''?"selected":""}>${t.selectPlaceholder}</option>
-            ${CLASS_LIST.map(c=>`<option value="${c}" ${state.cls===c?"selected":""}>${c}</option>`).join("")}
+            ${CLASS_LIST.map(c=>`<option value="${c}" ${state.cls===c?"selected":""}>${clsLabel(c,lang)}</option>`).join("")}
             <option value="__custom__">${t.customOption}</option>
           </select>
         `) : `<span class="feat-name-display">${esc2(state.cls)||"—"}</span>`}
@@ -2668,7 +2672,7 @@ function render(){
         ` : `
           <select onchange="if(this.value==='__custom__'){set('raceCustom', true);} else {selectRace(this.value)}">
             <option value="" ${state.race===''?"selected":""}>${t.selectPlaceholder}</option>
-            ${RACE_LIST.map(r=>`<option value="${r}" ${state.race===r?"selected":""}>${r}</option>`).join("")}
+            ${RACE_LIST.map(r=>`<option value="${r}" ${state.race===r?"selected":""}>${raceLabel(r,lang)}</option>`).join("")}
             <option value="__custom__">${t.customOption}</option>
           </select>
         `) : `<span class="feat-name-display">${esc2(state.race)||"—"}</span>`}

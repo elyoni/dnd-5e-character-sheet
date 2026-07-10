@@ -56,4 +56,27 @@ test.describe('character sheet editing', () => {
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe('Export_Test.json');
   });
+
+  test('class/race dropdown options show Hebrew labels while state keeps the English value', async ({ page }) => {
+    await dismissOnboarding(page);
+
+    await page.locator('button:has-text("Unlock to edit")').click();
+    await page.locator('button:has-text("עב")').click();
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+
+    const classSelect = page.locator('.id-fields select').nth(0);
+    const raceSelect = page.locator('.id-fields select').nth(1);
+
+    // Option labels are translated for display...
+    await expect(classSelect.locator('option[value="Fighter"]')).toHaveText('לוחם');
+    await expect(raceSelect.locator('option[value="Elf"]')).toHaveText('אלף');
+
+    // ...but selecting them still stores the English value that the rest of
+    // the app (CLASS_SAVES, applyTemplate, SUBRACE_MAP, etc) keys off of.
+    await classSelect.selectOption('Fighter');
+    await raceSelect.selectOption('Elf');
+
+    const identity = await page.evaluate(() => ({ cls: state.cls, race: state.race }));
+    expect(identity).toEqual({ cls: 'Fighter', race: 'Elf' });
+  });
 });
