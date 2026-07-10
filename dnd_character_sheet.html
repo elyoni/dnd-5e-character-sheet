@@ -562,6 +562,7 @@ const T = {
     inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
     itemType:"Type", itemTypeGear:"Gear", itemTypeWeapon:"Weapon", itemTypeArmor:"Armor", itemTypeShield:"Shield",
     itemAC:"AC", acBreakdown:"AC breakdown", unarmoredAbilHint:"Ability that governs AC when no armor is equipped",
+    armorAbilHint:"Ability modifier added to this armor's AC — DEX for light/medium armor, none for heavy armor",
     noneOption:"— none —",
     abilities:"Ability Scores", str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA",
     combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", flySpeed:"Fly Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
@@ -681,6 +682,7 @@ const T = {
     inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
     itemType:"סוג", itemTypeGear:"ציוד כללי", itemTypeWeapon:"נשק", itemTypeArmor:"שריון", itemTypeShield:"מגן",
     itemAC:"שריון", acBreakdown:"פירוט שריון", unarmoredAbilHint:"התכונה שקובעת את השריון כשאין שריון חבוש",
+    armorAbilHint:"מכפיל התכונה שמתווסף לשריון זה — זריזות בשריון קל/בינוני, ללא בשריון כבד",
     noneOption:"— ללא —",
     abilities:"תכונות", str:"כוח",dex:"זריזות",con:"חוסן",int:"אינטליגנציה",wis:"חוכמה",cha:"כריזמה",
     combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", flySpeed:"מהירות מעוף", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
@@ -2397,7 +2399,7 @@ function itemRow(it, i){
   let acCell = "";
   if(it.type==="armor"){
     acCell = `<input type="number" min="0" style="width:48px;text-align:center" value="${it.acBase}" onchange="set('inventory.items.${i}.acBase', parseInt(this.value)||0)">
-      <select onchange="set('inventory.items.${i}.acAbility', this.value)">
+      <select style="width:auto;display:inline-block;margin-left:4px" title="${t.armorAbilHint}" onchange="set('inventory.items.${i}.acAbility', this.value)">
         ${ABILS.map(a=>`<option value="${a}" ${it.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
         <option value="none" ${it.acAbility==="none"?"selected":""}>${t.noneOption}</option>
       </select>`;
