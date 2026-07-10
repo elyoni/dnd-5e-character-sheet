@@ -34,6 +34,17 @@ test.describe('character sheet editing', () => {
     expect(attackNames).toContain('Dagger');
   });
 
+  test('typing HP notes persists to state', async ({ page }) => {
+    await dismissOnboarding(page);
+
+    const hpNotesInput = page.locator('textarea[placeholder="Death saves, temp HP source, etc."]');
+    await hpNotesInput.fill('Failed 1 death save; 5 temp HP from Shield of Faith.');
+    await hpNotesInput.dispatchEvent('change');
+
+    const hpNotes = await page.evaluate(() => state.hpNotes);
+    expect(hpNotes).toBe('Failed 1 death save; 5 temp HP from Shield of Faith.');
+  });
+
   test('exporting a character downloads a JSON file', async ({ page }) => {
     await dismissOnboarding(page);
     await page.evaluate(() => set('name', 'Export Test'));
