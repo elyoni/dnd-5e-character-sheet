@@ -564,7 +564,7 @@ const T = {
     itemAC:"AC", acBreakdown:"AC breakdown", unarmoredAbilHint:"Ability that governs AC when no armor is equipped",
     noneOption:"— none —",
     abilities:"Ability Scores", str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA",
-    combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", flySpeed:"Fly Speed", hasFlySpeed:"Has Fly Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
+    combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", flySpeed:"Fly Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
     diceRoller:"Dice Roller", diceModifier:"Modifier", diceClear:"Clear", diceNoRolls:"No rolls yet",
     saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception", proficient:"Proficient", expertise:"Expertise",
@@ -594,7 +594,7 @@ const T = {
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
     feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat", featLvlAbbr:"Lvl",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
-    featHP:"Max HP", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed",
+    featHP:"Max HP", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed", featFixedValue:"Set base value",
     featLevelHint:"\"Level\" here means your character's current level (set in Identity) — a feat with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
     featDmgGroup:"Damage rolls", featDmgAll:"All damage", featDmgMelee:"Melee damage", featDmgRanged:"Ranged damage", featDmgFinesse:"Finesse damage", featDmgSpell:"Spell damage",
     resources:"Class Resources", resName:"Resource", resUses:"Uses", resRecharge:"Recharges", resNotes:"What it does", addResource:"Resource",
@@ -683,7 +683,7 @@ const T = {
     itemAC:"שריון", acBreakdown:"פירוט שריון", unarmoredAbilHint:"התכונה שקובעת את השריון כשאין שריון חבוש",
     noneOption:"— ללא —",
     abilities:"תכונות", str:"כוח",dex:"זריזות",con:"חוסן",int:"אינטליגנציה",wis:"חוכמה",cha:"כריזמה",
-    combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", flySpeed:"מהירות מעוף", hasFlySpeed:"בעל מהירות מעוף", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
+    combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", flySpeed:"מהירות מעוף", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
     diceRoller:"הטלת קוביות", diceModifier:"מודיפייר", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
     saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית", proficient:"מיומן", expertise:"מומחיות",
@@ -713,7 +713,7 @@ const T = {
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
     feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה", featLvlAbbr:"רמה",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
-    featHP:"נק״ח מקס", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות",
+    featHP:"נק״ח מקס", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות", featFixedValue:"קביעת ערך בסיס",
     featLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
     featDmgGroup:"הטלות נזק", featDmgAll:"כל הנזק", featDmgMelee:"נזק קרב מגע", featDmgRanged:"נזק טווח", featDmgFinesse:"נזק זריזות", featDmgSpell:"נזק קסם",
     resources:"משאבי מחלקה", resName:"משאב", resUses:"שימושים", resRecharge:"מתאפס ב", resNotes:"מה זה עושה", addResource:"הוסף משאב",
@@ -894,7 +894,7 @@ function hydrate(s){
     if(typeof sp.castTime !== "string") sp.castTime = "";
     if(typeof sp.save !== "string") sp.save = "";
   });
-  if(s.feats) s.feats.forEach(f=>{ if(!f.mod) f.mod = {stat:"", amount:0, perLevel:false}; if(typeof f.mod.perLevel !== "boolean") f.mod.perLevel = false; if(typeof f.mod.matchSpeed !== "boolean") f.mod.matchSpeed = false; if(typeof f.level !== "number") f.level = 1; });
+  if(s.feats) s.feats.forEach(f=>{ if(!f.mod) f.mod = {stat:"", amount:0, perLevel:false}; if(typeof f.mod.perLevel !== "boolean") f.mod.perLevel = false; if(typeof f.mod.matchSpeed !== "boolean") f.mod.matchSpeed = false; if(typeof f.mod.fixed !== "boolean") f.mod.fixed = false; if(typeof f.level !== "number") f.level = 1; });
   if(typeof s.hpAutoCalc !== "boolean") s.hpAutoCalc = false;
   if(typeof s.climbSpeed !== "number") s.climbSpeed = 0;
   if(typeof s.swimSpeed !== "number") s.swimSpeed = 0;
@@ -1262,11 +1262,32 @@ function getEffectiveAbilities(s){
 }
 function getEffectiveSpeed(s){ return s.speed + getFeatBonus(s, "speed"); }
 const SECONDARY_SPEED_FIELD = {climb:"climbSpeed", swim:"swimSpeed", fly:"flySpeed"};
+// A matchSpeed or fixed feat replaces the base value for `kind` instead of adding to it;
+// at most one such feat is meaningful per kind, so the first one found wins.
+function getSecondarySpeedOverrideFeat(s, kind){
+  return (s.feats||[]).find(f => f.mod && f.mod.stat===kind && (f.mod.matchSpeed || f.mod.fixed));
+}
+function getSecondarySpeedBonus(s, kind){
+  const lvl = Math.max(1, parseInt(s.level)||1);
+  return (s.feats||[]).reduce((sum, f) => {
+    if(!f.mod || f.mod.stat !== kind || f.mod.matchSpeed || f.mod.fixed) return sum;
+    const amt = parseInt(f.mod.amount)||0;
+    return sum + (f.mod.perLevel ? amt*lvl : amt);
+  }, 0);
+}
 function getEffectiveSecondarySpeed(s, kind){ // kind: "climb" | "swim" | "fly"
-  const overridden = (s.feats||[]).some(f => f.mod && f.mod.stat===kind && f.mod.matchSpeed);
-  if(overridden) return getEffectiveSpeed(s);
-  const base = s[SECONDARY_SPEED_FIELD[kind]];
-  return base + getFeatBonus(s, kind);
+  const overrideFeat = getSecondarySpeedOverrideFeat(s, kind);
+  const lvl = Math.max(1, parseInt(s.level)||1);
+  let base;
+  if(overrideFeat && overrideFeat.mod.fixed){
+    const amt = parseInt(overrideFeat.mod.amount)||0;
+    base = overrideFeat.mod.perLevel ? amt*lvl : amt;
+  } else if(overrideFeat && overrideFeat.mod.matchSpeed){
+    base = getEffectiveSpeed(s);
+  } else {
+    base = s[SECONDARY_SPEED_FIELD[kind]];
+  }
+  return base + getSecondarySpeedBonus(s, kind);
 }
 function getEffectiveInitiative(s){ return mod(getEffectiveAbilities(s).dex) + getFeatBonus(s, "init"); }
 function computeMaxHP(s){
@@ -1894,6 +1915,9 @@ function buildPrintHTML(opts){
   const dir = lang==='he' ? 'rtl' : 'ltr';
   const effAbil = getEffectiveAbilities(state);
   const effSpeed = getEffectiveSpeed(state);
+  const secondarySpeedParts = [["climb","🕷️"],["swim","🏊"],["fly","🦅"]]
+    .map(([k,icon])=>{ const v = getEffectiveSecondarySpeed(state,k); return v>0 ? `${icon} ${t[SECONDARY_SPEED_LABEL_KEY[k]]}: ${v} ft` : null; })
+    .filter(Boolean).join(" · ");
   const effInit = getEffectiveInitiative(state);
   const dexMod = mod(effAbil.dex), conMod = mod(effAbil.con);
 
@@ -1948,7 +1972,8 @@ function buildPrintHTML(opts){
     return t[stat] || stat;
   };
   const featRows = state.feats.slice().sort((a,b)=>(a.level||1)-(b.level||1)).map(f=>{
-    const modText = (f.mod && f.mod.stat) ? ` <span class="f">(${featModLabel(f.mod.stat)} ${f.mod.matchSpeed ? `= ${t.speed}` : `${fm(parseInt(f.mod.amount)||0)}${f.mod.perLevel?t.featPerLevel:""}`})</span>` : "";
+    const modAmtText = `${fm(parseInt(f.mod.amount)||0)}${f.mod.perLevel?t.featPerLevel:""}`;
+    const modText = (f.mod && f.mod.stat) ? ` <span class="f">(${featModLabel(f.mod.stat)} ${f.mod.matchSpeed ? `= ${t.speed}` : f.mod.fixed ? `= ${modAmtText}` : modAmtText})</span>` : "";
     return `<tr><td class="num">${f.level||1}</td><td>${esc(f.name)}</td><td style="white-space:pre-wrap">${esc(f.notes)}${modText}</td></tr>`;
   }).join("");
   const resourceRows = state.resources.map(r=>{
@@ -2051,7 +2076,7 @@ function buildPrintHTML(opts){
           <div class="shape-wrap"><svg class="shape-bg" viewBox="0 0 100 112" preserveAspectRatio="none"><path d="M50 3 L94 16 L94 54 Q94 90 50 109 Q6 90 6 54 L6 16 Z"/></svg><div class="shape-content"><span class="big">${computeAC(state)}</span></div></div>
         </div>
         <div class="combat-box"><span class="label">${t.init}</span><span class="big">${fm(effInit)}</span></div>
-        <div class="combat-box"><span class="label">🐇 ${t.speed}</span><span class="big">${effSpeed} <span style="font-size:11px">(${Math.floor(effSpeed/5)} sq)</span></span><div class="formula-note">🕷️ ${t.climbSpeed}: ${getEffectiveSecondarySpeed(state,"climb")} ft · 🏊 ${t.swimSpeed}: ${getEffectiveSecondarySpeed(state,"swim")} ft${state.hasFlySpeed ? ` · 🦅 ${t.flySpeed}: ${getEffectiveSecondarySpeed(state,"fly")} ft` : ""}</div></div>
+        <div class="combat-box"><span class="label">🐇 ${t.speed}</span><span class="big">${effSpeed} <span style="font-size:11px">(${Math.floor(effSpeed/5)} sq)</span></span>${secondarySpeedParts ? `<div class="formula-note">${secondarySpeedParts}</div>` : ""}</div>
         <div class="combat-box"><span class="label">${t.hitdice}</span><span class="big" style="font-size:15px">${esc(computeHitDice(state))}</span></div>
         <div class="combat-box"><span class="label">${t.prof}</span><span class="big">${fm(prof)}</span></div>
         <div class="combat-box hp-box"><svg class="hp-heart-bg" viewBox="0 0 100 100"><path d="M50 90 C18 66 2 46 2 25 C2 8 15 2 27 2 C38 2 46 8 50 19 C54 8 62 2 73 2 C85 2 98 8 98 25 C98 46 82 66 50 90 Z"/></svg><span class="label">❤️ ${t.hp}${state.hpAutoCalc?" (auto)":""}</span><span class="big">${state.hpCur} / ${state.hpMax + getFeatBonus(state,"hp")}</span></div>
@@ -2201,17 +2226,33 @@ function removeSpell(i){ state.spells.splice(i,1); render(); queueSave(); }
 const SECONDARY_SPEED_LABEL_KEY = {climb:"climbSpeed", swim:"swimSpeed", fly:"flySpeed"};
 function secondarySpeedRowHTML(t, kind, icon){
   const field = SECONDARY_SPEED_FIELD[kind];
-  const overridden = (state.feats||[]).some(f => f.mod && f.mod.stat===kind && f.mod.matchSpeed);
+  const manualBase = kind === "swim"; // climb/fly are feat-only: no manual base field, hidden until a feat grants them
+  const overrideFeat = getSecondarySpeedOverrideFeat(state, kind);
   const val = getEffectiveSecondarySpeed(state, kind);
+  if(val === 0) return "";
   const base = state[field];
-  const featBonus = getFeatBonus(state, kind);
+  const featBonus = getSecondarySpeedBonus(state, kind);
+  const featWord = lang==='en'?'feat':'תכונה';
   const label = t[SECONDARY_SPEED_LABEL_KEY[kind]];
+  let noteText;
+  if(overrideFeat && overrideFeat.mod.matchSpeed){
+    noteText = `= ${t.speed}${featBonus!==0 ? ` ${fm(featBonus)} ${featWord}` : ` (${featWord})`}`;
+  } else if(overrideFeat && overrideFeat.mod.fixed){
+    const lvl = Math.max(1, parseInt(state.level)||1);
+    const amt = parseInt(overrideFeat.mod.amount)||0;
+    const fixedVal = overrideFeat.mod.perLevel ? amt*lvl : amt;
+    noteText = `${fixedVal} (${featWord})${featBonus!==0 ? ` ${fm(featBonus)} ${featWord}` : ""}`;
+  } else if(manualBase){
+    noteText = `${base}${featBonus!==0 ? ` ${fm(featBonus)} ${featWord}` : ""}`;
+  } else {
+    noteText = `${fm(featBonus)} ${featWord}`;
+  }
   return `<div class="speed-value-group" style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--leather-line)">
     <span class="dim-label" title="${label}">${icon}</span>
     <span class="mono" style="font-weight:700">${val}</span>
-    ${overridden ? "" : `<span class="dim-label">${t.speedBase}</span><input type="number" min="0" style="width:34px;text-align:center;padding:0" value="${base}" onchange="set('${field}', parseInt(this.value)||0)">`}
+    ${manualBase && !overrideFeat ? `<span class="dim-label">${t.speedBase}</span><input type="number" min="0" style="width:34px;text-align:center;padding:0" value="${base}" onchange="set('${field}', parseInt(this.value)||0)">` : ""}
   </div>
-  <div class="formula-note">${overridden ? `= ${t.speed} (${lang==='en'?'feat':'תכונה'})` : `${base}${featBonus!==0 ? ` ${fm(featBonus)} ${lang==='en'?'feat':'תכונה'}` : ""}`}</div>`;
+  <div class="formula-note">${noteText}</div>`;
 }
 function featModLabelForRow(t, stat){
   if(stat==='speed') return t.speed;
@@ -2243,7 +2284,9 @@ function featRow(f, i){
   const modAmt = (f.mod && f.mod.amount) || 0;
   const perLevel = !!(f.mod && f.mod.perLevel);
   const matchSpeed = !!(f.mod && f.mod.matchSpeed);
-  const badge = modStat ? `<span class="feat-badge">${featModLabelForRow(t,modStat)} ${matchSpeed ? `= ${t.speed}` : `${fm(modAmt)}${perLevel ? ` <span class="feat-lvmark">× Lv${state.level} = ${fm(modAmt*Math.max(1,state.level))}</span>` : ""}`}</span>` : "";
+  const fixed = !!(f.mod && f.mod.fixed);
+  const amtText = `${fm(modAmt)}${perLevel ? ` <span class="feat-lvmark">× Lv${state.level} = ${fm(modAmt*Math.max(1,state.level))}</span>` : ""}`;
+  const badge = modStat ? `<span class="feat-badge">${featModLabelForRow(t,modStat)} ${matchSpeed ? `= ${t.speed}` : fixed ? `= ${amtText}` : amtText}</span>` : "";
   return `<div class="feat-card">
     <div class="feat-card-top">
       <span class="feat-name-display">${t.featLvlAbbr}${lang==='he'?' ':''}${f.level||1}</span>
@@ -2270,9 +2313,11 @@ function confirmFeatModal(){
   const stat = document.getElementById("modalFeatAffects").value;
   const amount = parseInt(document.getElementById("modalFeatAmount").value)||0;
   const perLevel = document.getElementById("modalFeatPerLevel").checked;
-  const matchSpeed = (stat==='climb'||stat==='swim'||stat==='fly') && document.getElementById("modalFeatMatchSpeed").checked;
+  const isSpd = stat==='climb'||stat==='swim'||stat==='fly';
+  const matchSpeed = isSpd && document.getElementById("modalFeatMatchSpeed").checked;
+  const fixed = isSpd && !matchSpeed && document.getElementById("modalFeatFixed").checked;
   const notes = document.getElementById("modalFeatNotes").value;
-  const feat = {name, level, notes, mod:{stat, amount: stat?amount:0, perLevel: stat && !matchSpeed ? perLevel:false, matchSpeed}};
+  const feat = {name, level, notes, mod:{stat, amount: (stat && !matchSpeed) ? amount : 0, perLevel: stat && !matchSpeed ? perLevel:false, matchSpeed, fixed}};
   if(editingFeatIndex===null) state.feats.push(feat);
   else state.feats[editingFeatIndex] = feat;
   featModalOpen = false;
@@ -2478,7 +2523,6 @@ function applyRaceTemplate(kind){
   } else if(kind==="fairy"){
     addFeat("Fairy Magic", "You know the Druidcraft cantrip. At 3rd level, cast Faerie Fire once per Long Rest (or with a spell slot). At 5th level, also cast Enlarge/Reduce the same way. Spellcasting ability: Int, Wis, or Cha (your choice).");
     addFeat("Flight", "You have a flying speed equal to your walking speed. You can't use it while wearing medium or heavy armor.", {stat:"fly", amount:0, perLevel:false, matchSpeed:true});
-    if(!state.hasFlySpeed) state.hasFlySpeed = true;
     if(state.size === "Medium") state.size = "Small";
   } else if(kind==="minotaur"){
     addFeat("Horns", "Natural melee weapon: 1d6 + Strength modifier piercing damage.");
@@ -2734,11 +2778,7 @@ function render(){
         <div class="formula-note">${state.speed}${getFeatBonus(state,"speed")!==0 ? ` ${fm(getFeatBonus(state,"speed"))} ${lang==='en'?'feat':'תכונה'}` : ""}</div>
         ${secondarySpeedRowHTML(t, "climb", "🕷️")}
         ${secondarySpeedRowHTML(t, "swim", "🏊")}
-        ${state.hasFlySpeed ? secondarySpeedRowHTML(t, "fly", "🦅") : ""}
-        <label style="display:flex;align-items:center;gap:5px;margin-top:6px;padding-top:6px;border-top:1px dashed var(--leather-line);font-size:10.5px;color:var(--ink-faint)" class="no-print">
-          <input type="checkbox" ${state.hasFlySpeed?"checked":""} onchange="set('hasFlySpeed', this.checked)">
-          🦅 ${t.hasFlySpeed}
-        </label>
+        ${secondarySpeedRowHTML(t, "fly", "🦅")}
       </div>
       <div class="combat-box">
         <span class="label">${t.hitdice}</span>
@@ -3062,6 +3102,7 @@ function render(){
     const selOpt = v => efStat===v ? "selected" : "";
     const efIsSpd = efStat==='climb' || efStat==='swim' || efStat==='fly';
     const efMatchSpeed = efIsSpd && !!(ef && ef.mod.matchSpeed);
+    const efFixed = efIsSpd && !!(ef && ef.mod.fixed);
     const amtDisabled = !efStat || efMatchSpeed;
     return `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeFeatModal()">
@@ -3116,8 +3157,9 @@ function render(){
           <input type="number" id="modalFeatAmount" value="${ef ? (ef.mod.amount||0) : 0}" ${amtDisabled ? "disabled" : ""}>
         </div>
       </div>
-      <div class="modal-row" id="modalFeatMatchSpeedWrap" style="display:${efIsSpd ? 'flex' : 'none'};align-items:center">
-        <label class="atk-prof-chip"><input type="checkbox" id="modalFeatMatchSpeed" ${efMatchSpeed ? "checked" : ""} onchange="document.getElementById('modalFeatAmount').disabled=this.checked;document.getElementById('modalFeatPerLevel').disabled=this.checked;">${t.featMatchSpeed}</label>
+      <div class="modal-row" id="modalFeatMatchSpeedWrap" style="display:${efIsSpd ? 'flex' : 'none'};align-items:center;gap:14px;flex-wrap:wrap">
+        <label class="atk-prof-chip"><input type="checkbox" id="modalFeatMatchSpeed" ${efMatchSpeed ? "checked" : ""} onchange="document.getElementById('modalFeatAmount').disabled=this.checked;document.getElementById('modalFeatPerLevel').disabled=this.checked;if(this.checked)document.getElementById('modalFeatFixed').checked=false;">${t.featMatchSpeed}</label>
+        <label class="atk-prof-chip"><input type="checkbox" id="modalFeatFixed" ${efFixed ? "checked" : ""} onchange="if(this.checked){document.getElementById('modalFeatMatchSpeed').checked=false;document.getElementById('modalFeatAmount').disabled=false;document.getElementById('modalFeatPerLevel').disabled=false;}">${t.featFixedValue}</label>
       </div>
       <div class="modal-row">
         <label class="atk-prof-chip"><input type="checkbox" id="modalFeatPerLevel" ${ef && ef.mod.perLevel ? "checked" : ""} ${amtDisabled ? "disabled" : ""}>${t.featPerLevel}</label>

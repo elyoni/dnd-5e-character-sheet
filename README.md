@@ -41,7 +41,7 @@ Picking a race in the New Character form (or changing it later) auto-applies tha
 | **Tiefling** | Abyssal, Chthonic, Infernal Legacy | Darkvision, Otherworldly Presence (knows Thaumaturgy), Fiendish Resilience (resistance to one damage type) |
 | **Orc** | — | (pick race traits manually — no auto-template yet) |
 | **Aasimar** | — | (pick race traits manually — no auto-template yet) |
-| **Fairy** | — | Fairy Magic (Druidcraft cantrip, later Faerie Fire/Enlarge-Reduce), Flight (fly speed always equal to walking speed) — also sets Size to Small and enables the Fly Speed field if still at their defaults |
+| **Fairy** | — | Fairy Magic (Druidcraft cantrip, later Faerie Fire/Enlarge-Reduce), Flight (fly speed always equal to walking speed, via a feat) — also sets Size to Small if still at its default |
 | **Minotaur** | — | Horns (natural weapon, 1d6 + Str piercing), Goring Rush (bonus horn attack after Dashing 20+ ft), Hammering Horns (shove after a melee hit), Labyrinthine Recall (never get lost) |
 
 Any race/subrace name can also be typed in freely (`raceCustom`/`subraceCustom`) if you don't want to use the preset list.
@@ -75,16 +75,17 @@ Feats are modeled generically rather than as a fixed list — add any feat by na
 - **Stat** — which derived value it affects (an ability score, HP, speed, initiative, an attack/damage type, etc.)
 - **Amount** — the flat bonus
 - **Per level** — whether the bonus scales with character level instead of staying flat
+- **Equal to Speed** / **Set base value** — Climb/Swim/Fly Speed only: instead of a flat bonus, the feat can instead *replace* the base value — either matching it to walking speed (e.g. a Fairy's Flight trait) or to a fixed number you choose (optionally scaling per level too). Other feats' flat bonuses still stack on top of whichever base a replacing feat establishes.
 
-This one generic `{stat, amount, perLevel}` shape drives all feat math in combat/derived stats, so any homebrew or official feat can be represented without code changes — including the ones races grant automatically (Darkvision, Lucky, Dwarven Toughness, etc., listed above), which show up in the same Feats panel.
+This one generic `{stat, amount, perLevel, matchSpeed, fixed}` shape drives all feat math in combat/derived stats, so any homebrew or official feat can be represented without code changes — including the ones races grant automatically (Darkvision, Lucky, Dwarven Toughness, etc., listed above), which show up in the same Feats panel.
 
 ## Combat & abilities
 
 - **Ability scores** (Str/Dex/Con/Int/Wis/Cha) with auto-computed modifiers, feeding every derived stat below.
 - **AC** — driven by your Inventory: mark an item as type Armor and Equipped to set the base AC plus its own governing-ability modifier (or None), and equip Shield-type item(s) to add their bonus on top. With no Armor item equipped, AC falls back to 10 + a selectable ability (Dex by default, Wis for Animals, or None), chosen right in the AC box.
 - **HP** — auto-calculated from class hit die + Constitution (toggleable to manual entry), with current/max/temp tracking.
-- **Initiative, Speed** (plus separate climb/swim speeds), **Passive Perception**, **Proficiency Bonus** (auto by level), all as live-derived values — never hand-entered or stored stale.
-- **Fly Speed** — hidden by default; a checkbox in the Combat panel reveals an editable fly speed once a character actually has one (e.g. a Fairy's Flight trait).
+- **Initiative, Speed**, **Passive Perception**, **Proficiency Bonus** (auto by level), all as live-derived values — never hand-entered or stored stale.
+- **Climb/Swim/Fly speed** — each only shows up in the Combat panel once it's nonzero. Swim speed has a manually-editable base (plus any feat bonus); climb and fly speed are feat-only — the only way to grant them is a feat with Stat set to Climb Speed/Fly Speed, either as a flat bonus, matching walking speed (e.g. a Fairy's Flight trait), or a fixed base value of your choosing.
 - **Size** (Tiny/Small/Medium/Large/Huge/Gargantuan) — a simple field in Identity; purely descriptive, doesn't feed into any derived stat.
 - **Saving throws** and all 18 **skills**, each with proficiency and expertise toggles, computed off the right ability + proficiency bonus.
 - **Attacks** — a repeatable list (name, type, damage die, notes) with an animated 3D dice-roll for attack rolls and damage, plus roll history per row.
