@@ -45,4 +45,23 @@ test.describe('character sheet editing', () => {
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe('Export_Test.json');
   });
+
+  test('the panel fold-toggle sits on the opposite side of the header from the title, in both LTR and RTL', async ({ page }) => {
+    await dismissOnboarding(page);
+
+    const header = page.locator("h2.ref-toggle[onclick*=\"togglePanelFold('identity')\"]");
+    const toggle = header.locator('span');
+
+    // LTR (English, default): title starts on the left, so the toggle floats right.
+    let headerBox = await header.boundingBox();
+    let toggleBox = await toggle.boundingBox();
+    expect(toggleBox.x + toggleBox.width).toBeCloseTo(headerBox.x + headerBox.width, 0);
+
+    // RTL (Hebrew): title starts on the right, so the toggle should float left instead.
+    await page.evaluate(() => switchLang('he'));
+    await page.waitForTimeout(300);
+    headerBox = await header.boundingBox();
+    toggleBox = await toggle.boundingBox();
+    expect(toggleBox.x).toBeCloseTo(headerBox.x, 0);
+  });
 });
