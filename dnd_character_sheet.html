@@ -585,6 +585,7 @@ const T = {
     spName:"Spell", spLevel:"Lv", spPrepared:"Prep.", spConc:"C", spTouch:"T", spVerbal:"V", spSomatic:"S", spMaterial:"M", spDmg:"Damage", spNotes:"Notes", addSpell:"Spell",
     spVerbalFull:"Verbal — spoken incantations", spSomaticFull:"Somatic — physical gestures", spMaterialFull:"Material — physical ingredients",
     spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", editFeatModalTitle:"Edit Feat", addAttackModalTitle:"New Attack",
+    spPresetLabel:"Premade spell (optional)", spPresetNone:"-- Pick a preset to fill the fields below --",
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
     charTypeLabel:"Type", charTypePc:"Player Character", charTypeAnimal:"Animal", species:"Species",
@@ -705,6 +706,7 @@ const T = {
     spName:"קסם", spLevel:"רמה", spPrepared:"מוכן", spConc:"ר", spTouch:"מ", spVerbal:"ד", spSomatic:"ת", spMaterial:"ח", spDmg:"נזק", spNotes:"הערות", addSpell:"קסם",
     spVerbalFull:"מילולי — לחישות מוטלות", spSomaticFull:"תנועתי — מחוות פיזיות", spMaterialFull:"חומרי — מרכיבים פיזיים",
     spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", editFeatModalTitle:"עריכת תכונה", addAttackModalTitle:"התקפה חדשה",
+    spPresetLabel:"קסם מוכן מראש (אופציונלי)", spPresetNone:"-- בחר קסם מוכן כדי למלא את השדות למטה --",
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
     charTypeLabel:"סוג", charTypePc:"דמות שחקן", charTypeAnimal:"חיה", species:"מין",
@@ -2165,6 +2167,38 @@ function buildPrintHTML(opts){
   </body></html>`;
 }
 
+// Premade spell picker for the add-spell modal — only fills modal inputs on selection,
+// never mutates state directly and never overwrites spells the user already added.
+const SPELL_PRESETS = [
+  {level:0, name:"Druidcraft", dmg:"", notesEn:"Predict weather, make a flower bloom, create a minor sensory effect, or light/snuff a small flame.", notesHe:"לחזות מזג אוויר, לגרום לפרח לפרוח, ליצור אפקט חושי קטן, או להדליק/לכבות להבה קטנה."},
+  {level:0, name:"Guidance", dmg:"", notesEn:"Touch a creature; it adds 1d4 to one ability check of its choice within the next minute.", notesHe:"נגיעה במטרה — היא מוסיפה 1d4 לבדיקת תכונה אחת במהלך הדקה הקרובה."},
+  {level:0, name:"Light", dmg:"", notesEn:"An object sheds bright light in a 20-ft radius (dim for another 20 ft) for 1 hour.", notesHe:"חפץ פולט אור בהיר ברדיוס 6 מ' (וקלוש 6 מ' נוספים) למשך שעה."},
+  {level:0, name:"Sacred Flame", dmg:"1d8", notesEn:"Target takes 1d8 radiant damage, DEX save negates; cover doesn't help. Damage scales with character level.", notesHe:"המטרה מקבלת 1d8 נזק קורן, הצלת זריזות מבטלת; מחסה לא עוזר. הנזק גדל עם הרמה."},
+  {level:0, name:"Toll the Dead", dmg:"1d8", notesEn:"Target takes 1d8 necrotic damage (1d12 if already missing HP), WIS save negates. Damage scales with level.", notesHe:"המטרה מקבלת 1d8 נזק נקרוטי (1d12 אם כבר איבדה נק\"ח), הצלת חוכמה מבטלת. גדל עם הרמה."},
+  {level:1, name:"Detect Magic", dmg:"", notesEn:"Sense the presence of magic within 30 ft for 10 minutes. (Ritual)", notesHe:"מרגיש נוכחות קסם ברדיוס 9 מ' למשך 10 דקות (טקס)."},
+  {level:1, name:"Create or Destroy Water", dmg:"", notesEn:"Create or destroy up to 10 gallons of water.", notesHe:"יוצר או הורס עד כ-38 ליטר מים."},
+  {level:1, name:"Guiding Bolt", dmg:"4d6", notesEn:"Ranged spell attack; 4d6 radiant damage on hit, and the next attack against the target before the end of your next turn has advantage.", notesHe:"התקפת קסם מרחוק; 4d6 נזק קורן בפגיעה, וההתקפה הבאה על המטרה מקבלת יתרון."},
+  {level:1, name:"Command", dmg:"", notesEn:"Target obeys a one-word command (Flee/Drop/Grovel/Halt/etc.), WIS save negates.", notesHe:"המטרה מצייתת למילת פקודה אחת (ברח/הישמט/כרע/עצור וכו׳), הצלת חוכמה מבטלת."},
+  {level:1, name:"Heroism", dmg:"", notesEn:"Willing creature gains temp HP equal to your spellcasting modifier at the start of each of its turns and is immune to frightened, for 1 minute. (Concentration)", notesHe:"יצור מסכים מקבל נק\"ח זמניות כמודיפייר הקוסם בתחילת כל תור, וחסין לפחד, למשך דקה (ריכוז)."},
+  {level:1, name:"Shield of Faith", dmg:"", notesEn:"+2 AC to a creature for up to 10 minutes. (Concentration)", notesHe:"+2 לדרגת השריון של יצור למשך עד 10 דקות (ריכוז)."},
+  {level:2, name:"Prayer of Healing", dmg:"", notesEn:"10-minute casting time. Up to 6 creatures within 30 ft each regain 2d8 + your spellcasting modifier HP.", notesHe:"עד 6 יצורים ברדיוס 9 מ' מחלימים 2d8 + מודיפייר הקוסם נק\"ח (זמן טקס 10 דקות)."},
+  {level:2, name:"Spiritual Weapon", dmg:"1d8", notesEn:"Bonus action. Create a spectral weapon that attacks for 1d8 + your spellcasting modifier force damage; lasts 1 minute, movable 20 ft each turn.", notesHe:"פעולה בונוס. יוצר נשק רוחני שתוקף ב-1d8 + מודיפייר הקוסם נזק כוח; נמשך דקה, ניתן להזיז 6 מ' בכל תור."},
+  {level:2, name:"Silence", dmg:"", notesEn:"20-ft-radius sphere of magical silence for 10 minutes, centered on a point you choose and movable with it. (Concentration, Ritual)", notesHe:"כדור של שקט קסום ברדיוס 6 מ' למשך 10 דקות, סביב נקודה שתבחר, וזז איתה (ריכוז, טקס)."}
+];
+function applySpellPreset(idx){
+  if(idx === "" || idx === null || idx === undefined) return;
+  const p = SPELL_PRESETS[+idx];
+  if(!p) return;
+  const levelEl = document.getElementById("modalSpellLevel");
+  const nameEl = document.getElementById("modalSpellName");
+  const dmgEl = document.getElementById("modalSpellDmg");
+  const notesEl = document.getElementById("modalSpellNotes");
+  if(levelEl) levelEl.value = p.level;
+  if(nameEl) nameEl.value = p.name;
+  if(dmgEl) dmgEl.value = p.dmg;
+  if(notesEl) notesEl.value = lang === "he" ? p.notesHe : p.notesEn;
+}
+
 function spellRow(sp, i){
   const t = T[lang];
   const saveLabel = sp.save ? t[sp.save] : "";
@@ -3035,6 +3069,17 @@ function render(){
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeSpellModal()">
     <div class="modal-box">
       <h3>${t.addSpellModalTitle}</h3>
+      <div class="modal-row">
+        <label>${t.spPresetLabel}</label>
+        <select id="modalSpellPreset" onchange="applySpellPreset(this.value)">
+          <option value="">${t.spPresetNone}</option>
+          ${[0,1,2,3,4,5,6,7,8,9].map(lvl=>{
+            const opts = SPELL_PRESETS.map((p,pi)=>({p,pi})).filter(x=>x.p.level===lvl);
+            if(!opts.length) return "";
+            return `<optgroup label="${lvl===0?t.cantrips:`${t.slotLevel} ${lvl}`}">${opts.map(x=>`<option value="${x.pi}">${x.p.name}</option>`).join("")}</optgroup>`;
+          }).join("")}
+        </select>
+      </div>
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:0 0 70px"><label>${t.spLevel}</label><input type="number" id="modalSpellLevel" min="0" max="9" value="${spellModalDefaultLevel}"></div>
         <div style="flex:1"><label>${t.spName}</label><input type="text" id="modalSpellName" placeholder="${t.quickSpellPh}"></div>
