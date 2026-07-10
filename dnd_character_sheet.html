@@ -982,7 +982,7 @@ function setAllFolded(hide){
   refOpen = !hide;
   render();
 }
-function foldIcon(id){ return `<span class="no-print" style="float:right;font-size:11px;color:var(--ink-faint)">${foldedPanels[id] ? T[lang].refShow : T[lang].refHide}</span>`; }
+function foldIcon(id){ const dir = lang==='he' ? 'rtl' : 'ltr'; return `<span class="no-print" style="float:${dir==='rtl'?'left':'right'};font-size:11px;color:var(--ink-faint)">${foldedPanels[id] ? T[lang].refShow : T[lang].refHide}</span>`; }
 function toggleDiceFold(){ diceFolded = !diceFolded; render(); }
 function toggleTurnExpand(i){ turnExpanded[i] = !turnExpanded[i]; render(); }
 function setTurnView(mode){ turnViewMode = mode; render(); }
@@ -2583,6 +2583,7 @@ function slotDotsInteractive(i){
 
 function render(){
   const t = T[lang];
+  const dir = lang==='he' ? 'rtl' : 'ltr';
   const app = document.getElementById("app");
 
   if(!state){
@@ -2706,7 +2707,7 @@ function render(){
   </div>
 
   <div class="panel no-print">
-    <h2 class="ref-toggle" onclick="toggleDiceFold()">🎲 ${t.diceRoller} <span style="float:right;font-size:11px;color:var(--ink-faint)">${diceFolded ? t.refShow : t.refHide}</span></h2>
+    <h2 class="ref-toggle" onclick="toggleDiceFold()">🎲 ${t.diceRoller} <span style="float:${dir==='rtl'?'left':'right'};font-size:11px;color:var(--ink-faint)">${diceFolded ? t.refShow : t.refHide}</span></h2>
     ${diceFolded ? "" : `
     <div class="dice-row">
       ${[4,6,8,10,12,20,100].map(n=>`<button class="die-btn ${n===diceState.sides && diceState.lastRoll!==null ? 'jumping':''}" onclick="rollDice(${n})">${dieIconSVG(n)}d${n}</button>`).join("")}
@@ -3018,7 +3019,7 @@ function render(){
   </div>
 
   <div class="panel">
-    <h2 class="ref-toggle no-print" onclick="toggleRef()">${t.ref} <span style="float:right;font-size:11px;color:var(--ink-faint)">${refOpen? t.refHide : t.refShow}</span></h2>
+    <h2 class="ref-toggle no-print" onclick="toggleRef()">${t.ref} <span style="float:${dir==='rtl'?'left':'right'};font-size:11px;color:var(--ink-faint)">${refOpen? t.refHide : t.refShow}</span></h2>
     <h2 class="print-only-title" style="display:none">${t.ref}</h2>
     <div class="ref-body ${refOpen?'open':''}">${t.refBody}</div>
   </div>
