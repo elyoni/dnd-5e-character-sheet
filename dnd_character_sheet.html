@@ -359,6 +359,8 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .attack-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:110px;flex:1;}
 .attack-stat-val{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:var(--gold-bright);}
 input.attack-dmg-input{min-width:5ch;text-align:center;}
+.attack-dmg-row{display:flex;gap:5px;align-items:center;justify-content:center;}
+select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:0;font-size:11px;padding:4px 20px 4px 6px;}
 .attack-notes-input{width:100%;margin-bottom:8px;}
 .attack-roll-inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
 .feat-card{background:var(--panel-2);border:1px solid var(--leather-line);border-radius:6px;padding:8px 10px;}
@@ -568,8 +570,10 @@ const T = {
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
     diceRoller:"Dice Roller", diceModifier:"Modifier", diceClear:"Clear", diceNoRolls:"No rolls yet",
     saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception", proficient:"Proficient", expertise:"Expertise",
-    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"Attack",
+    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkDmgType:"Dmg Type", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"Attack",
     melee:"Melee", ranged:"Ranged", finesse:"Finesse", natural:"Natural", spell:"Spell",
+    dmgNone:"—", dmgBludgeoning:"Bludgeoning", dmgPiercing:"Piercing", dmgSlashing:"Slashing", dmgAcid:"Acid", dmgCold:"Cold", dmgFire:"Fire", dmgForce:"Force", dmgLightning:"Lightning", dmgNecrotic:"Necrotic", dmgPoison:"Poison", dmgPsychic:"Psychic", dmgRadiant:"Radiant", dmgThunder:"Thunder",
+    atkPreset:"Preset (optional)", atkPresetNone:"— pick a preset —",
     spellAbility:"Casting stat",
     notes:"Notes & Equipment",
     printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import",
@@ -687,8 +691,10 @@ const T = {
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
     diceRoller:"הטלת קוביות", diceModifier:"מודיפייר", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
     saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית", proficient:"מיומן", expertise:"מומחיות",
-    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"הוסף התקפה",
+    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkDmgType:"סוג נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"הוסף התקפה",
     melee:"קרב מגע", ranged:"טווח", finesse:"זריזות/כוח", natural:"טבעי", spell:"קסם",
+    dmgNone:"—", dmgBludgeoning:"מוחץ", dmgPiercing:"חודר", dmgSlashing:"חותך", dmgAcid:"חומצה", dmgCold:"קור", dmgFire:"אש", dmgForce:"כוח", dmgLightning:"ברק", dmgNecrotic:"נמק", dmgPoison:"רעל", dmgPsychic:"נפשי", dmgRadiant:"קרינה", dmgThunder:"רעם",
+    atkPreset:"תבנית מוכנה (רשות)", atkPresetNone:"— בחר תבנית —",
     spellAbility:"תכונת כישוף",
     notes:"הערות וציוד",
     printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא",
@@ -802,6 +808,29 @@ const ABIL_ICON = {str:"💪", dex:"🏹", con:"🛡️", int:"🧠", wis:"👁�
 const CLASS_LIST = ["Barbarian","Bard","Cleric","Druid","Fighter","Monk","Paladin","Ranger","Rogue","Sorcerer","Warlock","Wizard","Artificer"];
 const RACE_LIST = ["Human","Dwarf","Elf","Halfling","Dragonborn","Gnome","Half-Elf","Half-Orc","Tiefling","Orc","Aasimar","Fairy","Minotaur"];
 const SIZE_LIST = ["Tiny","Small","Medium","Large","Huge","Gargantuan"];
+const DMG_TYPES = ["bludgeoning","piercing","slashing","acid","cold","fire","force","lightning","necrotic","poison","psychic","radiant","thunder"];
+const ATTACK_PRESETS = [
+  {name:{en:"Unarmed Strike", he:"מכה חופשית"}, type:"melee", dmg:"1", dmgType:"bludgeoning", spellAbil:"",
+    hint:{en:"No weapon needed — always available, minimal damage.", he:"לא דורש נשק — זמין תמיד, נזק מינימלי."}},
+  {name:{en:"Dagger", he:"פגיון"}, type:"finesse", dmg:"1d4", dmgType:"piercing", spellAbil:"",
+    hint:{en:"Light, finesse; can be thrown (range 20/60).", he:"קליל וזריז; אפשר לזרוק (טווח 20/60)."}},
+  {name:{en:"Shortsword", he:"חרב קצרה"}, type:"finesse", dmg:"1d6", dmgType:"piercing", spellAbil:"",
+    hint:{en:"Light finesse blade, good for dual-wielding.", he:"להב זריז וקליל, טוב ללחימה בשתי חרבות."}},
+  {name:{en:"Longsword", he:"חרב ארוכה"}, type:"melee", dmg:"1d8", dmgType:"slashing", spellAbil:"",
+    hint:{en:"Versatile — deals 1d10 when wielded two-handed.", he:"רב-תכליתי — 1ד10 כשאוחזים בשתי ידיים."}},
+  {name:{en:"Greatsword", he:"חרב גדולה"}, type:"melee", dmg:"2d6", dmgType:"slashing", spellAbil:"",
+    hint:{en:"Heavy, two-handed; high damage.", he:"כבדה, שתי ידיים; נזק גבוה."}},
+  {name:{en:"Shortbow", he:"קשת קצרה"}, type:"ranged", dmg:"1d6", dmgType:"piercing", spellAbil:"",
+    hint:{en:"Simple ranged weapon, range 80/320.", he:"נשק טווח פשוט, טווח 80/320."}},
+  {name:{en:"Longbow", he:"קשת ארוכה"}, type:"ranged", dmg:"1d8", dmgType:"piercing", spellAbil:"",
+    hint:{en:"Martial ranged weapon, range 150/600.", he:"נשק טווח צבאי, טווח 150/600."}},
+  {name:{en:"Light Crossbow", he:"קשת-רובה קלה"}, type:"ranged", dmg:"1d8", dmgType:"piercing", spellAbil:"",
+    hint:{en:"Loading property — one shot per turn without Crossbow Expert.", he:"תכונת טעינה — ירייה אחת בתור בלי Crossbow Expert."}},
+  {name:{en:"Fire Bolt", he:"חץ אש"}, type:"spell", dmg:"1d10", dmgType:"fire", spellAbil:"int",
+    hint:{en:"Evocation cantrip attack; scales with level (2d10 at 5th, 3d10 at 11th, 4d10 at 17th).", he:"קנטריפ התקפה מבית האש; מתעצם עם רמה (2ד10 ברמה 5, 3ד10 ברמה 11, 4ד10 ברמה 17)."}},
+  {name:{en:"Eldritch Blast", he:"פיצוץ איתני"}, type:"spell", dmg:"1d10", dmgType:"force", spellAbil:"cha",
+    hint:{en:"Force damage cantrip; fires an extra beam at 5th/11th/17th level.", he:"קנטריפ נזק כוח; יורה קרן נוספת ברמה 5/11/17."}}
+];
 const SUBRACE_MAP = {
   "Dwarf": ["Hill Dwarf","Mountain Dwarf","Gold Dwarf","Gray Dwarf (Duergar)"],
   "Elf": ["High Elf","Wood Elf","Drow","Eladrin","Sea Elf","Shadar-kai"],
@@ -822,7 +851,7 @@ function defaultChar(id){
     skillProf:{}, skillExpertise:{},
     proficiencies:{armor:"", weapons:"", tools:"", languages:""},
     inventory:{currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]},
-    attacks:[{name:"Shortsword", type:"finesse", dmg:"1d6", spellAbil:"cha", prof:true, notes:""}],
+    attacks:[{name:"Shortsword", type:"finesse", dmg:"1d6", dmgType:"piercing", spellAbil:"cha", prof:true, notes:""}],
     spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
     spells:[],
     feats:[],
@@ -837,7 +866,7 @@ function animalChar(id){
   c.charType = "animal";
   c.abilities = {str:14, dex:14, con:12, int:2, wis:12, cha:6};
   c.armor.acAbility = "wis";
-  c.attacks = [{name:"Bite", type:"natural", dmg:"1d6", spellAbil:"cha", prof:true, notes:""}];
+  c.attacks = [{name:"Bite", type:"natural", dmg:"1d6", dmgType:"piercing", spellAbil:"cha", prof:true, notes:""}];
   return c;
 }
 function hydrate(s){
@@ -882,7 +911,7 @@ function hydrate(s){
     s.armor.migrated = true;
   }
   if(typeof s.level !== "number") s.level = 1;
-  if(s.attacks) s.attacks.forEach(a=>{ if(typeof a.prof !== "boolean") a.prof = true; });
+  if(s.attacks) s.attacks.forEach(a=>{ if(typeof a.prof !== "boolean") a.prof = true; if(typeof a.dmgType !== "string") a.dmgType = ""; });
   if(s.spells) s.spells.forEach(sp=>{
     if(typeof sp.conc !== "boolean") sp.conc = false;
     if(typeof sp.touch !== "boolean") sp.touch = false;
@@ -937,8 +966,8 @@ function demoChar(id){
       ]
     },
     attacks:[
-      {name: isHe ? "חרב ארוכה" : "Longsword", type:"melee", dmg:"1d8+3", spellAbil:"cha", prof:true, notes: isHe ? "רב-תכליתי (1ד10 בשתי ידיים)" : "Versatile (1d10 two-handed)"},
-      {name: isHe ? "קשת קצרה" : "Shortbow", type:"ranged", dmg:"1d6+2", spellAbil:"cha", prof:true, notes: isHe ? "טווח 80/320" : "Range 80/320"}
+      {name: isHe ? "חרב ארוכה" : "Longsword", type:"melee", dmg:"1d8+3", dmgType:"slashing", spellAbil:"cha", prof:true, notes: isHe ? "רב-תכליתי (1ד10 בשתי ידיים)" : "Versatile (1d10 two-handed)"},
+      {name: isHe ? "קשת קצרה" : "Shortbow", type:"ranged", dmg:"1d6+2", dmgType:"piercing", spellAbil:"cha", prof:true, notes: isHe ? "טווח 80/320" : "Range 80/320"}
     ],
     spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
     spells:[],
@@ -1554,6 +1583,16 @@ async function deleteCharacter(){
   render();
 }
 
+function dmgTypeLabel(dt, t){
+  if(!dt) return t.dmgNone;
+  const key = "dmg" + dt.charAt(0).toUpperCase() + dt.slice(1);
+  return t[key] || dt;
+}
+function dmgTypeOptions(selected){
+  const t = T[lang];
+  return `<option value="" ${!selected?"selected":""}>${t.dmgNone}</option>` +
+    DMG_TYPES.map(dt=>`<option value="${dt}" ${selected===dt?"selected":""}>${dmgTypeLabel(dt,t)}</option>`).join("");
+}
 function attackRow(a, i){
   const t = T[lang];
   const abil = abilForAttack(a);
@@ -1585,7 +1624,10 @@ function attackRow(a, i){
       </div>
       <div class="attack-stat">
         <span class="dim-label">${t.atkDmg}</span>
-        <input type="text" value="${a.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(a.dmg)}ch" oninput="autoWidthInput(this)" onchange="set('attacks.${i}.dmg', this.value)">
+        <div class="attack-dmg-row">
+          <input type="text" value="${a.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(a.dmg)}ch" oninput="autoWidthInput(this)" onchange="set('attacks.${i}.dmg', this.value)">
+          <select class="attack-dmgtype-select" onchange="set('attacks.${i}.dmgType', this.value)">${dmgTypeOptions(a.dmgType)}</select>
+        </div>
         <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}</span>
       </div>
       <div class="attack-roll-inline no-print">
@@ -1612,7 +1654,7 @@ function attackRow(a, i){
   </div>`;
 }
 function addAttack(){
-  state.attacks.push({name:"", type:"melee", dmg:"1d6", spellAbil:"cha", prof:true, notes:""});
+  state.attacks.push({name:"", type:"melee", dmg:"1d6", dmgType:"", spellAbil:"cha", prof:true, notes:""});
   render(); queueSave();
 }
 function removeAttack(i){
@@ -1631,11 +1673,31 @@ function confirmAddAttack(){
   const spellAbil = document.getElementById("modalAttackSpellAbil").value;
   const prof = document.getElementById("modalAttackProf").checked;
   const dmg = document.getElementById("modalAttackDmg").value.trim() || "1d6";
+  const dmgType = document.getElementById("modalAttackDmgType").value;
   const notes = document.getElementById("modalAttackNotes").value;
-  state.attacks.push({name, type, dmg, spellAbil, prof, notes});
+  state.attacks.push({name, type, dmg, dmgType, spellAbil, prof, notes});
   attackModalOpen = false;
   render();
   queueSave();
+}
+function applyAttackPreset(idxStr){
+  const hintEl = document.getElementById("modalAttackPresetHint");
+  if(idxStr === ""){ if(hintEl) hintEl.textContent = ""; return; }
+  const p = ATTACK_PRESETS[parseInt(idxStr)];
+  if(!p) return;
+  const nameEl = document.getElementById("modalAttackName");
+  const typeEl = document.getElementById("modalAttackType");
+  const dmgEl = document.getElementById("modalAttackDmg");
+  const dmgTypeEl = document.getElementById("modalAttackDmgType");
+  if(nameEl) nameEl.value = p.name[lang];
+  if(typeEl){ typeEl.value = p.type; typeEl.dispatchEvent(new Event("change")); }
+  if(p.type === "spell" && p.spellAbil){
+    const spellAbilEl = document.getElementById("modalAttackSpellAbil");
+    if(spellAbilEl) spellAbilEl.value = p.spellAbil;
+  }
+  if(dmgEl) dmgEl.value = p.dmg;
+  if(dmgTypeEl) dmgTypeEl.value = p.dmgType;
+  if(hintEl) hintEl.textContent = p.hint[lang];
 }
 function toggleRef(){ refOpen = !refOpen; render(); }
 async function switchLang(l){
@@ -1940,12 +2002,12 @@ function buildPrintHTML(opts){
     return `<div class="list-row skill-row"><span class="mark">${p?"●":"○"}</span><span class="mark">${e?"★":""}</span><span>${ABIL_ICON[abil]} ${lang==='he'?he:en} <span class="ability-tag">(${t[abil]})</span></span><span class="val">${fm(val)}</span></div>`;
   }).join("");
 
-  const blankAttackRow = `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
+  const blankAttackRow = `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
   const attackRows = state.attacks.map(a=>{
     const abil = abilForAttack(a);
     const bonus = mod(effAbil[abil]) + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type);
     const typeLabel = a.type==="melee"?t.melee:a.type==="ranged"?t.ranged:a.type==="finesse"?t.finesse:a.type==="natural"?t.natural:t.spell;
-    return `<tr><td>${esc(a.name)}</td><td>${typeLabel}</td><td class="num">${a.prof?"●":"○"}</td><td class="num">${fm(bonus)}</td><td>${esc(a.dmg)}</td><td>${esc(a.notes)}</td></tr>`;
+    return `<tr><td>${esc(a.name)}</td><td>${typeLabel}</td><td class="num">${a.prof?"●":"○"}</td><td class="num">${fm(bonus)}</td><td>${esc(a.dmg)}</td><td>${dmgTypeLabel(a.dmgType,t)}</td><td>${esc(a.notes)}</td></tr>`;
   }).join("") + blankAttackRow.repeat(extraAttacks);
 
   const spellSaveDC = 8 + prof + mod(effAbil[state.spellcasting.abil]);
@@ -2121,7 +2183,7 @@ function buildPrintHTML(opts){
     </div>
 
     <div class="panel"><h2>${t.attacks}</h2>
-      <div class="table-scroll"><table><thead><tr><th>${t.atkName}</th><th>${t.atkType}</th><th>${t.atkProf}</th><th>${t.atkBonus}</th><th>${t.atkDmg}</th><th>${t.atkNotes}</th></tr></thead>
+      <div class="table-scroll"><table><thead><tr><th>${t.atkName}</th><th>${t.atkType}</th><th>${t.atkProf}</th><th>${t.atkBonus}</th><th>${t.atkDmg}</th><th>${t.atkDmgType}</th><th>${t.atkNotes}</th></tr></thead>
       <tbody>${attackRows}</tbody></table></div>
     </div>
 
@@ -3061,6 +3123,14 @@ function render(){
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeAttackModal()">
     <div class="modal-box">
       <h3>${t.addAttackModalTitle}</h3>
+      <div class="modal-row">
+        <label>${t.atkPreset}</label>
+        <select id="modalAttackPreset" onchange="applyAttackPreset(this.value)">
+          <option value="">${t.atkPresetNone}</option>
+          ${ATTACK_PRESETS.map((p,idx)=>`<option value="${idx}" title="${p.hint[lang]}">${p.name[lang]}</option>`).join("")}
+        </select>
+        <div id="modalAttackPresetHint" style="font-size:12px;color:var(--ink-faint);margin-top:4px;min-height:14px"></div>
+      </div>
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:1"><label>${t.atkName}</label><input type="text" id="modalAttackName" placeholder="Longsword"></div>
         <div style="flex:0 0 110px">
@@ -3081,6 +3151,7 @@ function render(){
       </div>
       <div class="modal-row" style="display:flex;gap:10px;align-items:end">
         <div style="flex:1"><label>${t.atkDmg}</label><input type="text" id="modalAttackDmg" placeholder="1d8"></div>
+        <div style="flex:0 0 130px"><label>${t.atkDmgType}</label><select id="modalAttackDmgType">${dmgTypeOptions("")}</select></div>
         <label class="atk-prof-chip" style="margin-bottom:9px"><input type="checkbox" id="modalAttackProf" checked>${t.atkProf}</label>
       </div>
       <div class="modal-row">
