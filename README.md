@@ -89,7 +89,7 @@ This one generic `{stat, amount, perLevel, matchSpeed, fixed}` shape drives all 
 - **Size** (Tiny/Small/Medium/Large/Huge/Gargantuan) — a simple field in Identity; purely descriptive, doesn't feed into any derived stat.
 - **Saving throws** and all 18 **skills**, each with proficiency and expertise toggles, computed off the right ability + proficiency bonus.
 - **Attacks** — a repeatable list (name, type, damage die, notes) with an animated 3D dice-roll for attack rolls and damage, plus roll history per row.
-- **Spellcasting** — spell slots (levels 1–9) with click-to-toggle used/available dots, a spell list, and dice-rolled spell damage.
+- **Spellcasting** — spell slots (levels 1–9) with click-to-toggle used/available dots, a spell list, and dice-rolled spell damage. The New Spell dialog includes an optional premade-spell picker (a handful of common Cleric cantrips/1st/2nd-level spells) that pre-fills level/name/damage/notes, which you can still edit before adding — manual entry works exactly as before.
 - **Resources** — arbitrary trackable pools (Rage, Ki Points, Second Wind, custom homebrew resources, ...) with per-use dots, short/long-rest recharge, and a free-text notes field (e.g. what Channel Divinity actually does).
 - **Concentration tracker**, **inventory** (currency + itemized list, each item with a type — Gear/Weapon/Armor/Shield — and an Equipped flag that feeds AC for Armor/Shield), and free-text **notes**.
 - **Turn-flow reference** — an in-sheet cheat-sheet/diagram of what you can do on your turn (currently text-only; the interactive diagram view is hidden pending a fix).
