@@ -83,7 +83,7 @@ This one generic `{stat, amount, perLevel, matchSpeed, fixed}` shape drives all 
 
 - **Ability scores** (Str/Dex/Con/Int/Wis/Cha) with auto-computed modifiers, feeding every derived stat below.
 - **AC** — driven by your Inventory: mark an item as type Armor and Equipped to set the base AC plus its own governing-ability modifier (or None), and equip Shield-type item(s) to add their bonus on top. With no Armor item equipped, AC falls back to 10 + a selectable ability (Dex by default, Wis for Animals, or None), chosen right in the AC box.
-- **HP** — auto-calculated from class hit die + Constitution (toggleable to manual entry), with current/max/temp tracking and a free-text notes field (death saves, temp HP source, etc.).
+- **HP** — auto-calculated from class hit die + Constitution (toggleable to manual entry), with current/max/temp tracking.
 - **Initiative, Speed**, **Passive Perception**, **Proficiency Bonus** (auto by level), all as live-derived values — never hand-entered or stored stale.
 - **Climb/Swim/Fly speed** — each only shows up in the Combat panel once it's nonzero. Swim speed has a manually-editable base (plus any feat bonus); climb and fly speed are feat-only — the only way to grant them is a feat with Stat set to Climb Speed/Fly Speed, either as a flat bonus, matching walking speed (e.g. a Fairy's Flight trait), or a fixed base value of your choosing.
 - **Size** (Tiny/Small/Medium/Large/Huge/Gargantuan) — a simple field in Identity; purely descriptive, doesn't feed into any derived stat.

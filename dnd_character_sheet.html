@@ -569,7 +569,6 @@ const T = {
     abilities:"Ability Scores", str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA",
     combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", flySpeed:"Fly Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
-    hpNotesLabel:"HP Notes", hpNotesPlaceholder:"Death saves, temp HP source, etc.",
     diceRoller:"Dice Roller", diceModifier:"Modifier", diceClear:"Clear", diceNoRolls:"No rolls yet",
     saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception", proficient:"Proficient", expertise:"Expertise",
     attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkDmgType:"Dmg Type", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"Attack",
@@ -693,7 +692,6 @@ const T = {
     abilities:"תכונות", str:"כוח",dex:"זריזות",con:"חוסן",int:"אינטליגנציה",wis:"חוכמה",cha:"כריזמה",
     combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", flySpeed:"מהירות מעוף", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
-    hpNotesLabel:"הערות נק״ח", hpNotesPlaceholder:"הצלות מוות, מקור נק״ח זמניות וכו׳",
     diceRoller:"הטלת קוביות", diceModifier:"מודיפייר", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
     saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית", proficient:"מיומן", expertise:"מומחיות",
     attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkDmgType:"סוג נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"הוסף התקפה",
@@ -867,7 +865,7 @@ function defaultChar(id){
     feats:[],
     resources:[],
     concentration:{active:false, spell:"", dmg:0},
-    notes:"", hpNotes:""
+    notes:""
   };
 }
 function animalChar(id){
@@ -945,7 +943,6 @@ function hydrate(s){
   if(typeof s.raceCustom !== "boolean") s.raceCustom = !!(s.race && !RACE_LIST.includes(s.race));
   if(typeof s.subrace !== "string") s.subrace = "";
   if(typeof s.subraceCustom !== "boolean") s.subraceCustom = false;
-  if(typeof s.hpNotes !== "string") s.hpNotes = "";
   return s;
 }
 function demoChar(id){
@@ -991,8 +988,7 @@ function demoChar(id){
       {name: isHe ? "זינוק פעולה" : "Action Surge", total:1, used:0, recharge:"short", notes: isHe ? "מקבל פעולה נוספת בתור הזה." : "Take one additional action on this turn."}
     ],
     concentration:{active:false, spell:"", dmg:0},
-    notes: isHe ? "חייל לשעבר שעזב את הצבא כדי לחפש הרפתקאות. ישר, נאמן לחבריו, ולא בורח מקרב." : "A former soldier who left the army seeking adventure. Straightforward, loyal to allies, and never backs down from a fight.",
-    hpNotes: isHe ? "5 נק״ח זמניות מ׳מגן אמונה׳ עד סוף הקרב הבא." : "5 temp HP from Shield of Faith until end of next fight."
+    notes: isHe ? "חייל לשעבר שעזב את הצבא כדי לחפש הרפתקאות. ישר, נאמן לחבריו, ולא בורח מקרב." : "A former soldier who left the army seeking adventure. Straightforward, loyal to allies, and never backs down from a fight."
   };
 }
 
@@ -2912,8 +2908,6 @@ function render(){
           ${t.hpAuto}
         </label>
         <div class="formula-note">${state.hpAutoCalc ? t.hpAutoNote : (lang==='en'?'CON mod / level → max HP':'מודיפייר חוסן / רמה → נק"ח מקס')}${getFeatBonus(state,'hp')!==0 ? `<br>${lang==='en'?'includes':'כולל'} ${fm(getFeatBonus(state,'hp'))} ${lang==='en'?'from feats':'מתכונות'} (${lang==='en'?'base':'בסיס'} ${state.hpMax})` : ""}</div>
-        <div class="formula-note" style="margin-top:6px">${t.hpNotesLabel}</div>
-        <textarea class="item-notes-input" rows="${estimateTextRows(state.hpNotes)}" placeholder="${t.hpNotesPlaceholder}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('hpNotes', this.value)">${state.hpNotes}</textarea>
       </div>
     </div>
   </div>
