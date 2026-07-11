@@ -355,14 +355,17 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .attack-name-input{flex:1 1 10ch;min-width:10ch;font-weight:600;}
 .atk-prof-chip{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-faint);white-space:nowrap;}
 .atk-prof-chip input{margin:0;}
-.attack-card-mid{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;justify-content:center;}
+.attack-card-mid{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;justify-content:center;align-items:center;}
 .attack-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:110px;flex:1;}
+.attack-stat-dmg{min-width:190px;}
 .attack-stat-val{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:var(--gold-bright);}
 input.attack-dmg-input{min-width:5ch;text-align:center;}
 .attack-dmg-row{display:flex;gap:5px;align-items:center;justify-content:center;}
-select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:0;font-size:11px;padding:4px 20px 4px 6px;}
+select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:92px;font-size:11px;padding:4px 22px 4px 8px;}
+.attack-dmgtype-hint{font-size:10.5px;color:var(--ink-faint);text-align:center;}
 .attack-notes-input{width:100%;margin-bottom:8px;}
-.attack-roll-inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.attack-roll-inline{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.attack-cube-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
 .feat-card{background:var(--panel-2);border:1px solid var(--leather-line);border-radius:6px;padding:8px 10px;}
 .feat-card-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .feat-name-display{font-weight:700;font-size:15px;color:var(--gold-bright);font-family:'Cinzel',serif;flex:0 1 auto;}
@@ -574,6 +577,7 @@ const T = {
     attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkDmgType:"Dmg Type", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"Attack",
     melee:"Melee", ranged:"Ranged", finesse:"Finesse", natural:"Natural", spell:"Spell",
     dmgNone:"—", dmgBludgeoning:"Bludgeoning", dmgPiercing:"Piercing", dmgSlashing:"Slashing", dmgAcid:"Acid", dmgCold:"Cold", dmgFire:"Fire", dmgForce:"Force", dmgLightning:"Lightning", dmgNecrotic:"Necrotic", dmgPoison:"Poison", dmgPsychic:"Psychic", dmgRadiant:"Radiant", dmgThunder:"Thunder",
+    dmgTypeHint_bludgeoning:"Blunt-force impact, like a hammer, fist, or falling.", dmgTypeHint_piercing:"Puncturing wounds, like from arrows, spears, or bites.", dmgTypeHint_slashing:"Cutting damage, like from swords or claws.", dmgTypeHint_acid:"Corrosive chemical damage that can dissolve materials.", dmgTypeHint_cold:"Freezing damage from ice or extreme cold.", dmgTypeHint_fire:"Burning damage from flame or heat.", dmgTypeHint_force:"Pure magical energy, unaffected by most resistances.", dmgTypeHint_lightning:"Electrical damage from a lightning bolt or shock.", dmgTypeHint_necrotic:"Withering, life-draining damage that decays what it touches.", dmgTypeHint_poison:"Toxins and venom, often causing sickness.", dmgTypeHint_psychic:"Mental damage that assaults the mind directly.", dmgTypeHint_radiant:"Divine, holy energy that sears the wicked.", dmgTypeHint_thunder:"A concussive burst of sound.",
     atkPreset:"Preset (optional)", atkPresetNone:"— pick a preset —",
     spellAbility:"Casting stat",
     notes:"Notes & Equipment",
@@ -589,6 +593,7 @@ const T = {
     spName:"Spell", spLevel:"Lv", spPrepared:"Prep.", spConc:"C", spTouch:"T", spVerbal:"V", spSomatic:"S", spMaterial:"M", spDmg:"Damage", spNotes:"Notes", addSpell:"Spell",
     spVerbalFull:"Verbal — spoken incantations", spSomaticFull:"Somatic — physical gestures", spMaterialFull:"Material — physical ingredients",
     spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", editFeatModalTitle:"Edit Feat", addAttackModalTitle:"New Attack",
+    ct1Min:"1 Minute", ct10Min:"10 Minutes", ct1Hour:"1 Hour", ct8Hour:"8 Hours", ct12Hour:"12 Hours", ct24Hour:"24 Hours",
     spPresetLabel:"Premade spell (optional)", spPresetNone:"-- Pick a preset to fill the fields below --",
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
@@ -697,6 +702,7 @@ const T = {
     attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkDmgType:"סוג נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"הוסף התקפה",
     melee:"קרב מגע", ranged:"טווח", finesse:"זריזות/כוח", natural:"טבעי", spell:"קסם",
     dmgNone:"—", dmgBludgeoning:"מוחץ", dmgPiercing:"חודר", dmgSlashing:"חותך", dmgAcid:"חומצה", dmgCold:"קור", dmgFire:"אש", dmgForce:"כוח", dmgLightning:"ברק", dmgNecrotic:"נמק", dmgPoison:"רעל", dmgPsychic:"נפשי", dmgRadiant:"קרינה", dmgThunder:"רעם",
+    dmgTypeHint_bludgeoning:"מכה קהה, כמו פטיש, אגרוף או נפילה.", dmgTypeHint_piercing:"פצע חודר, כמו מחץ, חנית או נשיכה.", dmgTypeHint_slashing:"נזק חיתוך, כמו מחרב או טפרים.", dmgTypeHint_acid:"נזק כימי מאכל שמסוגל להמיס חומרים.", dmgTypeHint_cold:"נזק הקפאה מקור קיצוני או קרח.", dmgTypeHint_fire:"נזק שריפה מלהבה או חום.", dmgTypeHint_force:"אנרגיה קסומה טהורה, כמעט ואינה מושפעת מהתנגדויות.", dmgTypeHint_lightning:"נזק חשמלי מברק או הלם.", dmgTypeHint_necrotic:"נזק מכלה ושואב חיים שמרקיב את מה שהוא נוגע בו.", dmgTypeHint_poison:"רעלים וארס, גורמים לרוב למחלה.", dmgTypeHint_psychic:"נזק נפשי שתוקף את התודעה ישירות.", dmgTypeHint_radiant:"אנרגיה קדושה ואלוהית ששורפת את הרשעים.", dmgTypeHint_thunder:"פרץ קול מחץ.",
     atkPreset:"תבנית מוכנה (רשות)", atkPresetNone:"— בחר תבנית —",
     spellAbility:"תכונת כישוף",
     notes:"הערות וציוד",
@@ -712,6 +718,7 @@ const T = {
     spName:"קסם", spLevel:"רמה", spPrepared:"מוכן", spConc:"ר", spTouch:"מ", spVerbal:"ד", spSomatic:"ת", spMaterial:"ח", spDmg:"נזק", spNotes:"הערות", addSpell:"קסם",
     spVerbalFull:"מילולי — לחישות מוטלות", spSomaticFull:"תנועתי — מחוות פיזיות", spMaterialFull:"חומרי — מרכיבים פיזיים",
     spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", editFeatModalTitle:"עריכת תכונה", addAttackModalTitle:"התקפה חדשה",
+    ct1Min:"דקה", ct10Min:"10 דקות", ct1Hour:"שעה", ct8Hour:"8 שעות", ct12Hour:"12 שעות", ct24Hour:"24 שעות",
     spPresetLabel:"קסם מוכן מראש (אופציונלי)", spPresetNone:"-- בחר קסם מוכן כדי למלא את השדות למטה --",
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
@@ -1596,10 +1603,15 @@ function dmgTypeLabel(dt, t){
   const key = "dmg" + dt.charAt(0).toUpperCase() + dt.slice(1);
   return t[key] || dt;
 }
+function dmgTypeHint(dt, t){
+  if(!dt) return "";
+  const key = "dmgTypeHint_" + dt;
+  return t[key] || "";
+}
 function dmgTypeOptions(selected){
   const t = T[lang];
   return `<option value="" ${!selected?"selected":""}>${t.dmgNone}</option>` +
-    DMG_TYPES.map(dt=>`<option value="${dt}" ${selected===dt?"selected":""}>${dmgTypeLabel(dt,t)}</option>`).join("");
+    DMG_TYPES.map(dt=>`<option value="${dt}" ${selected===dt?"selected":""} title="${dmgTypeHint(dt,t)}">${dmgTypeLabel(dt,t)}</option>`).join("");
 }
 function attackRow(a, i){
   const t = T[lang];
@@ -1625,21 +1637,28 @@ function attackRow(a, i){
       <button class="remove-row no-print" onclick="confirmRemove(()=>removeAttack(${i}))" title="${t.del}">🗑️</button>
     </div>
     <div class="attack-card-mid">
+      <div class="attack-stat attack-stat-dmg">
+        <span class="dim-label">${t.atkDmg}</span>
+        <div class="attack-dmg-row">
+          <input type="text" value="${a.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(a.dmg)}ch" oninput="autoWidthInput(this)" onchange="set('attacks.${i}.dmg', this.value)">
+          <select class="attack-dmgtype-select" title="${dmgTypeHint(a.dmgType,t)}" onchange="set('attacks.${i}.dmgType', this.value)">${dmgTypeOptions(a.dmgType)}</select>
+        </div>
+        ${a.dmgType ? `<div class="attack-dmgtype-hint">${dmgTypeHint(a.dmgType,t)}</div>` : ""}
+        <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}</span>
+      </div>
       <div class="attack-stat">
         <span class="dim-label">${t.atkBonus}</span>
         <span class="attack-stat-val">${fm(bonus)}</span>
         <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}</span>
       </div>
-      <div class="attack-stat">
-        <span class="dim-label">${t.atkDmg}</span>
-        <div class="attack-dmg-row">
-          <input type="text" value="${a.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(a.dmg)}ch" oninput="autoWidthInput(this)" onchange="set('attacks.${i}.dmg', this.value)">
-          <select class="attack-dmgtype-select" onchange="set('attacks.${i}.dmgType', this.value)">${dmgTypeOptions(a.dmgType)}</select>
+      <div class="attack-cube-row no-print">
+        <div class="attack-roll-inline no-print">
+          <button class="atk-roll-btn ${i===lastRolledAttackIndex?'jumping':''}" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
+          ${attackRolls[i] ? `<div class="atk-roll-result">
+            ${t.atkHit} <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}
+            ${attackRolls[i].hasDmg ? `· ${t.atkDmg} <b>${attackRolls[i].dmgTotal}</b>` : ""}
+          </div>` : ""}
         </div>
-        <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}</span>
-      </div>
-      <div class="attack-roll-inline no-print">
-        <button class="atk-roll-btn ${i===lastRolledAttackIndex?'jumping':''}" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
         <div class="atk-cube-col">
           <span class="dim-label">${t.atkHit}</span>
           ${attackRolls[i] ? buildSmallCubeHTML(attackRolls[i].hitCube, i===lastRolledAttackIndex) : `<div class="cube-scene small"></div>`}
@@ -1650,10 +1669,6 @@ function attackRow(a, i){
           <span class="dim-label">${t.atkDmg}</span>
           ${attackRolls[i] && attackRolls[i].hasDmg ? buildSmallCubeHTML(attackRolls[i].dmgCube, i===lastRolledAttackIndex) : `<div class="cube-scene small"></div>`}
           ${attackRolls[i] && attackRolls[i].hasDmg ? `<span class="cube-bonus">${fm(attackRolls[i].dmgBonus)}</span>` : ""}
-        </div>` : ""}
-        ${attackRolls[i] ? `<div class="atk-roll-result">
-          ${t.atkHit} <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}
-          ${attackRolls[i].hasDmg ? `· ${t.atkDmg} <b>${attackRolls[i].dmgTotal}</b>` : ""}
         </div>` : ""}
       </div>
     </div>
@@ -1688,6 +1703,12 @@ function confirmAddAttack(){
   render();
   queueSave();
 }
+function onModalDmgTypeChange(sel){
+  const hintEl = document.getElementById("modalAttackDmgTypeHint");
+  const hint = dmgTypeHint(sel.value, T[lang]);
+  if(hintEl) hintEl.textContent = hint;
+  sel.title = hint;
+}
 function applyAttackPreset(idxStr){
   const hintEl = document.getElementById("modalAttackPresetHint");
   if(idxStr === ""){ if(hintEl) hintEl.textContent = ""; return; }
@@ -1704,7 +1725,7 @@ function applyAttackPreset(idxStr){
     if(spellAbilEl) spellAbilEl.value = p.spellAbil;
   }
   if(dmgEl) dmgEl.value = p.dmg;
-  if(dmgTypeEl) dmgTypeEl.value = p.dmgType;
+  if(dmgTypeEl){ dmgTypeEl.value = p.dmgType; dmgTypeEl.dispatchEvent(new Event("change")); }
   if(hintEl) hintEl.textContent = p.hint[lang];
 }
 function toggleRef(){ refOpen = !refOpen; render(); }
@@ -2229,25 +2250,56 @@ function buildPrintHTML(opts){
 
 // Premade spell picker for the add-spell modal — only fills modal inputs on selection,
 // never mutates state directly and never overwrites spells the user already added.
-const SPELL_PRESETS = [
-  {level:0, name:"Druidcraft", dmg:"", notesEn:"Predict weather, make a flower bloom, create a minor sensory effect, or light/snuff a small flame.", notesHe:"לחזות מזג אוויר, לגרום לפרח לפרוח, ליצור אפקט חושי קטן, או להדליק/לכבות להבה קטנה."},
-  {level:0, name:"Guidance", dmg:"", notesEn:"Touch a creature; it adds 1d4 to one ability check of its choice within the next minute.", notesHe:"נגיעה במטרה — היא מוסיפה 1d4 לבדיקת תכונה אחת במהלך הדקה הקרובה."},
-  {level:0, name:"Light", dmg:"", notesEn:"An object sheds bright light in a 20-ft radius (dim for another 20 ft) for 1 hour.", notesHe:"חפץ פולט אור בהיר ברדיוס 6 מ' (וקלוש 6 מ' נוספים) למשך שעה."},
-  {level:0, name:"Sacred Flame", dmg:"1d8", notesEn:"Target takes 1d8 radiant damage, DEX save negates; cover doesn't help. Damage scales with character level.", notesHe:"המטרה מקבלת 1d8 נזק קורן, הצלת זריזות מבטלת; מחסה לא עוזר. הנזק גדל עם הרמה."},
-  {level:0, name:"Toll the Dead", dmg:"1d8", notesEn:"Target takes 1d8 necrotic damage (1d12 if already missing HP), WIS save negates. Damage scales with level.", notesHe:"המטרה מקבלת 1d8 נזק נקרוטי (1d12 אם כבר איבדה נק\"ח), הצלת חוכמה מבטלת. גדל עם הרמה."},
-  {level:1, name:"Detect Magic", dmg:"", notesEn:"Sense the presence of magic within 30 ft for 10 minutes. (Ritual)", notesHe:"מרגיש נוכחות קסם ברדיוס 9 מ' למשך 10 דקות (טקס)."},
-  {level:1, name:"Create or Destroy Water", dmg:"", notesEn:"Create or destroy up to 10 gallons of water.", notesHe:"יוצר או הורס עד כ-38 ליטר מים."},
-  {level:1, name:"Guiding Bolt", dmg:"4d6", notesEn:"Ranged spell attack; 4d6 radiant damage on hit, and the next attack against the target before the end of your next turn has advantage.", notesHe:"התקפת קסם מרחוק; 4d6 נזק קורן בפגיעה, וההתקפה הבאה על המטרה מקבלת יתרון."},
-  {level:1, name:"Command", dmg:"", notesEn:"Target obeys a one-word command (Flee/Drop/Grovel/Halt/etc.), WIS save negates.", notesHe:"המטרה מצייתת למילת פקודה אחת (ברח/הישמט/כרע/עצור וכו׳), הצלת חוכמה מבטלת."},
-  {level:1, name:"Heroism", dmg:"", notesEn:"Willing creature gains temp HP equal to your spellcasting modifier at the start of each of its turns and is immune to frightened, for 1 minute. (Concentration)", notesHe:"יצור מסכים מקבל נק\"ח זמניות כמודיפייר הקוסם בתחילת כל תור, וחסין לפחד, למשך דקה (ריכוז)."},
-  {level:1, name:"Shield of Faith", dmg:"", notesEn:"+2 AC to a creature for up to 10 minutes. (Concentration)", notesHe:"+2 לדרגת השריון של יצור למשך עד 10 דקות (ריכוז)."},
-  {level:2, name:"Prayer of Healing", dmg:"", notesEn:"10-minute casting time. Up to 6 creatures within 30 ft each regain 2d8 + your spellcasting modifier HP.", notesHe:"עד 6 יצורים ברדיוס 9 מ' מחלימים 2d8 + מודיפייר הקוסם נק\"ח (זמן טקס 10 דקות)."},
-  {level:2, name:"Spiritual Weapon", dmg:"1d8", notesEn:"Bonus action. Create a spectral weapon that attacks for 1d8 + your spellcasting modifier force damage; lasts 1 minute, movable 20 ft each turn.", notesHe:"פעולה בונוס. יוצר נשק רוחני שתוקף ב-1d8 + מודיפייר הקוסם נזק כוח; נמשך דקה, ניתן להזיז 6 מ' בכל תור."},
-  {level:2, name:"Silence", dmg:"", notesEn:"20-ft-radius sphere of magical silence for 10 minutes, centered on a point you choose and movable with it. (Concentration, Ritual)", notesHe:"כדור של שקט קסום ברדיוס 6 מ' למשך 10 דקות, סביב נקודה שתבחר, וזז איתה (ריכוז, טקס)."}
-];
+// Keyed by exact CLASS_LIST class name (same idiom as CLASS_SAVES); a class with no
+// entry here simply gets no preset picker (see SPELL_PRESETS[state.cls]||[] below).
+const SPELL_PRESETS = {
+  Cleric: [
+    {level:0, name:"Guidance", dmg:"", notesEn:"Touch a creature; it adds 1d4 to one ability check of its choice within the next minute.", notesHe:"נגיעה במטרה — היא מוסיפה 1d4 לבדיקת תכונה אחת במהלך הדקה הקרובה."},
+    {level:0, name:"Light", dmg:"", notesEn:"An object sheds bright light in a 20-ft radius (dim for another 20 ft) for 1 hour.", notesHe:"חפץ פולט אור בהיר ברדיוס 6 מ' (וקלוש 6 מ' נוספים) למשך שעה."},
+    {level:0, name:"Sacred Flame", dmg:"1d8", notesEn:"Target takes 1d8 radiant damage, DEX save negates; cover doesn't help. Damage scales with character level.", notesHe:"המטרה מקבלת 1d8 נזק קורן, הצלת זריזות מבטלת; מחסה לא עוזר. הנזק גדל עם הרמה."},
+    {level:0, name:"Toll the Dead", dmg:"1d8", notesEn:"Target takes 1d8 necrotic damage (1d12 if already missing HP), WIS save negates. Damage scales with level.", notesHe:"המטרה מקבלת 1d8 נזק נקרוטי (1d12 אם כבר איבדה נק\"ח), הצלת חוכמה מבטלת. גדל עם הרמה."},
+    {level:1, name:"Detect Magic", dmg:"", notesEn:"Sense the presence of magic within 30 ft for 10 minutes. (Ritual)", notesHe:"מרגיש נוכחות קסם ברדיוס 9 מ' למשך 10 דקות (טקס)."},
+    {level:1, name:"Create or Destroy Water", dmg:"", notesEn:"Create or destroy up to 10 gallons of water.", notesHe:"יוצר או הורס עד כ-38 ליטר מים."},
+    {level:1, name:"Guiding Bolt", dmg:"4d6", notesEn:"Ranged spell attack; 4d6 radiant damage on hit, and the next attack against the target before the end of your next turn has advantage.", notesHe:"התקפת קסם מרחוק; 4d6 נזק קורן בפגיעה, וההתקפה הבאה על המטרה מקבלת יתרון."},
+    {level:1, name:"Command", dmg:"", notesEn:"Target obeys a one-word command (Flee/Drop/Grovel/Halt/etc.), WIS save negates.", notesHe:"המטרה מצייתת למילת פקודה אחת (ברח/הישמט/כרע/עצור וכו׳), הצלת חוכמה מבטלת."},
+    {level:1, name:"Heroism", dmg:"", notesEn:"Willing creature gains temp HP equal to your spellcasting modifier at the start of each of its turns and is immune to frightened, for 1 minute. (Concentration)", notesHe:"יצור מסכים מקבל נק\"ח זמניות כמודיפייר הקוסם בתחילת כל תור, וחסין לפחד, למשך דקה (ריכוז)."},
+    {level:1, name:"Shield of Faith", dmg:"", notesEn:"+2 AC to a creature for up to 10 minutes. (Concentration)", notesHe:"+2 לדרגת השריון של יצור למשך עד 10 דקות (ריכוז)."},
+    {level:2, name:"Prayer of Healing", dmg:"", notesEn:"10-minute casting time. Up to 6 creatures within 30 ft each regain 2d8 + your spellcasting modifier HP.", notesHe:"עד 6 יצורים ברדיוס 9 מ' מחלימים 2d8 + מודיפייר הקוסם נק\"ח (זמן טקס 10 דקות)."},
+    {level:2, name:"Spiritual Weapon", dmg:"1d8", notesEn:"Bonus action. Create a spectral weapon that attacks for 1d8 + your spellcasting modifier force damage; lasts 1 minute, movable 20 ft each turn.", notesHe:"פעולה בונוס. יוצר נשק רוחני שתוקף ב-1d8 + מודיפייר הקוסם נזק כוח; נמשך דקה, ניתן להזיז 6 מ' בכל תור."},
+    {level:2, name:"Silence", dmg:"", notesEn:"20-ft-radius sphere of magical silence for 10 minutes, centered on a point you choose and movable with it. (Concentration, Ritual)", notesHe:"כדור של שקט קסום ברדיוס 6 מ' למשך 10 דקות, סביב נקודה שתבחר, וזז איתה (ריכוז, טקס)."}
+  ],
+  Druid: [
+    {level:0, name:"Druidcraft", dmg:"", notesEn:"Predict weather, make a flower bloom, create a minor sensory effect, or light/snuff a small flame.", notesHe:"לחזות מזג אוויר, לגרום לפרח לפרוח, ליצור אפקט חושי קטן, או להדליק/לכבות להבה קטנה."},
+    {level:0, name:"Guidance", dmg:"", notesEn:"Touch a creature; it adds 1d4 to one ability check of its choice within the next minute.", notesHe:"נגיעה במטרה — היא מוסיפה 1d4 לבדיקת תכונה אחת במהלך הדקה הקרובה."},
+    {level:0, name:"Produce Flame", dmg:"1d8", notesEn:"A flickering flame appears in your hand, sheds light, and can be hurled to deal 1d8 fire damage. Damage scales with level.", notesHe:"להבה מרצדת מופיעה בידך, פולטת אור, וניתן לזרוק אותה כהתקפה בנזק אש של 1d8. הנזק גדל עם הרמה."},
+    {level:0, name:"Shillelagh", dmg:"1d8", notesEn:"Your club or quarterstaff becomes magical, using your spellcasting ability for its attack and damage rolls (1d8 bludgeoning) until the end of your next turn.", notesHe:"האלה או המקל שלך הופכים לקסומים, ומשתמשים בתכונת הכישוף שלך להתקפה ולנזק (1d8 מוחץ) עד סוף התור הבא שלך."},
+    {level:0, name:"Thorn Whip", dmg:"1d6", notesEn:"Ranged spell attack; 1d6 piercing damage and you can pull the target up to 10 ft closer to you. Damage scales with level.", notesHe:"התקפת קסם מרחוק; 1d6 נזק חודר, וביכולתך למשוך את המטרה עד 3 מ' לכיוונך. הנזק גדל עם הרמה."},
+    {level:1, name:"Cure Wounds", dmg:"", notesEn:"Touch a creature to heal 1d8 + your spellcasting modifier HP.", notesHe:"נגיעה במטרה מחלימה 1d8 + מודיפייר הקוסם נק\"ח."},
+    {level:1, name:"Entangle", dmg:"", notesEn:"Grasping weeds and vines sprout in a 20-ft square, restraining creatures that fail a STR save, for up to 1 minute. (Concentration)", notesHe:"עשבים וגפנים אוחזים צומחים בריבוע של 6 מ', ומרתקים יצורים שנכשלים בהצלת כוח, למשך עד דקה. (ריכוז)"},
+    {level:1, name:"Faerie Fire", dmg:"", notesEn:"Objects/creatures in a 20-ft cube are outlined in light (DEX save negates); attacks against them have advantage, and they can't benefit from being invisible, for 1 minute. (Concentration)", notesHe:"חפצים/יצורים בקוביה של 6 מ' מוארים בקו מתאר (הצלת זריזות מבטלת); התקפות נגדם מקבלות יתרון, והם לא יכולים ליהנות מבלתי-נראות, למשך דקה. (ריכוז)"},
+    {level:1, name:"Goodberry", dmg:"", notesEn:"Create 10 berries; each restores 1 HP and provides a day's food when eaten, for up to 24 hours.", notesHe:"יוצר 10 גרגירי פרי; כל גרגיר מחלים 1 נק\"ח ומספק מזון ליום שלם, למשך עד 24 שעות."},
+    {level:1, name:"Healing Word", dmg:"1d4", notesEn:"Bonus action. A creature within 60 ft regains 1d4 + your spellcasting modifier HP.", notesHe:"פעולה בונוס. יצור בטווח 18 מ' מחלים 1d4 + מודיפייר הקוסם נק\"ח."},
+    {level:1, name:"Thunderwave", dmg:"2d8", notesEn:"A wave of thunderous force sweeps out from you in a 15-ft cube; each creature takes 2d8 thunder damage (CON save for half) and is pushed 10 ft.", notesHe:"גל של כוח רועם מתפרץ ממך בקוביה של 4.5 מ'; כל יצור מקבל 2d8 נזק רעם (הצלת חוסן לחצי) ונדחף 3 מ'."},
+    {level:2, name:"Barkskin", dmg:"", notesEn:"Touch a willing creature; its skin toughens, and its AC can't go below 16, for up to 1 hour. (Concentration)", notesHe:"נגיעה ביצור מסכים; עורו מתחזק ודרגת השריון שלו לא יכולה לרדת מתחת ל-16, למשך עד שעה. (ריכוז)"},
+    {level:2, name:"Flaming Sphere", dmg:"2d6", notesEn:"Bonus action. A 5-ft sphere of fire appears, dealing 2d6 fire damage to anything it touches (DEX save for half); you can roll it up to 30 ft each turn, for up to 1 minute. (Concentration)", notesHe:"פעולה בונוס. כדור אש בקוטר 1.5 מ' מופיע, וגורם 2d6 נזק אש לכל מה שהוא נוגע בו (הצלת זריזות לחצי); ניתן לגלגל אותו עד 9 מ' בכל תור, למשך עד דקה. (ריכוז)"},
+    {level:2, name:"Moonbeam", dmg:"2d10", notesEn:"A 5-ft-radius, 40-ft-tall cylinder of pale light deals 2d10 radiant damage to creatures inside (CON save for half), for up to 1 minute. (Concentration)", notesHe:"גליל של אור חיוור ברדיוס 1.5 מ' וגובה 12 מ' גורם 2d10 נזק קורן ליצורים בתוכו (הצלת חוסן לחצי), למשך עד דקה. (ריכוז)"}
+  ],
+  Ranger: [
+    {level:1, name:"Cure Wounds", dmg:"", notesEn:"Touch a creature to heal 1d8 + your spellcasting modifier HP.", notesHe:"נגיעה במטרה מחלימה 1d8 + מודיפייר הקוסם נק\"ח."},
+    {level:1, name:"Ensnaring Strike", dmg:"1d6", notesEn:"The next time you hit a creature with a weapon attack before the spell ends, grasping vines restrain it (STR save negates) and deal 1d6 piercing damage each turn it fails to escape. (Concentration)", notesHe:"בפעם הבאה שתפגע ביצור בהתקפת נשק לפני שהקסם מסתיים, גפנים אוחזות מרתקות אותו (הצלת כוח מבטלת) וגורמות 1d6 נזק חודר בכל תור שהוא נכשל לברוח. (ריכוז)"},
+    {level:1, name:"Goodberry", dmg:"", notesEn:"Create 10 berries; each restores 1 HP and provides a day's food when eaten, for up to 24 hours.", notesHe:"יוצר 10 גרגירי פרי; כל גרגיר מחלים 1 נק\"ח ומספק מזון ליום שלם, למשך עד 24 שעות."},
+    {level:1, name:"Hunter's Mark", dmg:"1d6", notesEn:"Bonus action. Mark a creature within 90 ft; your weapon attacks against it deal an extra 1d6 damage, and you have advantage on Perception/Survival checks to find it, for up to 1 hour. (Concentration)", notesHe:"פעולה בונוס. מסמן יצור בטווח 27 מ'; התקפות הנשק שלך נגדו גורמות 1d6 נזק נוסף, ויש לך יתרון בבדיקות תפיסה/הישרדות למציאתו, למשך עד שעה. (ריכוז)"},
+    {level:1, name:"Speak with Animals", dmg:"", notesEn:"You gain the ability to comprehend and verbally communicate with beasts for 10 minutes. (Ritual)", notesHe:"אתה רוכש את היכולת להבין ולתקשר מילולית עם חיות למשך 10 דקות. (טקס)"},
+    {level:2, name:"Barkskin", dmg:"", notesEn:"Touch a willing creature; its skin toughens, and its AC can't go below 16, for up to 1 hour. (Concentration)", notesHe:"נגיעה ביצור מסכים; עורו מתחזק ודרגת השריון שלו לא יכולה לרדת מתחת ל-16, למשך עד שעה. (ריכוז)"},
+    {level:2, name:"Pass without Trace", dmg:"", notesEn:"A veil of shadows and silence radiates from you in a 30-ft aura; you and concealed allies gain +10 to Stealth checks and can't be tracked except by magic, for up to 1 hour. (Concentration)", notesHe:"מסך של צללים ודממה נפרש ממך ברדיוס 9 מ'; אתה ובני בריתך המוסתרים מקבלים 10+ לבדיקות התגנבות ולא ניתן לאתר אתכם אלא בקסם, למשך עד שעה. (ריכוז)"},
+    {level:2, name:"Silence", dmg:"", notesEn:"20-ft-radius sphere of magical silence for 10 minutes, centered on a point you choose and movable with it. (Concentration, Ritual)", notesHe:"כדור של שקט קסום ברדיוס 6 מ' למשך 10 דקות, סביב נקודה שתבחר, וזז איתה (ריכוז, טקס)."},
+    {level:2, name:"Spike Growth", dmg:"2d4", notesEn:"The ground in a 20-ft radius sprouts sharp spikes; each foot of movement through it costs 4 extra feet, and creatures take 2d4 piercing damage per 5 ft moved, for up to 10 minutes. (Concentration)", notesHe:"הקרקע ברדיוס 6 מ' מצמיחה קוצים חדים; כל רגל תנועה דרכה עולה 4 רגל נוספות, ויצורים מקבלים 2d4 נזק חודר על כל 1.5 מ' של תנועה, למשך עד 10 דקות. (ריכוז)"}
+  ]
+};
 function applySpellPreset(idx){
   if(idx === "" || idx === null || idx === undefined) return;
-  const p = SPELL_PRESETS[+idx];
+  const list = SPELL_PRESETS[state.cls] || [];
+  const p = list[+idx];
   if(!p) return;
   const levelEl = document.getElementById("modalSpellLevel");
   const nameEl = document.getElementById("modalSpellName");
@@ -2276,7 +2328,7 @@ function spellRow(sp, i){
     </div>
     <div class="spell-meta-row">
       <span class="spell-meta-item"><span class="dim-label">${t.spRange}</span><input type="text" value="${sp.range}" placeholder="60 ft" onchange="set('spells.${i}.range', this.value)"></span>
-      <span class="spell-meta-item"><span class="dim-label">${t.spCastTime}</span><input type="text" value="${sp.castTime}" placeholder="Action" onchange="set('spells.${i}.castTime', this.value)"></span>
+      <span class="spell-meta-item"><span class="dim-label">${t.spCastTime}</span><input type="text" list="castTimeOptions" value="${sp.castTime}" placeholder="Action" onchange="set('spells.${i}.castTime', this.value)"></span>
       <span class="spell-meta-item"><span class="dim-label">${t.spSave}</span>
         <select onchange="set('spells.${i}.save', this.value)">
           <option value="">${t.featModNone}</option>
@@ -3121,30 +3173,45 @@ function render(){
       : (lang==='en' ? "⚠ This browser is blocking storage right now (e.g. private/incognito mode), so changes only last for this session. Use Print or Export to keep a copy." : "⚠ הדפדפן הזה חוסם אחסון כרגע (למשל מצב פרטי), אז שינויים נשמרים רק להפעלה הנוכחית. השתמש בהדפסה או ייצוא כדי לשמור עותק.")
   }</div>
 
+  <datalist id="castTimeOptions">
+    <option value="${t.turnNodeAction}"></option>
+    <option value="${t.turnNodeBonus}"></option>
+    <option value="${t.turnNodeReaction}"></option>
+    <option value="${t.ct1Min}"></option>
+    <option value="${t.ct10Min}"></option>
+    <option value="${t.ct1Hour}"></option>
+    <option value="${t.ct8Hour}"></option>
+    <option value="${t.ct12Hour}"></option>
+    <option value="${t.ct24Hour}"></option>
+  </datalist>
+
   <div class="credit-footer">Yoni Elentok · __DEPLOY_TIME__</div>
 
   ${spellModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeSpellModal()">
     <div class="modal-box">
       <h3>${t.addSpellModalTitle}</h3>
+      ${(SPELL_PRESETS[state.cls]||[]).length ? `
       <div class="modal-row">
         <label>${t.spPresetLabel}</label>
         <select id="modalSpellPreset" onchange="applySpellPreset(this.value)">
           <option value="">${t.spPresetNone}</option>
           ${[0,1,2,3,4,5,6,7,8,9].map(lvl=>{
-            const opts = SPELL_PRESETS.map((p,pi)=>({p,pi})).filter(x=>x.p.level===lvl);
+            const list = SPELL_PRESETS[state.cls] || [];
+            const opts = list.map((p,pi)=>({p,pi})).filter(x=>x.p.level===lvl);
             if(!opts.length) return "";
             return `<optgroup label="${lvl===0?t.cantrips:`${t.slotLevel} ${lvl}`}">${opts.map(x=>`<option value="${x.pi}">${x.p.name}</option>`).join("")}</optgroup>`;
           }).join("")}
         </select>
       </div>
+      ` : ""}
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:0 0 70px"><label>${t.spLevel}</label><input type="number" id="modalSpellLevel" min="0" max="9" value="${spellModalDefaultLevel}"></div>
         <div style="flex:1"><label>${t.spName}</label><input type="text" id="modalSpellName" placeholder="${t.quickSpellPh}"></div>
       </div>
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:1"><label>${t.spRange}</label><input type="text" id="modalSpellRange" placeholder="60 ft"></div>
-        <div style="flex:1"><label>${t.spCastTime}</label><input type="text" id="modalSpellCastTime" placeholder="Action"></div>
+        <div style="flex:1"><label>${t.spCastTime}</label><input type="text" id="modalSpellCastTime" list="castTimeOptions" placeholder="Action"></div>
       </div>
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:1"><label>${t.spSave}</label>
@@ -3203,9 +3270,10 @@ function render(){
       </div>
       <div class="modal-row" style="display:flex;gap:10px;align-items:end">
         <div style="flex:1"><label>${t.atkDmg}</label><input type="text" id="modalAttackDmg" placeholder="1d8"></div>
-        <div style="flex:0 0 130px"><label>${t.atkDmgType}</label><select id="modalAttackDmgType">${dmgTypeOptions("")}</select></div>
+        <div style="flex:0 0 130px"><label>${t.atkDmgType}</label><select id="modalAttackDmgType" onchange="onModalDmgTypeChange(this)">${dmgTypeOptions("")}</select></div>
         <label class="atk-prof-chip" style="margin-bottom:9px"><input type="checkbox" id="modalAttackProf" checked>${t.atkProf}</label>
       </div>
+      <div class="modal-row"><div class="attack-dmgtype-hint" id="modalAttackDmgTypeHint"></div></div>
       <div class="modal-row">
         <label>${t.atkNotes}</label>
         <textarea id="modalAttackNotes" rows="2"></textarea>

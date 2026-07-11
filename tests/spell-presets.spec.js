@@ -4,6 +4,7 @@ const { dismissOnboarding } = require('./helpers');
 test.describe('premade spell picker', () => {
   test('picking a preset pre-fills the modal fields, and confirming adds it to state.spells', async ({ page }) => {
     await dismissOnboarding(page);
+    await page.evaluate(() => selectClass('Cleric'));
 
     await page.evaluate(() => openSpellModal(1));
     await page.selectOption('#modalSpellPreset', { label: 'Guiding Bolt' });
@@ -37,12 +38,50 @@ test.describe('premade spell picker', () => {
 
   test('a non-damaging preset leaves the damage field empty', async ({ page }) => {
     await dismissOnboarding(page);
+    await page.evaluate(() => selectClass('Cleric'));
+
+    await page.evaluate(() => openSpellModal(1));
+    await page.selectOption('#modalSpellPreset', { label: 'Detect Magic' });
+
+    await expect(page.locator('#modalSpellLevel')).toHaveValue('1');
+    await expect(page.locator('#modalSpellName')).toHaveValue('Detect Magic');
+    await expect(page.locator('#modalSpellDmg')).toHaveValue('');
+  });
+
+  test('the preset picker is hidden for a class with no premade spells defined', async ({ page }) => {
+    await dismissOnboarding(page); // default cls is "" (no class picked)
+
+    await page.evaluate(() => openSpellModal(0));
+    await expect(page.locator('#modalSpellPreset')).toHaveCount(0);
+  });
+
+  test('the preset picker is hidden for a non-Cleric/Druid/Ranger class', async ({ page }) => {
+    await dismissOnboarding(page);
+    await page.evaluate(() => selectClass('Fighter'));
+
+    await page.evaluate(() => openSpellModal(0));
+    await expect(page.locator('#modalSpellPreset')).toHaveCount(0);
+  });
+
+  test('Druid gets its own preset list, distinct from Cleric', async ({ page }) => {
+    await dismissOnboarding(page);
+    await page.evaluate(() => selectClass('Druid'));
 
     await page.evaluate(() => openSpellModal(0));
     await page.selectOption('#modalSpellPreset', { label: 'Druidcraft' });
 
-    await expect(page.locator('#modalSpellLevel')).toHaveValue('0');
     await expect(page.locator('#modalSpellName')).toHaveValue('Druidcraft');
-    await expect(page.locator('#modalSpellDmg')).toHaveValue('');
+    await expect(page.locator('#modalSpellPreset option', { hasText: 'Sacred Flame' })).toHaveCount(0);
+  });
+
+  test('Ranger gets its own preset list', async ({ page }) => {
+    await dismissOnboarding(page);
+    await page.evaluate(() => selectClass('Ranger'));
+
+    await page.evaluate(() => openSpellModal(1));
+    await page.selectOption('#modalSpellPreset', { label: "Hunter's Mark" });
+
+    await expect(page.locator('#modalSpellName')).toHaveValue("Hunter's Mark");
+    await expect(page.locator('#modalSpellDmg')).toHaveValue('1d6');
   });
 });
