@@ -2025,13 +2025,16 @@ function decodeBase64ToState(b64){
 }
 function buildShareURL(){
   const base = location.href.split('#')[0].split('?')[0];
-  return base + "#char=" + encodeURIComponent(encodeStateToBase64(state));
+  return base + "#char=" + encodeURIComponent(encodeStateToBase64({lang, state}));
 }
 async function checkURLImport(){
   const m = /(?:^|[#&])char=([^&]+)/.exec(location.hash);
   if(!m) return false;
   try{
-    const parsed = decodeBase64ToState(decodeURIComponent(m[1]));
+    const decoded = decodeBase64ToState(decodeURIComponent(m[1]));
+    const isWrapped = decoded && typeof decoded === "object" && decoded.state && typeof decoded.lang === "string";
+    const parsed = isWrapped ? decoded.state : decoded;
+    if(isWrapped && (decoded.lang === 'en' || decoded.lang === 'he')) await switchLang(decoded.lang);
     await importParsedCharacter(parsed);
     history.replaceState(null, "", location.pathname + location.search);
     return true;
