@@ -13,6 +13,7 @@ test.describe('premade spell picker', () => {
     await expect(page.locator('#modalSpellName')).toHaveValue('Guiding Bolt');
     await expect(page.locator('#modalSpellDmg')).toHaveValue('4d6');
     await expect(page.locator('#modalSpellNotes')).toHaveValue(/radiant damage/);
+    await expect(page.locator('#modalSpellCategory')).toHaveValue('attack');
 
     await page.locator('.modal-box button.primary').click();
 
@@ -20,6 +21,22 @@ test.describe('premade spell picker', () => {
     expect(spell).toBeTruthy();
     expect(spell.level).toBe(1);
     expect(spell.dmg).toBe('4d6');
+    expect(spell.category).toBe('attack');
+  });
+
+  test('picking a non-damaging Buff/Aid preset pre-fills the Type field and hides the Damage field', async ({ page }) => {
+    await dismissOnboarding(page);
+    await page.evaluate(() => selectClass('Cleric'));
+
+    await page.evaluate(() => openSpellModal(1));
+    await page.selectOption('#modalSpellPreset', { label: 'Shield of Faith' });
+
+    await expect(page.locator('#modalSpellCategory')).toHaveValue('buff');
+    await expect(page.locator('#modalSpellDmgWrap')).toBeHidden();
+
+    await page.locator('.modal-box button.primary').click();
+    const spell = await page.evaluate(() => state.spells.find(s => s.name === 'Shield of Faith'));
+    expect(spell.category).toBe('buff');
   });
 
   test('manual spell entry still works without touching the preset picker', async ({ page }) => {

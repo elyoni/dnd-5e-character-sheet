@@ -93,7 +93,8 @@ select{
   position:relative;
 }
 .panel.folded{padding-bottom:16px;}
-.panel.folded > *:not(h2){display:none;}
+.panel.folded > *:not(h2){display:none!important;}
+.panel.folded h2 .view-toggle-group{display:none;}
 .panel::before{
   content:"";position:absolute;inset:4px;border:1px solid rgba(201,162,39,0.08);border-radius:4px;pointer-events:none;
 }
@@ -302,11 +303,13 @@ td input, td select{padding:6px 7px;font-size:15px;}
 
 /* ---------- AC shield ---------- */
 .ac-box{position:relative;}
-.shape-wrap{position:relative;width:58px;height:64px;margin:2px auto 0;}
+.ac-main-row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:2px;}
+.shape-wrap{position:relative;width:58px;height:64px;margin:0;flex:0 0 auto;}
 .shape-bg{position:absolute;inset:0;width:100%;height:100%;}
 .shape-bg path{fill:var(--panel-2);stroke:var(--gold);stroke-width:3;}
 .shape-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;height:100%;padding-top:4px;}
 .ac-box .big{font-size:22px;}
+.ac-abil-select{font-size:11px;max-width:72px;flex:0 0 auto;}
 
 /* ---------- HP heart watermark ---------- */
 .hp-box{position:relative;overflow:hidden;}
@@ -337,10 +340,32 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .spell-notes-input{width:100%;margin-top:6px;font-size:13.5px;min-height:32px;resize:vertical;}
 .spell-dmg-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;padding-top:6px;border-top:1px dashed var(--leather-line);}
 .spell-meta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;}
-.spell-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;}
-.spell-meta-item input, .spell-meta-item select{width:7ch;padding:4px 6px;font-size:12.5px;}
+.spell-meta-item{display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:12px;}
+.spell-meta-item .dim-label{margin-right:0;font-size:10px;}
+.spell-meta-item input{padding:4px 6px;font-size:12.5px;}
+.spell-meta-item select{width:auto;padding:4px 22px 4px 8px;font-size:12.5px;}
+.spell-meta-casttime{flex-wrap:wrap;}
+.spell-meta-casttime > div{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.fold-toggle{flex:0 0 auto;background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:12px;padding:2px 4px;line-height:1;}
+.fold-toggle:hover{color:var(--gold-bright);}
+.spell-category-icon{flex:0 0 auto;font-size:14px;}
+.spell-category-select{width:auto;flex:0 0 auto;min-width:100px;font-size:11px;padding:4px 22px 4px 8px;}
+.spell-item.folded .spell-meta-row,
+.spell-item.folded .spell-dmg-row,
+.spell-item.folded .spell-notes-input,
+.spell-item.folded .ctv-group,
+.spell-item.folded .formula-note{display:none;}
+.attack-type-icon{flex:0 0 auto;font-size:14px;}
+.attack-card.folded .attack-card-mid,
+.attack-card.folded .dice-history,
+.attack-card.folded .attack-notes-input,
+.attack-card.folded .atk-prof-chip,
+.attack-card.folded .attack-type-select,
+.attack-card.folded .attack-spellabil-select{display:none;}
 .view-toggle-group{display:flex;gap:4px;}
 .view-toggle-group .btn{padding:3px 9px;font-size:11px;}
+.spell-actions-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.spell-actions-row .btn{padding:4px 7px;font-size:11px;}
 .lang-row{display:flex;justify-content:flex-end;gap:6px;margin-bottom:8px;}
 .lang-corner{display:flex;gap:6px;align-self:flex-start;}
 .char-select-group{display:flex;gap:6px;align-items:center;}
@@ -363,9 +388,11 @@ input.attack-dmg-input{min-width:5ch;text-align:center;}
 .attack-dmg-row{display:flex;gap:5px;align-items:center;justify-content:center;}
 select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:92px;font-size:11px;padding:4px 22px 4px 8px;}
 .attack-dmgtype-hint{font-size:10.5px;color:var(--ink-faint);text-align:center;}
-.attack-notes-input{width:100%;margin-bottom:8px;}
-.attack-roll-inline{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.attack-notes-input{width:100%;margin-bottom:8px;min-height:32px;resize:vertical;}
+.attack-tohit-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;}
 .attack-cube-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.atk-die-btn{cursor:pointer;}
+.atk-die-btn:hover .face3d{border-color:var(--gold-bright);}
 .feat-card{background:var(--panel-2);border:1px solid var(--leather-line);border-radius:6px;padding:8px 10px;}
 .feat-card-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .feat-name-display{font-weight:700;font-size:15px;color:var(--gold-bright);font-family:'Cinzel',serif;flex:0 1 auto;}
@@ -403,8 +430,7 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 .dice-mod{display:flex;flex-direction:column;align-items:center;gap:4px;}
 .dice-mod input{width:44px;min-width:0;padding:8px 4px;text-align:center;}
 .dice-history{display:flex;gap:6px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-faint);}
-.dice-history.compact{flex-wrap:nowrap;overflow-x:auto;font-size:11px;padding-bottom:2px;}
-.dice-history.compact.no-print{justify-content:flex-end;}
+.dice-history.compact{flex-wrap:nowrap;overflow:hidden;font-size:11px;padding-bottom:2px;}
 .dice-history.compact span{flex:0 0 auto;}
 .dice-history span{border:1px solid var(--leather-line);border-radius:4px;padding:2px 7px;}
 .dice-history span.latest{border-color:var(--gold);color:var(--gold-bright);font-weight:700;background:rgba(201,162,39,0.14);}
@@ -592,8 +618,11 @@ const T = {
     quickSpellPh:"Spell name…", doneBtn:"Done",
     spName:"Spell", spLevel:"Lv", spPrepared:"Prep.", spConc:"C", spTouch:"T", spVerbal:"V", spSomatic:"S", spMaterial:"M", spDmg:"Damage", spNotes:"Notes", addSpell:"Spell",
     spVerbalFull:"Verbal — spoken incantations", spSomaticFull:"Somatic — physical gestures", spMaterialFull:"Material — physical ingredients",
-    spRange:"Range", spCastTime:"Casting Time", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", editFeatModalTitle:"Edit Feat", addAttackModalTitle:"New Attack",
+    spRange:"Range", spCastTime:"Cast Type", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", editFeatModalTitle:"Edit Feat", addAttackModalTitle:"New Attack",
+    spCategory:"Type", spCategoryNone:"—", spCategoryAttack:"Attack", spCategoryBuff:"Buff/Aid", spCategoryOther:"Other",
+    spCollapseAll:"Collapse", spExpandAll:"Expand",
     ct1Min:"1 Minute", ct10Min:"10 Minutes", ct1Hour:"1 Hour", ct8Hour:"8 Hours", ct12Hour:"12 Hours", ct24Hour:"24 Hours",
+    ctActionGroup:"Action Used", ctExtendedGroup:"Longer Casting Time",
     spPresetLabel:"Premade spell (optional)", spPresetNone:"-- Pick a preset to fill the fields below --",
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
@@ -717,8 +746,11 @@ const T = {
     quickSpellPh:"שם הקסם…", doneBtn:"סיום",
     spName:"קסם", spLevel:"רמה", spPrepared:"מוכן", spConc:"ר", spTouch:"מ", spVerbal:"ד", spSomatic:"ת", spMaterial:"ח", spDmg:"נזק", spNotes:"הערות", addSpell:"קסם",
     spVerbalFull:"מילולי — לחישות מוטלות", spSomaticFull:"תנועתי — מחוות פיזיות", spMaterialFull:"חומרי — מרכיבים פיזיים",
-    spRange:"טווח", spCastTime:"זמן הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", editFeatModalTitle:"עריכת תכונה", addAttackModalTitle:"התקפה חדשה",
+    spRange:"טווח", spCastTime:"סוג הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", editFeatModalTitle:"עריכת תכונה", addAttackModalTitle:"התקפה חדשה",
+    spCategory:"סוג", spCategoryNone:"—", spCategoryAttack:"התקפה", spCategoryBuff:"עזרה/חיזוק", spCategoryOther:"אחר",
+    spCollapseAll:"כווץ", spExpandAll:"הרחב",
     ct1Min:"דקה", ct10Min:"10 דקות", ct1Hour:"שעה", ct8Hour:"8 שעות", ct12Hour:"12 שעות", ct24Hour:"24 שעות",
+    ctActionGroup:"סוג פעולה", ctExtendedGroup:"זמן הטלה ארוך",
     spPresetLabel:"קסם מוכן מראש (אופציונלי)", spPresetNone:"-- בחר קסם מוכן כדי למלא את השדות למטה --",
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
@@ -824,6 +856,11 @@ function clsLabel(c, lang){ return lang==='he' ? (CLASS_LIST_HE[c]||c) : c; }
 function raceLabel(r, lang){ return lang==='he' ? (RACE_LIST_HE[r]||r) : r; }
 const SIZE_LIST = ["Tiny","Small","Medium","Large","Huge","Gargantuan"];
 const DMG_TYPES = ["bludgeoning","piercing","slashing","acid","cold","fire","force","lightning","necrotic","poison","psychic","radiant","thunder"];
+const SPELL_CATEGORIES = ["attack","buff","other"];
+const SPELL_CATEGORY_ICONS = {attack:"⚔️", buff:"✨", other:"🔹"};
+const ATTACK_TYPE_ICONS = {melee:"🗡️", ranged:"🏹", finesse:"🤺", natural:"🐾", spell:"🔮"};
+function attackTypeIcon(type){ return ATTACK_TYPE_ICONS[type] || ""; }
+function attackTypeLabel(type, t){ return t[type] || type; }
 const ATTACK_PRESETS = [
   {name:{en:"Unarmed Strike", he:"מכה חופשית"}, type:"melee", dmg:"1", dmgType:"bludgeoning", spellAbil:"",
     hint:{en:"No weapon needed — always available, minimal damage.", he:"לא דורש נשק — זמין תמיד, נזק מינימלי."}},
@@ -926,7 +963,7 @@ function hydrate(s){
     s.armor.migrated = true;
   }
   if(typeof s.level !== "number") s.level = 1;
-  if(s.attacks) s.attacks.forEach(a=>{ if(typeof a.prof !== "boolean") a.prof = true; if(typeof a.dmgType !== "string") a.dmgType = ""; });
+  if(s.attacks) s.attacks.forEach(a=>{ if(typeof a.prof !== "boolean") a.prof = true; if(typeof a.dmgType !== "string") a.dmgType = ""; if(typeof a.folded !== "boolean") a.folded = false; });
   if(s.spells) s.spells.forEach(sp=>{
     if(typeof sp.conc !== "boolean") sp.conc = false;
     if(typeof sp.touch !== "boolean") sp.touch = false;
@@ -937,6 +974,9 @@ function hydrate(s){
     if(typeof sp.range !== "string") sp.range = "";
     if(typeof sp.castTime !== "string") sp.castTime = "";
     if(typeof sp.save !== "string") sp.save = "";
+    if(typeof sp.category !== "string") sp.category = "";
+    if(typeof sp.folded !== "boolean") sp.folded = false;
+    if(typeof sp.castTimeCustom !== "boolean") sp.castTimeCustom = false;
   });
   if(s.feats) s.feats.forEach(f=>{ if(!f.mod) f.mod = {stat:"", amount:0, perLevel:false}; if(typeof f.mod.perLevel !== "boolean") f.mod.perLevel = false; if(typeof f.mod.matchSpeed !== "boolean") f.mod.matchSpeed = false; if(typeof f.mod.fixed !== "boolean") f.mod.fixed = false; if(typeof f.level !== "number") f.level = 1; });
   if(typeof s.hpAutoCalc !== "boolean") s.hpAutoCalc = false;
@@ -1010,16 +1050,20 @@ let diceFolded = false;
 let foldedPanels = {};
 let identityUnlocked = false;
 function toggleIdentityLock(){ identityUnlocked = !identityUnlocked; render(); }
-function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); }
+function saveFoldedPanels(){
+  (async ()=>{ try{ await storageSet("dnd-folded-panels", JSON.stringify({panels: foldedPanels, dice: diceFolded, ref: refOpen})); }catch(e){} })();
+}
+function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); saveFoldedPanels(); }
 const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","proficiencies","inventory","attacks","spells","feats","resources","notes","turnFlow","atkFlow"];
 function setAllFolded(hide){
   ALL_PANEL_IDS.forEach(id => foldedPanels[id] = hide);
   diceFolded = hide;
   refOpen = !hide;
   render();
+  saveFoldedPanels();
 }
 function foldIcon(id){ const dir = lang==='he' ? 'rtl' : 'ltr'; return `<span class="no-print" style="float:${dir==='rtl'?'left':'right'};font-size:11px;color:var(--ink-faint)">${foldedPanels[id] ? T[lang].refShow : T[lang].refHide}</span>`; }
-function toggleDiceFold(){ diceFolded = !diceFolded; render(); }
+function toggleDiceFold(){ diceFolded = !diceFolded; render(); saveFoldedPanels(); }
 function toggleTurnExpand(i){ turnExpanded[i] = !turnExpanded[i]; render(); }
 function setTurnView(mode){ turnViewMode = mode; render(); }
 function selectTurnNode(i){ turnDiagramSelected = i; render(); }
@@ -1613,19 +1657,67 @@ function dmgTypeOptions(selected){
   return `<option value="" ${!selected?"selected":""}>${t.dmgNone}</option>` +
     DMG_TYPES.map(dt=>`<option value="${dt}" ${selected===dt?"selected":""} title="${dmgTypeHint(dt,t)}">${dmgTypeLabel(dt,t)}</option>`).join("");
 }
+function spellCategoryIcon(cat){ return SPELL_CATEGORY_ICONS[cat] || ""; }
+function spellCategoryLabel(cat, t){
+  const key = "spCategory" + (cat ? cat.charAt(0).toUpperCase()+cat.slice(1) : "None");
+  return t[key] || "";
+}
+function spellCategoryOptions(selected){
+  const t = T[lang];
+  return `<option value="" ${!selected?"selected":""}>${t.spCategoryNone}</option>` +
+    SPELL_CATEGORIES.map(cat=>`<option value="${cat}" ${selected===cat?"selected":""}>${spellCategoryIcon(cat)} ${spellCategoryLabel(cat,t)}</option>`).join("");
+}
+function castTimeKnownValues(t){
+  return [t.turnNodeAction, t.turnNodeBonus, t.turnNodeReaction, t.ct1Min, t.ct10Min, t.ct1Hour, t.ct8Hour, t.ct12Hour, t.ct24Hour];
+}
+function castTimeSelectOptions(selected, t){
+  return `<option value="" ${!selected?"selected":""}>${t.selectPlaceholder}</option>
+    <optgroup label="${t.ctActionGroup}">
+      <option value="${t.turnNodeAction}" ${selected===t.turnNodeAction?"selected":""}>${t.turnNodeAction}</option>
+      <option value="${t.turnNodeBonus}" ${selected===t.turnNodeBonus?"selected":""}>${t.turnNodeBonus}</option>
+      <option value="${t.turnNodeReaction}" ${selected===t.turnNodeReaction?"selected":""}>${t.turnNodeReaction}</option>
+    </optgroup>
+    <optgroup label="${t.ctExtendedGroup}">
+      <option value="${t.ct1Min}" ${selected===t.ct1Min?"selected":""}>${t.ct1Min}</option>
+      <option value="${t.ct10Min}" ${selected===t.ct10Min?"selected":""}>${t.ct10Min}</option>
+      <option value="${t.ct1Hour}" ${selected===t.ct1Hour?"selected":""}>${t.ct1Hour}</option>
+      <option value="${t.ct8Hour}" ${selected===t.ct8Hour?"selected":""}>${t.ct8Hour}</option>
+      <option value="${t.ct12Hour}" ${selected===t.ct12Hour?"selected":""}>${t.ct12Hour}</option>
+      <option value="${t.ct24Hour}" ${selected===t.ct24Hour?"selected":""}>${t.ct24Hour}</option>
+    </optgroup>
+    <option value="__custom__">${t.customOption}</option>`;
+}
+function castTimeFieldHTML(sp, i){
+  const t = T[lang];
+  const isCustom = sp.castTimeCustom || (sp.castTime && !castTimeKnownValues(t).includes(sp.castTime));
+  if(isCustom){
+    return `<div><input type="text" value="${sp.castTime}" placeholder="${t.spCastTime}" style="width:${dmgInputWidthCh(sp.castTime)}ch" oninput="autoWidthInput(this)" onchange="set('spells.${i}.castTime', this.value)">
+      <button class="btn no-print" style="padding:2px 6px;font-size:10px" onclick="setSpellCastTimeCustom(${i}, false)" title="${t.backToList}">${t.backToList}</button></div>`;
+  }
+  return `<div><select onchange="if(this.value==='__custom__'){ setSpellCastTimeCustom(${i}, true); } else { set('spells.${i}.castTime', this.value); }">${castTimeSelectOptions(sp.castTime, t)}</select></div>`;
+}
+function setSpellCastTimeCustom(i, custom){
+  state.spells[i].castTimeCustom = custom;
+  if(!custom) state.spells[i].castTime = "";
+  render();
+  queueSave();
+}
 function attackRow(a, i){
   const t = T[lang];
   const abil = abilForAttack(a);
   const abilMod = mod(state.abilities[abil]+getFeatBonus(state,abil));
   const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type);
   const spellAbilSelect = a.type==="spell" ? `
-    <select onchange="set('attacks.${i}.spellAbil', this.value)">
+    <select class="attack-spellabil-select" onchange="set('attacks.${i}.spellAbil', this.value)">
       ${ABILS.filter(x=>["int","wis","cha"].includes(x)).map(x=>`<option value="${x}" ${a.spellAbil===x?"selected":""}>${t[x]}</option>`).join("")}
     </select>` : "";
-  return `<div class="attack-card">
+  const folded = !!a.folded;
+  return `<div class="attack-card ${folded ? "folded" : ""}">
     <div class="attack-card-top">
+      <button class="fold-toggle no-print" onclick="toggleAttackFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
       <input type="text" value="${a.name}" class="attack-name-input" placeholder="${t.atkName}" onchange="set('attacks.${i}.name', this.value)">
-      <select onchange="set('attacks.${i}.type', this.value)">
+      <span class="attack-type-icon" title="${attackTypeLabel(a.type,t)}">${attackTypeIcon(a.type)}</span>
+      <select class="attack-type-select" onchange="set('attacks.${i}.type', this.value)">
         <option value="melee" ${a.type==="melee"?"selected":""}>${t.melee}</option>
         <option value="ranged" ${a.type==="ranged"?"selected":""}>${t.ranged}</option>
         <option value="finesse" ${a.type==="finesse"?"selected":""}>${t.finesse}</option>
@@ -1646,44 +1738,49 @@ function attackRow(a, i){
         ${a.dmgType ? `<div class="attack-dmgtype-hint">${dmgTypeHint(a.dmgType,t)}</div>` : ""}
         <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}</span>
       </div>
-      <div class="attack-stat">
-        <span class="dim-label">${t.atkBonus}</span>
-        <span class="attack-stat-val">${fm(bonus)}</span>
-        <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}</span>
-      </div>
-      <div class="attack-cube-row no-print">
-        <div class="attack-roll-inline no-print">
-          <button class="atk-roll-btn ${i===lastRolledAttackIndex?'jumping':''}" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
-          ${attackRolls[i] ? `<div class="atk-roll-result">
-            ${t.atkHit} <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}
-            ${attackRolls[i].hasDmg ? `· ${t.atkDmg} <b>${attackRolls[i].dmgTotal}</b>` : ""}
+      <div class="attack-tohit-group">
+        <div class="attack-stat">
+          <span class="dim-label">${t.atkBonus}</span>
+          <span class="attack-stat-val">${fm(bonus)}</span>
+          <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}</span>
+        </div>
+        <div class="attack-cube-row no-print">
+          ${!attackRolls[i] ? `
+          <button class="atk-roll-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
+          ` : `
+          <div class="atk-cube-col">
+            <span class="dim-label">${t.atkHit}</span>
+            <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${buildSmallCubeHTML(attackRolls[i].hitCube, i===lastRolledAttackIndex)}</div>
+            <span class="cube-bonus">${fm(attackRolls[i].bonus)}</span>
+          </div>
+          ${attackRolls[i].hasDmg ? `
+          <div class="atk-cube-col">
+            <span class="dim-label">${t.atkDmg}</span>
+            <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${buildSmallCubeHTML(attackRolls[i].dmgCube, i===lastRolledAttackIndex)}</div>
+            <span class="cube-bonus">${fm(attackRolls[i].dmgBonus)}</span>
           </div>` : ""}
+          <div class="atk-roll-result">
+            <div>${t.atkHit}: <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}</div>
+            ${attackRolls[i].hasDmg ? `<div>${t.atkDmg}: <b>${attackRolls[i].dmgTotal}</b></div>` : ""}
+          </div>
+          `}
         </div>
-        <div class="atk-cube-col">
-          <span class="dim-label">${t.atkHit}</span>
-          ${attackRolls[i] ? buildSmallCubeHTML(attackRolls[i].hitCube, i===lastRolledAttackIndex) : `<div class="cube-scene small"></div>`}
-          ${attackRolls[i] ? `<span class="cube-bonus">${fm(attackRolls[i].bonus)}</span>` : ""}
-        </div>
-        ${parseDiceString(a.dmg) ? `
-        <div class="atk-cube-col">
-          <span class="dim-label">${t.atkDmg}</span>
-          ${attackRolls[i] && attackRolls[i].hasDmg ? buildSmallCubeHTML(attackRolls[i].dmgCube, i===lastRolledAttackIndex) : `<div class="cube-scene small"></div>`}
-          ${attackRolls[i] && attackRolls[i].hasDmg ? `<span class="cube-bonus">${fm(attackRolls[i].dmgBonus)}</span>` : ""}
-        </div>` : ""}
       </div>
     </div>
     ${(attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print">${attackRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${t.atkHitAbbr}:${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}${h.dmgTotal!==null?`/${t.atkDmgAbbr}:${h.dmgTotal}`:""}</span>`).join("")}</div>` : ""}
-    <textarea rows="1" class="attack-notes-input" placeholder="${t.atkNotes}" onchange="set('attacks.${i}.notes', this.value)">${a.notes}</textarea>
+    <textarea rows="${estimateTextRows(a.notes)}" class="attack-notes-input" dir="auto" placeholder="${t.atkNotes}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('attacks.${i}.notes', this.value)">${a.notes}</textarea>
   </div>`;
 }
 function addAttack(){
-  state.attacks.push({name:"", type:"melee", dmg:"1d6", dmgType:"", spellAbil:"cha", prof:true, notes:""});
+  state.attacks.push({name:"", type:"melee", dmg:"1d6", dmgType:"", spellAbil:"cha", prof:true, notes:"", folded:false});
   render(); queueSave();
 }
 function removeAttack(i){
   state.attacks.splice(i,1);
   render(); queueSave();
 }
+function toggleAttackFold(i){ state.attacks[i].folded = !state.attacks[i].folded; render(); queueSave(); }
+function setAllAttacksFolded(folded){ state.attacks.forEach(a=>a.folded=folded); render(); queueSave(); }
 let attackModalOpen = false;
 function openAttackModal(){ attackModalOpen = true; render(); }
 function closeAttackModal(){ attackModalOpen = false; render(); }
@@ -1728,7 +1825,7 @@ function applyAttackPreset(idxStr){
   if(dmgTypeEl){ dmgTypeEl.value = p.dmgType; dmgTypeEl.dispatchEvent(new Event("change")); }
   if(hintEl) hintEl.textContent = p.hint[lang];
 }
-function toggleRef(){ refOpen = !refOpen; render(); }
+function toggleRef(){ refOpen = !refOpen; render(); saveFoldedPanels(); }
 async function switchLang(l){
   lang = l;
   render();
@@ -2042,8 +2139,8 @@ function buildPrintHTML(opts){
   const spellSaveDC = 8 + prof + mod(effAbil[state.spellcasting.abil]);
   const spellAtk = fm(prof + mod(effAbil[state.spellcasting.abil]));
   const slotRows = state.spellcasting.slots.map((sl,i)=> sl.total>0 ? `<div class="slot-box"><div class="lv">${t.slotLevel} ${i+1}</div><div class="dots-row">${slotDotsStatic(sl)}</div></div>` : "").join("");
-  const blankSpellRow = `<tr>${"<td>&nbsp;</td>".repeat(11)}</tr>`;
-  const spellRows = state.spells.map(sp=>`<tr><td class="num">${sp.level}</td><td class="num">${sp.prepared?"✓":""}</td><td>${esc(sp.name)}</td><td>${esc(sp.range)}</td><td>${esc(sp.castTime)}</td><td>${sp.save?t[sp.save]:""}</td><td class="num">${sp.verbal?"●":""}</td><td class="num">${sp.somatic?"●":""}</td><td class="num">${sp.material?"●":""}</td><td>${esc(sp.dmg)}</td><td style="white-space:pre-wrap">${esc(sp.notes)}</td></tr>`).join("") + blankSpellRow.repeat(extraSpells);
+  const blankSpellRow = `<tr>${"<td>&nbsp;</td>".repeat(12)}</tr>`;
+  const spellRows = state.spells.map(sp=>`<tr><td class="num">${sp.level}</td><td class="num">${sp.prepared?"✓":""}</td><td>${esc(sp.name)}</td><td class="num">${spellCategoryIcon(sp.category)}</td><td>${esc(sp.range)}</td><td>${esc(sp.castTime)}</td><td>${sp.save?t[sp.save]:""}</td><td class="num">${sp.verbal?"●":""}</td><td class="num">${sp.somatic?"●":""}</td><td class="num">${sp.material?"●":""}</td><td>${esc(sp.dmg)}</td><td style="white-space:pre-wrap">${esc(sp.notes)}</td></tr>`).join("") + blankSpellRow.repeat(extraSpells);
   const featModLabel = stat => {
     if(stat==='speed') return t.speed;
     if(stat==='climb') return t.climbSpeed;
@@ -2223,7 +2320,7 @@ function buildPrintHTML(opts){
         <div class="combat-box"><span class="label">${t.spellAtk}</span><span class="big">${spellAtk}</span></div>
       </div>
       ${slotRows ? `<div class="slots-grid">${slotRows}</div>` : ""}
-      ${(state.spells.length || extraSpells) ? `<div class="pdim" style="margin-bottom:6px">${t.spLegend}</div><div class="table-scroll"><table><thead><tr><th>${t.spLevel}</th><th>${t.spPrepared}</th><th>${t.spName}</th><th>${t.spRange}</th><th>${t.spCastTime}</th><th>${t.spSave}</th><th>${t.spVerbal}</th><th>${t.spSomatic}</th><th>${t.spMaterial}</th><th>${t.spDmg}</th><th>${t.spNotes}</th></tr></thead><tbody>${spellRows}</tbody></table></div>` : ""}
+      ${(state.spells.length || extraSpells) ? `<div class="pdim" style="margin-bottom:6px">${t.spLegend}</div><div class="table-scroll"><table><thead><tr><th>${t.spLevel}</th><th>${t.spPrepared}</th><th>${t.spName}</th><th>${t.spCategory}</th><th>${t.spRange}</th><th>${t.spCastTime}</th><th>${t.spSave}</th><th>${t.spVerbal}</th><th>${t.spSomatic}</th><th>${t.spMaterial}</th><th>${t.spDmg}</th><th>${t.spNotes}</th></tr></thead><tbody>${spellRows}</tbody></table></div>` : ""}
     </div>
 
     ${state.feats.length ? `<div class="panel"><h2>${t.feats}</h2><div class="table-scroll"><table><thead><tr><th>${t.featLvlAbbr}</th><th>${t.featName}</th><th>${t.featNotes}</th></tr></thead><tbody>${featRows}</tbody></table></div></div>` : ""}
@@ -2254,46 +2351,46 @@ function buildPrintHTML(opts){
 // entry here simply gets no preset picker (see SPELL_PRESETS[state.cls]||[] below).
 const SPELL_PRESETS = {
   Cleric: [
-    {level:0, name:"Guidance", dmg:"", notesEn:"Touch a creature; it adds 1d4 to one ability check of its choice within the next minute.", notesHe:"נגיעה במטרה — היא מוסיפה 1d4 לבדיקת תכונה אחת במהלך הדקה הקרובה."},
-    {level:0, name:"Light", dmg:"", notesEn:"An object sheds bright light in a 20-ft radius (dim for another 20 ft) for 1 hour.", notesHe:"חפץ פולט אור בהיר ברדיוס 6 מ' (וקלוש 6 מ' נוספים) למשך שעה."},
-    {level:0, name:"Sacred Flame", dmg:"1d8", notesEn:"Target takes 1d8 radiant damage, DEX save negates; cover doesn't help. Damage scales with character level.", notesHe:"המטרה מקבלת 1d8 נזק קורן, הצלת זריזות מבטלת; מחסה לא עוזר. הנזק גדל עם הרמה."},
-    {level:0, name:"Toll the Dead", dmg:"1d8", notesEn:"Target takes 1d8 necrotic damage (1d12 if already missing HP), WIS save negates. Damage scales with level.", notesHe:"המטרה מקבלת 1d8 נזק נקרוטי (1d12 אם כבר איבדה נק\"ח), הצלת חוכמה מבטלת. גדל עם הרמה."},
-    {level:1, name:"Detect Magic", dmg:"", notesEn:"Sense the presence of magic within 30 ft for 10 minutes. (Ritual)", notesHe:"מרגיש נוכחות קסם ברדיוס 9 מ' למשך 10 דקות (טקס)."},
-    {level:1, name:"Create or Destroy Water", dmg:"", notesEn:"Create or destroy up to 10 gallons of water.", notesHe:"יוצר או הורס עד כ-38 ליטר מים."},
-    {level:1, name:"Guiding Bolt", dmg:"4d6", notesEn:"Ranged spell attack; 4d6 radiant damage on hit, and the next attack against the target before the end of your next turn has advantage.", notesHe:"התקפת קסם מרחוק; 4d6 נזק קורן בפגיעה, וההתקפה הבאה על המטרה מקבלת יתרון."},
-    {level:1, name:"Command", dmg:"", notesEn:"Target obeys a one-word command (Flee/Drop/Grovel/Halt/etc.), WIS save negates.", notesHe:"המטרה מצייתת למילת פקודה אחת (ברח/הישמט/כרע/עצור וכו׳), הצלת חוכמה מבטלת."},
-    {level:1, name:"Heroism", dmg:"", notesEn:"Willing creature gains temp HP equal to your spellcasting modifier at the start of each of its turns and is immune to frightened, for 1 minute. (Concentration)", notesHe:"יצור מסכים מקבל נק\"ח זמניות כמודיפייר הקוסם בתחילת כל תור, וחסין לפחד, למשך דקה (ריכוז)."},
-    {level:1, name:"Shield of Faith", dmg:"", notesEn:"+2 AC to a creature for up to 10 minutes. (Concentration)", notesHe:"+2 לדרגת השריון של יצור למשך עד 10 דקות (ריכוז)."},
-    {level:2, name:"Prayer of Healing", dmg:"", notesEn:"10-minute casting time. Up to 6 creatures within 30 ft each regain 2d8 + your spellcasting modifier HP.", notesHe:"עד 6 יצורים ברדיוס 9 מ' מחלימים 2d8 + מודיפייר הקוסם נק\"ח (זמן טקס 10 דקות)."},
-    {level:2, name:"Spiritual Weapon", dmg:"1d8", notesEn:"Bonus action. Create a spectral weapon that attacks for 1d8 + your spellcasting modifier force damage; lasts 1 minute, movable 20 ft each turn.", notesHe:"פעולה בונוס. יוצר נשק רוחני שתוקף ב-1d8 + מודיפייר הקוסם נזק כוח; נמשך דקה, ניתן להזיז 6 מ' בכל תור."},
-    {level:2, name:"Silence", dmg:"", notesEn:"20-ft-radius sphere of magical silence for 10 minutes, centered on a point you choose and movable with it. (Concentration, Ritual)", notesHe:"כדור של שקט קסום ברדיוס 6 מ' למשך 10 דקות, סביב נקודה שתבחר, וזז איתה (ריכוז, טקס)."}
+    {level:0, name:"Guidance", dmg:"", category:"buff", notesEn:"Touch a creature; it adds 1d4 to one ability check of its choice within the next minute.", notesHe:"נגיעה במטרה — היא מוסיפה 1d4 לבדיקת תכונה אחת במהלך הדקה הקרובה."},
+    {level:0, name:"Light", dmg:"", category:"other", notesEn:"An object sheds bright light in a 20-ft radius (dim for another 20 ft) for 1 hour.", notesHe:"חפץ פולט אור בהיר ברדיוס 6 מ' (וקלוש 6 מ' נוספים) למשך שעה."},
+    {level:0, name:"Sacred Flame", dmg:"1d8", category:"attack", notesEn:"Target takes 1d8 radiant damage, DEX save negates; cover doesn't help. Damage scales with character level.", notesHe:"המטרה מקבלת 1d8 נזק קורן, הצלת זריזות מבטלת; מחסה לא עוזר. הנזק גדל עם הרמה."},
+    {level:0, name:"Toll the Dead", dmg:"1d8", category:"attack", notesEn:"Target takes 1d8 necrotic damage (1d12 if already missing HP), WIS save negates. Damage scales with level.", notesHe:"המטרה מקבלת 1d8 נזק נקרוטי (1d12 אם כבר איבדה נק\"ח), הצלת חוכמה מבטלת. גדל עם הרמה."},
+    {level:1, name:"Detect Magic", dmg:"", category:"other", notesEn:"Sense the presence of magic within 30 ft for 10 minutes. (Ritual)", notesHe:"מרגיש נוכחות קסם ברדיוס 9 מ' למשך 10 דקות (טקס)."},
+    {level:1, name:"Create or Destroy Water", dmg:"", category:"other", notesEn:"Create or destroy up to 10 gallons of water.", notesHe:"יוצר או הורס עד כ-38 ליטר מים."},
+    {level:1, name:"Guiding Bolt", dmg:"4d6", category:"attack", notesEn:"Ranged spell attack; 4d6 radiant damage on hit, and the next attack against the target before the end of your next turn has advantage.", notesHe:"התקפת קסם מרחוק; 4d6 נזק קורן בפגיעה, וההתקפה הבאה על המטרה מקבלת יתרון."},
+    {level:1, name:"Command", dmg:"", category:"other", notesEn:"Target obeys a one-word command (Flee/Drop/Grovel/Halt/etc.), WIS save negates.", notesHe:"המטרה מצייתת למילת פקודה אחת (ברח/הישמט/כרע/עצור וכו׳), הצלת חוכמה מבטלת."},
+    {level:1, name:"Heroism", dmg:"", category:"buff", notesEn:"Willing creature gains temp HP equal to your spellcasting modifier at the start of each of its turns and is immune to frightened, for 1 minute. (Concentration)", notesHe:"יצור מסכים מקבל נק\"ח זמניות כמודיפייר הקוסם בתחילת כל תור, וחסין לפחד, למשך דקה (ריכוז)."},
+    {level:1, name:"Shield of Faith", dmg:"", category:"buff", notesEn:"+2 AC to a creature for up to 10 minutes. (Concentration)", notesHe:"+2 לדרגת השריון של יצור למשך עד 10 דקות (ריכוז)."},
+    {level:2, name:"Prayer of Healing", dmg:"", category:"buff", notesEn:"10-minute casting time. Up to 6 creatures within 30 ft each regain 2d8 + your spellcasting modifier HP.", notesHe:"עד 6 יצורים ברדיוס 9 מ' מחלימים 2d8 + מודיפייר הקוסם נק\"ח (זמן טקס 10 דקות)."},
+    {level:2, name:"Spiritual Weapon", dmg:"1d8", category:"attack", notesEn:"Bonus action. Create a spectral weapon that attacks for 1d8 + your spellcasting modifier force damage; lasts 1 minute, movable 20 ft each turn.", notesHe:"פעולה בונוס. יוצר נשק רוחני שתוקף ב-1d8 + מודיפייר הקוסם נזק כוח; נמשך דקה, ניתן להזיז 6 מ' בכל תור."},
+    {level:2, name:"Silence", dmg:"", category:"other", notesEn:"20-ft-radius sphere of magical silence for 10 minutes, centered on a point you choose and movable with it. (Concentration, Ritual)", notesHe:"כדור של שקט קסום ברדיוס 6 מ' למשך 10 דקות, סביב נקודה שתבחר, וזז איתה (ריכוז, טקס)."}
   ],
   Druid: [
-    {level:0, name:"Druidcraft", dmg:"", notesEn:"Predict weather, make a flower bloom, create a minor sensory effect, or light/snuff a small flame.", notesHe:"לחזות מזג אוויר, לגרום לפרח לפרוח, ליצור אפקט חושי קטן, או להדליק/לכבות להבה קטנה."},
-    {level:0, name:"Guidance", dmg:"", notesEn:"Touch a creature; it adds 1d4 to one ability check of its choice within the next minute.", notesHe:"נגיעה במטרה — היא מוסיפה 1d4 לבדיקת תכונה אחת במהלך הדקה הקרובה."},
-    {level:0, name:"Produce Flame", dmg:"1d8", notesEn:"A flickering flame appears in your hand, sheds light, and can be hurled to deal 1d8 fire damage. Damage scales with level.", notesHe:"להבה מרצדת מופיעה בידך, פולטת אור, וניתן לזרוק אותה כהתקפה בנזק אש של 1d8. הנזק גדל עם הרמה."},
-    {level:0, name:"Shillelagh", dmg:"1d8", notesEn:"Your club or quarterstaff becomes magical, using your spellcasting ability for its attack and damage rolls (1d8 bludgeoning) until the end of your next turn.", notesHe:"האלה או המקל שלך הופכים לקסומים, ומשתמשים בתכונת הכישוף שלך להתקפה ולנזק (1d8 מוחץ) עד סוף התור הבא שלך."},
-    {level:0, name:"Thorn Whip", dmg:"1d6", notesEn:"Ranged spell attack; 1d6 piercing damage and you can pull the target up to 10 ft closer to you. Damage scales with level.", notesHe:"התקפת קסם מרחוק; 1d6 נזק חודר, וביכולתך למשוך את המטרה עד 3 מ' לכיוונך. הנזק גדל עם הרמה."},
-    {level:1, name:"Cure Wounds", dmg:"", notesEn:"Touch a creature to heal 1d8 + your spellcasting modifier HP.", notesHe:"נגיעה במטרה מחלימה 1d8 + מודיפייר הקוסם נק\"ח."},
-    {level:1, name:"Entangle", dmg:"", notesEn:"Grasping weeds and vines sprout in a 20-ft square, restraining creatures that fail a STR save, for up to 1 minute. (Concentration)", notesHe:"עשבים וגפנים אוחזים צומחים בריבוע של 6 מ', ומרתקים יצורים שנכשלים בהצלת כוח, למשך עד דקה. (ריכוז)"},
-    {level:1, name:"Faerie Fire", dmg:"", notesEn:"Objects/creatures in a 20-ft cube are outlined in light (DEX save negates); attacks against them have advantage, and they can't benefit from being invisible, for 1 minute. (Concentration)", notesHe:"חפצים/יצורים בקוביה של 6 מ' מוארים בקו מתאר (הצלת זריזות מבטלת); התקפות נגדם מקבלות יתרון, והם לא יכולים ליהנות מבלתי-נראות, למשך דקה. (ריכוז)"},
-    {level:1, name:"Goodberry", dmg:"", notesEn:"Create 10 berries; each restores 1 HP and provides a day's food when eaten, for up to 24 hours.", notesHe:"יוצר 10 גרגירי פרי; כל גרגיר מחלים 1 נק\"ח ומספק מזון ליום שלם, למשך עד 24 שעות."},
-    {level:1, name:"Healing Word", dmg:"1d4", notesEn:"Bonus action. A creature within 60 ft regains 1d4 + your spellcasting modifier HP.", notesHe:"פעולה בונוס. יצור בטווח 18 מ' מחלים 1d4 + מודיפייר הקוסם נק\"ח."},
-    {level:1, name:"Thunderwave", dmg:"2d8", notesEn:"A wave of thunderous force sweeps out from you in a 15-ft cube; each creature takes 2d8 thunder damage (CON save for half) and is pushed 10 ft.", notesHe:"גל של כוח רועם מתפרץ ממך בקוביה של 4.5 מ'; כל יצור מקבל 2d8 נזק רעם (הצלת חוסן לחצי) ונדחף 3 מ'."},
-    {level:2, name:"Barkskin", dmg:"", notesEn:"Touch a willing creature; its skin toughens, and its AC can't go below 16, for up to 1 hour. (Concentration)", notesHe:"נגיעה ביצור מסכים; עורו מתחזק ודרגת השריון שלו לא יכולה לרדת מתחת ל-16, למשך עד שעה. (ריכוז)"},
-    {level:2, name:"Flaming Sphere", dmg:"2d6", notesEn:"Bonus action. A 5-ft sphere of fire appears, dealing 2d6 fire damage to anything it touches (DEX save for half); you can roll it up to 30 ft each turn, for up to 1 minute. (Concentration)", notesHe:"פעולה בונוס. כדור אש בקוטר 1.5 מ' מופיע, וגורם 2d6 נזק אש לכל מה שהוא נוגע בו (הצלת זריזות לחצי); ניתן לגלגל אותו עד 9 מ' בכל תור, למשך עד דקה. (ריכוז)"},
-    {level:2, name:"Moonbeam", dmg:"2d10", notesEn:"A 5-ft-radius, 40-ft-tall cylinder of pale light deals 2d10 radiant damage to creatures inside (CON save for half), for up to 1 minute. (Concentration)", notesHe:"גליל של אור חיוור ברדיוס 1.5 מ' וגובה 12 מ' גורם 2d10 נזק קורן ליצורים בתוכו (הצלת חוסן לחצי), למשך עד דקה. (ריכוז)"}
+    {level:0, name:"Druidcraft", dmg:"", category:"other", notesEn:"Predict weather, make a flower bloom, create a minor sensory effect, or light/snuff a small flame.", notesHe:"לחזות מזג אוויר, לגרום לפרח לפרוח, ליצור אפקט חושי קטן, או להדליק/לכבות להבה קטנה."},
+    {level:0, name:"Guidance", dmg:"", category:"buff", notesEn:"Touch a creature; it adds 1d4 to one ability check of its choice within the next minute.", notesHe:"נגיעה במטרה — היא מוסיפה 1d4 לבדיקת תכונה אחת במהלך הדקה הקרובה."},
+    {level:0, name:"Produce Flame", dmg:"1d8", category:"attack", notesEn:"A flickering flame appears in your hand, sheds light, and can be hurled to deal 1d8 fire damage. Damage scales with level.", notesHe:"להבה מרצדת מופיעה בידך, פולטת אור, וניתן לזרוק אותה כהתקפה בנזק אש של 1d8. הנזק גדל עם הרמה."},
+    {level:0, name:"Shillelagh", dmg:"1d8", category:"buff", notesEn:"Your club or quarterstaff becomes magical, using your spellcasting ability for its attack and damage rolls (1d8 bludgeoning) until the end of your next turn.", notesHe:"האלה או המקל שלך הופכים לקסומים, ומשתמשים בתכונת הכישוף שלך להתקפה ולנזק (1d8 מוחץ) עד סוף התור הבא שלך."},
+    {level:0, name:"Thorn Whip", dmg:"1d6", category:"attack", notesEn:"Ranged spell attack; 1d6 piercing damage and you can pull the target up to 10 ft closer to you. Damage scales with level.", notesHe:"התקפת קסם מרחוק; 1d6 נזק חודר, וביכולתך למשוך את המטרה עד 3 מ' לכיוונך. הנזק גדל עם הרמה."},
+    {level:1, name:"Cure Wounds", dmg:"", category:"buff", notesEn:"Touch a creature to heal 1d8 + your spellcasting modifier HP.", notesHe:"נגיעה במטרה מחלימה 1d8 + מודיפייר הקוסם נק\"ח."},
+    {level:1, name:"Entangle", dmg:"", category:"other", notesEn:"Grasping weeds and vines sprout in a 20-ft square, restraining creatures that fail a STR save, for up to 1 minute. (Concentration)", notesHe:"עשבים וגפנים אוחזים צומחים בריבוע של 6 מ', ומרתקים יצורים שנכשלים בהצלת כוח, למשך עד דקה. (ריכוז)"},
+    {level:1, name:"Faerie Fire", dmg:"", category:"other", notesEn:"Objects/creatures in a 20-ft cube are outlined in light (DEX save negates); attacks against them have advantage, and they can't benefit from being invisible, for 1 minute. (Concentration)", notesHe:"חפצים/יצורים בקוביה של 6 מ' מוארים בקו מתאר (הצלת זריזות מבטלת); התקפות נגדם מקבלות יתרון, והם לא יכולים ליהנות מבלתי-נראות, למשך דקה. (ריכוז)"},
+    {level:1, name:"Goodberry", dmg:"", category:"buff", notesEn:"Create 10 berries; each restores 1 HP and provides a day's food when eaten, for up to 24 hours.", notesHe:"יוצר 10 גרגירי פרי; כל גרגיר מחלים 1 נק\"ח ומספק מזון ליום שלם, למשך עד 24 שעות."},
+    {level:1, name:"Healing Word", dmg:"1d4", category:"buff", notesEn:"Bonus action. A creature within 60 ft regains 1d4 + your spellcasting modifier HP.", notesHe:"פעולה בונוס. יצור בטווח 18 מ' מחלים 1d4 + מודיפייר הקוסם נק\"ח."},
+    {level:1, name:"Thunderwave", dmg:"2d8", category:"attack", notesEn:"A wave of thunderous force sweeps out from you in a 15-ft cube; each creature takes 2d8 thunder damage (CON save for half) and is pushed 10 ft.", notesHe:"גל של כוח רועם מתפרץ ממך בקוביה של 4.5 מ'; כל יצור מקבל 2d8 נזק רעם (הצלת חוסן לחצי) ונדחף 3 מ'."},
+    {level:2, name:"Barkskin", dmg:"", category:"buff", notesEn:"Touch a willing creature; its skin toughens, and its AC can't go below 16, for up to 1 hour. (Concentration)", notesHe:"נגיעה ביצור מסכים; עורו מתחזק ודרגת השריון שלו לא יכולה לרדת מתחת ל-16, למשך עד שעה. (ריכוז)"},
+    {level:2, name:"Flaming Sphere", dmg:"2d6", category:"attack", notesEn:"Bonus action. A 5-ft sphere of fire appears, dealing 2d6 fire damage to anything it touches (DEX save for half); you can roll it up to 30 ft each turn, for up to 1 minute. (Concentration)", notesHe:"פעולה בונוס. כדור אש בקוטר 1.5 מ' מופיע, וגורם 2d6 נזק אש לכל מה שהוא נוגע בו (הצלת זריזות לחצי); ניתן לגלגל אותו עד 9 מ' בכל תור, למשך עד דקה. (ריכוז)"},
+    {level:2, name:"Moonbeam", dmg:"2d10", category:"attack", notesEn:"A 5-ft-radius, 40-ft-tall cylinder of pale light deals 2d10 radiant damage to creatures inside (CON save for half), for up to 1 minute. (Concentration)", notesHe:"גליל של אור חיוור ברדיוס 1.5 מ' וגובה 12 מ' גורם 2d10 נזק קורן ליצורים בתוכו (הצלת חוסן לחצי), למשך עד דקה. (ריכוז)"}
   ],
   Ranger: [
-    {level:1, name:"Cure Wounds", dmg:"", notesEn:"Touch a creature to heal 1d8 + your spellcasting modifier HP.", notesHe:"נגיעה במטרה מחלימה 1d8 + מודיפייר הקוסם נק\"ח."},
-    {level:1, name:"Ensnaring Strike", dmg:"1d6", notesEn:"The next time you hit a creature with a weapon attack before the spell ends, grasping vines restrain it (STR save negates) and deal 1d6 piercing damage each turn it fails to escape. (Concentration)", notesHe:"בפעם הבאה שתפגע ביצור בהתקפת נשק לפני שהקסם מסתיים, גפנים אוחזות מרתקות אותו (הצלת כוח מבטלת) וגורמות 1d6 נזק חודר בכל תור שהוא נכשל לברוח. (ריכוז)"},
-    {level:1, name:"Goodberry", dmg:"", notesEn:"Create 10 berries; each restores 1 HP and provides a day's food when eaten, for up to 24 hours.", notesHe:"יוצר 10 גרגירי פרי; כל גרגיר מחלים 1 נק\"ח ומספק מזון ליום שלם, למשך עד 24 שעות."},
-    {level:1, name:"Hunter's Mark", dmg:"1d6", notesEn:"Bonus action. Mark a creature within 90 ft; your weapon attacks against it deal an extra 1d6 damage, and you have advantage on Perception/Survival checks to find it, for up to 1 hour. (Concentration)", notesHe:"פעולה בונוס. מסמן יצור בטווח 27 מ'; התקפות הנשק שלך נגדו גורמות 1d6 נזק נוסף, ויש לך יתרון בבדיקות תפיסה/הישרדות למציאתו, למשך עד שעה. (ריכוז)"},
-    {level:1, name:"Speak with Animals", dmg:"", notesEn:"You gain the ability to comprehend and verbally communicate with beasts for 10 minutes. (Ritual)", notesHe:"אתה רוכש את היכולת להבין ולתקשר מילולית עם חיות למשך 10 דקות. (טקס)"},
-    {level:2, name:"Barkskin", dmg:"", notesEn:"Touch a willing creature; its skin toughens, and its AC can't go below 16, for up to 1 hour. (Concentration)", notesHe:"נגיעה ביצור מסכים; עורו מתחזק ודרגת השריון שלו לא יכולה לרדת מתחת ל-16, למשך עד שעה. (ריכוז)"},
-    {level:2, name:"Pass without Trace", dmg:"", notesEn:"A veil of shadows and silence radiates from you in a 30-ft aura; you and concealed allies gain +10 to Stealth checks and can't be tracked except by magic, for up to 1 hour. (Concentration)", notesHe:"מסך של צללים ודממה נפרש ממך ברדיוס 9 מ'; אתה ובני בריתך המוסתרים מקבלים 10+ לבדיקות התגנבות ולא ניתן לאתר אתכם אלא בקסם, למשך עד שעה. (ריכוז)"},
-    {level:2, name:"Silence", dmg:"", notesEn:"20-ft-radius sphere of magical silence for 10 minutes, centered on a point you choose and movable with it. (Concentration, Ritual)", notesHe:"כדור של שקט קסום ברדיוס 6 מ' למשך 10 דקות, סביב נקודה שתבחר, וזז איתה (ריכוז, טקס)."},
-    {level:2, name:"Spike Growth", dmg:"2d4", notesEn:"The ground in a 20-ft radius sprouts sharp spikes; each foot of movement through it costs 4 extra feet, and creatures take 2d4 piercing damage per 5 ft moved, for up to 10 minutes. (Concentration)", notesHe:"הקרקע ברדיוס 6 מ' מצמיחה קוצים חדים; כל רגל תנועה דרכה עולה 4 רגל נוספות, ויצורים מקבלים 2d4 נזק חודר על כל 1.5 מ' של תנועה, למשך עד 10 דקות. (ריכוז)"}
+    {level:1, name:"Cure Wounds", dmg:"", category:"buff", notesEn:"Touch a creature to heal 1d8 + your spellcasting modifier HP.", notesHe:"נגיעה במטרה מחלימה 1d8 + מודיפייר הקוסם נק\"ח."},
+    {level:1, name:"Ensnaring Strike", dmg:"1d6", category:"attack", notesEn:"The next time you hit a creature with a weapon attack before the spell ends, grasping vines restrain it (STR save negates) and deal 1d6 piercing damage each turn it fails to escape. (Concentration)", notesHe:"בפעם הבאה שתפגע ביצור בהתקפת נשק לפני שהקסם מסתיים, גפנים אוחזות מרתקות אותו (הצלת כוח מבטלת) וגורמות 1d6 נזק חודר בכל תור שהוא נכשל לברוח. (ריכוז)"},
+    {level:1, name:"Goodberry", dmg:"", category:"buff", notesEn:"Create 10 berries; each restores 1 HP and provides a day's food when eaten, for up to 24 hours.", notesHe:"יוצר 10 גרגירי פרי; כל גרגיר מחלים 1 נק\"ח ומספק מזון ליום שלם, למשך עד 24 שעות."},
+    {level:1, name:"Hunter's Mark", dmg:"1d6", category:"buff", notesEn:"Bonus action. Mark a creature within 90 ft; your weapon attacks against it deal an extra 1d6 damage, and you have advantage on Perception/Survival checks to find it, for up to 1 hour. (Concentration)", notesHe:"פעולה בונוס. מסמן יצור בטווח 27 מ'; התקפות הנשק שלך נגדו גורמות 1d6 נזק נוסף, ויש לך יתרון בבדיקות תפיסה/הישרדות למציאתו, למשך עד שעה. (ריכוז)"},
+    {level:1, name:"Speak with Animals", dmg:"", category:"other", notesEn:"You gain the ability to comprehend and verbally communicate with beasts for 10 minutes. (Ritual)", notesHe:"אתה רוכש את היכולת להבין ולתקשר מילולית עם חיות למשך 10 דקות. (טקס)"},
+    {level:2, name:"Barkskin", dmg:"", category:"buff", notesEn:"Touch a willing creature; its skin toughens, and its AC can't go below 16, for up to 1 hour. (Concentration)", notesHe:"נגיעה ביצור מסכים; עורו מתחזק ודרגת השריון שלו לא יכולה לרדת מתחת ל-16, למשך עד שעה. (ריכוז)"},
+    {level:2, name:"Pass without Trace", dmg:"", category:"buff", notesEn:"A veil of shadows and silence radiates from you in a 30-ft aura; you and concealed allies gain +10 to Stealth checks and can't be tracked except by magic, for up to 1 hour. (Concentration)", notesHe:"מסך של צללים ודממה נפרש ממך ברדיוס 9 מ'; אתה ובני בריתך המוסתרים מקבלים 10+ לבדיקות התגנבות ולא ניתן לאתר אתכם אלא בקסם, למשך עד שעה. (ריכוז)"},
+    {level:2, name:"Silence", dmg:"", category:"other", notesEn:"20-ft-radius sphere of magical silence for 10 minutes, centered on a point you choose and movable with it. (Concentration, Ritual)", notesHe:"כדור של שקט קסום ברדיוס 6 מ' למשך 10 דקות, סביב נקודה שתבחר, וזז איתה (ריכוז, טקס)."},
+    {level:2, name:"Spike Growth", dmg:"2d4", category:"attack", notesEn:"The ground in a 20-ft radius sprouts sharp spikes; each foot of movement through it costs 4 extra feet, and creatures take 2d4 piercing damage per 5 ft moved, for up to 10 minutes. (Concentration)", notesHe:"הקרקע ברדיוס 6 מ' מצמיחה קוצים חדים; כל רגל תנועה דרכה עולה 4 רגל נוספות, ויצורים מקבלים 2d4 נזק חודר על כל 1.5 מ' של תנועה, למשך עד 10 דקות. (ריכוז)"}
   ]
 };
 function applySpellPreset(idx){
@@ -2305,20 +2402,28 @@ function applySpellPreset(idx){
   const nameEl = document.getElementById("modalSpellName");
   const dmgEl = document.getElementById("modalSpellDmg");
   const notesEl = document.getElementById("modalSpellNotes");
+  const categoryEl = document.getElementById("modalSpellCategory");
   if(levelEl) levelEl.value = p.level;
   if(nameEl) nameEl.value = p.name;
   if(dmgEl) dmgEl.value = p.dmg;
   if(notesEl) notesEl.value = lang === "he" ? p.notesHe : p.notesEn;
+  if(categoryEl){ categoryEl.value = p.category || ""; categoryEl.dispatchEvent(new Event("change")); }
 }
 
 function spellRow(sp, i){
   const t = T[lang];
   const saveLabel = sp.save ? t[sp.save] : "";
   const spellDC = 8 + profByLevel(state.level) + mod(getEffectiveAbilities(state)[state.spellcasting.abil]);
-  return `<div class="spell-item">
+  const folded = !!sp.folded;
+  return `<div class="spell-item ${folded ? "folded" : ""}">
     <div class="spell-item-top">
+      <button class="fold-toggle no-print" onclick="toggleSpellFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
       <input type="checkbox" ${sp.prepared?"checked":""} title="${t.spPrepared}" onchange="set('spells.${i}.prepared', this.checked)">
       <input type="text" value="${sp.name}" class="spell-name-input" placeholder="${t.spName}" onchange="set('spells.${i}.name', this.value)">
+      ${folded
+        ? (sp.category ? `<span class="spell-category-icon" title="${spellCategoryLabel(sp.category,t)}">${spellCategoryIcon(sp.category)}</span>` : "")
+        : `<select class="spell-category-select no-print" title="${t.spCategory}" onchange="set('spells.${i}.category', this.value)">${spellCategoryOptions(sp.category)}</select>`
+      }
       <div class="ctv-group">
         <label class="ctv-chip"><input type="checkbox" ${sp.verbal?"checked":""} title="${t.spVerbalFull}" onchange="set('spells.${i}.verbal', this.checked)">${t.spVerbal}</label>
         <label class="ctv-chip"><input type="checkbox" ${sp.somatic?"checked":""} title="${t.spSomaticFull}" onchange="set('spells.${i}.somatic', this.checked)">${t.spSomatic}</label>
@@ -2327,8 +2432,8 @@ function spellRow(sp, i){
       <button class="remove-row no-print" onclick="confirmRemove(()=>removeSpell(${i}))" title="${t.del}">🗑️</button>
     </div>
     <div class="spell-meta-row">
-      <span class="spell-meta-item"><span class="dim-label">${t.spRange}</span><input type="text" value="${sp.range}" placeholder="60 ft" onchange="set('spells.${i}.range', this.value)"></span>
-      <span class="spell-meta-item"><span class="dim-label">${t.spCastTime}</span><input type="text" list="castTimeOptions" value="${sp.castTime}" placeholder="Action" onchange="set('spells.${i}.castTime', this.value)"></span>
+      <span class="spell-meta-item"><span class="dim-label">${t.spRange}</span><input type="text" value="${sp.range}" placeholder="60 ft" style="width:${dmgInputWidthCh(sp.range)}ch" oninput="autoWidthInput(this)" onchange="set('spells.${i}.range', this.value)"></span>
+      <span class="spell-meta-item spell-meta-casttime"><span class="dim-label">${t.spCastTime}</span>${castTimeFieldHTML(sp, i)}</span>
       <span class="spell-meta-item"><span class="dim-label">${t.spSave}</span>
         <select onchange="set('spells.${i}.save', this.value)">
           <option value="">${t.featModNone}</option>
@@ -2337,9 +2442,10 @@ function spellRow(sp, i){
       </span>
     </div>
     ${sp.save ? `<div class="formula-note">${t.spSaveLabel} d20+${saveLabel} ≥ ${spellDC} (8+prof+${t[state.spellcasting.abil]})</div>` : ""}
+    ${(sp.category === "" || sp.category === "attack") ? `
     <div class="spell-dmg-row no-print">
       <span class="dim-label">${t.spDmg}</span>
-      <input type="text" value="${sp.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(sp.dmg)}ch" oninput="autoWidthInput(this)" placeholder="4d6" onchange="set('spells.${i}.dmg', this.value)">
+      <input type="text" value="${sp.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(sp.dmg || "4d6")}ch" oninput="autoWidthInput(this)" placeholder="4d6" onchange="set('spells.${i}.dmg', this.value)">
       ${sp.dmg ? `
       <button class="atk-roll-btn" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
       <div class="atk-cube-col">
@@ -2348,8 +2454,8 @@ function spellRow(sp, i){
       </div>
       ${(spellRollHistories[i]||[]).length ? `<div class="dice-history compact" style="margin:0">${spellRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${h.total}</span>`).join("")}</div>` : ""}
       ` : ""}
-    </div>
-    <textarea rows="1" class="spell-notes-input" placeholder="${t.spNotes}" onchange="set('spells.${i}.notes', this.value)">${sp.notes}</textarea>
+    </div>` : ""}
+    <textarea rows="${estimateTextRows(sp.notes)}" class="spell-notes-input" dir="auto" placeholder="${t.spNotes}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('spells.${i}.notes', this.value)">${sp.notes}</textarea>
   </div>`;
 }
 let spellModalOpen = false;
@@ -2363,19 +2469,25 @@ function confirmAddSpell(){
   if(!name) return;
   const lvl = Math.max(0, Math.min(9, parseInt(document.getElementById("modalSpellLevel").value)||0));
   const range = document.getElementById("modalSpellRange").value;
-  const castTime = document.getElementById("modalSpellCastTime").value;
+  const castTimeSel = document.getElementById("modalSpellCastTime").value;
+  const castTimeCustom = castTimeSel === "__custom__";
+  const castTime = castTimeCustom ? document.getElementById("modalSpellCastTimeCustom").value : castTimeSel;
   const save = document.getElementById("modalSpellSave").value;
   const dmg = document.getElementById("modalSpellDmg").value;
   const verbal = document.getElementById("modalSpellVerbal").checked;
   const somatic = document.getElementById("modalSpellSomatic").checked;
   const material = document.getElementById("modalSpellMaterial").checked;
   const notes = document.getElementById("modalSpellNotes").value;
-  state.spells.push({name, level:lvl, prepared:true, conc:false, touch:false, verbal, somatic, material, range, castTime, save, dmg, notes});
+  const categoryEl = document.getElementById("modalSpellCategory");
+  const category = categoryEl ? categoryEl.value : "";
+  state.spells.push({name, level:lvl, prepared:true, conc:false, touch:false, verbal, somatic, material, range, castTime, castTimeCustom, save, dmg, notes, category, folded:false});
   spellModalOpen = false;
   render();
   queueSave();
 }
 function removeSpell(i){ state.spells.splice(i,1); render(); queueSave(); }
+function toggleSpellFold(i){ state.spells[i].folded = !state.spells[i].folded; render(); queueSave(); }
+function setAllSpellsFolded(folded){ state.spells.forEach(sp=>sp.folded=folded); render(); queueSave(); }
 
 const SECONDARY_SPEED_LABEL_KEY = {climb:"climbSpeed", swim:"swimSpeed", fly:"flySpeed"};
 function secondarySpeedRowHTML(t, kind, icon){
@@ -2907,14 +3019,16 @@ function render(){
     <div class="combat-strip">
       <div class="combat-box ac-box">
         <span class="label">🛡️ ${t.ac}</span>
-        <div class="shape-wrap">
-          <svg class="shape-bg" viewBox="0 0 100 112" preserveAspectRatio="none"><path d="M50 3 L94 16 L94 54 Q94 90 50 109 Q6 90 6 54 L6 16 Z"/></svg>
-          <div class="shape-content"><div class="big mono">${computeAC(state)}</div></div>
+        <div class="ac-main-row">
+          <div class="shape-wrap">
+            <svg class="shape-bg" viewBox="0 0 100 112" preserveAspectRatio="none"><path d="M50 3 L94 16 L94 54 Q94 90 50 109 Q6 90 6 54 L6 16 Z"/></svg>
+            <div class="shape-content"><div class="big mono">${computeAC(state)}</div></div>
+          </div>
+          <select class="ac-abil-select" title="${t.unarmoredAbilHint}" onchange="set('armor.acAbility', this.value)">
+            ${ABILS.map(a=>`<option value="${a}" ${state.armor.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
+            <option value="none" ${state.armor.acAbility==="none"?"selected":""}>${t.noneOption}</option>
+          </select>
         </div>
-        <select class="ac-abil-select" style="font-size:11px;margin-top:2px" title="${t.unarmoredAbilHint}" onchange="set('armor.acAbility', this.value)">
-          ${ABILS.map(a=>`<option value="${a}" ${state.armor.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
-          <option value="none" ${state.armor.acAbility==="none"?"selected":""}>${t.noneOption}</option>
-        </select>
         <div class="formula-note">${acFormulaNote(state, t)}</div>
       </div>
       <div class="combat-box">
@@ -3040,8 +3154,14 @@ function render(){
 
   <div class="panel ${foldedPanels['attacks'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('attacks')">${t.attacks} ${foldIcon('attacks')}</h2>
+    <div class="spell-actions-row no-print">
+      <button class="btn primary" onclick="openAttackModal()">➕ ${t.addRow}</button>
+      ${state.attacks.length ? `
+        <button class="btn" onclick="setAllAttacksFolded(true)">${t.spCollapseAll}</button>
+        <button class="btn" onclick="setAllAttacksFolded(false)">${t.spExpandAll}</button>
+      ` : ""}
+    </div>
     <div class="attack-list">${state.attacks.map(attackRow).join("")}</div>
-    <button class="btn primary no-print" style="margin-top:10px" onclick="openAttackModal()">➕ ${t.addRow}</button>
   </div>
 
   <div class="panel ${foldedPanels['spells'] ? 'folded' : ''}">
@@ -3065,7 +3185,13 @@ function render(){
       </div>
     </div>
     <div class="formula-note" style="margin-bottom:8px">${t.spLegend}</div>
-    <button class="btn primary no-print" style="margin-bottom:12px" onclick="openSpellModal(0)">➕ ${t.addSpell}</button>
+    <div class="spell-actions-row no-print">
+      <button class="btn primary" onclick="openSpellModal(0)">➕ ${t.addSpell}</button>
+      ${state.spells.length ? `
+        <button class="btn" onclick="setAllSpellsFolded(true)">${t.spCollapseAll}</button>
+        <button class="btn" onclick="setAllSpellsFolded(false)">${t.spExpandAll}</button>
+      ` : ""}
+    </div>
     ${(()=>{
       const groups = [];
       for(let lvl=0; lvl<=9; lvl++){
@@ -3173,18 +3299,6 @@ function render(){
       : (lang==='en' ? "⚠ This browser is blocking storage right now (e.g. private/incognito mode), so changes only last for this session. Use Print or Export to keep a copy." : "⚠ הדפדפן הזה חוסם אחסון כרגע (למשל מצב פרטי), אז שינויים נשמרים רק להפעלה הנוכחית. השתמש בהדפסה או ייצוא כדי לשמור עותק.")
   }</div>
 
-  <datalist id="castTimeOptions">
-    <option value="${t.turnNodeAction}"></option>
-    <option value="${t.turnNodeBonus}"></option>
-    <option value="${t.turnNodeReaction}"></option>
-    <option value="${t.ct1Min}"></option>
-    <option value="${t.ct10Min}"></option>
-    <option value="${t.ct1Hour}"></option>
-    <option value="${t.ct8Hour}"></option>
-    <option value="${t.ct12Hour}"></option>
-    <option value="${t.ct24Hour}"></option>
-  </datalist>
-
   <div class="credit-footer">Yoni Elentok · __DEPLOY_TIME__</div>
 
   ${spellModalOpen ? `
@@ -3211,7 +3325,11 @@ function render(){
       </div>
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:1"><label>${t.spRange}</label><input type="text" id="modalSpellRange" placeholder="60 ft"></div>
-        <div style="flex:1"><label>${t.spCastTime}</label><input type="text" id="modalSpellCastTime" list="castTimeOptions" placeholder="Action"></div>
+        <div style="flex:1">
+          <label>${t.spCastTime}</label>
+          <select id="modalSpellCastTime" onchange="document.getElementById('modalSpellCastTimeCustom').style.display=this.value==='__custom__'?'block':'none'">${castTimeSelectOptions("", t)}</select>
+          <input type="text" id="modalSpellCastTimeCustom" placeholder="${t.spCastTime}" style="display:none;margin-top:6px">
+        </div>
       </div>
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:1"><label>${t.spSave}</label>
@@ -3220,12 +3338,16 @@ function render(){
             ${ABILS.map(a=>`<option value="${a}">${t[a]}</option>`).join("")}
           </select>
         </div>
-        <div style="flex:1"><label>${t.spDmg}</label><input type="text" id="modalSpellDmg" placeholder="4d6"></div>
+        <div style="flex:1" id="modalSpellDmgWrap"><label>${t.spDmg}</label><input type="text" id="modalSpellDmg" placeholder="4d6"></div>
       </div>
       <div class="modal-row" style="display:flex;gap:16px;align-items:center">
         <label class="ctv-chip"><input type="checkbox" id="modalSpellVerbal" title="${t.spVerbalFull}">${t.spVerbal}</label>
         <label class="ctv-chip"><input type="checkbox" id="modalSpellSomatic" title="${t.spSomaticFull}">${t.spSomatic}</label>
         <label class="ctv-chip"><input type="checkbox" id="modalSpellMaterial" title="${t.spMaterialFull}">${t.spMaterial}</label>
+      </div>
+      <div class="modal-row">
+        <label>${t.spCategory}</label>
+        <select id="modalSpellCategory" onchange="document.getElementById('modalSpellDmgWrap').style.display=(this.value===''||this.value==='attack')?'block':'none'">${spellCategoryOptions("")}</select>
       </div>
       <div class="modal-row">
         <label>${t.spNotes}</label>
@@ -3424,7 +3546,23 @@ function render(){
   </div>` : ""}
   `;
   document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
+  trimDiceHistories();
 }
+function trimDiceHistories(){
+  document.querySelectorAll('.dice-history.compact').forEach(el=>{
+    const spans = [...el.children];
+    if(!spans.length) return;
+    spans.forEach(s=>{ s.style.display = ''; });
+    const maxWidth = el.clientWidth;
+    const gap = parseFloat(getComputedStyle(el).gap) || 0;
+    let used = 0;
+    spans.forEach((s,idx)=>{
+      used += s.offsetWidth + (idx>0 ? gap : 0);
+      if(used > maxWidth) s.style.display = 'none';
+    });
+  });
+}
+window.addEventListener('resize', trimDiceHistories);
 
 (async function init(){
   document.getElementById("app").innerHTML = `<div style="padding:40px;text-align:center;color:#b8a97e">Loading…</div>`;
@@ -3432,6 +3570,17 @@ function render(){
     try{
       const langRes = await storageGet("dnd-lang");
       if(langRes && (langRes.value==='en' || langRes.value==='he')) lang = langRes.value;
+    }catch(e){}
+    try{
+      const foldRes = await storageGet("dnd-folded-panels");
+      if(foldRes && foldRes.value){
+        const parsed = JSON.parse(foldRes.value);
+        if(parsed && typeof parsed === "object"){
+          if(parsed.panels && typeof parsed.panels === "object") foldedPanels = parsed.panels;
+          if(typeof parsed.dice === "boolean") diceFolded = parsed.dice;
+          if(typeof parsed.ref === "boolean") refOpen = parsed.ref;
+        }
+      }
     }catch(e){}
     await loadIndex();
     const importedFromURL = await checkURLImport();
