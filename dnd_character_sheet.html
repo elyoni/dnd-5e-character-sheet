@@ -624,7 +624,7 @@ const T = {
     aiParseErrorBad:"Couldn't read that suggestion — it doesn't match the expected format. Paste this back to the AI: \"That didn't parse. Please re-check the schema in my earlier message and try again.\"",
     aiReviewTitle:"3. Review suggested additions", aiAddBtn:"✓ Add to character", aiRejectBtn:"✕ Discard", aiAdded:"Added.",
     aiCatFeat:"Feat", aiCatAttack:"Attack / Weapon", aiCatSpell:"Spell", aiCatResource:"Resource", aiCatItem:"Item",
-    aiCatLevel:"Level", aiCatExpertise:"Expertise", aiCatSpellSlot:"Spell slots — level",
+    aiCatLevel:"Level", aiCatSubclass:"Subclass", aiCatExpertise:"Expertise", aiCatSpellSlot:"Spell slots — level",
     aiTrustStepTitle:"How much can the AI change directly?", aiTrustStepDesc:"This controls what the AI is allowed to modify on existing fields (beyond just adding new feats/weapons/etc). Everything still needs your one-by-one confirmation below either way.",
     aiTrustGuided:"Guided — AI can add items and set my level, I handle the rest", aiTrustTrusted:"Trusted — AI can also grant skill Expertise", aiTrustFullyTrusted:"Fully Trusted — also lets AI set my spell slot totals",
     aiTrustDesc_guided:"The AI can add new feats/weapons/spells/resources/items and set your level directly (HP is recalculated automatically). For anything else (Expertise, spell slots), it explains what to change and you do it yourself in the sheet — good if you want to stay closely involved in maintaining your character.",
@@ -771,7 +771,7 @@ const T = {
     aiParseErrorBad:"לא הצלחתי לקרוא את ההצעה הזו — היא לא תואמת לפורמט הצפוי. הדבק בחזרה ל-AI: \"That didn't parse. Please re-check the schema in my earlier message and try again.\"",
     aiReviewTitle:"3. סקור הצעות תוספת", aiAddBtn:"✓ הוסף לדמות", aiRejectBtn:"✕ התעלם", aiAdded:"נוסף.",
     aiCatFeat:"תכונה", aiCatAttack:"נשק / התקפה", aiCatSpell:"כישוף", aiCatResource:"משאב", aiCatItem:"פריט",
-    aiCatLevel:"רמה", aiCatExpertise:"מומחיות", aiCatSpellSlot:"משבצות כישוף — רמה",
+    aiCatLevel:"רמה", aiCatSubclass:"תת-מחלקה", aiCatExpertise:"מומחיות", aiCatSpellSlot:"משבצות כישוף — רמה",
     aiTrustStepTitle:"כמה ה-AI יכול לשנות ישירות?", aiTrustStepDesc:"זה קובע מה ה-AI רשאי לשנות בשדות קיימים (מעבר להוספת feats/נשקים/וכו' חדשים). בכל מקרה תמיד תידרש אישור שלך אחד־אחד למטה.",
     aiTrustGuided:"מודרך — ה-AI יכול להוסיף פריטים ולקבוע את הרמה שלי, ואני מטפל בשאר", aiTrustTrusted:"נאמן — ה-AI יכול גם להעניק מומחיות בכישורים", aiTrustFullyTrusted:"נאמן מלא — מאפשר גם ל-AI לקבוע את משבצות הכישוף שלי",
     aiTrustDesc_guided:"ה-AI יכול להוסיף feats/נשקים/כישופים/משאבים/פריטים חדשים ולקבוע את הרמה שלך ישירות (נק״ח מחושבות אוטומטית). לכל דבר אחר (מומחיות, משבצות כישוף) הוא מסביר מה לשנות ואתה עושה זאת בעצמך בגיליון — טוב אם אתה רוצה להישאר מעורב מקרוב בתחזוקת הדמות שלך.",
@@ -2244,7 +2244,7 @@ function mergeAIDefaults(defaults, given){
 function buildCuratedCharacterForAI(){
   const s = state;
   return {
-    name: s.name, class: s.cls, race: s.race, subrace: s.subrace, background: s.bg, level: s.level, size: s.size,
+    name: s.name, class: s.cls, subclass: s.subclass, race: s.race, subrace: s.subrace, background: s.bg, level: s.level, size: s.size,
     abilities: s.abilities,
     hp: { current: s.hpCur, max: s.hpMax, hitDice: s.hitDice },
     speed: { walk: s.speed, climb: s.climbSpeed, swim: s.swimSpeed, fly: s.hasFlySpeed ? s.flySpeed : 0 },
@@ -2272,8 +2272,9 @@ function buildAIExport(){
 
   const trust = aiTrustLevel;
   let modSchema = `
-level: 5`;
-  let modRules = ` This block can ADD new entries (as above), and can also set "level" directly: a single integer, the character's new total level (include only if it should change). Never set ability scores or HP directly: HP recalculates automatically from level, and an ability score change should be a feat addition (see "feats" above) with the matching "mod" instead of a separate field.`;
+level: 5
+subclass: "Champion"`;
+  let modRules = ` This block can ADD new entries (as above), and can also set "level" (a single integer, the character's new total level) and/or "subclass" (a string, only once the user has told you what it is) directly — include either only if it should change. Never set ability scores or HP directly: HP recalculates automatically from level, and an ability score change should be a feat addition (see "feats" above) with the matching "mod" instead of a separate field.`;
   if(trust === 'trusted' || trust === 'fullyTrusted'){
     modSchema += `
 expertise:
@@ -2440,6 +2441,7 @@ function addAIItem(idx){
   if(!entry) return;
   if(entry.kind === 'modify'){
     if(entry.category === 'level') applyAILevelChange(entry.data);
+    else if(entry.category === 'subclass') state.subclass = entry.data.to;
     else if(entry.category === 'expertise') state.skillExpertise[entry.data.skill] = true;
     else if(entry.category === 'spellSlot') state.spellcasting.slots[entry.data.index].total = entry.data.to;
   } else {
@@ -2461,6 +2463,7 @@ function aiItemLabel(entry){
   const {category, data} = entry;
   if(entry.kind === 'modify'){
     if(category === 'level') return `<b>${t.aiCatLevel}</b> <span class="dim-label">${data.from} → ${data.to}</span>`;
+    if(category === 'subclass') return `<b>${t.aiCatSubclass}</b> <span class="dim-label">${esc2(data.from)||"—"} → ${esc2(data.to)}</span>`;
     if(category === 'expertise'){
       const sk = SKILLS.find(s=>s[0]===data.skill);
       const skLabel = sk ? (lang==='he'?sk[3]:sk[2]) : data.skill;
