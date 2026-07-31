@@ -1279,9 +1279,9 @@ function rollSpellDamage(i){
   spellRollHistories[i] = spellRollHistories[i].slice(0, 10);
   render();
 }
-function dmgInputWidthCh(str){ return Math.max(5, String(str||"").length + 3); }
-function autoWidthInput(el){
-  el.style.width = dmgInputWidthCh(el.value) + "ch";
+function dmgInputWidthCh(str, min){ return Math.max(min||5, String(str||"").length + 3); }
+function autoWidthInput(el, min){
+  el.style.width = dmgInputWidthCh(el.value, min) + "ch";
 }
 function rollAttack(i){
   lastRolledAttackIndex = i;
@@ -3403,7 +3403,7 @@ function render(){
           </select>
         `) : `<span class="feat-name-display">${esc2(state.cls)||"—"}</span>`}
       </div>
-      <div class="field"><label>${t.subclass}</label><input type="text" value="${state.subclass}" style="width:${dmgInputWidthCh(state.subclass)}ch" oninput="autoWidthInput(this)" onchange="set('subclass', this.value)"></div>
+      <div class="field"><label>${t.subclass}</label><input type="text" value="${state.subclass}" placeholder="Champion" style="width:${dmgInputWidthCh(state.subclass, 10)}ch" oninput="autoWidthInput(this, 10)" onchange="set('subclass', this.value)"></div>
       <div class="field field-level"><label>${t.level}</label><input type="number" min="1" max="20" class="no-spinner" style="width:44px;min-width:0;box-sizing:border-box;padding:8px 4px;text-align:center" value="${state.level}" onchange="set('level', Math.max(1, Math.min(20, parseInt(this.value)||1)))"></div>
       <div class="field"><label>${t.race}</label>
         ${identityUnlocked ? (state.raceCustom ? `
