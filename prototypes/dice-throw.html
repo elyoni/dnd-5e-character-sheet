@@ -196,22 +196,24 @@ renderer.setClearColor(0x000000, 0); // fully transparent
 
 const scene = new THREE.Scene();
 
-// Steep near-overhead angle (like the Roll20 reference) rather than a
-// low oblique one - a shallow pitch sends top-of-screen rays toward the
-// horizon, where they travel almost infinitely far before hitting the
-// ground plane and blow up the computed table bounds.
+// Near-overhead angle (like the Roll20 reference), and steep enough
+// (~87 deg pitch) that "the face closest to world-up" reliably reads as
+// "the flat face facing the viewer" too. A shallower pitch also sends
+// top-of-screen rays toward the horizon, where they travel almost
+// infinitely far before hitting the ground plane and blow up the computed
+// table bounds. Keep a tiny Z offset (not perfectly vertical) since a
+// camera looking exactly along world-up makes THREE.Camera.lookAt's
+// up-vector computation degenerate.
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 16, 3);
+camera.position.set(0, 20, 1);
 camera.lookAt(0, 0, 0);
 camera.updateMatrixWorld(true);
 
-// The camera is steep but not perfectly overhead (pitch ~79 deg, not 90),
-// so "the face closest to world-up" and "the face actually facing the
-// viewer" are NOT always the same face - a neighboring face can win by a
-// few degrees. "On top" has to mean facing the camera, since that's what
-// the player actually reads, so every face-selection below targets this
-// fixed camera-facing direction instead of world-up.
-const TOP_FACE_TARGET = camera.getWorldDirection(new THREE.Vector3()).negate().normalize();
+// "Top face" is defined as the face whose normal is closest to world-up
+// (0,1,0) - the same convention real dice-roller libraries use (e.g.
+// raycasting straight down onto the die from above), matching how a
+// physical die's result is actually read regardless of camera angle.
+const TOP_FACE_TARGET = new THREE.Vector3(0, 1, 0);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.9));
 const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
