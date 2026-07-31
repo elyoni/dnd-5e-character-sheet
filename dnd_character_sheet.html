@@ -206,6 +206,7 @@ th{
   text-align:left;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);
   padding:6px 6px;border-bottom:1px solid var(--leather-line);
 }
+[dir="rtl"] th{text-align:right;}
 td{padding:5px 6px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
 td input, td select{padding:6px 7px;font-size:15px;}
 .atk-bonus{font-family:'IBM Plex Mono',monospace;color:var(--gold-bright);font-weight:600;text-align:center;}
@@ -288,7 +289,7 @@ td input, td select{padding:6px 7px;font-size:15px;}
 
 /* ---------- print settings modal ---------- */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;}
-.modal-box{background:var(--panel-2);border:1px solid var(--gold);border-radius:8px;padding:22px 24px;max-width:420px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.6);}
+.modal-box{background:var(--panel-2);border:1px solid var(--gold);border-radius:8px;padding:22px 24px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.6);}
 .modal-box h3{margin:0 0 14px;color:var(--gold-bright);font-family:'Cinzel',serif;font-size:16px;letter-spacing:1px;}
 .modal-row{margin-bottom:14px;}
 .modal-row label{display:block;font-size:13px;color:var(--ink-dim);margin-bottom:6px;}
@@ -588,10 +589,14 @@ const T = {
     identityLockedHint:"Name, Class, Race, Subrace, and Size are locked to prevent accidental changes. Level stays editable since it changes often.",
     identityUnlockedHint:"Unlocked — Name/Class/Race/Subrace/Size can be edited now.",
     identityUnlockBtn:"🔓 Unlock to edit", identityLockNow:"🔒 Lock again",
-    shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped",
+    shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped", itemEquippedAbbr:"Eq.",
     proficiencies:"Proficiencies & Languages", profArmor:"Armor", profWeapons:"Weapons", profTools:"Tools", profLanguages:"Languages",
     inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
-    itemType:"Type", itemTypeGear:"Gear", itemTypeWeapon:"Weapon", itemTypeArmor:"Armor", itemTypeShield:"Shield",
+    itemType:"Type", itemTypeArmor:"Armor", itemTypeShield:"Shield",
+    gearTable:"Gear", armorTable:"Armor & Shields", addGear:"Gear", addArmorShield:"Armor/Shield",
+    itemCategory:"Category",
+    gearCatFood:"Food", gearCatPotion:"Potion", gearCatPoison:"Poison", gearCatAmmunition:"Ammunition",
+    gearCatTool:"Tool", gearCatFocus:"Focus", gearCatMagic:"Magic Item", gearCatContainer:"Container", gearCatOther:"Other",
     itemAC:"AC", acBreakdown:"AC breakdown", unarmoredAbilHint:"Ability that governs AC when no armor is equipped",
     armorAbilHint:"Ability modifier added to this armor's AC — DEX for light/medium armor, none for heavy armor",
     noneOption:"— none —",
@@ -607,9 +612,25 @@ const T = {
     atkPreset:"Preset (optional)", atkPresetNone:"— pick a preset —",
     spellAbility:"Casting stat",
     notes:"Notes & Equipment",
-    printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import",
+    printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import", aiBtn:"🤖 Ask AI",
     exportModalTitle:"Export Character", exportAsFileBtn:"Download JSON file", exportAsLinkBtn:"🔗 Copy shareable link", copyLinkBtn:"Copy link",
     linkReadyHint:"Link copied to clipboard — you can also copy it manually below.", linkCopied:"✓ Copied to clipboard.",
+    aiModalTitle:"Ask an AI about your character", aiCopyStepTitle:"1. Copy your character",
+    aiCopyStepDesc:"Copy this, paste it into an AI chat (ChatGPT, Claude, Gemini, etc.), and ask your question — e.g. \"which feat should I take?\" or \"does anything look wrong here?\"",
+    aiCopyBtn:"📋 Copy for AI", aiCopyCopied:"✓ Copied to clipboard.",
+    aiPasteStepTitle:"2. Paste the AI's reply", aiPasteStepDesc:"Paste the AI's full reply below. If it suggested adding anything (a feat, weapon, spell, resource, or item), it'll show up here for you to review one at a time.",
+    aiPastePlaceholder:"Paste the AI's reply here…", aiParseBtn:"Parse reply", aiParseErrorVersion:"This suggestion was generated for a different version of this app's AI format and can't be imported automatically. Paste this back to the AI: \"The schema you used is out of date. Please regenerate your suggestion using AI_SCHEMA_VERSION __CURRENT__ (yours was __GIVEN__).\"",
+    aiParseErrorNone:"Couldn't find any suggested additions in that text. Make sure you pasted the AI's full reply, including the fenced code block.",
+    aiParseErrorBad:"Couldn't read that suggestion — it doesn't match the expected format. Paste this back to the AI: \"That didn't parse. Please re-check the schema in my earlier message and try again.\"",
+    aiReviewTitle:"3. Review suggested additions", aiAddBtn:"✓ Add to character", aiRejectBtn:"✕ Discard", aiAdded:"Added.",
+    aiCatFeat:"Feat", aiCatAttack:"Attack / Weapon", aiCatSpell:"Spell", aiCatResource:"Resource", aiCatItem:"Item",
+    aiCatLevel:"Level", aiCatExpertise:"Expertise", aiCatSpellSlot:"Spell slots — level",
+    aiTrustStepTitle:"How much can the AI change directly?", aiTrustStepDesc:"This controls what the AI is allowed to modify on existing fields (beyond just adding new feats/weapons/etc). Everything still needs your one-by-one confirmation below either way.",
+    aiTrustGuided:"Guided — AI can add items and set my level, I handle the rest", aiTrustTrusted:"Trusted — AI can also grant skill Expertise", aiTrustFullyTrusted:"Fully Trusted — also lets AI set my spell slot totals",
+    aiTrustDesc_guided:"The AI can add new feats/weapons/spells/resources/items and set your level directly (HP is recalculated automatically). For anything else (Expertise, spell slots), it explains what to change and you do it yourself in the sheet — good if you want to stay closely involved in maintaining your character.",
+    aiTrustDesc_trusted:"Everything in Guided, plus the AI can grant skill Expertise directly (only on skills you're already proficient in). Spell slots still need to be set manually.",
+    aiTrustDesc_fullyTrusted:"Everything in Trusted, plus the AI can set your spell slot totals directly. Spell slot suggestions come with a warning — always double-check them against your own class/multiclass table.",
+    aiSpellSlotWarning:"⚠ Spell slot progression depends on class/multiclass rules the AI may have gotten wrong — double-check this against your own table before relying on it.",
     printSettingsTitle:"Print Settings", printStyleLabel:"Layout:", printMinimal:"Minimal (sheet only)", printStandard:"Standard (+ flow & reference)",
     extraAttackRows:"Extra blank attack lines:", extraSpellRows:"Extra blank spell lines:", printGo:"Print", printCancel:"Cancel",
     spells:"Spells", spCastAbil:"Casting stat", spellSaveDC:"Spell Save DC", spellAtk:"Spell Attack Bonus",
@@ -716,10 +737,14 @@ const T = {
     identityLockedHint:"שם, מחלקה, גזע, תת-גזע וגודל נעולים כדי למנוע שינויים בטעות. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
     identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/גזע/תת-גזע/גודל עכשיו.",
     identityUnlockBtn:"🔓 פתח לעריכה", identityLockNow:"🔒 נעל שוב",
-    shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש",
+    shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש", itemEquippedAbbr:"חבוש",
     proficiencies:"מיומנויות ושפות", profArmor:"שריון", profWeapons:"נשקים", profTools:"כלים", profLanguages:"שפות",
     inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
-    itemType:"סוג", itemTypeGear:"ציוד כללי", itemTypeWeapon:"נשק", itemTypeArmor:"שריון", itemTypeShield:"מגן",
+    itemType:"סוג", itemTypeArmor:"שריון", itemTypeShield:"מגן",
+    gearTable:"ציוד כללי", armorTable:"שריון ומגנים", addGear:"ציוד", addArmorShield:"שריון/מגן",
+    itemCategory:"קטגוריה",
+    gearCatFood:"מזון", gearCatPotion:"שיקוי", gearCatPoison:"רעל", gearCatAmmunition:"תחמושת",
+    gearCatTool:"כלי", gearCatFocus:"מוקד קסם", gearCatMagic:"פריט קסום", gearCatContainer:"כלי אחסון", gearCatOther:"אחר",
     itemAC:"שריון", acBreakdown:"פירוט שריון", unarmoredAbilHint:"התכונה שקובעת את השריון כשאין שריון חבוש",
     armorAbilHint:"מכפיל התכונה שמתווסף לשריון זה — זריזות בשריון קל/בינוני, ללא בשריון כבד",
     noneOption:"— ללא —",
@@ -735,8 +760,24 @@ const T = {
     atkPreset:"תבנית מוכנה (רשות)", atkPresetNone:"— בחר תבנית —",
     spellAbility:"תכונת כישוף",
     notes:"הערות וציוד",
-    printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא",
+    printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא", aiBtn:"🤖 שאל AI",
     exportModalTitle:"ייצוא דמות", exportAsFileBtn:"הורדת קובץ JSON", exportAsLinkBtn:"🔗 העתקת קישור לשיתוף", copyLinkBtn:"העתק קישור",
+    aiModalTitle:"שאל AI על הדמות שלך", aiCopyStepTitle:"1. העתק את הדמות שלך",
+    aiCopyStepDesc:"העתק את זה, הדבק אותו בצ'אט AI (ChatGPT, Claude, Gemini וכו') ושאל את שאלתך — למשל \"איזה feat כדאי לי לקחת?\" או \"יש משהו שנראה לא נכון כאן?\"",
+    aiCopyBtn:"📋 העתק ל-AI", aiCopyCopied:"✓ הועתק ללוח.",
+    aiPasteStepTitle:"2. הדבק את תשובת ה-AI", aiPasteStepDesc:"הדבק כאן את התשובה המלאה של ה-AI. אם הוא הציע להוסיף משהו (feat, נשק, כישוף, משאב או פריט), זה יופיע כאן לבדיקה אחד־אחד.",
+    aiPastePlaceholder:"הדבק כאן את תשובת ה-AI…", aiParseBtn:"פענח תשובה", aiParseErrorVersion:"ההצעה הזו נוצרה עבור גרסה אחרת של פורמט ה-AI של האפליקציה ולא ניתן לייבא אותה אוטומטית. הדבק בחזרה ל-AI: \"The schema you used is out of date. Please regenerate your suggestion using AI_SCHEMA_VERSION __CURRENT__ (yours was __GIVEN__).\"",
+    aiParseErrorNone:"לא נמצאו הצעות תוספת בטקסט הזה. ודא שהדבקת את התשובה המלאה של ה-AI, כולל בלוק הקוד.",
+    aiParseErrorBad:"לא הצלחתי לקרוא את ההצעה הזו — היא לא תואמת לפורמט הצפוי. הדבק בחזרה ל-AI: \"That didn't parse. Please re-check the schema in my earlier message and try again.\"",
+    aiReviewTitle:"3. סקור הצעות תוספת", aiAddBtn:"✓ הוסף לדמות", aiRejectBtn:"✕ התעלם", aiAdded:"נוסף.",
+    aiCatFeat:"תכונה", aiCatAttack:"נשק / התקפה", aiCatSpell:"כישוף", aiCatResource:"משאב", aiCatItem:"פריט",
+    aiCatLevel:"רמה", aiCatExpertise:"מומחיות", aiCatSpellSlot:"משבצות כישוף — רמה",
+    aiTrustStepTitle:"כמה ה-AI יכול לשנות ישירות?", aiTrustStepDesc:"זה קובע מה ה-AI רשאי לשנות בשדות קיימים (מעבר להוספת feats/נשקים/וכו' חדשים). בכל מקרה תמיד תידרש אישור שלך אחד־אחד למטה.",
+    aiTrustGuided:"מודרך — ה-AI יכול להוסיף פריטים ולקבוע את הרמה שלי, ואני מטפל בשאר", aiTrustTrusted:"נאמן — ה-AI יכול גם להעניק מומחיות בכישורים", aiTrustFullyTrusted:"נאמן מלא — מאפשר גם ל-AI לקבוע את משבצות הכישוף שלי",
+    aiTrustDesc_guided:"ה-AI יכול להוסיף feats/נשקים/כישופים/משאבים/פריטים חדשים ולקבוע את הרמה שלך ישירות (נק״ח מחושבות אוטומטית). לכל דבר אחר (מומחיות, משבצות כישוף) הוא מסביר מה לשנות ואתה עושה זאת בעצמך בגיליון — טוב אם אתה רוצה להישאר מעורב מקרוב בתחזוקת הדמות שלך.",
+    aiTrustDesc_trusted:"כל מה שיש במצב מודרך, ובנוסף ה-AI יכול להעניק מומחיות בכישורים ישירות (רק בכישורים שאתה כבר מיומן בהם). משבצות כישוף עדיין דורשות עדכון ידני.",
+    aiTrustDesc_fullyTrusted:"כל מה שיש במצב נאמן, ובנוסף ה-AI יכול לקבוע ישירות את סך משבצות הכישוף שלך. הצעות למשבצות כישוף מגיעות עם אזהרה — תמיד בדוק אותן מול הטבלה שלך.",
+    aiSpellSlotWarning:"⚠ התקדמות משבצות הכישוף תלויה בכללי מחלקה/מחלקה כפולה שה-AI אולי טעה בהם — בדוק זאת מול הטבלה שלך לפני שאתה סומך על זה.",
     linkReadyHint:"הקישור הועתק ללוח — אפשר גם להעתיק ידנית למטה.", linkCopied:"✓ הועתק ללוח.",
     printSettingsTitle:"הגדרות הדפסה", printStyleLabel:"פריסה:", printMinimal:"מינימלי (גיליון בלבד)", printStandard:"סטנדרטי (+ תהליך והסבר)",
     extraAttackRows:"שורות התקפה ריקות נוספות:", extraSpellRows:"שורות קסם ריקות נוספות:", printGo:"הדפסה", printCancel:"ביטול",
@@ -848,6 +889,8 @@ const SKILLS = [
 ];
 const ABILS = ["str","dex","con","int","wis","cha"];
 const ABIL_ICON = {str:"💪", dex:"🏹", con:"🛡️", int:"🧠", wis:"👁️", cha:"✨"};
+const GEAR_CATEGORIES = ["food","potion","poison","ammunition","tool","focus","magic","container","other"];
+const AI_SCHEMA_VERSION = 1;
 const CLASS_LIST = ["Barbarian","Bard","Cleric","Druid","Fighter","Monk","Paladin","Ranger","Rogue","Sorcerer","Warlock","Wizard","Artificer"];
 const RACE_LIST = ["Human","Dwarf","Elf","Halfling","Dragonborn","Gnome","Half-Elf","Half-Orc","Tiefling","Orc","Aasimar","Fairy","Minotaur"];
 const CLASS_LIST_HE = {Barbarian:"ברברי", Bard:"בארד", Cleric:"כומר", Druid:"דרואיד", Fighter:"לוחם", Monk:"נזיר", Paladin:"פלדין", Ranger:"סייר", Rogue:"נוכל", Sorcerer:"קוסם מלידה", Warlock:"מכשף", Wizard:"קוסם", Artificer:"ממציא"};
@@ -935,10 +978,16 @@ function hydrate(s){
   if(!s.inventory) s.inventory = {currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]};
   s.inventory.items.forEach(it=>{
     if(typeof it.type !== "string") it.type = "gear";
+    if(it.type === "weapon") it.type = "gear";
     if(typeof it.equipped !== "boolean") it.equipped = false;
     if(typeof it.acBase !== "number") it.acBase = 10;
     if(typeof it.acAbility !== "string") it.acAbility = "dex";
     if(typeof it.shieldBonus !== "number") it.shieldBonus = 2;
+    if(!GEAR_CATEGORIES.includes(it.category)) it.category = "other";
+  });
+  s.inventory.items.sort((a,b) => {
+    const rank = it => it.type==="gear" ? GEAR_CATEGORIES.indexOf(it.category) : -1;
+    return rank(a) - rank(b);
   });
   if(!s.armor.migrated){
     const hasRealArmor = typeof s.armor.base === "number" && s.armor.base !== 10;
@@ -1015,9 +1064,9 @@ function demoChar(id){
       items:[
         {name: isHe ? "שריון שרשראות" : "Chain Mail", qty:1, notes:"", type:"armor", equipped:true, acBase:16, acAbility:"none", shieldBonus:2},
         {name: isHe ? "מגן" : "Shield", qty:1, notes:"", type:"shield", equipped:true, acBase:10, acAbility:"dex", shieldBonus:2},
-        {name: isHe ? "חרב ארוכה" : "Longsword", qty:1, notes:"", type:"weapon", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2},
-        {name: isHe ? "קשת קצרה + 20 חצים" : "Shortbow + 20 arrows", qty:1, notes:"", type:"weapon", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2},
-        {name: isHe ? "ערכת נוסע" : "Explorer's Pack", qty:1, notes:"", type:"gear", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}
+        {name: isHe ? "חרב ארוכה" : "Longsword", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2},
+        {name: isHe ? "קשת קצרה + 20 חצים" : "Shortbow + 20 arrows", qty:1, notes:"", type:"gear", category:"ammunition", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2},
+        {name: isHe ? "ערכת נוסע" : "Explorer's Pack", qty:1, notes:"", type:"gear", category:"container", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}
       ]
     },
     attacks:[
@@ -2066,6 +2115,368 @@ function copyShareLinkManually(){
   try{ document.execCommand("copy"); exportLinkCopied = true; render(); }catch(err){}
 }
 
+/* ---------- Minimal hand-rolled YAML (subset): only what the AI export/import needs.
+   Strings are always double-quoted (JSON-escaped) so multi-line/quoted values never
+   need YAML block-scalar handling. The parser tolerates the idiomatic inline
+   "- key: value" list style and varying indent widths, since it has to read
+   AI-generated YAML, not just our own output. */
+function isPlainObject(v){ return v !== null && typeof v === 'object' && !Array.isArray(v); }
+function yamlScalar(v){
+  if(v === null || v === undefined) return 'null';
+  if(typeof v === 'boolean' || typeof v === 'number') return String(v);
+  return JSON.stringify(String(v));
+}
+function yamlMapEntry(k, v, indent){
+  const pad = '  '.repeat(indent);
+  if(isPlainObject(v)) return Object.keys(v).length===0 ? pad + k + ': {}\n' : pad + k + ':\n' + yamlDump(v, indent+1);
+  if(Array.isArray(v)) return v.length===0 ? pad + k + ': []\n' : pad + k + ':\n' + yamlDump(v, indent+1);
+  return pad + k + ': ' + yamlScalar(v) + '\n';
+}
+function yamlListItem(item, indent){
+  const pad = '  '.repeat(indent);
+  if(isPlainObject(item)){
+    const entries = Object.entries(item);
+    if(entries.length === 0) return pad + '- {}\n';
+    const [k0, v0] = entries[0];
+    let out = (isPlainObject(v0) || Array.isArray(v0))
+      ? pad + '-\n' + yamlMapEntry(k0, v0, indent+1)
+      : pad + '- ' + k0 + ': ' + yamlScalar(v0) + '\n';
+    for(let i=1;i<entries.length;i++) out += yamlMapEntry(entries[i][0], entries[i][1], indent+1);
+    return out;
+  }
+  return pad + '- ' + yamlScalar(item) + '\n';
+}
+function yamlDump(value, indent){
+  const pad = '  '.repeat(indent);
+  if(Array.isArray(value)) return value.length===0 ? pad + '[]\n' : value.map(item => yamlListItem(item, indent)).join('');
+  if(isPlainObject(value)) return Object.entries(value).map(([k,v]) => yamlMapEntry(k, v, indent)).join('');
+  return pad + yamlScalar(value) + '\n';
+}
+function toYAML(obj){ return yamlDump(obj, 0); }
+
+function normalizeYamlLines(lines){
+  const out = [];
+  for(const raw of lines){
+    const m = raw.match(/^(\s*)-\s+(.*)$/);
+    if(m && m[2].trim() !== ''){ out.push(m[1] + "-"); out.push(m[1] + "  " + m[2]); }
+    else out.push(raw);
+  }
+  return out;
+}
+function indentOf(line){ return line.match(/^ */)[0].length; }
+function parseYamlScalar(s){
+  if(s === 'true') return true;
+  if(s === 'false') return false;
+  if(s === 'null' || s === '~' || s === '') return null;
+  if(/^-?\d+(\.\d+)?$/.test(s)) return Number(s);
+  if(s === '[]') return [];
+  if(s === '{}') return {};
+  if(s.startsWith('"')){ try{ return JSON.parse(s); }catch(e){ return s.slice(1,-1); } }
+  if(s.startsWith("'") && s.endsWith("'")) return s.slice(1,-1).replace(/''/g,"'");
+  return s;
+}
+function parseYAML(text){
+  const rawLines = text.split(/\r?\n/).filter(l => l.trim() !== '' && !l.trim().startsWith('#'));
+  const lines = normalizeYamlLines(rawLines);
+  let pos = 0;
+  function peekIndent(){ return pos < lines.length ? indentOf(lines[pos]) : -1; }
+  function parseBlock(indent){
+    if(peekIndent() !== indent) return undefined;
+    if(lines[pos].trim().startsWith('-')){
+      const arr = [];
+      while(peekIndent() === indent && lines[pos].trim().startsWith('-')){
+        pos++;
+        const childIndent = peekIndent();
+        if(childIndent <= indent){ arr.push(null); continue; }
+        const childLine = lines[pos];
+        const childTrim = childLine.trim();
+        if(childTrim.startsWith('-')){ arr.push(parseBlock(childIndent)); continue; }
+        // Disambiguate a nested map's first "key: value" line from a bare scalar
+        // list item (e.g. a quoted string) that merely happens to contain a colon
+        // inside its value — a real key is always bare and its colon precedes any quote.
+        const idx = childTrim.indexOf(':');
+        const quoteIdx = childTrim.search(/["']/);
+        const isMapEntry = idx !== -1 && (quoteIdx === -1 || idx < quoteIdx);
+        if(isMapEntry){ arr.push(parseBlock(childIndent)); }
+        else { arr.push(parseYamlScalar(childTrim)); pos++; }
+      }
+      return arr;
+    }
+    const map = {};
+    while(peekIndent() === indent && !lines[pos].trim().startsWith('-')){
+      const line = lines[pos].trim();
+      const idx = line.indexOf(':');
+      if(idx === -1){ pos++; continue; }
+      let key = line.slice(0, idx).trim();
+      if((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) key = key.slice(1,-1);
+      const rest = line.slice(idx+1).trim();
+      pos++;
+      if(rest === ''){ const childIndent = peekIndent(); map[key] = childIndent > indent ? parseBlock(childIndent) : null; }
+      else map[key] = parseYamlScalar(rest);
+    }
+    return map;
+  }
+  return parseBlock(0);
+}
+
+/* ---------- AI export/import: additions-only round trip.
+   Export is a curated (not raw-state) YAML snapshot plus an English-only
+   instructions preamble telling the AI how to reply. Import only ever adds
+   new list entries (feats/attacks/spells/resources/items) — it can never
+   modify existing fields like level, HP, or ability scores. */
+const AI_ADDITION_SCHEMAS = {
+  feats: { defaults: { name:"", level:1, notes:"", mod:{stat:"", amount:0, perLevel:false, matchSpeed:false, fixed:false} } },
+  attacks: { defaults: { name:"", type:"melee", dmg:"", dmgType:"", spellAbil:"str", prof:true, notes:"", folded:false } },
+  spells: { defaults: { name:"", level:0, prepared:true, conc:false, touch:false, verbal:true, somatic:true, material:false, range:"", castTime:"Action", castTimeCustom:false, save:"", dmg:"", notes:"", category:"utility", folded:false } },
+  resources: { defaults: { name:"", total:1, used:0, recharge:"long", notes:"" } },
+  items: { defaults: { name:"", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2 } }
+};
+function mergeAIDefaults(defaults, given){
+  const out = JSON.parse(JSON.stringify(defaults));
+  if(given) for(const k in given){
+    if(given[k] === undefined) continue;
+    if(isPlainObject(given[k]) && isPlainObject(out[k])) Object.assign(out[k], given[k]);
+    else out[k] = given[k];
+  }
+  return out;
+}
+function buildCuratedCharacterForAI(){
+  const s = state;
+  return {
+    name: s.name, class: s.cls, race: s.race, subrace: s.subrace, background: s.bg, level: s.level, size: s.size,
+    abilities: s.abilities,
+    hp: { current: s.hpCur, max: s.hpMax, hitDice: s.hitDice },
+    speed: { walk: s.speed, climb: s.climbSpeed, swim: s.swimSpeed, fly: s.hasFlySpeed ? s.flySpeed : 0 },
+    savingThrowProficiencies: s.saveProf,
+    skillProficiencies: s.skillProf,
+    skillExpertise: s.skillExpertise,
+    proficiencies: s.proficiencies,
+    attacks: (s.attacks||[]).map(a=>({name:a.name, type:a.type, dmg:a.dmg, dmgType:a.dmgType, spellAbil:a.spellAbil, prof:a.prof, notes:a.notes})),
+    spellcasting: { ability: s.spellcasting.abil, slots: s.spellcasting.slots },
+    spells: (s.spells||[]).map(sp=>({name:sp.name, level:sp.level, prepared:sp.prepared, range:sp.range, castTime:sp.castTime, save:sp.save, dmg:sp.dmg, notes:sp.notes, category:sp.category})),
+    feats: (s.feats||[]).map(f=>({name:f.name, level:f.level, notes:f.notes, mod:f.mod})),
+    resources: (s.resources||[]).map(r=>({name:r.name, total:r.total, used:r.used, recharge:r.recharge, notes:r.notes})),
+    inventory: {
+      currency: s.inventory.currency,
+      items: (s.inventory.items||[]).map(it => it.type==='gear'
+        ? {name:it.name, qty:it.qty, notes:it.notes, type:it.type, category:it.category}
+        : {name:it.name, qty:it.qty, notes:it.notes, type:it.type, equipped:it.equipped, acBase:it.acBase, acAbility:it.acAbility, shieldBonus:it.shieldBonus})
+    },
+    notes: s.notes
+  };
+}
+function buildAIExport(){
+  const character = buildCuratedCharacterForAI();
+  const languageLine = lang === 'he' ? "\n\nPlease write your answer (the prose part of your reply) in Hebrew. Keep all YAML field names/keys in this format in English exactly as shown below — only the free-text values you write (like a feat's notes) and your conversational reply should be in Hebrew." : "";
+
+  const trust = aiTrustLevel;
+  let modSchema = `
+level: 5`;
+  let modRules = ` This block can ADD new entries (as above), and can also set "level" directly: a single integer, the character's new total level (include only if it should change). Never set ability scores or HP directly: HP recalculates automatically from level, and an ability score change should be a feat addition (see "feats" above) with the matching "mod" instead of a separate field.`;
+  if(trust === 'trusted' || trust === 'fullyTrusted'){
+    modSchema += `
+expertise:
+  - "stealth"`;
+    modRules += ` The user has also opted in to letting you set "expertise" directly: a list of skill keys (matching the character's own skillProficiencies keys, e.g. "stealth") to grant Expertise on (doubled proficiency bonus) — only skills the character is already proficient in.`;
+  }
+  if(trust === 'fullyTrusted'){
+    modSchema += `
+spellSlots:
+  "1": 4
+  "2": 3`;
+    modRules += ` You may also include "spellSlots": a map from spell level (string key "1"–"9") to its new total slot count — include only levels whose total actually changes. Because spell slot progression depends on class/multiclass/Pact Magic rules you may not have exactly right, explicitly tell the user in your plain-text reply to double-check this against their own table before trusting it.`;
+  }
+
+  const instructions =
+`This is a D&D 5e character from a character-sheet web app, exported for an AI assistant. Answer the user's question about it below.${languageLine}
+
+If you want to suggest concrete additions to the sheet (a new feat, weapon/attack, spell, resource, or inventory item), also include ONE extra fenced code block labeled "dnd-sheet-additions" with YAML in exactly this shape (omit any category you're not suggesting, and omit the whole block if you have nothing to add):
+
+\`\`\`dnd-sheet-additions
+schemaVersion: ${AI_SCHEMA_VERSION}
+feats:
+  - name: "Example Feat"
+    level: 1
+    notes: "What it does."
+    mod:
+      stat: "dex"
+      amount: 1
+      perLevel: false
+      fixed: false
+attacks:
+  - name: "Example Weapon"
+    type: "melee"
+    dmg: "1d8"
+    dmgType: "slashing"
+    prof: true
+    notes: ""
+spells:
+  - name: "Example Spell"
+    level: 1
+    prepared: true
+    range: "60 ft"
+    castTime: "Action"
+    save: "dex"
+    dmg: "2d6"
+    notes: ""
+    category: "attack"
+resources:
+  - name: "Example Resource"
+    total: 2
+    recharge: "long"
+    notes: ""
+items:
+  - name: "Example Item"
+    qty: 1
+    notes: ""
+    category: "other"${modSchema}
+\`\`\`
+
+Rules for that block:${modRules} Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.`;
+  return instructions + "\n\n```yaml\nschemaVersion: " + AI_SCHEMA_VERSION + "\ncharacter:\n" + yamlDump(character, 1) + "```\n";
+}
+function stripStrayFenceLines(s){
+  return s.split(/\r?\n/).filter(l => !/^\s*```/.test(l)).join('\n');
+}
+function extractAIAdditionsBlock(text){
+  const labeled = /```dnd-sheet-additions\s*\n([\s\S]*?)```/.exec(text);
+  if(labeled) return stripStrayFenceLines(labeled[1]);
+  const re = /```[a-zA-Z0-9_-]*\s*\n([\s\S]*?)```/g;
+  let m;
+  while((m = re.exec(text))){ if(/schemaVersion\s*:/.test(m[1])) return stripStrayFenceLines(m[1]); }
+  // Some AI chat UIs strip fence markers entirely when a reply is copied (e.g. a
+  // per-code-block "copy" button, or copying the rendered view instead of raw
+  // markdown) — fall back to locating the bare "schemaVersion:" line and reading
+  // YAML-shaped lines until prose resumes.
+  const lines = text.split(/\r?\n/);
+  const startIdx = lines.findIndex(l => /^\s*schemaVersion\s*:/.test(l));
+  if(startIdx === -1) return null;
+  const collected = [];
+  for(let i = startIdx; i < lines.length; i++){
+    const line = lines[i];
+    const trimmed = line.trim();
+    if(trimmed === ''){ collected.push(line); continue; }
+    if(trimmed.startsWith('```')) break;
+    if(i > startIdx && indentOf(line) === 0 && !/^[A-Za-z_][\w.]*\s*:/.test(trimmed)) break;
+    collected.push(line);
+  }
+  return collected.join('\n');
+}
+
+let aiModalOpen = false;
+let aiCopyDone = false;
+let aiParsedAdditions = [];
+let aiParseError = "";
+let aiPasteText = "";
+let aiTrustLevel = "guided"; // "guided" | "trusted" | "fullyTrusted"
+async function setAITrustLevel(v){
+  aiTrustLevel = v;
+  render();
+  try{ await storageSet("dnd-ai-trust", v); }catch(e){}
+}
+function openAIModal(){ aiModalOpen = true; aiCopyDone = false; aiParsedAdditions = []; aiParseError = ""; aiPasteText = ""; render(); }
+function closeAIModal(){ aiModalOpen = false; render(); }
+async function copyAIExport(){
+  const text = buildAIExport();
+  try{ await navigator.clipboard.writeText(text); aiCopyDone = true; render(); }catch(err){}
+}
+function parseAIPaste(){
+  const t = T[lang];
+  const ta = document.getElementById("aiPasteInput");
+  const text = ta ? ta.value : "";
+  aiParseError = ""; aiParsedAdditions = [];
+  const block = extractAIAdditionsBlock(text);
+  if(!block){ aiParseError = t.aiParseErrorNone; render(); return; }
+  let parsed;
+  try{ parsed = parseYAML(block); }catch(err){ parsed = null; }
+  if(!parsed || typeof parsed !== 'object'){ aiParseError = t.aiParseErrorBad; render(); return; }
+  if(parsed.schemaVersion !== AI_SCHEMA_VERSION){
+    aiParseError = t.aiParseErrorVersion.replace('__CURRENT__', AI_SCHEMA_VERSION).replace('__GIVEN__', parsed.schemaVersion===undefined?'none':parsed.schemaVersion);
+    render(); return;
+  }
+  const items = [];
+  Object.keys(AI_ADDITION_SCHEMAS).forEach(cat => {
+    const arr = parsed[cat];
+    if(Array.isArray(arr)) arr.forEach(data => { if(data && typeof data === 'object') items.push({kind:'add', category:cat, data}); });
+  });
+  if(typeof parsed.level === 'number' && parsed.level > 0 && parsed.level !== state.level){
+    items.push({kind:'modify', category:'level', data:{from: state.level, to: parsed.level}});
+  }
+  if(aiTrustLevel === 'trusted' || aiTrustLevel === 'fullyTrusted'){
+    if(Array.isArray(parsed.expertise)){
+      parsed.expertise.forEach(skillKey => {
+        if(SKILLS.some(s=>s[0]===skillKey) && state.skillProf[skillKey] && !state.skillExpertise[skillKey]){
+          items.push({kind:'modify', category:'expertise', data:{skill: skillKey}});
+        }
+      });
+    }
+  }
+  if(aiTrustLevel === 'fullyTrusted' && isPlainObject(parsed.spellSlots)){
+    Object.entries(parsed.spellSlots).forEach(([lvlStr, total]) => {
+      const idx = parseInt(lvlStr,10) - 1;
+      if(idx>=0 && idx<9 && typeof total === 'number'){
+        const current = (state.spellcasting.slots[idx] && state.spellcasting.slots[idx].total) || 0;
+        if(total !== current) items.push({kind:'modify', category:'spellSlot', data:{spellLevel: idx+1, index: idx, from: current, to: total}});
+      }
+    });
+  }
+  if(items.length === 0){ aiParseError = t.aiParseErrorNone; render(); return; }
+  aiParsedAdditions = items;
+  render();
+}
+function applyAILevelChange(data){
+  const oldEffMax = state.hpAutoCalc ? computeMaxHP(state) : null;
+  state.level = data.to;
+  if(typeof state.hitDice === 'string') state.hitDice = state.hitDice.replace(/^\s*\d+/, String(Math.max(1, data.to)));
+  if(oldEffMax !== null){
+    const newEffMax = computeMaxHP(state);
+    state.hpMax = newEffMax;
+    state.hpCur = Math.max(0, state.hpCur + (newEffMax - oldEffMax));
+  }
+}
+function addAIItem(idx){
+  const entry = aiParsedAdditions[idx];
+  if(!entry) return;
+  if(entry.kind === 'modify'){
+    if(entry.category === 'level') applyAILevelChange(entry.data);
+    else if(entry.category === 'expertise') state.skillExpertise[entry.data.skill] = true;
+    else if(entry.category === 'spellSlot') state.spellcasting.slots[entry.data.index].total = entry.data.to;
+  } else {
+    const merged = mergeAIDefaults(AI_ADDITION_SCHEMAS[entry.category].defaults, entry.data);
+    if(entry.category === 'items'){
+      if(!GEAR_CATEGORIES.includes(merged.category)) merged.category = 'other';
+      state.inventory.items.push(merged);
+      sortGearItems();
+    } else {
+      state[entry.category].push(merged);
+    }
+  }
+  aiParsedAdditions.splice(idx,1);
+  render(); queueSave();
+}
+function rejectAIItem(idx){ aiParsedAdditions.splice(idx,1); render(); }
+function aiItemLabel(entry){
+  const t = T[lang];
+  const {category, data} = entry;
+  if(entry.kind === 'modify'){
+    if(category === 'level') return `<b>${t.aiCatLevel}</b> <span class="dim-label">${data.from} → ${data.to}</span>`;
+    if(category === 'expertise'){
+      const sk = SKILLS.find(s=>s[0]===data.skill);
+      const skLabel = sk ? (lang==='he'?sk[3]:sk[2]) : data.skill;
+      return `<b>${t.aiCatExpertise}</b> <span class="dim-label">${esc2(skLabel)}</span>`;
+    }
+    if(category === 'spellSlot') return `<b>${t.aiCatSpellSlot} ${data.spellLevel}</b> <span class="dim-label">${data.from} → ${data.to}</span>`;
+  }
+  const catLabel = {feats:t.aiCatFeat, attacks:t.aiCatAttack, spells:t.aiCatSpell, resources:t.aiCatResource, items:t.aiCatItem}[category];
+  const parts = [`<b>${esc2(data.name||"")}</b>`, `<span class="dim-label">${catLabel}</span>`];
+  if(category==='feats' && data.level) parts.push(`Lv.${data.level}`);
+  if(category==='attacks') parts.push(esc2([data.dmg,data.dmgType].filter(Boolean).join(" ")));
+  if(category==='spells' && data.level!==undefined) parts.push(`Lv.${data.level}`);
+  if(category==='resources' && data.total) parts.push(`×${data.total}`);
+  if(category==='items' && data.qty) parts.push(`×${data.qty}`);
+  return parts.join(" · ");
+}
+
 function confirmPrint(){
   printModalOpen = false;
   const html = buildPrintHTML(printOpts);
@@ -2304,11 +2715,20 @@ function buildPrintHTML(opts){
 
     <div class="panel"><h2>${t.inventory}</h2>
       <div style="font-size:13px;margin-bottom:8px"><b>${t.currency}:</b> ${["cp","sp","ep","gp","pp"].map(c=>`${state.inventory.currency[c]} ${c.toUpperCase()}`).join(" · ")}</div>
-      ${state.inventory.items.length ? `<div class="table-scroll"><table><thead><tr><th>${t.itemType}</th><th>${t.itemName}</th><th>${t.itemQty}</th><th>${t.shieldOn}</th><th>${t.itemAC}</th><th>${t.itemNotes}</th></tr></thead><tbody>${state.inventory.items.map(it=>{
-        const typeLabel = {gear:t.itemTypeGear, weapon:t.itemTypeWeapon, armor:t.itemTypeArmor, shield:t.itemTypeShield}[it.type] || t.itemTypeGear;
-        const acCell = it.type==="armor" ? `${it.acBase}${it.acAbility!=='none'?` +${t[it.acAbility]}`:''}` : (it.type==="shield" ? `+${it.shieldBonus}` : "");
-        return `<tr><td>${esc(typeLabel)}</td><td>${esc(it.name)}</td><td class="num">${it.qty}</td><td>${it.equipped ? "✓" : ""}</td><td>${acCell}</td><td>${esc(it.notes)}</td></tr>`;
-      }).join("")}</tbody></table></div>` : ""}
+      ${(() => {
+        const gearItems = state.inventory.items.filter(it=>it.type==="gear");
+        const armorItems = state.inventory.items.filter(it=>it.type==="armor"||it.type==="shield");
+        const gearHTML = gearItems.length ? `<h3 style="font-size:12px;color:var(--gold);margin:8px 0 4px">${t.gearTable}</h3><div class="table-scroll"><table><thead><tr><th>${t.itemCategory}</th><th>${t.itemName}</th><th>${t.itemQty}</th><th>${t.itemNotes}</th></tr></thead><tbody>${gearItems.map(it=>{
+          const catLabel = t["gearCat"+(it.category||"other").charAt(0).toUpperCase()+(it.category||"other").slice(1)];
+          return `<tr><td>${esc(catLabel)}</td><td>${esc(it.name)}</td><td class="num">${it.qty}</td><td>${esc(it.notes)}</td></tr>`;
+        }).join("")}</tbody></table></div>` : "";
+        const armorHTML = armorItems.length ? `<h3 style="font-size:12px;color:var(--gold);margin:8px 0 4px">${t.armorTable}</h3><div class="table-scroll"><table><thead><tr><th>${t.itemType}</th><th>${t.itemName}</th><th>${t.itemQty}</th><th>${t.itemEquippedAbbr}</th><th>${t.itemAC}</th><th>${t.itemNotes}</th></tr></thead><tbody>${armorItems.map(it=>{
+          const typeLabel = it.type==="shield" ? t.itemTypeShield : t.itemTypeArmor;
+          const acCell = it.type==="armor" ? `${it.acBase}${it.acAbility!=='none'?` +${t[it.acAbility]}`:''}` : `+${it.shieldBonus}`;
+          return `<tr><td>${esc(typeLabel)}</td><td>${esc(it.name)}</td><td class="num">${it.qty}</td><td>${it.equipped ? "✓" : ""}</td><td>${acCell}</td><td>${esc(it.notes)}</td></tr>`;
+        }).join("")}</tbody></table></div>` : "";
+        return gearHTML + armorHTML;
+      })()}
     </div>
 
     <div class="panel"><h2>${t.attacks}</h2>
@@ -2658,37 +3078,59 @@ function setResourceTotal(i, value){
   render(); queueSave();
 }
 
-function itemRow(it, i){
+function sortGearItems(){
+  state.inventory.items.sort((a,b) => {
+    const rank = it => it.type==="gear" ? GEAR_CATEGORIES.indexOf(it.category) : -1;
+    return rank(a) - rank(b);
+  });
+}
+function setItemCategory(i, value){
+  state.inventory.items[i].category = value;
+  sortGearItems();
+  render(); queueSave();
+}
+function gearRow(it, i){
   const t = T[lang];
-  const equippedCell = (it.type==="armor" || it.type==="shield")
-    ? `<input type="checkbox" ${it.equipped?"checked":""} onchange="set('inventory.items.${i}.equipped', this.checked)" title="${t.shieldOn}">`
-    : "";
+  return `<tr>
+    <td><select onchange="setItemCategory(${i}, this.value)">
+      ${GEAR_CATEGORIES.map(c=>`<option value="${c}" ${it.category===c?"selected":""}>${t["gearCat"+c.charAt(0).toUpperCase()+c.slice(1)]}</option>`).join("")}
+    </select></td>
+    <td><input type="text" class="item-name-input" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)"></td>
+    <td style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td><textarea class="item-notes-input" dir="auto" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea></td>
+    <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button></td>
+  </tr>`;
+}
+function armorRow(it, i){
+  const t = T[lang];
+  const equippedCell = `<input type="checkbox" ${it.equipped?"checked":""} onchange="set('inventory.items.${i}.equipped', this.checked)" title="${t.shieldOn}">`;
   let acCell = "";
   if(it.type==="armor"){
-    acCell = `<input type="number" min="0" style="width:48px;text-align:center" value="${it.acBase}" onchange="set('inventory.items.${i}.acBase', parseInt(this.value)||0)">
-      <select style="width:auto;display:inline-block;margin-left:4px" title="${t.armorAbilHint}" onchange="set('inventory.items.${i}.acAbility', this.value)">
+    acCell = `<div style="display:inline-flex;gap:4px;align-items:center">
+      <input type="number" min="0" style="width:56px;text-align:center;flex:none" value="${it.acBase}" onchange="set('inventory.items.${i}.acBase', parseInt(this.value)||0)">
+      <select style="width:60px;flex:none" title="${t.armorAbilHint}" onchange="set('inventory.items.${i}.acAbility', this.value)">
         ${ABILS.map(a=>`<option value="${a}" ${it.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
-        <option value="none" ${it.acAbility==="none"?"selected":""}>${t.noneOption}</option>
-      </select>`;
-  } else if(it.type==="shield"){
-    acCell = `<input type="number" min="0" style="width:48px;text-align:center" value="${it.shieldBonus}" onchange="set('inventory.items.${i}.shieldBonus', parseInt(this.value)||0)">`;
+        <option value="none" ${it.acAbility==="none"?"selected":""}>&nbsp;</option>
+      </select>
+    </div>`;
+  } else {
+    acCell = `<input type="number" min="0" style="width:56px;text-align:center" value="${it.shieldBonus}" onchange="set('inventory.items.${i}.shieldBonus', parseInt(this.value)||0)">`;
   }
   return `<tr>
     <td><select onchange="set('inventory.items.${i}.type', this.value)">
-      <option value="gear" ${it.type==="gear"?"selected":""}>${t.itemTypeGear}</option>
-      <option value="weapon" ${it.type==="weapon"?"selected":""}>${t.itemTypeWeapon}</option>
       <option value="armor" ${it.type==="armor"?"selected":""}>${t.itemTypeArmor}</option>
       <option value="shield" ${it.type==="shield"?"selected":""}>${t.itemTypeShield}</option>
     </select></td>
     <td><input type="text" class="item-name-input" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)"></td>
-    <td><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
-    <td>${equippedCell}</td>
-    <td>${acCell}</td>
-    <td><textarea class="item-notes-input" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea></td>
+    <td style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td style="text-align:center">${equippedCell}</td>
+    <td style="text-align:center">${acCell}</td>
+    <td><textarea class="item-notes-input" dir="auto" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea></td>
     <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button></td>
   </tr>`;
 }
-function addItem(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"gear", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}); render(); queueSave(); }
+function addGear(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}); sortGearItems(); render(); queueSave(); }
+function addArmorShield(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"armor", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}); render(); queueSave(); }
 function removeItem(i){ state.inventory.items.splice(i,1); render(); queueSave(); }
 
 /* Quick-start templates: add a class's signature resources/attacks without
@@ -2904,6 +3346,7 @@ function render(){
       <button class="btn primary" onclick="doPrint()">${t.printBtn}</button>
       <button class="btn" onclick="openExportModal()">${t.exportBtn}</button>
       <button class="btn" onclick="triggerImport()">${t.importBtn}</button>
+      <button class="btn" onclick="openAIModal()">${t.aiBtn}</button>
       <input type="file" id="importFileInput" accept="application/json,.json" style="display:none" onchange="handleImportFile(this)">
       <span class="save-status" id="saveStatus">✓ ${t.saved}</span>
     </div>
@@ -3148,11 +3591,19 @@ function render(){
         ${["cp","sp","ep","gp","pp"].map(c=>`<span class="dim-label" style="text-transform:uppercase">${c}</span><input type="number" min="0" value="${state.inventory.currency[c]}" style="width:64px;text-align:center" onchange="set('inventory.currency.${c}', parseInt(this.value)||0)">`).join("")}
       </div>
     </div>
+    <h3 style="margin:12px 0 4px;font-size:13px;color:var(--gold)">${t.gearTable}</h3>
     <div class="table-scroll"><table>
-      <thead><tr><th>${t.itemType}</th><th>${t.itemName}</th><th>${t.itemQty}</th><th>${t.shieldOn}</th><th>${t.itemAC}</th><th>${t.itemNotes}</th><th></th></tr></thead>
-      <tbody>${state.inventory.items.map(itemRow).join("")}</tbody>
+      <thead><tr><th>${t.itemCategory}</th><th>${t.itemName}</th><th style="text-align:center">${t.itemQty}</th><th>${t.itemNotes}</th><th></th></tr></thead>
+      <tbody>${state.inventory.items.map((it,i)=>({it,i})).filter(x=>x.it.type==="gear").map(x=>gearRow(x.it,x.i)).join("")}</tbody>
     </table></div>
-    <button class="btn primary no-print" style="margin-top:10px" onclick="addItem()">➕ ${t.addItem}</button>
+    <button class="btn primary no-print" style="margin-top:10px" onclick="addGear()">➕ ${t.addGear}</button>
+
+    <h3 style="margin:16px 0 4px;font-size:13px;color:var(--gold)">${t.armorTable}</h3>
+    <div class="table-scroll"><table>
+      <thead><tr><th>${t.itemType}</th><th>${t.itemName}</th><th style="text-align:center">${t.itemQty}</th><th style="text-align:center">${t.itemEquippedAbbr}</th><th style="text-align:center">${t.itemAC}</th><th>${t.itemNotes}</th><th></th></tr></thead>
+      <tbody>${state.inventory.items.map((it,i)=>({it,i})).filter(x=>x.it.type==="armor"||x.it.type==="shield").map(x=>armorRow(x.it,x.i)).join("")}</tbody>
+    </table></div>
+    <button class="btn primary no-print" style="margin-top:10px" onclick="addArmorShield()">➕ ${t.addArmorShield}</button>
   </div>
 
   <div class="panel ${foldedPanels['attacks'] ? 'folded' : ''}">
@@ -3524,6 +3975,59 @@ function render(){
     </div>
   </div>` : ""}
 
+  ${aiModalOpen ? `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeAIModal()">
+    <div class="modal-box" style="max-width:560px">
+      <h3>${t.aiModalTitle}</h3>
+
+      <div class="modal-row">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.aiTrustStepTitle}</div>
+        <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.aiTrustStepDesc}</div>
+        <select onchange="setAITrustLevel(this.value)" style="width:100%">
+          <option value="guided" ${aiTrustLevel==='guided'?'selected':''}>${t.aiTrustGuided}</option>
+          <option value="trusted" ${aiTrustLevel==='trusted'?'selected':''}>${t.aiTrustTrusted}</option>
+          <option value="fullyTrusted" ${aiTrustLevel==='fullyTrusted'?'selected':''}>${t.aiTrustFullyTrusted}</option>
+        </select>
+        <div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t["aiTrustDesc_"+aiTrustLevel]}</div>
+      </div>
+
+      <div class="modal-row" style="margin-top:16px">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.aiCopyStepTitle}</div>
+        <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.aiCopyStepDesc}</div>
+        <button class="btn primary" onclick="copyAIExport()">${t.aiCopyBtn}</button>
+        ${aiCopyDone ? `<div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t.aiCopyCopied}</div>` : ""}
+      </div>
+
+      <div class="modal-row" style="margin-top:16px">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.aiPasteStepTitle}</div>
+        <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.aiPasteStepDesc}</div>
+        <textarea id="aiPasteInput" placeholder="${t.aiPastePlaceholder}" style="width:100%;box-sizing:border-box;min-height:110px;font-family:'IBM Plex Mono',monospace;font-size:12px" dir="auto" oninput="aiPasteText=this.value">${esc2(aiPasteText)}</textarea>
+        <button class="btn" style="margin-top:8px" onclick="parseAIPaste()">${t.aiParseBtn}</button>
+        ${aiParseError ? `<div style="font-size:12px;color:var(--danger,#c0392b);margin-top:8px;white-space:pre-wrap">${esc2(aiParseError)}</div>` : ""}
+      </div>
+
+      ${aiParsedAdditions.length ? `
+      <div class="modal-row" style="margin-top:16px">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t.aiReviewTitle}</div>
+        ${aiParsedAdditions.map((entry,i) => `
+        <div style="padding:8px 0;border-bottom:1px solid var(--leather-line)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div style="font-size:13px">${aiItemLabel(entry)}</div>
+            <div style="display:flex;gap:6px;flex:none">
+              <button class="btn primary" style="padding:4px 10px;font-size:12px" onclick="addAIItem(${i})">${t.aiAddBtn}</button>
+              <button class="btn" style="padding:4px 10px;font-size:12px" onclick="rejectAIItem(${i})">${t.aiRejectBtn}</button>
+            </div>
+          </div>
+          ${entry.kind==='modify' && entry.category==='spellSlot' ? `<div style="font-size:11px;color:var(--danger,#c0392b);margin-top:4px">${t.aiSpellSlotWarning}</div>` : ""}
+        </div>`).join("")}
+      </div>` : ""}
+
+      <div class="modal-actions">
+        <button class="btn" onclick="closeAIModal()">${t.printCancel}</button>
+      </div>
+    </div>
+  </div>` : ""}
+
   ${printModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) cancelPrint()">
     <div class="modal-box">
@@ -3573,6 +4077,10 @@ window.addEventListener('resize', trimDiceHistories);
     try{
       const langRes = await storageGet("dnd-lang");
       if(langRes && (langRes.value==='en' || langRes.value==='he')) lang = langRes.value;
+    }catch(e){}
+    try{
+      const trustRes = await storageGet("dnd-ai-trust");
+      if(trustRes && ["guided","trusted","fullyTrusted"].includes(trustRes.value)) aiTrustLevel = trustRes.value;
     }catch(e){}
     try{
       const foldRes = await storageGet("dnd-folded-panels");
