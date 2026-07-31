@@ -223,6 +223,13 @@ camera.updateMatrixWorld(true);
 // physical die's result is actually read regardless of camera angle.
 const TOP_FACE_TARGET = new THREE.Vector3(0, 1, 0);
 
+// The world-space direction that renders as "up" on screen - the camera's
+// own local +Y axis, read straight out of its world matrix. Used to twist
+// the settled top number so it reads upright instead of landing at
+// whatever random angle the die happened to tumble to (picking the
+// correct face fixes WHICH number shows, not which way it's rotated).
+const SCREEN_UP_WORLD = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1).normalize();
+
 scene.add(new THREE.AmbientLight(0xffffff, 0.9));
 const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
 dirLight.position.set(5, 12, 6);
@@ -449,6 +456,24 @@ function getTopFace(mesh) {
   return { plane: best, worldNormal: bestNormal };
 }
 
+// Given a die orientation where `plane`'s face already points at
+// TOP_FACE_TARGET (correct number picked), adds a twist around that same
+// normal so the number's own "up" (its local +Y) lines up with what
+// actually renders as "up" on screen - otherwise the right number shows,
+// but at whatever random rotation the die happened to land at.
+function twistToUpright(plane, quat) {
+  const planeWorldQuat = quat.clone().multiply(plane.quaternion);
+  const currentUp = new THREE.Vector3(0, 1, 0).applyQuaternion(planeWorldQuat);
+  const normal = TOP_FACE_TARGET;
+
+  const projectOnTangent = (v) => v.clone().sub(normal.clone().multiplyScalar(v.dot(normal))).normalize();
+  const currentUpTangent = projectOnTangent(currentUp);
+  const screenUpTangent = projectOnTangent(SCREEN_UP_WORLD);
+
+  const twist = new THREE.Quaternion().setFromUnitVectors(currentUpTangent, screenUpTangent);
+  return twist.multiply(quat);
+}
+
 // The sphere collider approximates the icosahedron for tumbling, but it
 // never naturally comes to rest flat on a face like a real d20 - it just
 // stops rolling at whatever tilt the sphere happened to be at. This ratio
@@ -581,9 +606,10 @@ function tick() {
       // The sphere collider stopped tumbling at an arbitrary tilt; snap the
       // visual mesh (not the physics body) so the nearest face ends up
       // exactly flat and level, like a real d20 resting on a face.
-      const { worldNormal } = getTopFace(die.mesh);
+      const { plane, worldNormal } = getTopFace(die.mesh);
       const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, TOP_FACE_TARGET);
-      const toQuat = correction.multiply(die.mesh.quaternion);
+      const uprightQuat = correction.clone().multiply(die.mesh.quaternion);
+      const toQuat = twistToUpright(plane, uprightQuat);
       die.snap = {
         fromQuat: die.mesh.quaternion.clone(),
         toQuat,
