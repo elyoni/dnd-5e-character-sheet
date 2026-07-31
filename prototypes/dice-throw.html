@@ -203,6 +203,15 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 16, 3);
 camera.lookAt(0, 0, 0);
+camera.updateMatrixWorld(true);
+
+// The camera is steep but not perfectly overhead (pitch ~79 deg, not 90),
+// so "the face closest to world-up" and "the face actually facing the
+// viewer" are NOT always the same face - a neighboring face can win by a
+// few degrees. "On top" has to mean facing the camera, since that's what
+// the player actually reads, so every face-selection below targets this
+// fixed camera-facing direction instead of world-up.
+const TOP_FACE_TARGET = camera.getWorldDirection(new THREE.Vector3()).negate().normalize();
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.9));
 const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -416,7 +425,7 @@ function getTopFace(mesh) {
   let bestDot = -Infinity;
   for (const plane of mesh.children) {
     const worldNormal = plane.userData.faceNormal.clone().applyQuaternion(mesh.quaternion);
-    const dot = worldNormal.dot(new THREE.Vector3(0, 1, 0));
+    const dot = worldNormal.dot(TOP_FACE_TARGET);
     if (dot > bestDot) {
       bestDot = dot;
       best = plane;
@@ -553,7 +562,7 @@ function tick() {
       // visual mesh (not the physics body) so the nearest face ends up
       // exactly flat and level, like a real d20 resting on a face.
       const { worldNormal } = getTopFace(die.mesh);
-      const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, new THREE.Vector3(0, 1, 0));
+      const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, TOP_FACE_TARGET);
       const toQuat = correction.multiply(die.mesh.quaternion);
       die.snap = {
         fromQuat: die.mesh.quaternion.clone(),
