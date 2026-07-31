@@ -621,6 +621,7 @@ const T = {
     aiPasteStepTitle:"2. Paste the AI's reply", aiPasteStepDesc:"Paste the AI's full reply below. If it suggested adding anything (a feat, weapon, spell, resource, or item), it'll show up here for you to review one at a time.",
     aiPastePlaceholder:"Paste the AI's reply here…", aiParseBtn:"Parse reply", aiParseErrorVersion:"This suggestion was generated for a different version of this app's AI format and can't be imported automatically. Paste this back to the AI: \"The schema you used is out of date. Please regenerate your suggestion using AI_SCHEMA_VERSION __CURRENT__ (yours was __GIVEN__).\"",
     aiParseErrorNone:"Couldn't find any suggested additions in that text. Make sure you pasted the AI's full reply, including the fenced code block.",
+    aiParseErrorAllExist:"Everything suggested in that reply is already on your sheet — nothing new to add.",
     aiParseErrorBad:"Couldn't read that suggestion — it doesn't match the expected format. Paste this back to the AI: \"That didn't parse. Please re-check the schema in my earlier message and try again.\"",
     aiReviewTitle:"3. Review suggested additions", aiAddBtn:"✓ Add to character", aiRejectBtn:"✕ Discard", aiAdded:"Added.",
     aiCatFeat:"Feat", aiCatAttack:"Attack / Weapon", aiCatSpell:"Spell", aiCatResource:"Resource", aiCatItem:"Item",
@@ -768,6 +769,7 @@ const T = {
     aiPasteStepTitle:"2. הדבק את תשובת ה-AI", aiPasteStepDesc:"הדבק כאן את התשובה המלאה של ה-AI. אם הוא הציע להוסיף משהו (feat, נשק, כישוף, משאב או פריט), זה יופיע כאן לבדיקה אחד־אחד.",
     aiPastePlaceholder:"הדבק כאן את תשובת ה-AI…", aiParseBtn:"פענח תשובה", aiParseErrorVersion:"ההצעה הזו נוצרה עבור גרסה אחרת של פורמט ה-AI של האפליקציה ולא ניתן לייבא אותה אוטומטית. הדבק בחזרה ל-AI: \"The schema you used is out of date. Please regenerate your suggestion using AI_SCHEMA_VERSION __CURRENT__ (yours was __GIVEN__).\"",
     aiParseErrorNone:"לא נמצאו הצעות תוספת בטקסט הזה. ודא שהדבקת את התשובה המלאה של ה-AI, כולל בלוק הקוד.",
+    aiParseErrorAllExist:"כל מה שהוצע בתשובה הזו כבר קיים בגיליון שלך — אין מה להוסיף.",
     aiParseErrorBad:"לא הצלחתי לקרוא את ההצעה הזו — היא לא תואמת לפורמט הצפוי. הדבק בחזרה ל-AI: \"That didn't parse. Please re-check the schema in my earlier message and try again.\"",
     aiReviewTitle:"3. סקור הצעות תוספת", aiAddBtn:"✓ הוסף לדמות", aiRejectBtn:"✕ התעלם", aiAdded:"נוסף.",
     aiCatFeat:"תכונה", aiCatAttack:"נשק / התקפה", aiCatSpell:"כישוף", aiCatResource:"משאב", aiCatItem:"פריט",
@@ -2292,6 +2294,10 @@ spellSlots:
   const instructions =
 `This is a D&D 5e character from a character-sheet web app, exported for an AI assistant. Answer the user's question about it below.${languageLine}
 
+Whenever 5e rules present the player with a choice (e.g. an Ability Score Improvement — which stat(s), or a feat instead; a subclass and its features; which spells to learn; which fighting style or maneuvers to take), do not decide on the player's behalf and do not invent a placeholder entry as a stand-in for the missing choice. Instead, list the concrete options in your reply and ask the user to pick, then wait for their answer before proposing any dnd-sheet-additions block for that item. Only add an entry once you actually know its real content.
+
+Only include the dnd-sheet-additions block once something is actually settled and ready to add — after the user has answered your question, or when they explicitly ask you to output/apply a suggestion. Don't attach it speculatively to a reply that's still asking the player to choose between options, and don't re-send entries you already gave in an earlier reply unless the user asks you to.
+
 If you want to suggest concrete additions to the sheet (a new feat, weapon/attack, spell, resource, or inventory item), also include ONE extra fenced code block labeled "dnd-sheet-additions" with YAML in exactly this shape (omit any category you're not suggesting, and omit the whole block if you have nothing to add):
 
 \`\`\`dnd-sheet-additions
@@ -2397,12 +2403,25 @@ function parseAIPaste(){
     render(); return;
   }
   const items = [];
+  let sawAnyRawSuggestion = false;
   Object.keys(AI_ADDITION_SCHEMAS).forEach(cat => {
     const arr = parsed[cat];
-    if(Array.isArray(arr)) arr.forEach(data => { if(data && typeof data === 'object') items.push({kind:'add', category:cat, data}); });
+    if(!Array.isArray(arr)) return;
+    const existingList = cat === 'items' ? state.inventory.items : state[cat];
+    const existingNames = new Set((existingList||[]).map(e => (e.name||"").trim().toLowerCase()).filter(Boolean));
+    arr.forEach(data => {
+      if(!data || typeof data !== 'object') return;
+      sawAnyRawSuggestion = true;
+      const name = (data.name||"").trim().toLowerCase();
+      if(name && existingNames.has(name)) return;
+      items.push({kind:'add', category:cat, data});
+    });
   });
   if(typeof parsed.level === 'number' && parsed.level > 0 && parsed.level !== state.level){
     items.push({kind:'modify', category:'level', data:{from: state.level, to: parsed.level}});
+  }
+  if(typeof parsed.subclass === 'string' && parsed.subclass.trim() && parsed.subclass.trim() !== state.subclass){
+    items.push({kind:'modify', category:'subclass', data:{from: state.subclass, to: parsed.subclass.trim()}});
   }
   if(aiTrustLevel === 'trusted' || aiTrustLevel === 'fullyTrusted'){
     if(Array.isArray(parsed.expertise)){
@@ -2422,7 +2441,7 @@ function parseAIPaste(){
       }
     });
   }
-  if(items.length === 0){ aiParseError = t.aiParseErrorNone; render(); return; }
+  if(items.length === 0){ aiParseError = sawAnyRawSuggestion ? t.aiParseErrorAllExist : t.aiParseErrorNone; render(); return; }
   aiParsedAdditions = items;
   render();
 }
