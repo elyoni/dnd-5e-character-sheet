@@ -3311,6 +3311,16 @@ function render(){
   const t = T[lang];
   const dir = lang==='he' ? 'rtl' : 'ltr';
   const app = document.getElementById("app");
+  const modalBoxBefore = document.querySelector(".modal-box");
+  const savedModalScrollTop = modalBoxBefore ? modalBoxBefore.scrollTop : null;
+  const savedPageScrollY = window.scrollY;
+  const restoreScroll = () => {
+    if(savedModalScrollTop !== null){
+      const modalBoxAfter = document.querySelector(".modal-box");
+      if(modalBoxAfter) modalBoxAfter.scrollTop = savedModalScrollTop;
+    }
+    window.scrollTo(0, savedPageScrollY);
+  };
 
   if(!state){
     app.innerHTML = `
@@ -3329,6 +3339,7 @@ function render(){
     ${newCharModalOpen ? newCharModalHTML(t) : ""}
     `;
     document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
+    restoreScroll();
     return;
   }
 
@@ -4078,6 +4089,7 @@ function render(){
   `;
   document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
   trimDiceHistories();
+  restoreScroll();
 }
 function trimDiceHistories(){
   document.querySelectorAll('.dice-history.compact').forEach(el=>{
