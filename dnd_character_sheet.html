@@ -582,7 +582,7 @@ const T = {
     newChar:"New Character", del:"Delete", edit:"Edit", saved:"saved", saving:"saving…", sessionOnly:"not saved (session only)",
     confirmRemoveTitle:"Remove this?", confirmRemoveMsg:"This can't be undone.",
     hideAll:"Hide All", showAll:"Show All",
-    identity:"Identity", name:"Name", cls:"Class", level:"Level", race:"Race", subrace:"Subrace", bg:"Background", size:"Size",
+    identity:"Identity", name:"Name", cls:"Class", subclass:"Subclass", level:"Level", race:"Race", subrace:"Subrace", bg:"Background", size:"Size",
     sizeTiny:"Tiny", sizeSmall:"Small", sizeMedium:"Medium", sizeLarge:"Large", sizeHuge:"Huge", sizeGargantuan:"Gargantuan",
     selectPlaceholder:"— select —", customOption:"Custom…", backToList:"← back to list", noneOption:"None",
     clsAutoNote:"Picking a Class from the list fills in its two fixed Saving Throw proficiencies, a couple of thematically common skills as a starting suggestion (adjust to your actual picks), and class resources (Rage, Second Wind, etc.). It only adds — switching classes won't remove saves/skills you already set.",
@@ -730,7 +730,7 @@ const T = {
     newChar:"דמות חדשה", del:"מחק", edit:"עריכה", saved:"נשמר", saving:"שומר…", sessionOnly:"לא נשמר (הפעלה זו בלבד)",
     confirmRemoveTitle:"למחוק?", confirmRemoveMsg:"לא ניתן לבטל פעולה זו.",
     hideAll:"הסתר הכל", showAll:"הצג הכל",
-    identity:"זהות", name:"שם", cls:"מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע", size:"גודל",
+    identity:"זהות", name:"שם", cls:"מחלקה", subclass:"תת-מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע", size:"גודל",
     sizeTiny:"זעיר", sizeSmall:"קטן", sizeMedium:"בינוני", sizeLarge:"גדול", sizeHuge:"ענק", sizeGargantuan:"עצום",
     selectPlaceholder:"— בחר —", customOption:"מותאם אישית…", backToList:"← חזרה לרשימה", noneOption:"ללא",
     clsAutoNote:"בחירת מחלקה מהרשימה ממלאת את שתי מיומנויות ההצלה הקבועות שלה, כמה כישורים נפוצים כהצעת התחלה (התאם לבחירות האמיתיות שלך), ומשאבי מחלקה (Rage, Second Wind וכו'). זה רק מוסיף — החלפת מחלקה לא תסיר הצלות/כישורים שכבר סימנת.",
@@ -937,7 +937,7 @@ const SUBRACE_MAP = {
 
 function defaultChar(id){
   return {
-    id, name:"New Adventurer", charType:"pc", cls:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
+    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
     abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
     level:1, size:"Medium",
     armor:{acAbility:"dex", migrated:true},
@@ -1039,13 +1039,14 @@ function hydrate(s){
   if(typeof s.raceCustom !== "boolean") s.raceCustom = !!(s.race && !RACE_LIST.includes(s.race));
   if(typeof s.subrace !== "string") s.subrace = "";
   if(typeof s.subraceCustom !== "boolean") s.subraceCustom = false;
+  if(typeof s.subclass !== "string") s.subclass = "";
   return s;
 }
 function demoChar(id){
   const isHe = lang === 'he';
   return {
     id, name: isHe ? "אלריק חוד־הפלדה" : "Elric Steeledge", charType:"pc",
-    cls:"Fighter", race:"Human", bg: isHe ? "חייל" : "Soldier",
+    cls:"Fighter", subclass: isHe ? "אלוף (Champion)" : "Champion", race:"Human", bg: isHe ? "חייל" : "Soldier",
     clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
     abilities:{str:16, dex:14, con:15, int:10, wis:12, cha:8},
     level:3, size:"Medium",
@@ -2668,7 +2669,7 @@ function buildPrintHTML(opts){
   </style></head><body>
     <h1>${esc(state.name)}</h1>
     <div class="sub">${t.title}</div>
-    <div class="identity-row"><span><b>${t.cls}:</b> ${esc(state.cls)}</span><span><b>${t.level}:</b> ${state.level}</span><span><b>${t.race}:</b> ${esc(state.race)}${state.subrace?` (${esc(state.subrace)})`:""}</span><span><b>${t.bg}:</b> ${esc(state.bg)}</span><span><b>${t.size}:</b> ${t["size"+state.size]||esc(state.size)}</span></div>
+    <div class="identity-row"><span><b>${t.cls}:</b> ${esc(state.cls)}${state.subclass?` (${esc(state.subclass)})`:""}</span><span><b>${t.level}:</b> ${state.level}</span><span><b>${t.race}:</b> ${esc(state.race)}${state.subrace?` (${esc(state.subrace)})`:""}</span><span><b>${t.bg}:</b> ${esc(state.bg)}</span><span><b>${t.size}:</b> ${t["size"+state.size]||esc(state.size)}</span></div>
 
     <div class="panel"><h2>📊 ${t.abilities} 💪🏹🛡️🧠👁️✨</h2><div class="abilities">${abilBoxes}</div></div>
 
@@ -3369,6 +3370,7 @@ function render(){
           </select>
         `) : `<span class="feat-name-display">${esc2(state.cls)||"—"}</span>`}
       </div>
+      <div class="field"><label>${t.subclass}</label><input type="text" value="${state.subclass}" style="width:${dmgInputWidthCh(state.subclass)}ch" oninput="autoWidthInput(this)" onchange="set('subclass', this.value)"></div>
       <div class="field field-level"><label>${t.level}</label><input type="number" min="1" max="20" class="no-spinner" style="width:44px;min-width:0;box-sizing:border-box;padding:8px 4px;text-align:center" value="${state.level}" onchange="set('level', Math.max(1, Math.min(20, parseInt(this.value)||1)))"></div>
       <div class="field"><label>${t.race}</label>
         ${identityUnlocked ? (state.raceCustom ? `

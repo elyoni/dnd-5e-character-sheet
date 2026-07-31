@@ -66,7 +66,7 @@ Picking a class similarly auto-applies saving-throw proficiencies, suggested ski
 | **Wizard** | Int, Wis | Arcana, Investigation | Spellcasting (Int) |
 | **Artificer** | Con, Int | Investigation, Arcana | — |
 
-As with race, a custom class name can be typed in instead (`clsCustom`).
+As with race, a custom class name can be typed in instead (`clsCustom`). A free-text **Subclass** field sits next to Class (e.g. "Champion", "Battle Master") — it's not tied to a preset list or auto-applied template, just a place to record the player's choice.
 
 ## Feats
 
