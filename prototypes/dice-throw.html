@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>3D Dice Throw Prototype</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #0d120e;
+    font-family: 'Georgia', serif;
+    color: #e8dcc0;
+  }
+
+  /* Fake character-sheet background content, just so we can see the
+     dice-throw canvas overlay transparently on top of "real" content. */
+  #mock-sheet {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  #mock-sheet .panel {
+    background: #1c150f;
+    border: 1px solid #3a2c1c;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    max-width: 420px;
+  }
+  #mock-sheet h1 { color: #e8c14f; font-size: 20px; margin: 0 0 4px; }
+  #mock-sheet .stat-row { display: flex; gap: 12px; margin-top: 8px; }
+  #mock-sheet .stat {
+    background: #221a12;
+    border: 1px solid #3a2c1c;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  #dice-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none; /* let clicks pass through to the sheet below */
+  }
+
+  #dice-labels {
+    position: fixed;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+  }
+  .dice-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    font-size: 22px;
+    color: #e8dcc0;
+    text-shadow: 0 0 4px #000, 0 0 8px #000, 0 1px 2px #000;
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+  }
+  .dice-label.visible { opacity: 1; }
+
+  #controls {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  #roll-btn {
+    font-family: inherit;
+    font-size: 16px;
+    padding: 10px 20px;
+    background: #c9a227;
+    color: #1c150f;
+    border: 1px solid #8a6d1f;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #roll-btn:active { transform: translateY(1px); }
+  #note {
+    font-size: 11px;
+    color: #8a7b57;
+    max-width: 220px;
+    text-align: right;
+  }
+
+  #config {
+    background: #1c150f;
+    border: 1px solid #3a2c1c;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 200px;
+  }
+  #config label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  #config input[type="range"],
+  #config input[type="number"] { width: 100px; }
+  #config input[type="color"] {
+    width: 40px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid #3a2c1c;
+    background: none;
+    cursor: pointer;
+  }
+  #config output { color: #e8c14f; min-width: 24px; text-align: right; }
+</style>
+</head>
+<body>
+
+<div id="mock-sheet">
+  <div class="panel">
+    <h1>Sir Reginald — Level 3 Fighter</h1>
+    <div class="stat-row">
+      <div class="stat">HP 24/24</div>
+      <div class="stat">AC 16</div>
+      <div class="stat">Speed 30</div>
+    </div>
+  </div>
+  <div class="panel">
+    <h1 style="font-size:15px;">Attacks</h1>
+    <div class="stat-row">
+      <div class="stat">Longsword +5</div>
+      <div class="stat">Shortbow +4</div>
+    </div>
+  </div>
+</div>
+
+<canvas id="dice-canvas"></canvas>
+<div id="dice-labels"></div>
+
+<div id="controls">
+  <button id="roll-btn">Roll</button>
+  <div id="config">
+    <label>Dice count
+      <input type="number" id="cfg-count" min="1" max="8" value="2" />
+    </label>
+    <label>Die color
+      <input type="color" id="cfg-color" value="#c9a227" />
+    </label>
+    <label>Text color
+      <input type="color" id="cfg-text-color" value="#1c150f" />
+    </label>
+    <label>Throw distance
+      <input type="range" id="cfg-distance" min="0.1" max="1" step="0.05" value="0.4" />
+      <output id="cfg-distance-out">0.40</output>
+    </label>
+    <label>Roll speed
+      <input type="range" id="cfg-speed" min="0.5" max="2.5" step="0.1" value="1" />
+      <output id="cfg-speed-out">1.0x</output>
+    </label>
+  </div>
+  <div id="note">Dice tumble with real physics over the transparent canvas, then settle flat with the result shown above each die.</div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import * as CANNON from "cannon-es";
+
+const DIE_RADIUS = 0.9;
+
+// ---------- three.js scene ----------
+const canvas = document.getElementById("dice-canvas");
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setClearColor(0x000000, 0); // fully transparent
+
+const scene = new THREE.Scene();
+
+// Steep near-overhead angle (like the Roll20 reference) rather than a
+// low oblique one - a shallow pitch sends top-of-screen rays toward the
+// horizon, where they travel almost infinitely far before hitting the
+// ground plane and blow up the computed table bounds.
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 16, 3);
+camera.lookAt(0, 0, 0);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+dirLight.position.set(5, 12, 6);
+scene.add(dirLight);
+
+function resize() {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  computeTableBounds();
+  for (const die of activeDice) positionLabel(die);
+}
+window.addEventListener("resize", resize);
+
+// ---------- physics world ----------
+const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -20, 0) });
+world.allowSleep = true;
+
+const groundBody = new CANNON.Body({ type: CANNON.Body.STATIC, shape: new CANNON.Plane() });
+groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+world.addBody(groundBody);
+
+// Invisible walls computed from what the camera can actually see at y=0,
+// so a thrown die can never roll off the visible viewport.
+let tableBounds = { minX: -10, maxX: 10, minZ: -10, maxZ: 10 };
+const wallBodies = [];
+
+function computeTableBounds() {
+  // matrixWorld is normally refreshed during renderer.render(); this runs
+  // before the first render, so force it or the raycasts below use a
+  // stale (identity) camera transform.
+  camera.updateMatrixWorld(true);
+  const ndcCorners = [
+    [-1, -1], [1, -1], [1, 1], [-1, 1],
+  ];
+  const raycaster = new THREE.Raycaster();
+  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  const pts = ndcCorners.map(([x, y]) => {
+    raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+    const hit = new THREE.Vector3();
+    const didHit = raycaster.ray.intersectPlane(plane, hit);
+    if (!didHit) {
+      // Corner ray points above the horizon and never reaches the ground
+      // plane - extend far along its direction instead of leaving `hit`
+      // at (0,0,0), which would corrupt the bounds toward the origin.
+      hit.copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 500);
+    }
+    return hit;
+  });
+  const xs = pts.map(p => p.x);
+  const zs = pts.map(p => p.z);
+  const visible = {
+    minX: Math.min(...xs),
+    maxX: Math.max(...xs),
+    minZ: Math.min(...zs),
+    maxZ: Math.max(...zs),
+  };
+
+  // Inset the playable area from the true visible edge so a die's rendered
+  // radius never pokes past the screen boundary, even mid-bounce.
+  const marginX = (visible.maxX - visible.minX) * 0.08 + DIE_RADIUS * 2;
+  const marginZ = (visible.maxZ - visible.minZ) * 0.08 + DIE_RADIUS * 2;
+  tableBounds = {
+    minX: visible.minX + marginX,
+    maxX: visible.maxX - marginX,
+    minZ: visible.minZ + marginZ,
+    maxZ: visible.maxZ - marginZ,
+  };
+
+  wallBodies.forEach(b => world.removeBody(b));
+  wallBodies.length = 0;
+
+  const wallHeight = 20;
+  const thickness = 2;
+  const specs = [
+    { pos: [tableBounds.minX - thickness / 2, wallHeight / 2, 0], size: [thickness / 2, wallHeight / 2, (tableBounds.maxZ - tableBounds.minZ) / 2 + thickness] },
+    { pos: [tableBounds.maxX + thickness / 2, wallHeight / 2, 0], size: [thickness / 2, wallHeight / 2, (tableBounds.maxZ - tableBounds.minZ) / 2 + thickness] },
+    { pos: [0, wallHeight / 2, tableBounds.minZ - thickness / 2], size: [(tableBounds.maxX - tableBounds.minX) / 2 + thickness, wallHeight / 2, thickness / 2] },
+    { pos: [0, wallHeight / 2, tableBounds.maxZ + thickness / 2], size: [(tableBounds.maxX - tableBounds.minX) / 2 + thickness, wallHeight / 2, thickness / 2] },
+  ];
+  for (const s of specs) {
+    const body = new CANNON.Body({ type: CANNON.Body.STATIC, shape: new CANNON.Box(new CANNON.Vec3(...s.size)) });
+    body.position.set(...s.pos);
+    world.addBody(body);
+    wallBodies.push(body);
+  }
+}
+
+// ---------- d20 geometry with numbered faces ----------
+// A flat plane rigidly parented to the die and oriented along the face
+// normal - NOT a THREE.Sprite, which always billboards to face the camera
+// and would make every number float in front of the die instead of
+// rotating with its face.
+function makeNumberPlane(number, textColor) {
+  const size = 128;
+  const cnv = document.createElement("canvas");
+  cnv.width = cnv.height = size;
+  const ctx = cnv.getContext("2d");
+  ctx.fillStyle = "rgba(0,0,0,0)";
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = textColor;
+  ctx.font = "bold 64px Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(String(number), size / 2, size / 2 + 4);
+  const texture = new THREE.CanvasTexture(cnv);
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    depthTest: true,
+    side: THREE.FrontSide, // back-face culled so numbers on the far side don't show through
+  });
+  const geo = new THREE.PlaneGeometry(0.5, 0.5);
+  return new THREE.Mesh(geo, material);
+}
+
+function buildDie(color, textColor) {
+  const geo = new THREE.IcosahedronGeometry(DIE_RADIUS, 0).toNonIndexed();
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.1 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = false;
+
+  const pos = geo.attributes.position;
+  const faceCount = pos.count / 3;
+  const numbers = Array.from({ length: 20 }, (_, i) => i + 1);
+  // Shuffle - a real d20 has opposite faces summing to 21, but for this
+  // prototype we only need *some* legible number per face.
+  for (let i = numbers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+  }
+
+  for (let f = 0; f < faceCount; f++) {
+    const a = new THREE.Vector3().fromBufferAttribute(pos, f * 3);
+    const b = new THREE.Vector3().fromBufferAttribute(pos, f * 3 + 1);
+    const c = new THREE.Vector3().fromBufferAttribute(pos, f * 3 + 2);
+    const centroid = a.clone().add(b).add(c).divideScalar(3);
+    const normal = centroid.clone().normalize();
+    const plane = makeNumberPlane(numbers[f], textColor);
+    plane.position.copy(normal.clone().multiplyScalar(DIE_RADIUS * 1.01));
+    plane.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+    plane.userData.faceNormal = normal;
+    plane.userData.number = numbers[f];
+    mesh.add(plane);
+  }
+
+  return mesh;
+}
+
+// Sphere collision shape approximates the icosahedron closely enough for a
+// convincing tumble/roll in this prototype (a full convex-hull shape would
+// be more accurate but isn't needed to evaluate the feel of the throw).
+function buildDieBody() {
+  return new CANNON.Body({
+    mass: 1,
+    shape: new CANNON.Sphere(DIE_RADIUS),
+    // A sphere has no rolling resistance from friction alone (friction only
+    // opposes sliding, not rolling), so without fairly strong damping it can
+    // keep gently rolling/bouncing against other dice indefinitely and never
+    // cross the sleep threshold.
+    material: new CANNON.Material({ friction: 0.4, restitution: 0.25 }),
+    angularDamping: 0.6,
+    linearDamping: 0.3,
+    allowSleep: true,
+    sleepSpeedLimit: 0.2,
+    sleepTimeLimit: 0.3,
+  });
+}
+
+const activeDice = [];
+const labelsContainer = document.getElementById("dice-labels");
+
+function clearDice() {
+  for (const d of activeDice) {
+    scene.remove(d.mesh);
+    world.removeBody(d.body);
+    if (d.labelEl) d.labelEl.remove();
+  }
+  activeDice.length = 0;
+}
+
+// Shows the resting number as an HTML badge floating just above the die,
+// in world space projected to screen space, once it's fully settled.
+function showLabel(die) {
+  const { plane } = getTopFace(die.mesh);
+  if (!plane) return;
+  const el = document.createElement("div");
+  el.className = "dice-label";
+  el.textContent = plane.userData.number;
+  labelsContainer.appendChild(el);
+  die.labelEl = el;
+  positionLabel(die);
+  requestAnimationFrame(() => el.classList.add("visible"));
+}
+
+function positionLabel(die) {
+  if (!die.labelEl) return;
+  const worldPos = die.mesh.position.clone();
+  worldPos.y += DIE_RADIUS * 1.3;
+  const ndc = worldPos.project(camera);
+  const x = (ndc.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-ndc.y * 0.5 + 0.5) * window.innerHeight;
+  die.labelEl.style.left = `${x}px`;
+  die.labelEl.style.top = `${y}px`;
+}
+
+function getTopFace(mesh) {
+  let best = null;
+  let bestNormal = null;
+  let bestDot = -Infinity;
+  for (const plane of mesh.children) {
+    const worldNormal = plane.userData.faceNormal.clone().applyQuaternion(mesh.quaternion);
+    const dot = worldNormal.dot(new THREE.Vector3(0, 1, 0));
+    if (dot > bestDot) {
+      bestDot = dot;
+      best = plane;
+      bestNormal = worldNormal;
+    }
+  }
+  return { plane: best, worldNormal: bestNormal };
+}
+
+// The sphere collider approximates the icosahedron for tumbling, but it
+// never naturally comes to rest flat on a face like a real d20 - it just
+// stops rolling at whatever tilt the sphere happened to be at. This ratio
+// (inradius / circumradius of a regular icosahedron) gives the height the
+// die's center should sit at when a face is flush against the ground, so
+// the post-settle snap below can visually correct the resting pose.
+const ICOSAHEDRON_INRADIUS_RATIO = 0.7947;
+
+// Zero velocity at both t=0 and t=1 (unlike ease-out, which is fastest at
+// t=0) so the snap picks up smoothly from the physics roll's near-zero
+// velocity at the moment it ends, instead of visibly lurching into motion.
+function smoothstep(t) {
+  return t * t * (3 - 2 * t);
+}
+
+// Caps horizontal launch speed regardless of table size/distance setting,
+// so a fast throw can't tunnel clean through a wall in one physics step.
+const MAX_LAUNCH_SPEED = 25;
+
+function throwDice({ count, color, textColor, distance }) {
+  clearDice();
+  const spanX = (tableBounds.maxX - tableBounds.minX) * 0.15;
+  const spanZ = (tableBounds.maxZ - tableBounds.minZ) * 0.15;
+
+  for (let i = 0; i < count; i++) {
+    const mesh = buildDie(color, textColor);
+    const body = buildDieBody();
+
+    const startX = tableBounds.minX + (tableBounds.maxX - tableBounds.minX) * 0.15 + (Math.random() - 0.5) * spanX;
+    const startZ = tableBounds.minZ + (tableBounds.maxZ - tableBounds.minZ) * 0.15 + (Math.random() - 0.5) * spanZ;
+    body.position.set(startX + i * 0.6, 6 + Math.random() * 1.5, startZ + i * 0.6);
+    body.quaternion.setFromEuler(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+
+    // `distance` (0-1) scales how far across the table the throw's target
+    // point can land, which in turn scales the launch velocity toward it.
+    const targetX = (Math.random() - 0.5) * (tableBounds.maxX - tableBounds.minX) * distance;
+    const targetZ = (Math.random() - 0.5) * (tableBounds.maxZ - tableBounds.minZ) * distance;
+    let vx = (targetX - startX) * 0.9;
+    let vz = (targetZ - startZ) * 0.9;
+    const speed = Math.hypot(vx, vz);
+    if (speed > MAX_LAUNCH_SPEED) {
+      vx = (vx / speed) * MAX_LAUNCH_SPEED;
+      vz = (vz / speed) * MAX_LAUNCH_SPEED;
+    }
+    body.velocity.set(vx, -2, vz);
+    body.angularVelocity.set(
+      (Math.random() - 0.5) * 20,
+      (Math.random() - 0.5) * 20,
+      (Math.random() - 0.5) * 20
+    );
+
+    scene.add(mesh);
+    world.addBody(body);
+    const die = { mesh, body, phase: "rolling", snap: null, labelEl: null, rollingElapsed: 0 };
+    activeDice.push(die);
+  }
+}
+
+const countInput = document.getElementById("cfg-count");
+const colorInput = document.getElementById("cfg-color");
+const textColorInput = document.getElementById("cfg-text-color");
+const distanceInput = document.getElementById("cfg-distance");
+const distanceOut = document.getElementById("cfg-distance-out");
+const speedInput = document.getElementById("cfg-speed");
+const speedOut = document.getElementById("cfg-speed-out");
+
+distanceInput.addEventListener("input", () => {
+  distanceOut.textContent = Number(distanceInput.value).toFixed(2);
+});
+speedInput.addEventListener("input", () => {
+  speedOut.textContent = Number(speedInput.value).toFixed(1) + "x";
+});
+
+document.getElementById("roll-btn").addEventListener("click", () => {
+  const count = Math.min(8, Math.max(1, parseInt(countInput.value, 10) || 1));
+  throwDice({
+    count,
+    color: colorInput.value,
+    textColor: textColorInput.value,
+    distance: Number(distanceInput.value),
+  });
+});
+
+// ---------- animation loop ----------
+const clock = new THREE.Clock();
+function tick() {
+  // "Roll speed" scales simulated time per real second, not the physics
+  // constants themselves - <1x plays the throw in slow motion (looks like
+  // it takes longer to settle), >1x fast-forwards it.
+  const rawDt = Math.min(clock.getDelta(), 1 / 30);
+  const rollSpeed = Number(speedInput.value);
+  const dt = rawDt * rollSpeed;
+  world.step(1 / 60, dt, 3);
+
+  for (const die of activeDice) {
+    if (die.phase === "settled") continue;
+
+    if (die.phase === "snapping") {
+      const s = die.snap;
+      // Uses rawDt, not the roll-speed-scaled dt - the settle correction
+      // is a fixed-feel finishing touch, not part of the physical roll, so
+      // cranking "roll speed" shouldn't make it snap even more abruptly.
+      s.t = Math.min(1, s.t + rawDt / s.duration);
+      const e = smoothstep(s.t);
+      die.mesh.quaternion.slerpQuaternions(s.fromQuat, s.toQuat, e);
+      die.mesh.position.y = THREE.MathUtils.lerp(s.fromY, s.toY, e);
+      if (s.t >= 1) {
+        die.phase = "settled";
+        showLabel(die);
+      }
+      continue;
+    }
+
+    // still rolling - mirror the physics body directly
+    die.mesh.position.copy(die.body.position);
+    die.mesh.quaternion.copy(die.body.quaternion);
+    die.rollingElapsed += rawDt;
+    // A sphere resting against another die can keep gently nudging itself
+    // just enough to reset the engine's sleep timer and never formally
+    // fall asleep. Force the settle after a few seconds regardless, so a
+    // die can never appear stuck without ever showing its result.
+    const stuck = die.rollingElapsed > 4 && die.body.velocity.length() < 1.5;
+    if (die.body.sleepState === CANNON.Body.SLEEPING || stuck) {
+      // The sphere collider stopped tumbling at an arbitrary tilt; snap the
+      // visual mesh (not the physics body) so the nearest face ends up
+      // exactly flat and level, like a real d20 resting on a face.
+      const { worldNormal } = getTopFace(die.mesh);
+      const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, new THREE.Vector3(0, 1, 0));
+      const toQuat = correction.multiply(die.mesh.quaternion);
+      die.snap = {
+        fromQuat: die.mesh.quaternion.clone(),
+        toQuat,
+        fromY: die.mesh.position.y,
+        toY: DIE_RADIUS * ICOSAHEDRON_INRADIUS_RATIO,
+        t: 0,
+        duration: 0.5,
+      };
+      die.phase = "snapping";
+      // Freeze the body so a still-tumbling die can't bump this one out of
+      // the resting pose we're about to animate it into.
+      die.body.velocity.setZero();
+      die.body.angularVelocity.setZero();
+      die.body.type = CANNON.Body.STATIC;
+    }
+  }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+
+resize();
+tick();
+</script>
+</body>
+</html>
