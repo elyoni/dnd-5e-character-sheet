@@ -557,7 +557,8 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 .dice-3d-label.visible{ opacity:1; }
 .dice-3d-hint{
   position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
-  color:#e8dcc0; font-size:17px; font-family:'Cinzel',serif; font-weight:600;
+  max-width:90vw; text-align:center;
+  color:#f5e9c8; font-size:32px; font-family:'Cinzel',serif; font-weight:700;
   letter-spacing:1px; text-transform:uppercase; text-shadow:0 0 4px #000,0 0 10px #000;
   opacity:0; transition:opacity 0.3s ease-out; pointer-events:none;
 }
@@ -2074,7 +2075,7 @@ async function rollAttack(i){
 
   const specs = [{sides:20, count:1, tag:'hit'}];
   if(parsed) specs.push({sides:parsed.die, count:parsed.count, tag:'dmg'});
-  const results = await rollPhysicalDice(specs, a.name || '');
+  const results = await rollPhysicalDice(specs, a.name || '', { immediateHint: false });
 
   const hitRoll = results.find(r=>r.tag==='hit').value;
   const hitTotal = hitRoll + bonus;
@@ -2758,12 +2759,13 @@ function ensureDiceEngine(){
   );
   return diceEngine;
 }
-function showDiceOverlay(hint){
+function showDiceOverlay(hint, immediate){
   const overlay = document.getElementById("dice-3d-overlay");
   const hintEl = document.getElementById("dice-3d-hint");
   overlay.classList.add("visible");
   hintEl.textContent = hint || "";
-  hintEl.classList.remove("visible");
+  if(immediate && hint) hintEl.classList.add("visible");
+  else hintEl.classList.remove("visible");
 }
 function hideDiceOverlay(){
   document.getElementById("dice-3d-overlay").classList.remove("visible");
@@ -2778,9 +2780,15 @@ function dismissDiceOverlay(){
 // normal size and stays on screen — the overlay stays up until the user
 // taps it (dismissDiceOverlay, wired to the overlay's onclick); there is
 // no auto-hide timer, so the result never disappears on its own.
-async function rollPhysicalDice(specs, hint){
+// By default the caption (hint) appears the instant the dice are thrown,
+// not just once they've settled — pass {immediateHint:false} to hold it
+// back until settle instead (used for attacks, which already get their own
+// HIT/DAMAGE banners and don't need the weapon name competing for attention
+// mid-throw).
+async function rollPhysicalDice(specs, hint, opts){
+  const immediateHint = !opts || opts.immediateHint !== false;
   const engine = ensureDiceEngine();
-  showDiceOverlay(hint);
+  showDiceOverlay(hint, immediateHint);
   const results = await engine.roll(specs);
   const hintEl = document.getElementById("dice-3d-hint");
   hintEl.textContent = hint || "";
