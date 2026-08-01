@@ -556,13 +556,14 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 }
 .dice-3d-label.visible{ opacity:1; }
 .dice-3d-hint{
-  position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
+  position:absolute; top:56px; left:50%; transform:translateX(-50%);
   max-width:90vw; text-align:center;
-  color:#f5e9c8; font-size:32px; font-family:'Cinzel',serif; font-weight:700;
-  letter-spacing:1px; text-transform:uppercase; text-shadow:0 0 4px #000,0 0 10px #000;
+  background:rgba(255,255,255,0.5); padding:8px 22px; border-radius:10px;
+  color:#241c0f; font-size:32px; font-family:'Cinzel',serif; font-weight:700;
+  letter-spacing:1px; text-transform:uppercase;
   opacity:0; transition:opacity 0.3s ease-out; pointer-events:none;
 }
-.dice-3d-hint.visible{ opacity:0.9; }
+.dice-3d-hint.visible{ opacity:1; }
 .dice-3d-banner{
   position:absolute; transform:translate(-50%,-50%);
   text-align:center; opacity:0;
