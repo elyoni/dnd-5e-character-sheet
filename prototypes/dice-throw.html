@@ -166,6 +166,9 @@
     <label>Die color
       <input type="color" id="cfg-color" value="#c9a227" />
     </label>
+    <label>Text color
+      <input type="color" id="cfg-text-color" value="#1c150f" />
+    </label>
     <label>Throw distance
       <input type="range" id="cfg-distance" min="0.1" max="1" step="0.05" value="0.4" />
       <input type="number" id="cfg-distance-out" min="0.1" max="1" step="0.05" value="0.4" />
@@ -225,6 +228,14 @@ camera.updateMatrixWorld(true);
 // raycasting straight down onto the die from above), matching how a
 // physical die's result is actually read regardless of camera angle.
 const TOP_FACE_TARGET = new THREE.Vector3(0, 1, 0);
+
+// The world-space direction that renders as "up" on screen - the camera's
+// own local +Y axis, read straight out of its world matrix. Used to twist
+// the settled die around the top face's normal so its baked-in number reads
+// upright instead of landing at whatever random angle it tumbled to
+// (picking the correct face fixes WHICH number shows, not which way it's
+// rotated).
+const SCREEN_UP_WORLD = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1).normalize();
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.9));
 const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -318,21 +329,55 @@ function computeTableBounds() {
 }
 
 // ---------- d20 geometry with numbered faces ----------
-function buildDie(color, radius) {
+// A shared texture atlas (one cell per number 1-20, arranged on a fixed
+// grid) baked once and reused by every die of a given text color, painted
+// on a white background so MeshStandardMaterial.color can still tint the
+// whole die - the same trick the old per-face plane used, just baked into
+// the surface itself this time instead of floating a decal above it.
+const ATLAS_COLS = 5;
+const ATLAS_ROWS = 4;
+const ATLAS_CELL = 128;
+const atlasCache = new Map();
+function getNumberAtlas(textColor) {
+  if (atlasCache.has(textColor)) return atlasCache.get(textColor);
+  const canvas = document.createElement("canvas");
+  canvas.width = ATLAS_COLS * ATLAS_CELL;
+  canvas.height = ATLAS_ROWS * ATLAS_CELL;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = textColor;
+  ctx.font = "bold 64px Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (let n = 1; n <= 20; n++) {
+    const col = (n - 1) % ATLAS_COLS;
+    const row = Math.floor((n - 1) / ATLAS_COLS);
+    ctx.fillText(String(n), col * ATLAS_CELL + ATLAS_CELL / 2, row * ATLAS_CELL + ATLAS_CELL / 2 + 4);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  atlasCache.set(textColor, texture);
+  return texture;
+}
+
+// A regular icosahedron's world-up-most face isn't reliably its
+// camera-facing-most face at a shallow angle, which caused real mismatches
+// between the number shown and the face that looked flat - so "up" is
+// always resolved against world-up (0,1,0), matching how real dice-roller
+// libraries do it (e.g. raycasting straight down onto the die).
+const WORLD_UP = new THREE.Vector3(0, 1, 0);
+const REF_FALLBACK = new THREE.Vector3(0, 0, 1);
+
+function buildDie(color, textColor, radius) {
   const geo = new THREE.IcosahedronGeometry(radius, 0).toNonIndexed();
-  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.1 });
+  const atlas = getNumberAtlas(textColor);
+  const mat = new THREE.MeshStandardMaterial({ color, map: atlas, roughness: 0.4, metalness: 0.1 });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = false;
 
-  // Numbers used to be painted directly on each of the 20 faces, but at a
-  // glancing angle a flat textured plane sitting just off the surface reads
-  // as detached/floating rather than flush with the die - and near the top
-  // of a steeply-viewed polyhedron, several faces are visible at once, so
-  // multiple numbers would appear to float beside each other. The result is
-  // shown via the floating HTML label instead (see showLabel), so faces only
-  // need their normal + assigned number as plain data, not a rendered mesh.
   const pos = geo.attributes.position;
   const faceCount = pos.count / 3;
+  const uv = new Float32Array(pos.count * 2);
   const numbers = Array.from({ length: 20 }, (_, i) => i + 1);
   // Shuffle - a real d20 has opposite faces summing to 21, but for this
   // prototype we only need *some* number assigned per face.
@@ -348,8 +393,44 @@ function buildDie(color, radius) {
     const c = new THREE.Vector3().fromBufferAttribute(pos, f * 3 + 2);
     const centroid = a.clone().add(b).add(c).divideScalar(3);
     const normal = centroid.clone().normalize();
-    faces.push({ normal, number: numbers[f] });
+
+    // Object-space "up" for this face's number: world-up projected onto the
+    // face's own tangent plane, so that once this face ends up resting on
+    // top (normal aligned to world-up), its baked number's "up" already
+    // points close to screen-up - the settle-time twist below only has to
+    // correct the small remainder, same idea as the old per-plane approach
+    // but computed against the face itself instead of a decal's rotation.
+    const ref = Math.abs(normal.dot(WORLD_UP)) > 0.95 ? REF_FALLBACK : WORLD_UP;
+    const vAxis = ref.clone().sub(normal.clone().multiplyScalar(normal.dot(ref))).normalize();
+    const uAxis = new THREE.Vector3().crossVectors(vAxis, normal).normalize();
+
+    const number = numbers[f];
+    const col = (number - 1) % ATLAS_COLS;
+    const row = Math.floor((number - 1) / ATLAS_COLS);
+    const cellCenterU = (col + 0.5) / ATLAS_COLS;
+    // Canvas rows run top-down but texture.flipY (three.js default) samples
+    // v=0 at the bottom, so row 0 has to land near v=1, not v=0.
+    const cellCenterV = 1 - (row + 0.5) / ATLAS_ROWS;
+
+    const verts = [a, b, c];
+    for (let k = 0; k < 3; k++) {
+      const rel = verts[k].clone().sub(centroid);
+      const localU = rel.dot(uAxis);
+      const localV = rel.dot(vAxis);
+      // Regular icosahedron faces are congruent equilateral triangles, so
+      // this radius is the same for every face - scaled (in pixels, since
+      // the atlas isn't square - a UV fraction means different physical
+      // sizes on each axis) so the triangle sits inscribed within its atlas
+      // cell with a little margin, then converted to that axis's UV scale.
+      const localRadius = rel.length();
+      const scalePx = (ATLAS_CELL * 0.41) / localRadius;
+      uv[(f * 3 + k) * 2] = cellCenterU + (localU * scalePx) / (ATLAS_COLS * ATLAS_CELL);
+      uv[(f * 3 + k) * 2 + 1] = cellCenterV + (localV * scalePx) / (ATLAS_ROWS * ATLAS_CELL);
+    }
+
+    faces.push({ normal, vAxis, number });
   }
+  geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
   mesh.userData.faces = faces;
 
   return mesh;
@@ -428,6 +509,23 @@ function getTopFace(mesh) {
   return { face: best, worldNormal: bestNormal };
 }
 
+// Given a die orientation where `face`'s normal already points at
+// TOP_FACE_TARGET (correct number picked), adds a twist around that same
+// normal so the face's baked-in "up" ends up matching what actually renders
+// as "up" on screen - otherwise the right number shows, but at whatever
+// random rotation the die happened to land at.
+function twistToUpright(face, quat) {
+  const currentUp = face.vAxis.clone().applyQuaternion(quat);
+  const normal = TOP_FACE_TARGET;
+
+  const projectOnTangent = (v) => v.clone().sub(normal.clone().multiplyScalar(v.dot(normal))).normalize();
+  const currentUpTangent = projectOnTangent(currentUp);
+  const screenUpTangent = projectOnTangent(SCREEN_UP_WORLD);
+
+  const twist = new THREE.Quaternion().setFromUnitVectors(currentUpTangent, screenUpTangent);
+  return twist.multiply(quat);
+}
+
 // The sphere collider approximates the icosahedron for tumbling, but it
 // never naturally comes to rest flat on a face like a real d20 - it just
 // stops rolling at whatever tilt the sphere happened to be at. This ratio
@@ -447,13 +545,13 @@ function smoothstep(t) {
 // so a fast throw can't tunnel clean through a wall in one physics step.
 const MAX_LAUNCH_SPEED = 25;
 
-function throwDice({ count, color, distance, radius }) {
+function throwDice({ count, color, textColor, distance, radius }) {
   clearDice();
   const spanX = (tableBounds.maxX - tableBounds.minX) * 0.15;
   const spanZ = (tableBounds.maxZ - tableBounds.minZ) * 0.15;
 
   for (let i = 0; i < count; i++) {
-    const mesh = buildDie(color, radius);
+    const mesh = buildDie(color, textColor, radius);
     const body = buildDieBody(radius);
 
     const startX = tableBounds.minX + (tableBounds.maxX - tableBounds.minX) * 0.15 + (Math.random() - 0.5) * spanX;
@@ -488,6 +586,7 @@ function throwDice({ count, color, distance, radius }) {
 
 const countInput = document.getElementById("cfg-count");
 const colorInput = document.getElementById("cfg-color");
+const textColorInput = document.getElementById("cfg-text-color");
 const distanceInput = document.getElementById("cfg-distance");
 const distanceOut = document.getElementById("cfg-distance-out");
 const speedInput = document.getElementById("cfg-speed");
@@ -514,6 +613,7 @@ document.getElementById("roll-btn").addEventListener("click", () => {
   throwDice({
     count,
     color: colorInput.value,
+    textColor: textColorInput.value,
     distance: Number(distanceInput.value),
     radius: Number(sizeInput.value),
   });
@@ -562,9 +662,10 @@ function tick() {
       // The sphere collider stopped tumbling at an arbitrary tilt; snap the
       // visual mesh (not the physics body) so the nearest face ends up
       // exactly flat and level, like a real d20 resting on a face.
-      const { worldNormal } = getTopFace(die.mesh);
+      const { face, worldNormal } = getTopFace(die.mesh);
       const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, TOP_FACE_TARGET);
-      const toQuat = correction.clone().multiply(die.mesh.quaternion);
+      const uprightQuat = correction.clone().multiply(die.mesh.quaternion);
+      const toQuat = twistToUpright(face, uprightQuat);
       die.snap = {
         fromQuat: die.mesh.quaternion.clone(),
         toQuat,
