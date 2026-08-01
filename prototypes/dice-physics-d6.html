@@ -290,20 +290,44 @@ function computeTableBounds() {
   camera.updateMatrixWorld(true);
   const raycaster = new THREE.Raycaster();
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-  const pts = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([x, y]) => {
+  // A low/shallow camera angle can tilt part of the view frustum above the
+  // horizon, where those corner rays never reach the ground plane at all
+  // (intersectPlane returns null). Extrapolating along a sky-pointing ray
+  // anyway (the old behavior) produced wildly wrong "visible ground" bounds
+  // hundreds of units away — dice would spawn off in space, invisible.
+  // Only using corners that actually hit the ground avoids that; a min-span
+  // floor below covers the remaining case where too few corners hit.
+  const hitXs = [], hitZs = [];
+  for (const [x, y] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
     raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
     const hit = new THREE.Vector3();
-    if (!raycaster.ray.intersectPlane(plane, hit)) {
-      hit.copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 500);
+    if (raycaster.ray.intersectPlane(plane, hit)) {
+      hitXs.push(hit.x);
+      hitZs.push(hit.z);
     }
-    return hit;
-  });
-  const xs = pts.map((p) => p.x);
-  const zs = pts.map((p) => p.z);
-  const visible = { minX: Math.min(...xs), maxX: Math.max(...xs), minZ: Math.min(...zs), maxZ: Math.max(...zs) };
+  }
+  const FALLBACK = 6;
+  let visible = hitXs.length >= 2
+    ? { minX: Math.min(...hitXs), maxX: Math.max(...hitXs), minZ: Math.min(...hitZs), maxZ: Math.max(...hitZs) }
+    : { minX: -FALLBACK, maxX: FALLBACK, minZ: -FALLBACK, maxZ: FALLBACK };
+
   const maxExtent = Math.max(currentDieSize(), currentD20Radius() * 2);
-  const marginX = (visible.maxX - visible.minX) * 0.1 + maxExtent * 2;
-  const marginZ = (visible.maxZ - visible.minZ) * 0.1 + maxExtent * 2;
+  const MIN_SPAN = maxExtent * 6; // guarantees a usable spawn area even when very few corners hit
+  if (visible.maxX - visible.minX < MIN_SPAN) {
+    const cx = (visible.minX + visible.maxX) / 2;
+    visible = { ...visible, minX: cx - MIN_SPAN / 2, maxX: cx + MIN_SPAN / 2 };
+  }
+  if (visible.maxZ - visible.minZ < MIN_SPAN) {
+    const cz = (visible.minZ + visible.maxZ) / 2;
+    visible = { ...visible, minZ: cz - MIN_SPAN / 2, maxZ: cz + MIN_SPAN / 2 };
+  }
+
+  const spanX = visible.maxX - visible.minX;
+  const spanZ = visible.maxZ - visible.minZ;
+  // Cap the margin at 40% of the span so it can never flip min>max the way
+  // a fixed margin could on a small visible area (e.g. a very close camera).
+  const marginX = Math.min(spanX * 0.1 + maxExtent * 2, spanX * 0.4);
+  const marginZ = Math.min(spanZ * 0.1 + maxExtent * 2, spanZ * 0.4);
   tableBounds = {
     minX: visible.minX + marginX, maxX: visible.maxX - marginX,
     minZ: visible.minZ + marginZ, maxZ: visible.maxZ - marginZ,
