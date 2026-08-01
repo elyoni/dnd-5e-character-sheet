@@ -166,9 +166,6 @@
     <label>Die color
       <input type="color" id="cfg-color" value="#c9a227" />
     </label>
-    <label>Text color
-      <input type="color" id="cfg-text-color" value="#1c150f" />
-    </label>
     <label>Throw distance
       <input type="range" id="cfg-distance" min="0.1" max="1" step="0.05" value="0.4" />
       <input type="number" id="cfg-distance-out" min="0.1" max="1" step="0.05" value="0.4" />
@@ -198,10 +195,8 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 
-// Default/reference size - the "Die size" slider overrides this per throw
-// (passed through as `radius`), but wall placement below has to plan for
-// the largest possible die regardless of the slider's current value.
-const DIE_RADIUS = 0.9;
+// Wall placement below has to plan for the largest possible die regardless
+// of the "Die size" slider's current value.
 const MAX_DIE_RADIUS = 1.8;
 
 // ---------- three.js scene ----------
@@ -323,66 +318,39 @@ function computeTableBounds() {
 }
 
 // ---------- d20 geometry with numbered faces ----------
-// A flat plane rigidly parented to the die and oriented along the face
-// normal - NOT a THREE.Sprite, which always billboards to face the camera
-// and would make every number float in front of the die instead of
-// rotating with its face.
-function makeNumberPlane(number, textColor, radius) {
-  const size = 128;
-  const cnv = document.createElement("canvas");
-  cnv.width = cnv.height = size;
-  const ctx = cnv.getContext("2d");
-  ctx.fillStyle = "rgba(0,0,0,0)";
-  ctx.fillRect(0, 0, size, size);
-  ctx.fillStyle = textColor;
-  ctx.font = "bold 64px Georgia, serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(String(number), size / 2, size / 2 + 4);
-  const texture = new THREE.CanvasTexture(cnv);
-  const material = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true,
-    depthTest: true,
-    side: THREE.FrontSide, // back-face culled so numbers on the far side don't show through
-  });
-  // Scaled to the die's own radius so the number stays proportional as
-  // "Die size" changes, instead of looking tiny on a big die or oversized
-  // on a small one.
-  const planeSize = radius * (0.5 / DIE_RADIUS);
-  const geo = new THREE.PlaneGeometry(planeSize, planeSize);
-  return new THREE.Mesh(geo, material);
-}
-
-function buildDie(color, textColor, radius) {
+function buildDie(color, radius) {
   const geo = new THREE.IcosahedronGeometry(radius, 0).toNonIndexed();
   const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.1 });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = false;
 
+  // Numbers used to be painted directly on each of the 20 faces, but at a
+  // glancing angle a flat textured plane sitting just off the surface reads
+  // as detached/floating rather than flush with the die - and near the top
+  // of a steeply-viewed polyhedron, several faces are visible at once, so
+  // multiple numbers would appear to float beside each other. The result is
+  // shown via the floating HTML label instead (see showLabel), so faces only
+  // need their normal + assigned number as plain data, not a rendered mesh.
   const pos = geo.attributes.position;
   const faceCount = pos.count / 3;
   const numbers = Array.from({ length: 20 }, (_, i) => i + 1);
   // Shuffle - a real d20 has opposite faces summing to 21, but for this
-  // prototype we only need *some* legible number per face.
+  // prototype we only need *some* number assigned per face.
   for (let i = numbers.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
   }
 
+  const faces = [];
   for (let f = 0; f < faceCount; f++) {
     const a = new THREE.Vector3().fromBufferAttribute(pos, f * 3);
     const b = new THREE.Vector3().fromBufferAttribute(pos, f * 3 + 1);
     const c = new THREE.Vector3().fromBufferAttribute(pos, f * 3 + 2);
     const centroid = a.clone().add(b).add(c).divideScalar(3);
     const normal = centroid.clone().normalize();
-    const plane = makeNumberPlane(numbers[f], textColor, radius);
-    plane.position.copy(normal.clone().multiplyScalar(radius * 1.01));
-    plane.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
-    plane.userData.faceNormal = normal;
-    plane.userData.number = numbers[f];
-    mesh.add(plane);
+    faces.push({ normal, number: numbers[f] });
   }
+  mesh.userData.faces = faces;
 
   return mesh;
 }
@@ -422,11 +390,11 @@ function clearDice() {
 // Shows the resting number as an HTML badge floating just above the die,
 // in world space projected to screen space, once it's fully settled.
 function showLabel(die) {
-  const { plane } = getTopFace(die.mesh);
-  if (!plane) return;
+  const { face } = getTopFace(die.mesh);
+  if (!face) return;
   const el = document.createElement("div");
   el.className = "dice-label";
-  el.textContent = plane.userData.number;
+  el.textContent = face.number;
   labelsContainer.appendChild(el);
   die.labelEl = el;
   positionLabel(die);
@@ -448,16 +416,16 @@ function getTopFace(mesh) {
   let best = null;
   let bestNormal = null;
   let bestDot = -Infinity;
-  for (const plane of mesh.children) {
-    const worldNormal = plane.userData.faceNormal.clone().applyQuaternion(mesh.quaternion);
+  for (const face of mesh.userData.faces) {
+    const worldNormal = face.normal.clone().applyQuaternion(mesh.quaternion);
     const dot = worldNormal.dot(TOP_FACE_TARGET);
     if (dot > bestDot) {
       bestDot = dot;
-      best = plane;
+      best = face;
       bestNormal = worldNormal;
     }
   }
-  return { plane: best, worldNormal: bestNormal };
+  return { face: best, worldNormal: bestNormal };
 }
 
 // The sphere collider approximates the icosahedron for tumbling, but it
@@ -479,13 +447,13 @@ function smoothstep(t) {
 // so a fast throw can't tunnel clean through a wall in one physics step.
 const MAX_LAUNCH_SPEED = 25;
 
-function throwDice({ count, color, textColor, distance, radius }) {
+function throwDice({ count, color, distance, radius }) {
   clearDice();
   const spanX = (tableBounds.maxX - tableBounds.minX) * 0.15;
   const spanZ = (tableBounds.maxZ - tableBounds.minZ) * 0.15;
 
   for (let i = 0; i < count; i++) {
-    const mesh = buildDie(color, textColor, radius);
+    const mesh = buildDie(color, radius);
     const body = buildDieBody(radius);
 
     const startX = tableBounds.minX + (tableBounds.maxX - tableBounds.minX) * 0.15 + (Math.random() - 0.5) * spanX;
@@ -520,7 +488,6 @@ function throwDice({ count, color, textColor, distance, radius }) {
 
 const countInput = document.getElementById("cfg-count");
 const colorInput = document.getElementById("cfg-color");
-const textColorInput = document.getElementById("cfg-text-color");
 const distanceInput = document.getElementById("cfg-distance");
 const distanceOut = document.getElementById("cfg-distance-out");
 const speedInput = document.getElementById("cfg-speed");
@@ -547,7 +514,6 @@ document.getElementById("roll-btn").addEventListener("click", () => {
   throwDice({
     count,
     color: colorInput.value,
-    textColor: textColorInput.value,
     distance: Number(distanceInput.value),
     radius: Number(sizeInput.value),
   });
