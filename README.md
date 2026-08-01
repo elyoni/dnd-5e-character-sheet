@@ -104,6 +104,7 @@ This one generic `{stat, amount, perLevel, matchSpeed, fixed}` shape drives all 
 - **First-run onboarding** — a lightweight language-picker flow for brand-new installs only; existing users never see it.
 - **Destructive-action confirmation** — deleting an attack, spell, feat, resource, item, or entire character always asks for confirmation first.
 - **Fold/collapse** any panel to declutter the sheet, independently per panel.
+- **Lock** the Saving Throws or Skills panel (🔒/🔓 icon in its header) to disable its proficiency/expertise checkboxes and guard against accidental misclicks; the lock state persists across sessions.
 
 ## Development
 

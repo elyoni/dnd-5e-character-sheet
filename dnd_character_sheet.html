@@ -217,6 +217,14 @@ td input, td select{padding:6px 7px;font-size:15px;}
 
 /* ---------- reference panel ---------- */
 .ref-toggle{cursor:pointer;user-select:none;}
+.panel-header-actions{display:inline-flex;align-items:center;gap:8px;}
+.lock-toggle{
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--leather-line);border-radius:var(--radius);
+  background:var(--panel-2);padding:2px 8px;font-size:12px;line-height:1;cursor:pointer;opacity:.85;
+}
+.lock-toggle:hover{opacity:1;border-color:var(--gold);}
+.panel.folded h2 .lock-toggle{display:none;}
 .ref-body{display:none;font-size:15.5px;line-height:1.7;color:var(--ink-dim);}
 .ref-body.open{display:block;}
 .ref-body .f{color:var(--gold-bright);font-family:'IBM Plex Mono',monospace;}
@@ -586,9 +594,10 @@ const T = {
     sizeTiny:"Tiny", sizeSmall:"Small", sizeMedium:"Medium", sizeLarge:"Large", sizeHuge:"Huge", sizeGargantuan:"Gargantuan",
     selectPlaceholder:"— select —", customOption:"Custom…", backToList:"← back to list", noneOption:"None",
     clsAutoNote:"Picking a Class from the list fills in its two fixed Saving Throw proficiencies, a couple of thematically common skills as a starting suggestion (adjust to your actual picks), and class resources (Rage, Second Wind, etc.). It only adds — switching classes won't remove saves/skills you already set.",
-    identityLockedHint:"Name, Class, Race, Subrace, and Size are locked to prevent accidental changes. Level stays editable since it changes often.",
-    identityUnlockedHint:"Unlocked — Name/Class/Race/Subrace/Size can be edited now.",
+    identityLockedHint:"Name, Class, Subclass, Race, Subrace, and Size are locked to prevent accidental changes. Level stays editable since it changes often.",
+    identityUnlockedHint:"Unlocked — Name/Class/Subclass/Race/Subrace/Size can be edited now.",
     identityUnlockBtn:"🔓 Unlock to edit", identityLockNow:"🔒 Lock again",
+    lockPanel:"Lock to prevent accidental changes", unlockPanel:"Unlock to allow editing",
     shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped", itemEquippedAbbr:"Eq.",
     proficiencies:"Proficiencies & Languages", profArmor:"Armor", profWeapons:"Weapons", profTools:"Tools", profLanguages:"Languages",
     inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
@@ -633,7 +642,7 @@ const T = {
     aiTrustDesc_fullyTrusted:"Everything in Trusted, plus the AI can set your spell slot totals directly. Spell slot suggestions come with a warning — always double-check them against your own class/multiclass table.",
     aiSpellSlotWarning:"⚠ Spell slot progression depends on class/multiclass rules the AI may have gotten wrong — double-check this against your own table before relying on it.",
     printSettingsTitle:"Print Settings", printStyleLabel:"Layout:", printMinimal:"Minimal (sheet only)", printStandard:"Standard (+ flow & reference)",
-    extraAttackRows:"Extra blank attack lines:", extraSpellRows:"Extra blank spell lines:", printGo:"Print", printCancel:"Cancel",
+    extraAttackRows:"Extra blank attack lines:", extraSpellRows:"Extra blank spell lines:", printGo:"Print", printCancel:"Cancel", closeBtn:"Close",
     spells:"Spells", spCastAbil:"Casting stat", spellSaveDC:"Spell Save DC", spellAtk:"Spell Attack Bonus",
     slotsLabel:"Spell Slots", slotLevel:"Lvl", slotTotal:"Total", slotUsed:"Used", cantrips:"Cantrips",
     quickSpellHint:"Type a spell name and hit Done (or Enter) to add it under that level — you can still edit prep/C/T/V/notes right in the row after.",
@@ -735,9 +744,10 @@ const T = {
     sizeTiny:"זעיר", sizeSmall:"קטן", sizeMedium:"בינוני", sizeLarge:"גדול", sizeHuge:"ענק", sizeGargantuan:"עצום",
     selectPlaceholder:"— בחר —", customOption:"מותאם אישית…", backToList:"← חזרה לרשימה", noneOption:"ללא",
     clsAutoNote:"בחירת מחלקה מהרשימה ממלאת את שתי מיומנויות ההצלה הקבועות שלה, כמה כישורים נפוצים כהצעת התחלה (התאם לבחירות האמיתיות שלך), ומשאבי מחלקה (Rage, Second Wind וכו'). זה רק מוסיף — החלפת מחלקה לא תסיר הצלות/כישורים שכבר סימנת.",
-    identityLockedHint:"שם, מחלקה, גזע, תת-גזע וגודל נעולים כדי למנוע שינויים בטעות. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
-    identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/גזע/תת-גזע/גודל עכשיו.",
+    identityLockedHint:"שם, מחלקה, תת-מחלקה, גזע, תת-גזע וגודל נעולים כדי למנוע שינויים בטעות. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
+    identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/תת-מחלקה/גזע/תת-גזע/גודל עכשיו.",
     identityUnlockBtn:"🔓 פתח לעריכה", identityLockNow:"🔒 נעל שוב",
+    lockPanel:"נעל כדי למנוע שינויים בטעות", unlockPanel:"פתח כדי לאפשר עריכה",
     shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש", itemEquippedAbbr:"חבוש",
     proficiencies:"מיומנויות ושפות", profArmor:"שריון", profWeapons:"נשקים", profTools:"כלים", profLanguages:"שפות",
     inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
@@ -782,7 +792,7 @@ const T = {
     aiSpellSlotWarning:"⚠ התקדמות משבצות הכישוף תלויה בכללי מחלקה/מחלקה כפולה שה-AI אולי טעה בהם — בדוק זאת מול הטבלה שלך לפני שאתה סומך על זה.",
     linkReadyHint:"הקישור הועתק ללוח — אפשר גם להעתיק ידנית למטה.", linkCopied:"✓ הועתק ללוח.",
     printSettingsTitle:"הגדרות הדפסה", printStyleLabel:"פריסה:", printMinimal:"מינימלי (גיליון בלבד)", printStandard:"סטנדרטי (+ תהליך והסבר)",
-    extraAttackRows:"שורות התקפה ריקות נוספות:", extraSpellRows:"שורות קסם ריקות נוספות:", printGo:"הדפסה", printCancel:"ביטול",
+    extraAttackRows:"שורות התקפה ריקות נוספות:", extraSpellRows:"שורות קסם ריקות נוספות:", printGo:"הדפסה", printCancel:"ביטול", closeBtn:"סגור",
     spells:"קסמים", spCastAbil:"תכונת כישוף", spellSaveDC:"קושי הצלה מקסם", spellAtk:"בונוס התקפת קסם",
     slotsLabel:"משבצות קסם", slotLevel:"רמה", slotTotal:"סה״כ", slotUsed:"נוצלו", cantrips:"קנטריפים",
     quickSpellHint:"הקלד שם קסם ולחץ סיום (או Enter) כדי להוסיף אותו ברמה הזו — עדיין אפשר לערוך הכנה/ר/מ/ד/הערות ישירות בשורה אחר כך.",
@@ -1100,12 +1110,14 @@ let turnDiagramSelected = 0;
 let turnExpanded = {};
 let diceFolded = false;
 let foldedPanels = {};
+let panelLocks = {};
 let identityUnlocked = false;
 function toggleIdentityLock(){ identityUnlocked = !identityUnlocked; render(); }
 function saveFoldedPanels(){
-  (async ()=>{ try{ await storageSet("dnd-folded-panels", JSON.stringify({panels: foldedPanels, dice: diceFolded, ref: refOpen})); }catch(e){} })();
+  (async ()=>{ try{ await storageSet("dnd-folded-panels", JSON.stringify({panels: foldedPanels, dice: diceFolded, ref: refOpen, locks: panelLocks})); }catch(e){} })();
 }
 function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); saveFoldedPanels(); }
+function togglePanelLock(id){ panelLocks[id] = !panelLocks[id]; render(); saveFoldedPanels(); }
 const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","proficiencies","inventory","attacks","spells","feats","resources","notes","turnFlow","atkFlow"];
 function setAllFolded(hide){
   ALL_PANEL_IDS.forEach(id => foldedPanels[id] = hide);
@@ -1115,6 +1127,8 @@ function setAllFolded(hide){
   saveFoldedPanels();
 }
 function foldIcon(id){ const dir = lang==='he' ? 'rtl' : 'ltr'; return `<span class="no-print" style="float:${dir==='rtl'?'left':'right'};font-size:11px;color:var(--ink-faint)">${foldedPanels[id] ? T[lang].refShow : T[lang].refHide}</span>`; }
+function lockIcon(id){ const locked = !!panelLocks[id]; return `<span class="no-print lock-toggle" title="${locked ? T[lang].unlockPanel : T[lang].lockPanel}" onclick="event.stopPropagation();togglePanelLock('${id}')">${locked ? '🔒' : '🔓'}</span>`; }
+function lockableFoldIcon(id){ const dir = lang==='he' ? 'rtl' : 'ltr'; return `<span class="no-print panel-header-actions" style="float:${dir==='rtl'?'left':'right'}">${lockIcon(id)}<span style="font-size:11px;color:var(--ink-faint)">${foldedPanels[id] ? T[lang].refShow : T[lang].refHide}</span></span>`; }
 function toggleDiceFold(){ diceFolded = !diceFolded; render(); saveFoldedPanels(); }
 function toggleTurnExpand(i){ turnExpanded[i] = !turnExpanded[i]; render(); }
 function setTurnView(mode){ turnViewMode = mode; render(); }
@@ -3403,7 +3417,9 @@ function render(){
           </select>
         `) : `<span class="feat-name-display">${esc2(state.cls)||"—"}</span>`}
       </div>
-      <div class="field"><label>${t.subclass}</label><input type="text" value="${state.subclass}" placeholder="Champion" style="width:${dmgInputWidthCh(state.subclass, 10)}ch" oninput="autoWidthInput(this, 10)" onchange="set('subclass', this.value)"></div>
+      <div class="field"><label>${t.subclass}</label>
+        ${identityUnlocked ? `<input type="text" value="${state.subclass}" placeholder="Champion" style="width:${dmgInputWidthCh(state.subclass, 10)}ch" oninput="autoWidthInput(this, 10)" onchange="set('subclass', this.value)">` : `<span class="feat-name-display">${esc2(state.subclass)||"—"}</span>`}
+      </div>
       <div class="field field-level"><label>${t.level}</label><input type="number" min="1" max="20" class="no-spinner" style="width:44px;min-width:0;box-sizing:border-box;padding:8px 4px;text-align:center" value="${state.level}" onchange="set('level', Math.max(1, Math.min(20, parseInt(this.value)||1)))"></div>
       <div class="field"><label>${t.race}</label>
         ${identityUnlocked ? (state.raceCustom ? `
@@ -3561,7 +3577,7 @@ function render(){
 
   <div class="grid grid-13">
     <div class="panel ${foldedPanels['saves'] ? 'folded' : ''}">
-      <h2 class="ref-toggle" onclick="togglePanelFold('saves')">${t.saves} ${foldIcon('saves')}</h2>
+      <h2 class="ref-toggle" onclick="togglePanelFold('saves')">${t.saves} ${lockableFoldIcon('saves')}</h2>
       <div class="formula-note" style="margin-bottom:8px;line-height:1.5">${lang==='en'
         ? 'd20 + ability mod + prof (only if the checkbox below is on). Which ability you roll depends on the effect forcing the save, not on which weapon you have — the spell/trap/monster tells you. Check exactly two: your class fixes which two saves you\'re proficient in at level 1.'
         : 'd20 + מודיפייר תכונה + מיומנות (רק אם התיבה למטה מסומנת). איזו תכונה זורקים תלוי באפקט שמכריח את ההצלה, לא בנשק שלך — הקסם/המלכודת/המפלצת אומרים לך איזו. סמן בדיוק שתיים: המחלקה שלך קובעת באילו שתי הצלות אתה מיומן ברמה 1.'}</div>
@@ -3574,14 +3590,14 @@ function render(){
         const p = state.saveProf[a];
         const val = mod(effAbil[a]) + (p?prof:0);
         return `<div class="list-row">
-          <input type="checkbox" ${p?"checked":""} onchange="set('saveProf.${a}', this.checked)">
+          <input type="checkbox" ${p?"checked":""} ${panelLocks['saves']?"disabled":""} onchange="set('saveProf.${a}', this.checked)">
           <span>${ABIL_ICON[a]} ${t[a]}</span>
           <span class="val">${fm(val)}</span>
         </div>`;
       }).join("")}
     </div>
     <div class="panel ${foldedPanels['skills'] ? 'folded' : ''}">
-      <h2 class="ref-toggle" onclick="togglePanelFold('skills')">${t.skills} ${foldIcon('skills')}</h2>
+      <h2 class="ref-toggle" onclick="togglePanelFold('skills')">${t.skills} ${lockableFoldIcon('skills')}</h2>
       <div class="formula-note" style="margin-bottom:8px;line-height:1.5">${lang==='en'
         ? 'd20 + ability mod (shown in parentheses) + prof (only if the checkbox is on). The ability differs per skill — Stealth uses DEX, Medicine uses WIS, and so on. The second checkbox is Expertise (doubles the prof bonus) and only matters if the skill is also checked proficient.'
         : 'd20 + מודיפייר תכונה (מוצג בסוגריים) + מיומנות (רק אם התיבה מסומנת). התכונה משתנה לפי הכישור — התגנבות משתמשת בזריזות, רפואה בחוכמה, וכו׳. התיבה השנייה היא מומחיות (מכפילה את בונוס המיומנות) ומשנה משהו רק אם גם התיבה הראשונה מסומנת.'}</div>
@@ -3591,8 +3607,8 @@ function render(){
           const e = !!state.skillExpertise[key];
           const val = mod(effAbil[abil]) + (p?prof*(e?2:1):0);
           return `<div class="list-row skill-row">
-            <input type="checkbox" ${p?"checked":""} onchange="set('skillProf.${key}', this.checked)" title="${t.proficient}">
-            <input type="checkbox" ${e?"checked":""} ${p?"":"disabled"} onchange="set('skillExpertise.${key}', this.checked)" title="${t.expertise}">
+            <input type="checkbox" ${p?"checked":""} ${panelLocks['skills']?"disabled":""} onchange="set('skillProf.${key}', this.checked)" title="${t.proficient}">
+            <input type="checkbox" ${e?"checked":""} ${(p&&!panelLocks['skills'])?"":"disabled"} onchange="set('skillExpertise.${key}', this.checked)" title="${t.expertise}">
             <span>${ABIL_ICON[abil]} ${lang==='he'?he:en}<span class="ability-tag">(${t[abil]})</span></span>
             <span class="val">${fm(val)}</span>
           </div>`;
@@ -4058,7 +4074,7 @@ function render(){
       </div>` : ""}
 
       <div class="modal-actions">
-        <button class="btn" onclick="closeAIModal()">${t.printCancel}</button>
+        <button class="btn" onclick="closeAIModal()">${t.closeBtn}</button>
       </div>
     </div>
   </div>` : ""}
@@ -4126,6 +4142,7 @@ window.addEventListener('resize', trimDiceHistories);
           if(parsed.panels && typeof parsed.panels === "object") foldedPanels = parsed.panels;
           if(typeof parsed.dice === "boolean") diceFolded = parsed.dice;
           if(typeof parsed.ref === "boolean") refOpen = parsed.ref;
+          if(parsed.locks && typeof parsed.locks === "object") panelLocks = parsed.locks;
         }
       }
     }catch(e){}

@@ -52,6 +52,35 @@ Everything lives in global scope inside the one `<script>` tag. There's no frame
 - **Dice rolling / cube animation**: `rollAttack`, `rollSpellDamage`, `rollDice`, `computeCubeRollData`, and the `DIE_*`/`CUBE_*`/`PIP_LAYOUT` constants drive an animated CSS 3D die. Roll history is kept per-row in `attackRollHistories`/`spellRollHistories`.
 - **Print**: `buildPrintHTML(opts)` generates a separate print-optimized HTML document (opened via `doPrint()`/`confirmPrint()`), independent of the live `render()` template.
 
+## File map (line numbers)
+
+`dnd_character_sheet.html` is ~4200 lines — reading it broadly burns a lot of context on a fresh session. Before reading, `grep -n` for the function/key name to confirm the exact line (numbers below drift as the file grows), then `Read` with a targeted `offset`/`limit` instead of the whole file.
+
+| Region | Lines |
+|---|---|
+| `<style>` block | 17–580 |
+| Translations: `T.en` / `T.he` | 588–887 |
+| Static reference data (`SKILLS`, `CLASS_LIST`/`RACE_LIST` + Hebrew maps, `ATTACK_PRESETS`, `SUBRACE_MAP`) | 891–949 |
+| `defaultChar` / `animalChar` / `hydrate` / `demoChar` | 950–1103 |
+| UI-flag globals + fold/lock helpers (`foldedPanels`, `panelLocks`, `identityUnlocked`, `togglePanelFold`, `togglePanelLock`) | 1104–1135 |
+| On Your Turn decision-tree builders (`buildTurnDiagram` and friends) | 1136–1258 |
+| Remove-confirmation (`confirmRemove`/`pendingRemove`/`doRemove`) + dice-roll globals + `rollAttack`/`rollSpellDamage` | 1259–1328 |
+| Storage wrappers (`storageGet`/`storageSet`/`storageDelete`, `lsAvailable`, `LS_PREFIX`) | 1329–1394 |
+| Derived-stat helpers (`getFeatBonus`, `getEffectiveAbilities`, `computeMaxHP`, `computeAC`, `computePassivePerception`, etc.) | 1395–1520 |
+| `queueSave`/`set()` mutator, New Character modal, attack rows/modal | 1521–1893 |
+| Onboarding + "no characters yet" screen (`onboardingModalHTML`, `noCharactersHTML`) | 1894–1945 |
+| Dice/cube SVG helpers + main d20 roller (`rollDice`) | 1946–2045 |
+| Export/import — JSON file + shareable link (`exportCharacter`, `buildShareURL`, `decodeBase64ToState`) | 2046–2139 |
+| Hand-rolled YAML parse/dump (used by Ask AI) | 2140–2243 |
+| **Ask AI** flow (`AI_ADDITION_SCHEMAS`, `buildCuratedCharacterForAI`, `buildAIExport`, `parseAIPaste`, `addAIItem`, `aiItemLabel`) | 2244–2516 |
+| `buildPrintHTML` (separate print document) | 2517–2811 |
+| Spell presets + `spellRow` / spell modal | 2812–2951 |
+| Feat rows/modal + secondary-speed helpers | 2952–3071 |
+| Resources / inventory rows (gear, armor) | 3072–3174 |
+| Class/race template application (`applyTemplate`, `applyRaceTemplate`, `CLASS_SAVES`, `CLASS_SKILL_SUGGEST`) | 3175–3323 |
+| **`render()`** — rebuilds `#app` from scratch every call | 3324–4109 |
+| `trimDiceHistories` + `init()` (onboarding bootstrap, URL import) | 4110–4181 |
+
 ## Conventions to follow
 
 - New character fields go in `defaultChar()`, get a matching back-fill default in `hydrate()`, and (if displayed) a translation key in both `T.en` and `T.he`.
