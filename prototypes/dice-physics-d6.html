@@ -27,8 +27,9 @@
     position: absolute;
     transform: translate(-50%, -50%);
     font-weight: bold;
-    font-size: 22px;
-    color: #e8dcc0;
+    font-size: var(--label-font-size, 22px);
+    font-family: var(--label-font-family, system-ui, sans-serif);
+    color: var(--label-color, #e8dcc0);
     text-shadow: 0 0 4px #000, 0 0 8px #000, 0 1px 2px #000;
     opacity: 0;
     transition: opacity 0.25s ease-out;
@@ -43,13 +44,39 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-    background: rgba(20, 20, 26, .8);
+    background: rgba(20, 20, 26, .85);
     padding: 12px 14px;
     border-radius: 8px;
     color: #eee;
-    font-size: 13px;
+    font-size: 12px;
+    width: 260px;
+    max-height: 94vh;
+    overflow-y: auto;
   }
-  #controls label { display: flex; gap: 8px; align-items: center; }
+  #controls label {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    width: 100%;
+  }
+  #controls label > span.lbl { flex: 0 0 90px; }
+  #controls input[type=range] { flex: 1; min-width: 0; }
+  #controls input[type=color] { width: 28px; height: 22px; padding: 0; border: none; background: none; }
+  #controls select { flex: 1; }
+  #controls .cfg-val { min-width: 2.6em; text-align: right; font-variant-numeric: tabular-nums; opacity: .8; }
+  .panel-section {
+    width: 100%;
+    border-top: 1px solid rgba(255,255,255,.15);
+    margin-top: 4px;
+    padding-top: 6px;
+  }
+  .panel-section:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+  .panel-title {
+    font-weight: bold;
+    color: #c9a227;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
   #roll-btn {
     font-size: 16px;
     padding: 10px 20px;
@@ -59,12 +86,12 @@
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    width: 100%;
   }
   #roll-btn:active { transform: translateY(1px); }
   #note {
     font-size: 11px;
     color: #9a9080;
-    max-width: 220px;
   }
 </style>
 </head>
@@ -75,17 +102,75 @@
 
 <div id="controls">
   <button id="roll-btn">Roll</button>
-  <label>Die type
-    <select id="cfg-die-type">
-      <option value="d6">d6</option>
-      <option value="d20">d20</option>
-    </select>
-  </label>
-  <label>Dice count <input type="number" id="cfg-count" min="1" max="6" value="2" style="width:50px" /></label>
+
+  <div class="panel-section">
+    <div class="panel-title">Dice</div>
+    <label><span class="lbl">Type</span>
+      <select id="cfg-die-type">
+        <option value="d6">d6</option>
+        <option value="d20">d20</option>
+      </select>
+    </label>
+    <label><span class="lbl">Count</span> <input type="number" id="cfg-count" min="1" max="6" value="2" style="width:50px" /></label>
+    <label><span class="lbl">Size</span> <input type="range" id="cfg-die-scale" min="0.5" max="2" step="0.05" value="1" /> <span class="cfg-val" id="cfg-die-scale-val">1.00</span></label>
+    <label><span class="lbl">Font size</span> <input type="range" id="cfg-font-size" min="24" max="100" step="2" value="64" /> <span class="cfg-val" id="cfg-font-size-val">64</span></label>
+    <label><span class="lbl">Font type</span>
+      <select id="cfg-font-family">
+        <option value="system-ui, sans-serif">System</option>
+        <option value="Georgia, serif">Serif</option>
+        <option value="'Courier New', monospace">Monospace</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet</option>
+        <option value="Impact, sans-serif">Impact</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-title">Colors</div>
+    <label><span class="lbl">Number</span> <input type="color" id="cfg-color-number" value="#1c150f" /></label>
+    <label><span class="lbl">Die</span> <input type="color" id="cfg-color-die" value="#c9a227" /></label>
+    <label><span class="lbl">Background</span> <input type="color" id="cfg-color-bg" value="#0d120e" /></label>
+    <label><span class="lbl">Table</span> <input type="color" id="cfg-color-table" value="#1a2a1c" /></label>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-title">Roll behavior</div>
+    <label><span class="lbl">Speed</span> <input type="range" id="cfg-roll-speed" min="0.3" max="2.5" step="0.1" value="1" /> <span class="cfg-val" id="cfg-roll-speed-val">1.0</span></label>
+    <label><span class="lbl">Spin</span> <input type="range" id="cfg-roll-spin" min="0" max="2.5" step="0.1" value="1" /> <span class="cfg-val" id="cfg-roll-spin-val">1.0</span></label>
+    <label><span class="lbl">Bounce</span> <input type="range" id="cfg-roll-bounce" min="0" max="0.9" step="0.05" value="0.3" /> <span class="cfg-val" id="cfg-roll-bounce-val">0.30</span></label>
+    <label><span class="lbl">Settle speed</span> <input type="range" id="cfg-roll-damping" min="0.1" max="0.9" step="0.05" value="0.4" /> <span class="cfg-val" id="cfg-roll-damping-val">0.40</span></label>
+    <label><span class="lbl">Max roll time</span> <input type="range" id="cfg-roll-maxtime" min="1" max="10" step="0.5" value="5" /> <span class="cfg-val" id="cfg-roll-maxtime-val">5.0</span></label>
+    <label><span class="lbl">Gravity</span> <input type="range" id="cfg-gravity" min="5" max="40" step="1" value="20" /> <span class="cfg-val" id="cfg-gravity-val">20</span></label>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-title">Result number</div>
+    <label><span class="lbl">X offset</span> <input type="range" id="cfg-label-x" min="-100" max="100" step="1" value="0" /> <span class="cfg-val" id="cfg-label-x-val">0</span></label>
+    <label><span class="lbl">Y offset</span> <input type="range" id="cfg-label-y" min="-150" max="150" step="1" value="0" /> <span class="cfg-val" id="cfg-label-y-val">0</span></label>
+    <label><span class="lbl">Font size</span> <input type="range" id="cfg-label-font-size" min="12" max="48" step="1" value="22" /> <span class="cfg-val" id="cfg-label-font-size-val">22</span></label>
+    <label><span class="lbl">Font type</span>
+      <select id="cfg-label-font-family">
+        <option value="system-ui, sans-serif">System</option>
+        <option value="Georgia, serif">Serif</option>
+        <option value="'Courier New', monospace">Monospace</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet</option>
+        <option value="Impact, sans-serif">Impact</option>
+      </select>
+    </label>
+    <label><span class="lbl">Color</span> <input type="color" id="cfg-label-color" value="#e8dcc0" /></label>
+  </div>
+
+  <div class="panel-section">
+    <div class="panel-title">Camera</div>
+    <label><span class="lbl">Height</span> <input type="range" id="cfg-cam-height" min="6" max="30" step="0.5" value="16" /> <span class="cfg-val" id="cfg-cam-height-val">16</span></label>
+    <label><span class="lbl">Distance</span> <input type="range" id="cfg-cam-distance" min="2" max="20" step="0.5" value="8" /> <span class="cfg-val" id="cfg-cam-distance-val">8</span></label>
+  </div>
+
   <div id="note">
-    Real physics, exact-fit colliders (box for d6, true convex icosahedron
-    for d20) — both settle flat on a face from gravity/collision alone, no
-    visual "snap" correction like the old sphere-approximated d20 needed.
+    Colors / fonts / size / camera apply live. Colors &amp; font changes on
+    the dice themselves take effect on the next roll (they're baked into a
+    texture). Real physics, exact-fit colliders (box for d6, true convex
+    icosahedron for d20) — both settle flat from gravity/collision alone.
   </div>
 </div>
 
@@ -102,10 +187,38 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 
-const DIE_SIZE = 1.4; // d6 full edge length
-const DIE_HALF = DIE_SIZE / 2;
-const D20_RADIUS = 1.3;
-const MAX_DIE_EXTENT = Math.max(DIE_SIZE, D20_RADIUS * 2);
+const DIE_SIZE = 1.4; // d6 full edge length, at CONFIG.dieScale = 1
+const D20_RADIUS = 1.3; // at CONFIG.dieScale = 1
+
+// Central knobs the debug panel below reads/writes. Color/font/size changes
+// are baked into a canvas texture at build time, so they take effect on the
+// next roll; physics, camera, and label-position changes apply immediately.
+const CONFIG = {
+  textColor: "#1c150f",
+  dieColor: "#c9a227",
+  bgColor: "#0d120e",
+  tableColor: "#1a2a1c",
+  fontSize: 64,
+  fontFamily: "system-ui, sans-serif",
+  dieScale: 1,
+  rollSpeed: 1,
+  rollSpin: 1,
+  rollBounce: 0.3,
+  rollDamping: 0.4,
+  maxRollTime: 5,
+  gravity: 20,
+  labelOffsetX: 0,
+  labelOffsetY: 0,
+  labelFontSize: 22,
+  labelFontFamily: "system-ui, sans-serif",
+  labelColor: "#e8dcc0",
+  camHeight: 16,
+  camDistance: 8,
+};
+
+function currentDieSize() { return DIE_SIZE * CONFIG.dieScale; }
+function currentD20Radius() { return D20_RADIUS * CONFIG.dieScale; }
+function currentExtent(dieType) { return dieType === "d20" ? currentD20Radius() * 2 : currentDieSize(); }
 
 // ---------- three.js scene ----------
 const canvas = document.getElementById("dice-canvas");
@@ -127,7 +240,7 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(4, 14, 6);
 scene.add(dirLight);
 
-const tableMat = new THREE.MeshStandardMaterial({ color: 0x1a2a1c, roughness: 0.9 });
+const tableMat = new THREE.MeshStandardMaterial({ color: CONFIG.tableColor, roughness: 0.9 });
 const table = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), tableMat);
 table.rotation.x = -Math.PI / 2;
 scene.add(table);
@@ -172,8 +285,9 @@ function computeTableBounds() {
   const xs = pts.map((p) => p.x);
   const zs = pts.map((p) => p.z);
   const visible = { minX: Math.min(...xs), maxX: Math.max(...xs), minZ: Math.min(...zs), maxZ: Math.max(...zs) };
-  const marginX = (visible.maxX - visible.minX) * 0.1 + MAX_DIE_EXTENT * 2;
-  const marginZ = (visible.maxZ - visible.minZ) * 0.1 + MAX_DIE_EXTENT * 2;
+  const maxExtent = Math.max(currentDieSize(), currentD20Radius() * 2);
+  const marginX = (visible.maxX - visible.minX) * 0.1 + maxExtent * 2;
+  const marginZ = (visible.maxZ - visible.minZ) * 0.1 + maxExtent * 2;
   tableBounds = {
     minX: visible.minX + marginX, maxX: visible.maxX - marginX,
     minZ: visible.minZ + marginZ, maxZ: visible.maxZ - marginZ,
@@ -205,29 +319,32 @@ const FACE_LOCAL_NORMALS = [
   [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1],
 ];
 
+// Rebuilt fresh on every roll (not cached) so live color/font/size changes
+// in the debug panel always show up on the next throw.
 function makeFaceTexture(number) {
   const canvas = document.createElement("canvas");
   canvas.width = 256;
   canvas.height = 256;
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#c9a227";
+  ctx.fillStyle = CONFIG.dieColor;
   ctx.fillRect(0, 0, 256, 256);
   ctx.strokeStyle = "rgba(0,0,0,0.25)";
   ctx.lineWidth = 6;
   ctx.strokeRect(3, 3, 250, 250);
-  ctx.fillStyle = "#1c150f";
-  ctx.font = "bold 150px system-ui, sans-serif";
+  ctx.fillStyle = CONFIG.textColor;
+  const fontPx = CONFIG.fontSize * 2; // canvas is 2x the d20's atlas cell
+  ctx.font = `bold ${fontPx}px ${CONFIG.fontFamily}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(String(number), 128, 138);
+  ctx.fillText(String(number), 128, 128 + fontPx * 0.067);
   return new THREE.CanvasTexture(canvas);
 }
 
-const materialsCache = FACE_NUMBERS.map((n) => new THREE.MeshStandardMaterial({ map: makeFaceTexture(n), roughness: 0.5 }));
-
 function buildDie() {
-  const geo = new THREE.BoxGeometry(DIE_SIZE, DIE_SIZE, DIE_SIZE);
-  const mesh = new THREE.Mesh(geo, materialsCache);
+  const size = currentDieSize();
+  const geo = new THREE.BoxGeometry(size, size, size);
+  const materials = FACE_NUMBERS.map((n) => new THREE.MeshStandardMaterial({ map: makeFaceTexture(n), roughness: 0.5 }));
+  const mesh = new THREE.Mesh(geo, materials);
   mesh.userData.faces = FACE_LOCAL_NORMALS.map((n, i) => ({
     normal: new THREE.Vector3(...n),
     number: FACE_NUMBERS[i],
@@ -236,12 +353,15 @@ function buildDie() {
 }
 
 function buildDieBody() {
+  const half = currentDieSize() / 2;
+  dieMaterial.friction = 0.4;
+  dieMaterial.restitution = CONFIG.rollBounce;
   return new CANNON.Body({
     mass: 1,
-    shape: new CANNON.Box(new CANNON.Vec3(DIE_HALF, DIE_HALF, DIE_HALF)),
+    shape: new CANNON.Box(new CANNON.Vec3(half, half, half)),
     material: dieMaterial,
-    angularDamping: 0.4,
-    linearDamping: 0.2,
+    angularDamping: CONFIG.rollDamping,
+    linearDamping: CONFIG.rollDamping / 2,
     allowSleep: true,
     sleepSpeedLimit: 0.15,
     sleepTimeLimit: 0.3,
@@ -315,20 +435,23 @@ function assignD20Numbers(faces) {
 const D20_TEMPLATE_FACES = computeMeshFaces(new THREE.IcosahedronGeometry(1, 0).toNonIndexed());
 const D20_NUMBERS = assignD20Numbers(D20_TEMPLATE_FACES);
 
-const d20FaceTextureCache = new Map();
+// Cache is invalidated (cleared) by the debug panel whenever color/font/size
+// change, so it only ever holds textures matching the current CONFIG.
+let d20FaceTextureCache = new Map();
 function getD20FaceTexture(number) {
   if (d20FaceTextureCache.has(number)) return d20FaceTextureCache.get(number);
   const canvas = document.createElement("canvas");
   canvas.width = 128;
   canvas.height = 128;
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#c9a227";
+  ctx.fillStyle = CONFIG.dieColor;
   ctx.fillRect(0, 0, 128, 128);
-  ctx.fillStyle = "#1c150f";
-  ctx.font = "bold 64px system-ui, sans-serif";
+  ctx.fillStyle = CONFIG.textColor;
+  const fontPx = CONFIG.fontSize;
+  ctx.font = `bold ${fontPx}px ${CONFIG.fontFamily}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(String(number), 64, 70);
+  ctx.fillText(String(number), 64, 64 + fontPx * 0.067);
   const tex = new THREE.CanvasTexture(canvas);
   d20FaceTextureCache.set(number, tex);
   return tex;
@@ -385,8 +508,9 @@ function buildD20Die(radius) {
 // headlessly (25/25 trials settled at exactly 0.00deg off level, ~2.9s avg)
 // before being wired up here; see the commit notes.
 let d20ShapeCache = null;
+let d20ShapeCacheRadius = null;
 function buildD20Shape(radius) {
-  if (d20ShapeCache) return d20ShapeCache;
+  if (d20ShapeCache && d20ShapeCacheRadius === radius) return d20ShapeCache;
   const verts = ICOSA_RAW_VERTICES.map((v) => {
     const l = Math.hypot(v[0], v[1], v[2]);
     return new CANNON.Vec3((v[0] / l) * radius, (v[1] / l) * radius, (v[2] / l) * radius);
@@ -400,16 +524,20 @@ function buildD20Shape(radius) {
     return normal.dot(centroid) < 0 ? [i0, i2, i1] : [i0, i1, i2];
   });
   d20ShapeCache = new CANNON.ConvexPolyhedron({ vertices: verts, faces });
+  d20ShapeCacheRadius = radius;
   return d20ShapeCache;
 }
 
 function buildD20Body() {
+  const radius = currentD20Radius();
+  dieMaterial.friction = 0.4;
+  dieMaterial.restitution = CONFIG.rollBounce;
   return new CANNON.Body({
     mass: 1,
-    shape: buildD20Shape(D20_RADIUS),
+    shape: buildD20Shape(radius),
     material: dieMaterial,
-    angularDamping: 0.5,
-    linearDamping: 0.25,
+    angularDamping: CONFIG.rollDamping + 0.1,
+    linearDamping: CONFIG.rollDamping / 2 + 0.05,
     allowSleep: true,
     sleepSpeedLimit: 0.15,
     sleepTimeLimit: 0.4,
@@ -417,8 +545,8 @@ function buildD20Body() {
 }
 
 const DIE_TYPES = {
-  d6: { buildMesh: () => buildDie(), buildBody: () => buildDieBody(), extent: DIE_SIZE },
-  d20: { buildMesh: () => buildD20Die(D20_RADIUS), buildBody: () => buildD20Body(), extent: D20_RADIUS * 2 },
+  d6: { buildMesh: () => buildDie(), buildBody: () => buildDieBody() },
+  d20: { buildMesh: () => buildD20Die(currentD20Radius()), buildBody: () => buildD20Body() },
 };
 
 const activeDice = [];
@@ -460,8 +588,8 @@ function positionLabel(die) {
   const worldPos = die.mesh.position.clone();
   worldPos.y += die.extent * 1.3;
   const ndc = worldPos.project(camera);
-  const x = (ndc.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-ndc.y * 0.5 + 0.5) * window.innerHeight;
+  const x = (ndc.x * 0.5 + 0.5) * window.innerWidth + CONFIG.labelOffsetX;
+  const y = (-ndc.y * 0.5 + 0.5) * window.innerHeight + CONFIG.labelOffsetY;
   die.labelEl.style.left = `${x}px`;
   die.labelEl.style.top = `${y}px`;
 }
@@ -469,6 +597,7 @@ function positionLabel(die) {
 function throwDice(count, dieType) {
   clearDice();
   const type = DIE_TYPES[dieType];
+  const extent = currentExtent(dieType);
   const spanX = (tableBounds.maxX - tableBounds.minX) * 0.15;
   const spanZ = (tableBounds.maxZ - tableBounds.minZ) * 0.15;
 
@@ -478,7 +607,7 @@ function throwDice(count, dieType) {
 
     const startX = tableBounds.minX + (tableBounds.maxX - tableBounds.minX) * 0.15 + (Math.random() - 0.5) * spanX;
     const startZ = tableBounds.minZ + (tableBounds.maxZ - tableBounds.minZ) * 0.15 + (Math.random() - 0.5) * spanZ;
-    body.position.set(startX + i * type.extent * 0.8, 6 + Math.random() * 1.5, startZ + i * type.extent * 0.8);
+    body.position.set(startX + i * extent * 0.8, 6 + Math.random() * 1.5, startZ + i * extent * 0.8);
     body.quaternion.setFromEuler(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
 
     const targetX = (Math.random() - 0.5) * (tableBounds.maxX - tableBounds.minX) * 0.5;
@@ -488,16 +617,18 @@ function throwDice(count, dieType) {
     const speed = Math.hypot(vx, vz);
     const maxSpeed = 20;
     if (speed > maxSpeed) { vx = (vx / speed) * maxSpeed; vz = (vz / speed) * maxSpeed; }
-    body.velocity.set(vx, -2, vz);
+    vx *= CONFIG.rollSpeed;
+    vz *= CONFIG.rollSpeed;
+    body.velocity.set(vx, -2 * CONFIG.rollSpeed, vz);
     body.angularVelocity.set(
-      (Math.random() - 0.5) * 20,
-      (Math.random() - 0.5) * 20,
-      (Math.random() - 0.5) * 20
+      (Math.random() - 0.5) * 20 * CONFIG.rollSpin,
+      (Math.random() - 0.5) * 20 * CONFIG.rollSpin,
+      (Math.random() - 0.5) * 20 * CONFIG.rollSpin
     );
 
     scene.add(mesh);
     world.addBody(body);
-    activeDice.push({ mesh, body, labelEl: null, rollingElapsed: 0, settled: false, extent: type.extent });
+    activeDice.push({ mesh, body, labelEl: null, rollingElapsed: 0, settled: false, extent });
   }
 }
 
@@ -505,6 +636,87 @@ document.getElementById("roll-btn").addEventListener("click", () => {
   const count = Math.min(6, Math.max(1, parseInt(document.getElementById("cfg-count").value, 10) || 1));
   const dieType = document.getElementById("cfg-die-type").value;
   throwDice(count, dieType);
+});
+
+// ---------- debug panel wiring ----------
+function bindRange(id, valId, key, fmt, onChange) {
+  const input = document.getElementById(id);
+  const out = valId && document.getElementById(valId);
+  const apply = () => {
+    const v = parseFloat(input.value);
+    if (key) CONFIG[key] = v;
+    if (out) out.textContent = fmt(v);
+    if (onChange) onChange(v);
+  };
+  input.addEventListener("input", apply);
+  apply();
+}
+function bindColor(id, key, onChange) {
+  const input = document.getElementById(id);
+  const apply = () => {
+    CONFIG[key] = input.value;
+    if (onChange) onChange(input.value);
+  };
+  input.addEventListener("input", apply);
+  apply();
+}
+function bindSelect(id, key, onChange) {
+  const input = document.getElementById(id);
+  const apply = () => {
+    CONFIG[key] = input.value;
+    if (onChange) onChange(input.value);
+  };
+  input.addEventListener("change", apply);
+  apply();
+}
+
+const invalidateD20Textures = () => { d20FaceTextureCache = new Map(); };
+const invalidateDieShapes = () => { d20ShapeCache = null; };
+const reflowLabels = () => { for (const die of activeDice) positionLabel(die); };
+
+// Dice: size/font apply on next roll (baked into a texture/geometry).
+bindRange("cfg-die-scale", "cfg-die-scale-val", "dieScale", (v) => v.toFixed(2), invalidateDieShapes);
+bindRange("cfg-font-size", "cfg-font-size-val", "fontSize", (v) => String(v), invalidateD20Textures);
+bindSelect("cfg-font-family", "fontFamily", invalidateD20Textures);
+
+// Colors: number/die color apply on next roll; background/table apply live.
+bindColor("cfg-color-number", "textColor", invalidateD20Textures);
+bindColor("cfg-color-die", "dieColor", invalidateD20Textures);
+bindColor("cfg-color-bg", "bgColor", (v) => { renderer.setClearColor(v, 1); document.body.style.background = v; });
+bindColor("cfg-color-table", "tableColor", (v) => tableMat.color.set(v));
+
+// Roll behavior: speed/spin/bounce/damping apply on next roll; gravity/max
+// roll time apply live (gravity to the running world, max-time to the tick
+// loop's stuck-check on the next frame).
+bindRange("cfg-roll-speed", "cfg-roll-speed-val", "rollSpeed", (v) => v.toFixed(1));
+bindRange("cfg-roll-spin", "cfg-roll-spin-val", "rollSpin", (v) => v.toFixed(1));
+bindRange("cfg-roll-bounce", "cfg-roll-bounce-val", "rollBounce", (v) => v.toFixed(2));
+bindRange("cfg-roll-damping", "cfg-roll-damping-val", "rollDamping", (v) => v.toFixed(2));
+bindRange("cfg-roll-maxtime", "cfg-roll-maxtime-val", "maxRollTime", (v) => v.toFixed(1));
+bindRange("cfg-gravity", "cfg-gravity-val", "gravity", (v) => String(v), (v) => world.gravity.set(0, -v, 0));
+
+// Result number label: all apply live.
+bindRange("cfg-label-x", "cfg-label-x-val", "labelOffsetX", (v) => String(v), reflowLabels);
+bindRange("cfg-label-y", "cfg-label-y-val", "labelOffsetY", (v) => String(v), reflowLabels);
+bindRange("cfg-label-font-size", "cfg-label-font-size-val", "labelFontSize", (v) => String(v),
+  (v) => document.documentElement.style.setProperty("--label-font-size", v + "px"));
+bindSelect("cfg-label-font-family", "labelFontFamily",
+  (v) => document.documentElement.style.setProperty("--label-font-family", v));
+bindColor("cfg-label-color", "labelColor",
+  (v) => document.documentElement.style.setProperty("--label-color", v));
+
+// Camera: applies live.
+bindRange("cfg-cam-height", "cfg-cam-height-val", "camHeight", (v) => String(v), (v) => {
+  camera.position.y = v;
+  camera.lookAt(0, 0, 0);
+  camera.updateMatrixWorld(true);
+  computeTableBounds();
+});
+bindRange("cfg-cam-distance", "cfg-cam-distance-val", "camDistance", (v) => String(v), (v) => {
+  camera.position.z = v;
+  camera.lookAt(0, 0, 0);
+  camera.updateMatrixWorld(true);
+  computeTableBounds();
 });
 
 // ---------- animation loop ----------
@@ -519,7 +731,7 @@ function tick() {
     die.mesh.quaternion.copy(die.body.quaternion);
     die.rollingElapsed += dt;
 
-    const stuck = die.rollingElapsed > 5 && die.body.velocity.length() < 1.5;
+    const stuck = die.rollingElapsed > CONFIG.maxRollTime && die.body.velocity.length() < 1.5;
     if (die.body.sleepState === CANNON.Body.SLEEPING || stuck) {
       die.settled = true;
       die.body.velocity.setZero();
