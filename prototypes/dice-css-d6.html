@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CSS 3D Dice Prototype (d6)</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    background: #2b2b33;
+    font-family: system-ui, sans-serif;
+  }
+
+  .stage {
+    display: grid;
+    place-items: center;
+    width: 260px;
+    padding: 60px 0 40px;
+    border-radius: 30px;
+    background: #eeeeee;
+    box-shadow: 0 0 20px rgba(0, 0, 0, .3);
+    perspective: 700px;
+  }
+
+  .die-size {
+    --size: 100px;
+  }
+
+  .dice {
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+    transform-style: preserve-3d;
+    transition: transform 1s ease;
+  }
+
+  @keyframes rolling {
+    50% {
+      transform: rotateX(455deg) rotateY(725deg) rotateZ(315deg);
+    }
+  }
+
+  .face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: calc(var(--size) * 0.2);
+    border: calc(var(--size) * 0.05) solid #f6f3f0;
+    transform-style: preserve-3d;
+    background: linear-gradient(145deg, #dddbd8, #fff);
+  }
+
+  .face::before {
+    position: absolute;
+    content: '';
+    width: 100%;
+    height: 100%;
+    border-radius: calc(var(--size) * 0.2);
+    background: #f6f3f0;
+    transform: translateZ(-1px);
+  }
+
+  .pip {
+    position: absolute;
+    width: 18%;
+    height: 18%;
+    border-radius: 50%;
+    background: #131210;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.5);
+  }
+
+  /* 3x3 pip grid positions, expressed as percentages of the face */
+  .p-tl { top: 18%; left: 18%; }
+  .p-tr { top: 18%; left: 82%; transform: translateX(-100%); }
+  .p-ml { top: 50%; left: 18%; transform: translateY(-50%); }
+  .p-mr { top: 50%; left: 82%; transform: translate(-100%, -50%); }
+  .p-mc { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .p-bl { top: 82%; left: 18%; transform: translateY(-100%); }
+  .p-br { top: 82%; left: 82%; transform: translate(-100%, -100%); }
+
+  .front { transform: translateZ(calc(var(--size) / 2)); }
+  .back  { transform: rotateX(180deg) translateZ(calc(var(--size) / 2)); }
+  .top   { transform: rotateX(90deg) translateZ(calc(var(--size) / 2)); }
+  .bottom{ transform: rotateX(-90deg) translateZ(calc(var(--size) / 2)); }
+  .right { transform: rotateY(90deg) translateZ(calc(var(--size) / 2)); }
+  .left  { transform: rotateY(-90deg) translateZ(calc(var(--size) / 2)); }
+
+  .roll {
+    cursor: pointer;
+    color: #eeeeee;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font: 700 16px system-ui, sans-serif;
+    border: 2px solid #eeeeee;
+    background: transparent;
+    transition: .2s;
+  }
+
+  .roll:hover {
+    color: #2b2b33;
+    background: #eeeeee;
+  }
+
+  .result {
+    color: #eeeeee;
+    font: 700 20px system-ui, sans-serif;
+    min-height: 1.4em;
+  }
+</style>
+</head>
+<body>
+
+  <div class="stage">
+    <div class="dice die-size" id="dice">
+      <div class="face front" data-value="1"></div>
+      <div class="face back" data-value="6"></div>
+      <div class="face top" data-value="2"></div>
+      <div class="face bottom" data-value="5"></div>
+      <div class="face right" data-value="3"></div>
+      <div class="face left" data-value="4"></div>
+    </div>
+  </div>
+
+  <div class="result" id="result">&nbsp;</div>
+  <button class="roll" id="roll-btn">Roll Dice</button>
+
+<script>
+  // Standard d6 pip layouts, keyed by face value.
+  const PIP_LAYOUTS = {
+    1: ["p-mc"],
+    2: ["p-tl", "p-br"],
+    3: ["p-tl", "p-mc", "p-br"],
+    4: ["p-tl", "p-tr", "p-bl", "p-br"],
+    5: ["p-tl", "p-tr", "p-mc", "p-bl", "p-br"],
+    6: ["p-tl", "p-tr", "p-ml", "p-mr", "p-bl", "p-br"],
+  };
+
+  // Each face's resting rotation, i.e. what rotateX/rotateY value brings
+  // that face's data-value to the front (facing the camera).
+  const FACE_ROTATIONS = {
+    1: { x: 0, y: 0 },     // front
+    6: { x: 180, y: 0 },   // back
+    2: { x: -90, y: 0 },   // top (its local transform is rotateX(90), so
+                            //      viewing it means countering with -90)
+    5: { x: 90, y: 0 },    // bottom
+    3: { x: 0, y: -90 },   // right
+    4: { x: 0, y: 90 },    // left
+  };
+
+  const dice = document.getElementById("dice");
+  const rollBtn = document.getElementById("roll-btn");
+  const resultEl = document.getElementById("result");
+
+  function paintPips() {
+    dice.querySelectorAll(".face").forEach((face) => {
+      const value = Number(face.dataset.value);
+      face.querySelectorAll(".pip").forEach((p) => p.remove());
+      for (const pos of PIP_LAYOUTS[value]) {
+        const pip = document.createElement("div");
+        pip.className = `pip ${pos}`;
+        face.appendChild(pip);
+      }
+    });
+  }
+
+  function rollDice() {
+    rollBtn.disabled = true;
+    resultEl.textContent = " ";
+
+    const value = 1 + Math.floor(Math.random() * 6);
+    const { x, y } = FACE_ROTATIONS[value];
+
+    // extra full turns so every roll spins, regardless of start orientation
+    const spinX = 360 * (2 + Math.floor(Math.random() * 2));
+    const spinY = 360 * (2 + Math.floor(Math.random() * 2));
+
+    dice.style.transition = "none";
+    dice.style.transform = "rotateX(0deg) rotateY(0deg)";
+    // force reflow so the transition reset above takes effect before we
+    // re-enable it and animate to the target
+    void dice.offsetHeight;
+    dice.style.transition = "transform 1.1s cubic-bezier(.2,.9,.3,1)";
+    dice.style.transform = `rotateX(${x + spinX}deg) rotateY(${y + spinY}deg)`;
+
+    window.setTimeout(() => {
+      resultEl.textContent = `Result: ${value}`;
+      rollBtn.disabled = false;
+    }, 1150);
+  }
+
+  paintPips();
+  rollBtn.addEventListener("click", rollDice);
+</script>
+
+</body>
+</html>
