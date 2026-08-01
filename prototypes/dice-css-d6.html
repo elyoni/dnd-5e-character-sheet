@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CSS 3D Dice Prototype (d6 + d8)</title>
+<title>CSS 3D Dice Prototype (d6 + d8 + d20)</title>
 <style>
   * {
     margin: 0;
@@ -132,6 +132,28 @@
     position: absolute;
     left: 50%;
     font: 700 15px system-ui, sans-serif;
+    color: #131210;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ---------- d20 (icosahedron) faces ---------- */
+  /* Every one of the 20 faces sits at a different, non-symmetric angle, so
+     unlike the d6/d8 there's no small set of transforms to hand-write —
+     each face gets its own matrix3d(), computed in JS from real icosahedron
+     vertex coordinates. */
+
+  .d20-face {
+    position: absolute;
+    display: flex;
+    background: linear-gradient(145deg, #dddbd8, #fff);
+    filter: drop-shadow(0 0 1px rgba(0,0,0,.4));
+  }
+
+  .d20-face .num {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font: 700 13px system-ui, sans-serif;
     color: #131210;
     transform: translate(-50%, -50%);
   }
@@ -301,22 +323,38 @@
     return dice;
   }
 
-  // A face's resting rotation is derived from its outward normal's
-  // azimuth (around Y, matching its rotateY(i*90)) and elevation (+/-
-  // OCT_TILT_DEG, matching the fold direction). Rotating the whole die by
-  // rotateX(-elevation) rotateY(-azimuth) brings that normal to point
-  // straight at the camera (see d6's front/back for the same idea, just
-  // computed instead of hand-picked since d8's faces aren't axis-aligned).
+  // Given a face's outward unit normal (nx,ny,nz), returns the whole-die
+  // {x, y} rotation (rotateX then rotateY, matching the roll animation's
+  // `rotateX(...) rotateY(...)` order) that brings that normal to point
+  // straight at the camera, i.e. to (0,0,1).
+  //
+  // Composing rotateX(A) rotateY(B) as a single CSS transform is the matrix
+  // product RotateX(A) * RotateY(B), applied to a vector as
+  // RotateX(A) * (RotateY(B) * v) — so RotateY(B) is solved first (it only
+  // mixes x/z, so it can zero out nx while leaving ny alone), then
+  // RotateX(A) is solved to zero out the remaining y component.
+  function rotationToFaceCamera(nx, ny, nz) {
+    const B = Math.atan2(-nx, nz);
+    const H = Math.sqrt(nx * nx + nz * nz); // z-component left after RotateY(B)
+    const A = Math.atan2(ny, H);
+    return { x: (A * 180) / Math.PI, y: (B * 180) / Math.PI };
+  }
+
   function buildD8FaceRotations() {
     const rotations = {};
     const tiers = [
       { values: [1, 2, 3, 4], elevation: OCT_TILT_DEG },
       { values: [5, 6, 7, 8], elevation: -OCT_TILT_DEG },
     ];
+    const rad = Math.PI / 180;
     for (const tier of tiers) {
       tier.values.forEach((value, i) => {
-        const azimuth = i * 90;
-        rotations[value] = { x: -tier.elevation, y: -azimuth };
+        const azimuth = i * 90 * rad;
+        const elevation = tier.elevation * rad;
+        const nx = Math.cos(elevation) * Math.sin(azimuth);
+        const ny = -Math.sin(elevation);
+        const nz = Math.cos(elevation) * Math.cos(azimuth);
+        rotations[value] = rotationToFaceCamera(nx, ny, nz);
       });
     }
     return rotations;
@@ -324,11 +362,149 @@
 
   const D8_FACE_ROTATIONS = buildD8FaceRotations();
 
+  // ---------- d20 (icosahedron) ----------
+
+  // Standard regular-icosahedron vertex coordinates built from 3 mutually
+  // perpendicular golden rectangles (t = golden ratio); all 12 vertices lie
+  // on a common sphere. This exact vertex/face list is the one widely used
+  // by 3D libraries (e.g. three.js's IcosahedronGeometry).
+  const PHI = (1 + Math.sqrt(5)) / 2;
+  const ICOSA_RAW_VERTICES = [
+    [-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0],
+    [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI],
+    [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1],
+  ];
+  const ICOSA_FACES = [
+    [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
+    [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
+    [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
+    [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
+  ];
+
+  function vecSub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+  function vecAdd(a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
+  function vecScale(a, s) { return [a[0] * s, a[1] * s, a[2] * s]; }
+  function vecDot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+  function vecCross(a, b) {
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
+  }
+  function vecLen(a) { return Math.sqrt(vecDot(a, a)); }
+  function vecNorm(a) { const l = vecLen(a); return [a[0] / l, a[1] / l, a[2] / l]; }
+
+  // Builds, once, the 20 faces' geometry: world-space vertices (at the
+  // given circumradius), centroid, outward normal, and an in-plane (e1,e2)
+  // basis used both to place the div (matrix3d) and to lay out its
+  // clip-path triangle in matching local coordinates.
+  function computeIcosahedronFaces(radius) {
+    const vertices = ICOSA_RAW_VERTICES.map((v) => vecScale(vecNorm(v), radius));
+
+    // Antipodal vertex pairs (negated coordinates), used below to find each
+    // face's opposite face so we can number them like a real d20 (opposite
+    // faces sum to 21).
+    const antipode = ICOSA_RAW_VERTICES.map((v) =>
+      ICOSA_RAW_VERTICES.findIndex(
+        (w) => Math.abs(w[0] + v[0]) < 1e-6 && Math.abs(w[1] + v[1]) < 1e-6 && Math.abs(w[2] + v[2]) < 1e-6
+      )
+    );
+
+    return ICOSA_FACES.map((face) => {
+      let [i0, i1, i2] = face;
+      let v0 = vertices[i0], v1 = vertices[i1], v2 = vertices[i2];
+      const centroid = vecScale(vecAdd(vecAdd(v0, v1), v2), 1 / 3);
+      let normal = vecNorm(vecCross(vecSub(v1, v0), vecSub(v2, v0)));
+      if (vecDot(normal, centroid) < 0) {
+        // wrong winding for this vertex order — flip it so the normal
+        // (and therefore the visible/outward side of the div) faces out
+        [v1, v2] = [v2, v1];
+        [i1, i2] = [i2, i1];
+        normal = vecNorm(vecCross(vecSub(v1, v0), vecSub(v2, v0)));
+      }
+      const e1 = vecNorm(vecSub(v1, v0));
+      const e2 = vecCross(normal, e1);
+      const local = [v0, v1, v2].map((v) => {
+        const d = vecSub(v, centroid);
+        return [vecDot(d, e1), vecDot(d, e2)];
+      });
+
+      const opposite = [antipode[i0], antipode[i1], antipode[i2]].sort().join(",");
+      const key = [i0, i1, i2].slice().sort().join(",");
+      const edge = vecLen(vecSub(v1, v0));
+
+      return { centroid, normal, e1, e2, local, key, opposite, edge };
+    });
+  }
+
+  // Assigns 1-20 so that opposite faces sum to 21, like a real d20.
+  function assignD20Values(faces) {
+    const byKey = new Map(faces.map((f) => [f.key, f]));
+    const values = new Map();
+    let next = 1;
+    for (const f of faces) {
+      if (values.has(f.key)) continue;
+      const opp = byKey.get(f.opposite);
+      values.set(f.key, next);
+      if (opp && opp !== f) values.set(opp.key, 21 - next);
+      next++;
+    }
+    return values;
+  }
+
+  function buildD20(radius) {
+    const faces = computeIcosahedronFaces(radius);
+    const values = assignD20Values(faces);
+
+    // A fixed box big enough for every face's local triangle, based on the
+    // actual edge length at this radius.
+    const boxW = faces[0].edge * 1.6;
+    const boxH = faces[0].edge * 1.6;
+
+    const dice = document.createElement("div");
+    dice.className = "dice";
+
+    const rotations = {};
+
+    for (const f of faces) {
+      const value = values.get(f.key);
+      const pts = f.local.map(([x, y]) => [x + boxW / 2, y + boxH / 2]);
+
+      const face = document.createElement("div");
+      face.className = "d20-face";
+      face.style.width = boxW + "px";
+      face.style.height = boxH + "px";
+      face.style.left = "50%";
+      face.style.top = "50%";
+      face.style.marginLeft = -boxW / 2 + "px";
+      face.style.marginTop = -boxH / 2 + "px";
+      face.style.clipPath = `polygon(${pts.map(([x, y]) => `${x}px ${y}px`).join(", ")})`;
+      face.style.transform = `matrix3d(
+        ${f.e1[0]}, ${f.e1[1]}, ${f.e1[2]}, 0,
+        ${f.e2[0]}, ${f.e2[1]}, ${f.e2[2]}, 0,
+        ${f.normal[0]}, ${f.normal[1]}, ${f.normal[2]}, 0,
+        ${f.centroid[0]}, ${f.centroid[1]}, ${f.centroid[2]}, 1
+      )`;
+
+      const num = document.createElement("span");
+      num.className = "num";
+      num.textContent = String(value);
+      face.appendChild(num);
+      dice.appendChild(face);
+
+      rotations[value] = rotationToFaceCamera(f.normal[0], f.normal[1], f.normal[2]);
+    }
+
+    return { dice, rotations };
+  }
+
   // ---------- shared toss/roll machinery ----------
 
   const DICE_DEFS = [
-    { size: 90, faceSize: 90, build: (s) => buildD6(s), faceRotations: D6_FACE_ROTATIONS, idleX: -80 },
-    { size: 150, faceSize: 92, build: (s) => buildD8(s), faceRotations: D8_FACE_ROTATIONS, idleX: 80 },
+    { size: 90, faceSize: 90, build: (s) => ({ dice: buildD6(s), rotations: D6_FACE_ROTATIONS }), idleX: -160 },
+    { size: 150, faceSize: 92, build: (s) => ({ dice: buildD8(s), rotations: D8_FACE_ROTATIONS }), idleX: 0 },
+    { size: 160, faceSize: 62, build: (s) => buildD20(s), idleX: 160 },
   ];
 
   const instances = DICE_DEFS.map((def) => {
@@ -342,13 +518,13 @@
     shadow.style.setProperty("--size", def.size + "px");
     shadow.style.transform = `translate(${def.idleX}px, 0px)`;
 
-    const diceEl = def.build(def.faceSize);
+    const { dice: diceEl, rotations } = def.build(def.faceSize);
     wrap.appendChild(diceEl);
 
     arena.appendChild(shadow);
     arena.appendChild(wrap);
 
-    return { def, wrap, diceEl, shadow, wrapAnim: null, diceAnim: null, shadowAnim: null };
+    return { def, wrap, diceEl, shadow, rotations, wrapAnim: null, diceAnim: null, shadowAnim: null };
   });
 
   // Builds a toss trajectory landing at (landX, landY) — offsets in px from
@@ -409,10 +585,10 @@
 
   function pickLandingSpots(count) {
     const rect = arena.getBoundingClientRect();
-    const margin = 110; // keep every die fully on screen, clear of the HUD
+    const margin = 120; // keep every die fully on screen, clear of the HUD
     const maxX = rect.width / 2 - margin;
     const maxY = rect.height / 2 - margin - 40;
-    const minSeparation = 130;
+    const minSeparation = 150;
 
     const spots = [];
     for (let n = 0; n < count; n++) {
@@ -448,11 +624,11 @@
     let remaining = instances.length;
 
     instances.forEach((inst, idx) => {
-      const faceCount = Object.keys(inst.def.faceRotations).length;
+      const faceCount = Object.keys(inst.rotations).length;
       const value = 1 + Math.floor(Math.random() * faceCount);
       values[idx] = value;
 
-      const { x: faceX, y: faceY } = inst.def.faceRotations[value];
+      const { x: faceX, y: faceY } = inst.rotations[value];
       const spinX = 360 * (2 + Math.floor(Math.random() * 2));
       const spinY = 360 * (2 + Math.floor(Math.random() * 2));
       const rotX = faceX + spinX * (Math.random() < 0.5 ? 1 : -1);
