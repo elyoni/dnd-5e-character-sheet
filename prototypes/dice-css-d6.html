@@ -26,7 +26,6 @@
     position: relative;
     width: 100%;
     height: 100%;
-    perspective: 900px;
   }
 
   .die-size {
@@ -47,7 +46,11 @@
     pointer-events: none;
   }
 
-  .dice {
+  /* Carries the on-screen translate (where the die lands) and owns its own
+     perspective, so the vanishing point always stays centered on the die
+     itself instead of on the screen — otherwise a die landing away from
+     center gets skewed toward a fixed vanishing point and looks tilted. */
+  .dice-wrap {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -55,6 +58,13 @@
     height: var(--size);
     margin-left: calc(var(--size) / -2);
     margin-top: calc(var(--size) / -2);
+    perspective: 700px;
+  }
+
+  .dice {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     transform-style: preserve-3d;
   }
 
@@ -149,13 +159,15 @@
 
   <div class="arena" id="arena">
     <div class="shadow die-size" id="shadow"></div>
-    <div class="dice die-size" id="dice">
-      <div class="face front" data-value="1"></div>
-      <div class="face back" data-value="6"></div>
-      <div class="face top" data-value="2"></div>
-      <div class="face bottom" data-value="5"></div>
-      <div class="face right" data-value="3"></div>
-      <div class="face left" data-value="4"></div>
+    <div class="dice-wrap die-size" id="dice-wrap">
+      <div class="dice" id="dice">
+        <div class="face front" data-value="1"></div>
+        <div class="face back" data-value="6"></div>
+        <div class="face top" data-value="2"></div>
+        <div class="face bottom" data-value="5"></div>
+        <div class="face right" data-value="3"></div>
+        <div class="face left" data-value="4"></div>
+      </div>
     </div>
   </div>
 
@@ -188,11 +200,13 @@
   };
 
   const arena = document.getElementById("arena");
+  const diceWrap = document.getElementById("dice-wrap");
   const dice = document.getElementById("dice");
   const shadow = document.getElementById("shadow");
   const rollBtn = document.getElementById("roll-btn");
   const resultEl = document.getElementById("result");
 
+  let wrapAnim = null;
   let diceAnim = null;
   let shadowAnim = null;
 
@@ -210,13 +224,16 @@
 
   // Builds a toss trajectory landing at (landX, landY) — offsets in px from
   // the arena center — with a gravity-like arc and a small settling bounce,
-  // spinning through (rotX, rotY) degrees total along the way.
+  // spinning through (rotX, rotY) degrees total along the way. The wrap
+  // (translate/lift) and the die (rotation only) are animated separately so
+  // the die's own perspective travels with it and it never looks skewed.
   function buildTrajectory(landX, landY, rotX, rotY) {
     const liftHeight = 160 + Math.random() * 80;
     const bounceHeight = liftHeight * 0.18;
     const flightEnd = 0.68; // fraction of the timeline spent in the air
     const spinEnd = 0.8;    // fraction of the timeline spent still spinning
 
+    const wrapFrames = [];
     const diceFrames = [];
     const shadowFrames = [];
 
@@ -230,10 +247,8 @@
       const rx = rotX * spinT;
       const ry = rotY * spinT;
 
-      diceFrames.push({
-        offset: t,
-        transform: `translate(${x}px, ${y - lift}px) rotateX(${rx}deg) rotateY(${ry}deg)`,
-      });
+      wrapFrames.push({ offset: t, transform: `translate(${x}px, ${y - lift}px)` });
+      diceFrames.push({ offset: t, transform: `rotateX(${rx}deg) rotateY(${ry}deg)` });
       shadowFrames.push({
         offset: t,
         transform: `translate(${x}px, ${y}px) scale(${1 - 0.55 * (lift / liftHeight)})`,
@@ -251,10 +266,8 @@
       const spinT = Math.min(t / spinEnd, 1);
       const rx = rotX * spinT;
       const ry = rotY * spinT;
-      diceFrames.push({
-        offset: t,
-        transform: `translate(${landX}px, ${landY - lift}px) rotateX(${rx}deg) rotateY(${ry}deg)`,
-      });
+      wrapFrames.push({ offset: t, transform: `translate(${landX}px, ${landY - lift}px)` });
+      diceFrames.push({ offset: t, transform: `rotateX(${rx}deg) rotateY(${ry}deg)` });
       shadowFrames.push({
         offset: t,
         transform: `translate(${landX}px, ${landY}px) scale(${1 - 0.55 * (lift / liftHeight)})`,
@@ -262,7 +275,7 @@
       });
     }
 
-    return { diceFrames, shadowFrames };
+    return { wrapFrames, diceFrames, shadowFrames };
   }
 
   function pickLandingSpot() {
@@ -276,6 +289,7 @@
   }
 
   function rollDice() {
+    if (wrapAnim) wrapAnim.cancel();
     if (diceAnim) diceAnim.cancel();
     if (shadowAnim) shadowAnim.cancel();
 
@@ -290,9 +304,10 @@
     const rotY = faceY + spinY * (Math.random() < 0.5 ? 1 : -1);
 
     const { x: landX, y: landY } = pickLandingSpot();
-    const { diceFrames, shadowFrames } = buildTrajectory(landX, landY, rotX, rotY);
+    const { wrapFrames, diceFrames, shadowFrames } = buildTrajectory(landX, landY, rotX, rotY);
 
     const duration = 1300;
+    wrapAnim = diceWrap.animate(wrapFrames, { duration, easing: "linear", fill: "forwards" });
     diceAnim = dice.animate(diceFrames, { duration, easing: "linear", fill: "forwards" });
     shadowAnim = shadow.animate(shadowFrames, { duration, easing: "linear", fill: "forwards" });
 
