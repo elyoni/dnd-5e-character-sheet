@@ -69,7 +69,7 @@ const SHAPES = {
 // the d4's size with the old hand-picked constants). Computing SIZE_SCALE
 // from each shape's actual circumradius instead guarantees every die has
 // the exact same true circumradius, removing the guesswork entirely.
-const TARGET_CIRCUMRADIUS = 1.3;
+const TARGET_CIRCUMRADIUS = 1.05;
 const SIZE_SCALE = Object.fromEntries(
   Object.entries(SHAPES).map(([sides, shape]) => {
     const maxMag = Math.max(...shape.vertices.map((v) => Math.hypot(v[0], v[1], v[2])));
@@ -102,8 +102,9 @@ function faceCentroidAndNormal(vertsArr, faceIdx) {
 const textureCache = new Map(); // key: `${sides}:${value}:${dieColor}:${textColor}:${fontSize}:${fontFamily}` -> THREE.CanvasTexture
 function invalidateTextureCache() { textureCache.clear(); }
 
-function getFaceTexture(config, value) {
-  const key = `${config.dieColor}|${config.textColor}|${config.fontSize}|${config.fontFamily}|${value}`;
+function getFaceTexture(config, sides, value) {
+  const fontPx = (config.fontSizeBySides && config.fontSizeBySides[sides]) || config.fontSize;
+  const key = `${config.dieColor}|${config.textColor}|${fontPx}|${config.fontFamily}|${value}`;
   if (textureCache.has(key)) return textureCache.get(key);
   const canvas = document.createElement("canvas");
   canvas.width = 128;
@@ -112,7 +113,6 @@ function getFaceTexture(config, value) {
   ctx.fillStyle = config.dieColor;
   ctx.fillRect(0, 0, 128, 128);
   ctx.fillStyle = config.textColor;
-  const fontPx = config.fontSize;
   ctx.font = `bold ${fontPx}px ${config.fontFamily}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -165,7 +165,7 @@ function buildDieMesh(sides, config) {
 
     const value = shape.numbering === "face" ? shape.values[f] : null;
     materials.push(new THREE.MeshStandardMaterial({
-      map: value !== null ? getFaceTexture(config, value) : new THREE.CanvasTexture(document.createElement("canvas")),
+      map: value !== null ? getFaceTexture(config, sides, value) : new THREE.CanvasTexture(document.createElement("canvas")),
       roughness: 0.5,
     }));
     userFaces.push({ normal: normal.clone(), centroid: centroid.clone(), materialIndex: geoGroupIndex, vertexIdx: faceIdx.slice(), triStart: groupStart, triCount });
@@ -265,17 +265,18 @@ const DEFAULT_CONFIG = {
   textColor: "#1c150f",
   dieColor: "#c9a227",
   fontSize: 56,
-  fontFamily: "system-ui, sans-serif",
+  fontSizeBySides: {}, // optional per-shape override, e.g. {20: 50} — see debug panel
+  fontFamily: "'Cinzel', serif",
   rollSpeed: 2.5,
   rollSpin: 1.7,
   rollBounce: 0.90,
   rollDamping: 0.65,
-  maxRollTime: 1.0,
+  maxRollTime: 0.6,
   gravity: 40,
   labelOffsetX: 10,
   labelOffsetY: -6,
   labelFontSize: 29,
-  labelFontFamily: "system-ui, sans-serif",
+  labelFontFamily: "'Cinzel', serif",
   labelColor: "#e8dcc0",
   camHeight: 30,
   camDistance: 0,
@@ -556,7 +557,7 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
       const stuck = die.slowFrames > 6;
       const onTable = die.body.position.y < die.groundY + die.extent * 0.25;
 
-      if (die.rollingElapsed > config.maxRollTime + 2) {
+      if (die.rollingElapsed > config.maxRollTime + 1.2) {
         if (die.numbering === "face") {
           const { worldNormal } = getTopFace(die.mesh);
           if (worldNormal) {
@@ -621,7 +622,7 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
       const results = activeDice.map((d) => ({ sides: d.sides, tag: d.tag, value: d.finalValue }));
       const resolve = pendingResolve;
       pendingResolve = null;
-      setTimeout(() => resolve(results), 700); // brief pause so the result is visible before the caller reacts
+      setTimeout(() => resolve(results), 350); // brief pause so the result is visible before the caller reacts
     }
   }
   rafHandle = requestAnimationFrame(tick);
@@ -678,7 +679,18 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
     renderer.dispose();
   }
 
-  return { roll, resize, dispose, showResultBanner, clearResultBanners };
+  // Debug/tuning hook: merge a partial config (e.g. a per-shape font size
+  // override) into the live config and drop cached face textures so the
+  // NEXT roll picks up the change — see the dice debug panel.
+  function updateConfig(partial) {
+    Object.assign(config, partial);
+    invalidateTextureCache();
+  }
+  function getConfig() {
+    return config;
+  }
+
+  return { roll, resize, dispose, showResultBanner, clearResultBanners, updateConfig, getConfig };
 }
 
 function getFaceIndex(mesh, face) { return mesh.userData.faces.indexOf(face); }
