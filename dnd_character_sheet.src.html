@@ -548,7 +548,7 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
   position:absolute; transform:translate(-50%,-50%);
   font-weight:800; font-size:29px; font-family:system-ui,sans-serif;
   color:#e8dcc0; text-shadow:0 0 4px #000,0 0 10px #000,0 1px 2px #000;
-  opacity:0; transition:opacity 0.25s ease-out;
+  opacity:0; transition:opacity 0.25s ease-out, transform 0.45s cubic-bezier(.34,1.2,.4,1);
 }
 .dice-3d-label.visible{ opacity:1; }
 .dice-3d-hint{
@@ -1975,7 +1975,11 @@ function dismissDiceOverlay(){
   hideDiceOverlay();
 }
 // specs: [{sides, count, tag}]. Resolves once every die has physically
-// settled, then keeps the overlay up briefly so the result is readable.
+// settled. The result number announces itself big, then shrinks to its
+// normal size and stays on screen — tapping anywhere (dismissDiceOverlay,
+// wired to the overlay's onclick) is the main way to dismiss it and get
+// back to the normal page; the timer below is just a safety net for
+// anyone who doesn't tap.
 async function rollPhysicalDice(specs, hint){
   const engine = ensureDiceEngine();
   showDiceOverlay(hint);
@@ -1984,7 +1988,7 @@ async function rollPhysicalDice(specs, hint){
   hintEl.textContent = hint || "";
   hintEl.classList.add("visible");
   clearTimeout(diceOverlayHideTimer);
-  diceOverlayHideTimer = setTimeout(hideDiceOverlay, 1800);
+  diceOverlayHideTimer = setTimeout(hideDiceOverlay, 8000);
   return results;
 }
 function sumTag(results, tag){ return results.filter(r=>r.tag===tag).map(r=>r.value); }

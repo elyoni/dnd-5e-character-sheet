@@ -401,10 +401,17 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
     el.style.fontSize = `${config.labelFontSize}px`;
     el.style.fontFamily = config.labelFontFamily;
     el.style.color = config.labelColor;
+    // Announce the result big and bold first, then shrink down to its
+    // normal resting size — the number itself never changes, only its
+    // display size, so the "big" moment is purely a readability flourish.
+    el.style.transform = "translate(-50%, -50%) scale(2.6)";
     labelsEl.appendChild(el);
     die.labelEl = el;
     positionLabel(die);
-    requestAnimationFrame(() => el.classList.add("visible"));
+    requestAnimationFrame(() => {
+      el.classList.add("visible");
+      setTimeout(() => { el.style.transform = "translate(-50%, -50%) scale(1)"; }, 550);
+    });
   }
 
   function faceValue(mesh) {
