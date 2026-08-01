@@ -800,6 +800,26 @@ function tick() {
 
   for (const die of activeDice) {
     if (die.settled) continue;
+
+    // Safety net: a die moving fast enough (e.g. a cranked-up roll speed)
+    // can tunnel through the thin collision walls in a single physics step
+    // — discrete collision detection doesn't catch a fast body that fully
+    // crosses a thin shape between frames — or bounce high enough to leave
+    // the camera's view with nothing overhead to stop it. Clamp it back
+    // inside the table bounds (plus a wall-thickness margin) and back under
+    // a ceiling, reflecting the offending velocity component, so a die can
+    // never actually leave the visible play area even if it beats the
+    // walls.
+    const CEILING = 20; // matches the walls' height in computeTableBounds
+    const marginX = die.extent, marginZ = die.extent;
+    const minX = tableBounds.minX - marginX, maxX = tableBounds.maxX + marginX;
+    const minZ = tableBounds.minZ - marginZ, maxZ = tableBounds.maxZ + marginZ;
+    if (die.body.position.x < minX) { die.body.position.x = minX; die.body.velocity.x = Math.abs(die.body.velocity.x); }
+    else if (die.body.position.x > maxX) { die.body.position.x = maxX; die.body.velocity.x = -Math.abs(die.body.velocity.x); }
+    if (die.body.position.z < minZ) { die.body.position.z = minZ; die.body.velocity.z = Math.abs(die.body.velocity.z); }
+    else if (die.body.position.z > maxZ) { die.body.position.z = maxZ; die.body.velocity.z = -Math.abs(die.body.velocity.z); }
+    if (die.body.position.y > CEILING) { die.body.position.y = CEILING; die.body.velocity.y = -Math.abs(die.body.velocity.y); }
+
     die.mesh.position.copy(die.body.position);
     die.mesh.quaternion.copy(die.body.quaternion);
     die.rollingElapsed += dt;

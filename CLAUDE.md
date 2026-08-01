@@ -4,20 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A D&D 5e character sheet web app that is a **single self-contained HTML file**: `dnd_character_sheet.html` (~3000 lines: `<style>` block, then one `<script>` block, no `<body>` markup beyond a single `<div id="app">`). There is no build step or bundler — the file is the entire product. `package.json` exists only to pull in Playwright for end-to-end tests.
+A D&D 5e character sheet web app that ships as a **single self-contained HTML file**: `dnd_character_sheet.html`. That file is a **generated build artifact** — do not hand-edit it. It's produced by `node build.js`, which concatenates:
+
+- `dnd_character_sheet.src.html` — the actual source template (~3000 lines: `<style>` block, then the app's `<script>` block, no `<body>` markup beyond a single `<div id="app">` plus the 3D dice overlay markup). **Edit this file**, not `dnd_character_sheet.html`.
+- `vendor/three.module.min.js` / `vendor/cannon-es.min.js` — pinned third-party library builds, vendored (not fetched from a CDN) so the shipped file has zero runtime network dependency and keeps working fully offline. Rewritten from ES modules into plain-script IIFEs at build time so the whole app can stay one classic `<script>` block with no `type="module"`/importmap at runtime.
+- `src/dice-physics.js` — the 3D dice engine (Three.js + cannon-es), kept as a separate module so it can be edited/reasoned about without pulling the whole character sheet into context. **Edit this file**, not the copy baked into `dnd_character_sheet.html`.
+
+Run `node build.js` after editing `dnd_character_sheet.src.html` or `src/dice-physics.js`, before committing — there's no CI build step, so `dnd_character_sheet.html` must be committed pre-built and up to date. `package.json` exists to pull in Playwright for end-to-end tests (there's still no bundler/transpiler involved in the build — `build.js` is dependency-free string concatenation).
 
 Bilingual (English / Hebrew with RTL layout) — all UI text is looked up through a translation table, never hardcoded inline.
 
 ## Running / deploying
 
-There's nothing to build. To work on it locally, just open the file in a browser, or serve it so relative/storage behavior matches production:
-
 ```bash
+node build.js                     # after any change to dnd_character_sheet.src.html or src/dice-physics.js
 python3 -m http.server 8000
 # then open http://localhost:8000/dnd_character_sheet.html
 ```
 
-Deployment is automatic: `.github/workflows/deploy.yml` copies `dnd_character_sheet.html` to `site/index.html` and publishes it to GitHub Pages on every push to `main`. There is no separate staging step — pushing to `main` ships to production.
+Deployment is automatic: `.github/workflows/deploy.yml` copies `dnd_character_sheet.html` (the built file, as committed) to `site/index.html` and publishes it to GitHub Pages on every push to `main`. There is no separate staging step, and deploy does NOT run `build.js` — pushing to `main` ships whatever `dnd_character_sheet.html` was last committed, so always rebuild and commit the result together with source changes.
 
 ## Testing
 
@@ -49,7 +54,7 @@ Everything lives in global scope inside the one `<script>` tag. There's no frame
 - **Autosave**: `queueSave()` debounces (400ms) writes of `state` to `dnd-char:<id>` and updates the save-status indicator; call it after any mutation via the generic `set(path, value)` helper (dotted-path setter) or a dedicated mutator.
 - **First-run onboarding**: `init()` (bottom of the script) shows the onboarding welcome modal (language picker only) for genuinely new installs (empty `charIndex` and no `dnd-onboarded` flag); pre-existing installs are silently marked onboarded so they never see it. Dismissing it (`closeOnboardingWelcome()`) just reveals the same "no characters yet" screen that a fresh delete-down-to-zero lands on — there's one landing state for "you have no character," not a separate onboarding-only variant of it.
 - **Import/export**: JSON file export/import, plus a shareable link that base64-encodes the whole character into a URL hash (`#char=...`), decoded by `checkURLImport()` on load.
-- **Dice rolling / cube animation**: `rollAttack`, `rollSpellDamage`, `rollDice`, `computeCubeRollData`, and the `DIE_*`/`CUBE_*`/`PIP_LAYOUT` constants drive an animated CSS 3D die. Roll history is kept per-row in `attackRollHistories`/`spellRollHistories`.
+- **Dice rolling (real 3D physics)**: every roll (`rollAttack`, `rollSpellDamage`, `rollDice`, `rollSave`, `rollSkill`) is `async` and calls `rollPhysicalDice(specs, hint)`, which lazily creates a `window.DicePhysicsModule` engine (see `src/dice-physics.js`), shows the full-screen `#dice-3d-overlay`, throws real dice (Three.js meshes + cannon-es rigid bodies, all six polyhedral shapes with true geometry, d100 as two physical d10s), and resolves once they've actually settled — the die's landed face **is** the result, not a value picked first and animated after the fact. Roll history is kept per-row in `attackRollHistories`/`spellRollHistories`; saves/skills show a transient result flash (`saveRollFlash`/`skillRollFlash`) in place of the modifier for a few seconds. `dieIconSVG`/`dieRollBadgeSVG` are flat SVG helpers for the small inline die icons/result badges — no live animation happens outside the 3D overlay.
 - **Print**: `buildPrintHTML(opts)` generates a separate print-optimized HTML document (opened via `doPrint()`/`confirmPrint()`), independent of the live `render()` template.
 
 ## Conventions to follow
