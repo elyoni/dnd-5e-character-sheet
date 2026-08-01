@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CSS 3D Dice Prototype (d6 + d8 + d20)</title>
+<title>CSS 3D Dice Prototype (d4/d6/d8/d10/d100/d12/d20)</title>
 <style>
   * {
     margin: 0;
@@ -158,6 +158,46 @@
     transform: translate(-50%, -50%);
   }
 
+  /* ---------- d4 (tetrahedron), d10 (trapezohedron), d12 (dodecahedron) ---------- */
+  /* Same matrix3d/clip-path-path approach as the d20, just fed different
+     vertex/face data — see renderPolyhedronDie(). */
+
+  .poly-face {
+    position: absolute;
+    display: flex;
+    background: linear-gradient(145deg, #dddbd8, #fff);
+    filter: drop-shadow(0 0 1px rgba(0,0,0,.4));
+  }
+
+  .poly-face .num {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font: 700 13px system-ui, sans-serif;
+    color: #131210;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Decorative-but-live chain linking the two d100 (percentile) dice —
+     redrawn every frame to follow wherever they currently are. */
+  .chain-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  #chain-path {
+    fill: none;
+    stroke: #9a9a9a;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 9 7;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.5));
+  }
+
   .hud {
     position: absolute;
     left: 0;
@@ -202,7 +242,9 @@
 </head>
 <body>
 
-  <div class="arena" id="arena"></div>
+  <div class="arena" id="arena">
+    <svg class="chain-svg"><path id="chain-path" /></svg>
+  </div>
 
   <div class="hud">
     <div class="result" id="result">&nbsp;</div>
@@ -535,24 +577,263 @@
     return { dice, rotations };
   }
 
+  function matrix3dString(e1, e2, n, c) {
+    return `matrix3d(${e1[0]}, ${e1[1]}, ${e1[2]}, 0, ${e2[0]}, ${e2[1]}, ${e2[2]}, 0, ${n[0]}, ${n[1]}, ${n[2]}, 0, ${c[0]}, ${c[1]}, ${c[2]}, 1)`;
+  }
+
+  // Generic per-face geometry, for any planar convex polygon given as
+  // world-space vertices in perimeter order (3 for a triangle, 4 for a
+  // kite, 5 for a pentagon...). Same computation the d20 used inline,
+  // generalized so the d4/d10/d12 can share it instead of repeating it.
+  // Returns the centroid, outward-corrected normal, an in-plane (e1,e2)
+  // basis, each vertex's local 2D coordinate (relative to the centroid),
+  // and the first edge's length.
+  function computeFaceGeometry(points) {
+    let pts = points;
+    const centroid = pts
+      .reduce((acc, p) => vecAdd(acc, p), [0, 0, 0])
+      .map((v) => v / pts.length);
+    let normal = vecNorm(vecCross(vecSub(pts[1], pts[0]), vecSub(pts[2], pts[0])));
+    if (vecDot(normal, centroid) < 0) {
+      pts = pts.slice().reverse();
+      normal = vecNorm(vecCross(vecSub(pts[1], pts[0]), vecSub(pts[2], pts[0])));
+    }
+    const e1 = vecNorm(vecSub(pts[1], pts[0]));
+    const e2 = vecCross(normal, e1);
+    const local = pts.map((p) => {
+      const d = vecSub(p, centroid);
+      return [vecDot(d, e1), vecDot(d, e2)];
+    });
+    const edge = vecLen(vecSub(pts[1], pts[0]));
+    return { centroid, normal, e1, e2, local, edge };
+  }
+
+  // Renders a die from a list of face descriptors (each the output of
+  // computeFaceGeometry() plus a `value` used as the rotations-table key,
+  // and an optional `label` for the printed text if it should differ from
+  // the value, e.g. the d100 tens-die printing "00" for the value 0). Each
+  // face gets its own box sized to fit its local points (kept symmetric
+  // around the local origin, since that's where the centroid — the
+  // matrix3d translation target — has to land for CSS's default
+  // transform-origin to line up with it).
+  function renderPolyhedronDie(faceDescriptors, faceClassName) {
+    const dice = document.createElement("div");
+    dice.className = "dice";
+    const rotations = {};
+
+    for (const f of faceDescriptors) {
+      const xs = f.local.map((p) => p[0]);
+      const ys = f.local.map((p) => p[1]);
+      const pad = f.edge * 0.35;
+      const halfW = Math.max(...xs.map(Math.abs)) + pad;
+      const halfH = Math.max(...ys.map(Math.abs)) + pad;
+      const pts = f.local.map(([x, y]) => [x + halfW, y + halfH]);
+
+      const face = document.createElement("div");
+      face.className = faceClassName;
+      face.style.width = halfW * 2 + "px";
+      face.style.height = halfH * 2 + "px";
+      face.style.left = "50%";
+      face.style.top = "50%";
+      face.style.marginLeft = -halfW + "px";
+      face.style.marginTop = -halfH + "px";
+      face.style.clipPath = `path("${roundedPolygonPath(pts, f.edge * 0.12)}")`;
+      face.style.transform = matrix3dString(f.e1, f.e2, f.normal, f.centroid);
+
+      const num = document.createElement("span");
+      num.className = "num";
+      num.textContent = String(f.label !== undefined ? f.label : f.value);
+      face.appendChild(num);
+      dice.appendChild(face);
+
+      rotations[f.value] = rotationToFaceCamera(f.normal[0], f.normal[1], f.normal[2]);
+    }
+
+    return { dice, rotations };
+  }
+
+  // ---------- d4 (tetrahedron) ----------
+  // Vertices are 4 alternating corners of a cube — the standard way to
+  // inscribe a regular tetrahedron. Its 4 faces are simply every way to
+  // pick 3 of the 4 vertices. Note: real d4 dice are read by which VERTEX
+  // points up (each of the 3 faces meeting there prints the same number
+  // near that corner), not by a single "top face" — for consistency with
+  // every other die here (and to reuse the same toss/rotate mechanism),
+  // this prototype instead shows one number per face and reads whichever
+  // face ends up pointing at the camera, same as the rest.
+
+  const TETRA_RAW_VERTICES = [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]];
+  const TETRA_FACES = [[0, 1, 2], [0, 3, 1], [0, 2, 3], [1, 3, 2]];
+
+  function buildD4(circumradius) {
+    const verts = TETRA_RAW_VERTICES.map((v) => vecScale(vecNorm(v), circumradius));
+    const faceDescriptors = TETRA_FACES.map((idx, i) => {
+      const geo = computeFaceGeometry(idx.map((vi) => verts[vi]));
+      return { ...geo, value: i + 1 };
+    });
+    return renderPolyhedronDie(faceDescriptors, "poly-face");
+  }
+
+  // ---------- d12 (dodecahedron), built as the icosahedron's dual ----------
+  // Each dodecahedron vertex corresponds to one icosahedron face, and each
+  // dodecahedron FACE corresponds to one icosahedron VERTEX — built from its
+  // 5 adjacent icosahedron faces' centroids, sorted into cyclic (angular)
+  // order around that vertex so the pentagon doesn't self-cross. Reuses the
+  // icosahedron's own vertex/face data and antipode map (already used for
+  // the d20's opposite-faces-sum-21 numbering) instead of hand-typing a
+  // second, unfamiliar vertex list — lower risk of a transcription error.
+
+  function icosaAntipodeMap() {
+    return ICOSA_RAW_VERTICES.map((v) =>
+      ICOSA_RAW_VERTICES.findIndex(
+        (w) => Math.abs(w[0] + v[0]) < 1e-6 && Math.abs(w[1] + v[1]) < 1e-6 && Math.abs(w[2] + v[2]) < 1e-6
+      )
+    );
+  }
+
+  function buildD12(radius) {
+    const icosaDirs = ICOSA_RAW_VERTICES.map((v) => vecNorm(v));
+    const faceCentroidDirs = ICOSA_FACES.map(([i0, i1, i2]) =>
+      vecNorm(vecAdd(vecAdd(icosaDirs[i0], icosaDirs[i1]), icosaDirs[i2]))
+    );
+    const antipode = icosaAntipodeMap();
+
+    // For each icosahedron vertex, gather its 5 adjacent faces and sort
+    // them by angle around that vertex's own direction, giving a proper
+    // (non-self-crossing) pentagon perimeter order.
+    const pentagonFaceOrder = ICOSA_RAW_VERTICES.map((rawV, vIdx) => {
+      const vDir = vecNorm(rawV);
+      const adjFaces = [];
+      ICOSA_FACES.forEach((f, fi) => { if (f.includes(vIdx)) adjFaces.push(fi); });
+      const ref = Math.abs(vDir[1]) > 0.9 ? [1, 0, 0] : [0, 1, 0];
+      const uAxis = vecNorm(vecCross(ref, vDir));
+      const wAxis = vecCross(vDir, uAxis);
+      return adjFaces
+        .map((fi) => {
+          const dir = faceCentroidDirs[fi];
+          return { fi, angle: Math.atan2(vecDot(dir, wAxis), vecDot(dir, uAxis)) };
+        })
+        .sort((a, b) => a.angle - b.angle)
+        .map((x) => x.fi);
+    });
+
+    // Opposite dodecahedron faces sum to 13, like a real d12 — the same
+    // antipode map used for the d20 works directly here too, since
+    // dodecahedron-face-at-vertex-v is opposite dodecahedron-face-at-
+    // antipode(v).
+    const values = new Array(12).fill(null);
+    let next = 1;
+    for (let v = 0; v < 12; v++) {
+      if (values[v] !== null) continue;
+      const opp = antipode[v];
+      values[v] = next;
+      if (opp !== v) values[opp] = 13 - next;
+      next++;
+    }
+
+    const faceDescriptors = pentagonFaceOrder.map((faceIdxList, vIdx) => {
+      const pts = faceIdxList.map((fi) => vecScale(faceCentroidDirs[fi], radius));
+      return { ...computeFaceGeometry(pts), value: values[vIdx] };
+    });
+
+    return renderPolyhedronDie(faceDescriptors, "poly-face");
+  }
+
+  // ---------- d10 (pentagonal trapezohedron) ----------
+  // Not a Platonic solid — a pentagonal antiprism with a 5-sided pyramid
+  // capping each end, where each pyramid triangle is coplanar with (and
+  // merges into) the antiprism triangle sharing its top-ring edge, forming
+  // one flat kite face. That coplanarity is what pins down the apex
+  // height: solving vTopApex . (vTop_i x vTop_i+1... ) — worked out by hand
+  // for the two adjacent top-ring points and the one bottom-ring point
+  // between them — gives apex overshoot H = 2p*sin72°/(2sin36°-sin72°)
+  // above the ring plane (p = ring's height offset from the equator),
+  // independent of the ring radius. Verified numerically (all 10 kites
+  // planar, congruent, and outward-facing) before shipping — see the
+  // commit notes.
+  function buildD10(radius, digitScale) {
+    const deg = Math.PI / 180;
+    const p = radius * 0.32;
+    const sin72 = Math.sin(72 * deg);
+    const sin36 = Math.sin(36 * deg);
+    const H = (2 * p * sin72) / (2 * sin36 - sin72);
+    const apexZ = p + H;
+
+    const topRing = Array.from({ length: 5 }, (_, i) => {
+      const a = i * 72 * deg;
+      return [radius * Math.cos(a), radius * Math.sin(a), p];
+    });
+    const bottomRing = Array.from({ length: 5 }, (_, j) => {
+      const a = (j * 72 + 36) * deg;
+      return [radius * Math.cos(a), radius * Math.sin(a), -p];
+    });
+    const apexTop = [0, 0, apexZ];
+    const apexBottom = [0, 0, -apexZ];
+
+    const kitePointLists = [];
+    for (let i = 0; i < 5; i++) {
+      kitePointLists.push([apexTop, topRing[i], bottomRing[i], topRing[(i + 1) % 5]]);
+    }
+    for (let j = 0; j < 5; j++) {
+      kitePointLists.push([apexBottom, bottomRing[j], topRing[(j + 1) % 5], bottomRing[(j + 1) % 5]]);
+    }
+
+    const geoms = kitePointLists.map((pts) => computeFaceGeometry(pts));
+
+    // Find each kite's opposite by nearest match to its negated centroid
+    // (the construction is point-symmetric through the center), then
+    // number so opposite faces sum to 9 (times digitScale), like a real
+    // percentile die pair.
+    const oppositeOf = geoms.map((f) => {
+      const negC = vecScale(f.centroid, -1);
+      let best = -1, bestDist = Infinity;
+      geoms.forEach((g, j) => {
+        const d = vecLen(vecSub(g.centroid, negC));
+        if (d < bestDist) { bestDist = d; best = j; }
+      });
+      return best;
+    });
+    const values = new Array(10).fill(null);
+    let next = 0;
+    for (let i = 0; i < 10; i++) {
+      if (values[i] !== null) continue;
+      const j = oppositeOf[i];
+      values[i] = next * digitScale;
+      if (j !== i) values[j] = (9 - next) * digitScale;
+      next++;
+    }
+
+    const faceDescriptors = geoms.map((g, i) => {
+      const v = values[i];
+      const label = digitScale === 10 ? (v === 0 ? "00" : String(v)) : String(v);
+      return { ...g, value: v, label };
+    });
+
+    return renderPolyhedronDie(faceDescriptors, "poly-face");
+  }
+
   // ---------- shared toss/roll machinery ----------
 
   const DICE_DEFS = [
-    { size: 90, faceSize: 90, build: (s) => ({ dice: buildD6(s), rotations: D6_FACE_ROTATIONS }), idleX: -160 },
-    { size: 150, faceSize: 92, build: (s) => ({ dice: buildD8(s), rotations: D8_FACE_ROTATIONS }), idleX: 0 },
-    { size: 160, faceSize: 62, build: (s) => buildD20(s), idleX: 160 },
+    { label: "d4", size: 100, faceSize: 62, build: (s) => buildD4(s), idleX: -330, idleY: -90 },
+    { label: "d6", size: 90, faceSize: 90, build: (s) => ({ dice: buildD6(s), rotations: D6_FACE_ROTATIONS }), idleX: -170, idleY: -90 },
+    { label: "d8", size: 150, faceSize: 92, build: (s) => ({ dice: buildD8(s), rotations: D8_FACE_ROTATIONS }), idleX: 0, idleY: -90 },
+    { label: "d20", size: 150, faceSize: 58, build: (s) => buildD20(s), idleX: 170, idleY: -90 },
+    { label: "d12", size: 150, faceSize: 58, build: (s) => buildD12(s), idleX: 330, idleY: -90 },
+    { label: "d10", size: 110, faceSize: 52, build: (s) => buildD10(s, 1), idleX: -70, idleY: 110, chainGroup: "d100" },
+    { label: "d100", size: 110, faceSize: 52, build: (s) => buildD10(s, 10), idleX: 70, idleY: 110, chainGroup: "d100" },
   ];
 
   const instances = DICE_DEFS.map((def) => {
     const wrap = document.createElement("div");
     wrap.className = "dice-wrap";
     wrap.style.setProperty("--size", def.size + "px");
-    wrap.style.transform = `translate(${def.idleX}px, 0px)`;
+    wrap.style.transform = `translate(${def.idleX}px, ${def.idleY}px)`;
 
     const shadow = document.createElement("div");
     shadow.className = "shadow";
     shadow.style.setProperty("--size", def.size + "px");
-    shadow.style.transform = `translate(${def.idleX}px, 0px)`;
+    shadow.style.transform = `translate(${def.idleX}px, ${def.idleY}px)`;
 
     const { dice: diceEl, rotations } = def.build(def.faceSize);
     wrap.appendChild(diceEl);
@@ -562,6 +843,28 @@
 
     return { def, wrap, diceEl, shadow, rotations, wrapAnim: null, diceAnim: null, shadowAnim: null };
   });
+
+  // The two percentile dice are drawn linked by a chain that's redrawn every
+  // frame from their live on-screen positions, so it follows them correctly
+  // whether they're sitting idle, mid-toss, or freshly landed — not just a
+  // static decoration between two fixed idle spots.
+  const chainPath = document.getElementById("chain-path");
+  const d100Instances = instances.filter((inst) => inst.def.chainGroup === "d100");
+
+  function updateChain() {
+    if (d100Instances.length === 2) {
+      const arenaRect = arena.getBoundingClientRect();
+      const [a, b] = d100Instances.map((inst) => {
+        const r = inst.wrap.getBoundingClientRect();
+        return [r.left + r.width / 2 - arenaRect.left, r.top + r.height / 2 - arenaRect.top];
+      });
+      const midX = (a[0] + b[0]) / 2;
+      const midY = (a[1] + b[1]) / 2 + 26; // sag downward, like a real chain
+      chainPath.setAttribute("d", `M ${a[0]} ${a[1]} Q ${midX} ${midY} ${b[0]} ${b[1]}`);
+    }
+    requestAnimationFrame(updateChain);
+  }
+  updateChain();
 
   // Builds a toss trajectory landing at (landX, landY) — offsets in px from
   // the arena center — with a gravity-like arc and a small settling bounce,
@@ -621,10 +924,10 @@
 
   function pickLandingSpots(count) {
     const rect = arena.getBoundingClientRect();
-    const margin = 120; // keep every die fully on screen, clear of the HUD
+    const margin = 100; // keep every die fully on screen, clear of the HUD
     const maxX = rect.width / 2 - margin;
     const maxY = rect.height / 2 - margin - 40;
-    const minSeparation = 150;
+    const minSeparation = 130;
 
     const spots = [];
     for (let n = 0; n < count; n++) {
@@ -636,7 +939,7 @@
         spot = { x, y };
         attempts++;
       } while (
-        attempts < 8 &&
+        attempts < 12 &&
         spots.some((s) => Math.hypot(s.x - spot.x, s.y - spot.y) < minSeparation)
       );
       spots.push(spot);
@@ -656,15 +959,19 @@
 
     const spots = pickLandingSpots(instances.length);
     const duration = 1300;
-    const values = [];
+    const results = []; // { label, value, chainGroup }
     let remaining = instances.length;
 
     instances.forEach((inst, idx) => {
-      const faceCount = Object.keys(inst.rotations).length;
-      const value = 1 + Math.floor(Math.random() * faceCount);
-      values[idx] = value;
+      // Values aren't always 1..N integers (the d10 pair uses 0-9 and
+      // 0/10/../90), so pick a random KEY out of the rotations table
+      // rather than assuming a range.
+      const keys = Object.keys(inst.rotations);
+      const key = keys[Math.floor(Math.random() * keys.length)];
+      const value = Number(key);
+      results[idx] = { label: inst.def.label, value, chainGroup: inst.def.chainGroup };
 
-      const { x: faceX, y: faceY } = inst.rotations[value];
+      const { x: faceX, y: faceY } = inst.rotations[key];
       const spinX = 360 * (2 + Math.floor(Math.random() * 2));
       const spinY = 360 * (2 + Math.floor(Math.random() * 2));
       const rotX = faceX + spinX * (Math.random() < 0.5 ? 1 : -1);
@@ -680,11 +987,29 @@
       inst.diceAnim.onfinish = () => {
         remaining--;
         if (remaining === 0) {
-          resultEl.textContent = `Result: ${values.join(" + ")} = ${values.reduce((a, b) => a + b, 0)}`;
+          resultEl.textContent = formatResults(results);
           rollBtn.disabled = false;
         }
       };
     });
+  }
+
+  // The d100 pair (tens + units) combines into one number instead of being
+  // listed (and summed) separately like the other dice.
+  function formatResults(results) {
+    const chainValues = {};
+    const parts = [];
+    for (const r of results) {
+      if (r.chainGroup) {
+        chainValues[r.chainGroup] = (chainValues[r.chainGroup] || 0) + r.value;
+      } else {
+        parts.push(`${r.label}:${r.value}`);
+      }
+    }
+    for (const group of Object.keys(chainValues)) {
+      parts.push(`${group}:${chainValues[group]}`);
+    }
+    return `Result — ${parts.join("   ")}`;
   }
 
   rollBtn.addEventListener("click", rollDice);
