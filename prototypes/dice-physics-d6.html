@@ -855,6 +855,24 @@ function tick() {
         die.slowFrames = 0;
         die.nudgeCount++;
       }
+    } else if (die.rollingElapsed > CONFIG.maxRollTime + 6) {
+      // Two dice resting pressed against each other can keep exchanging
+      // tiny contact forces indefinitely, which can stop either one from
+      // ever going quiet enough (real sleep, or our own threshold check
+      // above) to finalize on its own. This bounds the worst-case wait
+      // instead of leaving the result hanging — correcting directly to the
+      // nearest flat face rather than accepting whatever pose physics
+      // happens to be stuck in.
+      const { face, worldNormal } = getTopFace(die.mesh);
+      if (face && worldNormal) {
+        const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, WORLD_UP);
+        die.mesh.quaternion.premultiply(correction);
+        die.body.quaternion.set(die.mesh.quaternion.x, die.mesh.quaternion.y, die.mesh.quaternion.z, die.mesh.quaternion.w);
+      }
+      die.settled = true;
+      die.body.velocity.setZero();
+      die.body.angularVelocity.setZero();
+      showLabel(die);
     }
   }
 
