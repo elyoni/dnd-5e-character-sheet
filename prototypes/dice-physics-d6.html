@@ -828,7 +828,15 @@ function tick() {
     if (die.body.sleepState === CANNON.Body.SLEEPING || stuck) {
       const { worldNormal } = getTopFace(die.mesh);
       const flatEnough = worldNormal.dot(WORLD_UP) > 0.9986; // within ~3 degrees of true face-flat
-      if (flatEnough || die.nudgeCount >= 15) {
+      // A die resting flat on top of another die's flat face is a genuinely
+      // stable equilibrium — cannon-es sleeps it immediately, no wobble
+      // involved — so flatness alone isn't enough to accept it; it also has
+      // to actually be down on the table, not perched well above groundY on
+      // another die. Verified headlessly: ~5% of throws with two dice
+      // landing near each other produced exactly this (dead flat, asleep in
+      // under 5s, resting height roughly 2x groundY).
+      const onTable = die.body.position.y < die.groundY + die.extent * 0.25;
+      if ((flatEnough && onTable) || die.nudgeCount >= 15) {
         die.settled = true;
         die.body.velocity.setZero();
         die.body.angularVelocity.setZero();
@@ -852,6 +860,16 @@ function tick() {
           (Math.random() - 0.5) * 3
         );
         die.body.velocity.y = Math.max(die.body.velocity.y, 1.5);
+        if (!onTable) {
+          // Stacked on another die rather than resting on the table: push it
+          // sideways, away from the table center, so it tips/slides off onto
+          // the table instead of settling right back into the same stack.
+          const dx = die.body.position.x || (Math.random() - 0.5);
+          const dz = die.body.position.z || (Math.random() - 0.5);
+          const len = Math.hypot(dx, dz) || 1;
+          die.body.velocity.x += (dx / len) * 2.5;
+          die.body.velocity.z += (dz / len) * 2.5;
+        }
         die.slowFrames = 0;
         die.nudgeCount++;
       }
