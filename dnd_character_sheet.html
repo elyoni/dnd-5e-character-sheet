@@ -538,7 +538,7 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 /* ============ 3D dice overlay ============ */
 #dice-3d-overlay{
   position:fixed; inset:0; z-index:500;
-  background:rgba(10,14,10,0.55);
+  background:transparent;
   opacity:0; pointer-events:none;
   transition:opacity 0.2s ease-out;
 }
@@ -547,8 +547,8 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 #dice-3d-labels{ position:absolute; inset:0; pointer-events:none; }
 .dice-3d-label{
   position:absolute; transform:translate(-50%,-50%);
-  font-weight:800; font-size:26px; font-family:'Cinzel',serif;
-  color:#f5e9c8; text-shadow:0 0 4px #000,0 0 10px #000,0 1px 2px #000;
+  font-weight:800; font-size:29px; font-family:system-ui,sans-serif;
+  color:#e8dcc0; text-shadow:0 0 4px #000,0 0 10px #000,0 1px 2px #000;
   opacity:0; transition:opacity 0.25s ease-out;
 }
 .dice-3d-label.visible{ opacity:1; }
@@ -833,15 +833,21 @@ const WORLD_UP = new THREE.Vector3(0, 1, 0);
 const DEFAULT_CONFIG = {
   textColor: "#1c150f",
   dieColor: "#c9a227",
-  tableColor: "#1a2a1c",
   fontSize: 56,
   fontFamily: "system-ui, sans-serif",
-  rollBounce: 0.3,
-  rollDamping: 0.4,
-  maxRollTime: 5,
-  gravity: 20,
-  camHeight: 14,
-  camDistance: 9,
+  rollSpeed: 2.5,
+  rollSpin: 1.7,
+  rollBounce: 0.90,
+  rollDamping: 0.65,
+  maxRollTime: 1.0,
+  gravity: 40,
+  labelOffsetX: 10,
+  labelOffsetY: -6,
+  labelFontSize: 29,
+  labelFontFamily: "system-ui, sans-serif",
+  labelColor: "#e8dcc0",
+  camHeight: 30,
+  camDistance: 0,
 };
 
 function initDicePhysics(canvasEl, labelsEl, userConfig) {
@@ -873,7 +879,10 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
   dirLight.shadow.bias = -0.001;
   scene.add(dirLight);
 
-  const tableMat = new THREE.MeshStandardMaterial({ color: config.tableColor, roughness: 0.9 });
+  // A ShadowMaterial renders nothing except the shadows falling on it — the
+  // dice cast real contact shadows to stay visually grounded, but there's
+  // no opaque backdrop covering the page content underneath the overlay.
+  const tableMat = new THREE.ShadowMaterial({ opacity: 0.35 });
   const table = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), tableMat);
   table.rotation.x = -Math.PI / 2;
   table.receiveShadow = true;
@@ -916,8 +925,16 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
     }
     const spanX = visible.maxX - visible.minX;
     const spanZ = visible.maxZ - visible.minZ;
-    const marginX = Math.min(spanX * 0.1 + maxExtent * 2, spanX * 0.4);
-    const marginZ = Math.min(spanZ * 0.1 + maxExtent * 2, spanZ * 0.4);
+    // A percentage-of-span margin looks fine on a roughly-square view, but on
+    // a narrow/portrait aspect ratio the two spans can differ by 2x or more
+    // (e.g. a tall phone screen at a steep overhead camera angle) — taking
+    // 40% off BOTH independently collapsed the narrower axis down to almost
+    // nothing, so dice were confined to a thin vertical strip ("rolling in a
+    // tube"). A small, mostly-fixed margin (just enough to keep dice off the
+    // walls) fixes that; the spanX*0.25/spanZ*0.25 cap only matters for a
+    // genuinely tiny visible area, not the normal case.
+    const marginX = Math.min(maxExtent * 1.5, spanX * 0.25);
+    const marginZ = Math.min(maxExtent * 1.5, spanZ * 0.25);
     tableBounds = {
       minX: visible.minX + marginX, maxX: visible.maxX - marginX,
       minZ: visible.minZ + marginZ, maxZ: visible.maxZ - marginZ,
@@ -970,6 +987,9 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
     const el = document.createElement("div");
     el.className = "dice-3d-label";
     el.textContent = String(die.finalValue);
+    el.style.fontSize = `${config.labelFontSize}px`;
+    el.style.fontFamily = config.labelFontFamily;
+    el.style.color = config.labelColor;
     labelsEl.appendChild(el);
     die.labelEl = el;
     positionLabel(die);
@@ -1003,8 +1023,8 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
     const ndc = worldPos.clone().project(camera);
     const w = canvasEl.clientWidth || window.innerWidth;
     const h = canvasEl.clientHeight || window.innerHeight;
-    const x = (ndc.x * 0.5 + 0.5) * w;
-    const y = (-ndc.y * 0.5 + 0.5) * h;
+    const x = (ndc.x * 0.5 + 0.5) * w + config.labelOffsetX;
+    const y = (-ndc.y * 0.5 + 0.5) * h + config.labelOffsetY;
     die.labelEl.style.left = `${x}px`;
     die.labelEl.style.top = `${y}px`;
   }
@@ -1034,12 +1054,21 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
 
       const targetX = (Math.random() - 0.5) * (tableBounds.maxX - tableBounds.minX) * 0.5;
       const targetZ = (Math.random() - 0.5) * (tableBounds.maxZ - tableBounds.minZ) * 0.5;
-      let vx = (targetX - startX) * 0.9, vz = (targetZ - startZ) * 0.9;
+      let vx = (targetX - startX) * 0.9 * config.rollSpeed, vz = (targetZ - startZ) * 0.9 * config.rollSpeed;
+      // The speed cap must apply AFTER the rollSpeed multiplier, not before —
+      // capping first and then multiplying let a high rollSpeed (e.g. 2.5x)
+      // push the actual launch speed to 2.5x the intended cap, which made
+      // dice fly much harder/longer than the config implied and take far
+      // longer to bleed off enough energy to settle.
       const speed = Math.hypot(vx, vz);
-      const maxSpeed = 20;
+      const maxSpeed = 16;
       if (speed > maxSpeed) { vx = (vx / speed) * maxSpeed; vz = (vz / speed) * maxSpeed; }
-      body.velocity.set(vx, -2, vz);
-      body.angularVelocity.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20);
+      body.velocity.set(vx, -2 * config.rollSpeed, vz);
+      body.angularVelocity.set(
+        (Math.random() - 0.5) * 20 * config.rollSpin,
+        (Math.random() - 0.5) * 20 * config.rollSpin,
+        (Math.random() - 0.5) * 20 * config.rollSpin
+      );
 
       scene.add(mesh);
       world.addBody(body);
@@ -1085,7 +1114,7 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
       const stuck = die.slowFrames > 6;
       const onTable = die.body.position.y < die.groundY + die.extent * 0.25;
 
-      if (die.rollingElapsed > config.maxRollTime + 6) {
+      if (die.rollingElapsed > config.maxRollTime + 2) {
         if (die.numbering === "face") {
           const { worldNormal } = getTopFace(die.mesh);
           if (worldNormal) {

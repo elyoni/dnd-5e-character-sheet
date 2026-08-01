@@ -537,7 +537,7 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 /* ============ 3D dice overlay ============ */
 #dice-3d-overlay{
   position:fixed; inset:0; z-index:500;
-  background:rgba(10,14,10,0.55);
+  background:transparent;
   opacity:0; pointer-events:none;
   transition:opacity 0.2s ease-out;
 }
@@ -546,8 +546,8 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 #dice-3d-labels{ position:absolute; inset:0; pointer-events:none; }
 .dice-3d-label{
   position:absolute; transform:translate(-50%,-50%);
-  font-weight:800; font-size:26px; font-family:'Cinzel',serif;
-  color:#f5e9c8; text-shadow:0 0 4px #000,0 0 10px #000,0 1px 2px #000;
+  font-weight:800; font-size:29px; font-family:system-ui,sans-serif;
+  color:#e8dcc0; text-shadow:0 0 4px #000,0 0 10px #000,0 1px 2px #000;
   opacity:0; transition:opacity 0.25s ease-out;
 }
 .dice-3d-label.visible{ opacity:1; }
