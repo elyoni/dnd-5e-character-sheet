@@ -549,6 +549,13 @@ const DIE_TYPES = {
   d20: { buildMesh: () => buildD20Die(currentD20Radius()), buildBody: () => buildD20Body() },
 };
 
+// Resting center-height as a fraction of `extent` (full width) when a die
+// sits flat on a face — a box sits at exactly half its size, an icosahedron
+// sits lower relative to its width (inradius/circumradius ≈ 0.79, and
+// extent is 2×radius, so 0.79/2). Used below to tell "paused mid-bounce,
+// still airborne" apart from "actually on the table."
+const RESTING_HEIGHT_RATIO = { d6: 0.5, d20: 0.395 };
+
 const activeDice = [];
 const labelsContainer = document.getElementById("dice-labels");
 
@@ -628,7 +635,11 @@ function throwDice(count, dieType) {
 
     scene.add(mesh);
     world.addBody(body);
-    activeDice.push({ mesh, body, labelEl: null, rollingElapsed: 0, settled: false, extent });
+    // Generous margin above the true resting height so a die that's still
+    // settling (slight wobble as friction/damping finish it off) isn't
+    // excluded, while a die paused mid-air between bounces still is.
+    const groundY = extent * RESTING_HEIGHT_RATIO[dieType] * 1.3;
+    activeDice.push({ mesh, body, labelEl: null, rollingElapsed: 0, settled: false, extent, groundY, slowFrames: 0 });
   }
 }
 
@@ -731,7 +742,22 @@ function tick() {
     die.mesh.quaternion.copy(die.body.quaternion);
     die.rollingElapsed += dt;
 
-    const stuck = die.rollingElapsed > CONFIG.maxRollTime && die.body.velocity.length() < 1.5;
+    // A die can have near-zero linear velocity mid-tumble (e.g. the apex of
+    // a bounce) while still spinning fast, or briefly pause mid-air between
+    // bounces — checking angular velocity AND that it's actually down near
+    // the table (not just "slow"), plus requiring several consecutive slow
+    // frames (not just one), stops this fallback from freezing it in an
+    // unsettled, not-flat pose.
+    const genuinelySlow =
+      die.body.velocity.length() < 1.5 &&
+      die.body.angularVelocity.length() < 1.0 &&
+      die.body.position.y < die.groundY;
+    if (die.rollingElapsed > CONFIG.maxRollTime && genuinelySlow) {
+      die.slowFrames++;
+    } else {
+      die.slowFrames = 0;
+    }
+    const stuck = die.slowFrames > 6;
     if (die.body.sleepState === CANNON.Body.SLEEPING || stuck) {
       die.settled = true;
       die.body.velocity.setZero();
