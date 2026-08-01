@@ -259,6 +259,39 @@
     return dice;
   }
 
+  // Builds an SVG path (for clip-path: path(...)) that traces the given
+  // polygon points with each corner rounded off by `radius` px — used for
+  // the triangular d8/d20 faces, since clip-path: polygon() can't take a
+  // border-radius the way the d6's rectangular faces do. At each vertex the
+  // path cuts in `radius` px along both adjacent edges and joins those two
+  // points with a quadratic curve using the original corner as the control
+  // point (the standard "rounded polygon" trick).
+  function roundedPolygonPath(points, radius) {
+    const n = points.length;
+    const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+    const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
+    const scale = (a, s) => [a[0] * s, a[1] * s];
+    const norm = (a) => { const l = Math.hypot(a[0], a[1]); return [a[0] / l, a[1] / l]; };
+
+    const cuts = points.map((p, i) => {
+      const prev = points[(i - 1 + n) % n];
+      const next = points[(i + 1) % n];
+      return {
+        corner: p,
+        inPt: add(p, scale(norm(sub(prev, p)), radius)),
+        outPt: add(p, scale(norm(sub(next, p)), radius)),
+      };
+    });
+
+    let d = `M ${cuts[0].outPt[0]} ${cuts[0].outPt[1]}`;
+    for (let i = 0; i < n; i++) {
+      const nextCut = cuts[(i + 1) % n];
+      d += ` L ${nextCut.inPt[0]} ${nextCut.inPt[1]}`;
+      d += ` Q ${nextCut.corner[0]} ${nextCut.corner[1]} ${nextCut.outPt[0]} ${nextCut.outPt[1]}`;
+    }
+    return d + " Z";
+  }
+
   // ---------- d8 (octahedron) ----------
 
   // Regular-octahedron geometry: base edge W, equilateral-triangle face
@@ -271,6 +304,9 @@
   function buildD8(edge) {
     const H = edge * (Math.sqrt(3) / 2);
     const r = edge / 2;
+    const cornerRadius = edge * 0.12;
+    const pathUp = roundedPolygonPath([[edge / 2, 0], [edge, H], [0, H]], cornerRadius);
+    const pathDown = roundedPolygonPath([[edge / 2, H], [0, 0], [edge, 0]], cornerRadius);
 
     const dice = document.createElement("div");
     dice.className = "dice";
@@ -299,7 +335,7 @@
         if (tier.apex === "up") {
           face.style.marginTop = -H + "px";
           face.style.transformOrigin = "50% 100%";
-          face.style.clipPath = "polygon(50% 0%, 100% 100%, 0% 100%)";
+          face.style.clipPath = `path("${pathUp}")`;
           // Positive rotateX folds this face's far (apex) edge in toward
           // the vertical axis so all 4 top faces converge on one point
           // above the equator; the opposite sign pushes them apart instead.
@@ -309,7 +345,7 @@
         } else {
           face.style.marginTop = "0px";
           face.style.transformOrigin = "50% 0%";
-          face.style.clipPath = "polygon(50% 100%, 0% 0%, 100% 0%)";
+          face.style.clipPath = `path("${pathDown}")`;
           face.style.transform =
             `rotateY(${i * 90}deg) translateZ(${r}px) rotateX(${-OCT_TILT_DEG}deg)`;
           num.style.top = "33.3%"; // centroid of an apex-down triangle
@@ -479,7 +515,7 @@
       face.style.top = "50%";
       face.style.marginLeft = -boxW / 2 + "px";
       face.style.marginTop = -boxH / 2 + "px";
-      face.style.clipPath = `polygon(${pts.map(([x, y]) => `${x}px ${y}px`).join(", ")})`;
+      face.style.clipPath = `path("${roundedPolygonPath(pts, f.edge * 0.12)}")`;
       face.style.transform = `matrix3d(
         ${f.e1[0]}, ${f.e1[1]}, ${f.e1[2]}, 0,
         ${f.e2[0]}, ${f.e2[1]}, ${f.e2[2]}, 0,
