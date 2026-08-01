@@ -131,7 +131,7 @@
   .d8-face .num {
     position: absolute;
     left: 50%;
-    font: 700 15px system-ui, sans-serif;
+    font: 700 37.5px system-ui, sans-serif;
     color: #131210;
     transform: translate(-50%, -50%);
   }
@@ -153,7 +153,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    font: 700 13px system-ui, sans-serif;
+    font: 700 32.5px system-ui, sans-serif;
     color: #131210;
     transform: translate(-50%, -50%);
   }
@@ -173,29 +173,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    font: 700 13px system-ui, sans-serif;
+    font: 700 32.5px system-ui, sans-serif;
     color: #131210;
     transform: translate(-50%, -50%);
-  }
-
-  /* Decorative-but-live chain linking the two d100 (percentile) dice —
-     redrawn every frame to follow wherever they currently are. */
-  .chain-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: visible;
-  }
-
-  #chain-path {
-    fill: none;
-    stroke: #9a9a9a;
-    stroke-width: 4;
-    stroke-linecap: round;
-    stroke-dasharray: 9 7;
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,.5));
   }
 
   .hud {
@@ -242,9 +222,7 @@
 </head>
 <body>
 
-  <div class="arena" id="arena">
-    <svg class="chain-svg"><path id="chain-path" /></svg>
-  </div>
+  <div class="arena" id="arena"></div>
 
   <div class="hud">
     <div class="result" id="result">&nbsp;</div>
@@ -820,8 +798,8 @@
     { label: "d8", size: 150, faceSize: 92, build: (s) => ({ dice: buildD8(s), rotations: D8_FACE_ROTATIONS }), idleX: 0, idleY: -90 },
     { label: "d20", size: 150, faceSize: 58, build: (s) => buildD20(s), idleX: 170, idleY: -90 },
     { label: "d12", size: 150, faceSize: 58, build: (s) => buildD12(s), idleX: 330, idleY: -90 },
-    { label: "d10", size: 110, faceSize: 52, build: (s) => buildD10(s, 1), idleX: -70, idleY: 110, chainGroup: "d100" },
-    { label: "d100", size: 110, faceSize: 52, build: (s) => buildD10(s, 10), idleX: 70, idleY: 110, chainGroup: "d100" },
+    { label: "d10", size: 110, faceSize: 52, build: (s) => buildD10(s, 1), idleX: -90, idleY: 110, chainGroup: "d100" },
+    { label: "d100", size: 110, faceSize: 52, build: (s) => buildD10(s, 10), idleX: 90, idleY: 110, chainGroup: "d100" },
   ];
 
   const instances = DICE_DEFS.map((def) => {
@@ -843,28 +821,6 @@
 
     return { def, wrap, diceEl, shadow, rotations, wrapAnim: null, diceAnim: null, shadowAnim: null };
   });
-
-  // The two percentile dice are drawn linked by a chain that's redrawn every
-  // frame from their live on-screen positions, so it follows them correctly
-  // whether they're sitting idle, mid-toss, or freshly landed — not just a
-  // static decoration between two fixed idle spots.
-  const chainPath = document.getElementById("chain-path");
-  const d100Instances = instances.filter((inst) => inst.def.chainGroup === "d100");
-
-  function updateChain() {
-    if (d100Instances.length === 2) {
-      const arenaRect = arena.getBoundingClientRect();
-      const [a, b] = d100Instances.map((inst) => {
-        const r = inst.wrap.getBoundingClientRect();
-        return [r.left + r.width / 2 - arenaRect.left, r.top + r.height / 2 - arenaRect.top];
-      });
-      const midX = (a[0] + b[0]) / 2;
-      const midY = (a[1] + b[1]) / 2 + 26; // sag downward, like a real chain
-      chainPath.setAttribute("d", `M ${a[0]} ${a[1]} Q ${midX} ${midY} ${b[0]} ${b[1]}`);
-    }
-    requestAnimationFrame(updateChain);
-  }
-  updateChain();
 
   // Builds a toss trajectory landing at (landX, landY) — offsets in px from
   // the arena center — with a gravity-like arc and a small settling bounce,
