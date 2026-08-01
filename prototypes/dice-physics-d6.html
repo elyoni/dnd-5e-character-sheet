@@ -225,6 +225,8 @@ const canvas = document.getElementById("dice-canvas");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor(0x0d120e, 1);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
 
@@ -235,14 +237,28 @@ camera.updateMatrixWorld(true);
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
 dirLight.position.set(4, 14, 6);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.set(1024, 1024);
+dirLight.shadow.camera.left = -15;
+dirLight.shadow.camera.right = 15;
+dirLight.shadow.camera.top = 15;
+dirLight.shadow.camera.bottom = -15;
+dirLight.shadow.camera.near = 1;
+dirLight.shadow.camera.far = 40;
+dirLight.shadow.bias = -0.001;
 scene.add(dirLight);
 
+// Without a shadow, a die resting exactly correctly on a flat face has no
+// visual cue tying it to the table — it can read as floating or balanced on
+// a corner, especially from an oblique camera angle. The shadow is what
+// actually communicates "this face is flush with the ground."
 const tableMat = new THREE.MeshStandardMaterial({ color: CONFIG.tableColor, roughness: 0.9 });
 const table = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), tableMat);
 table.rotation.x = -Math.PI / 2;
+table.receiveShadow = true;
 scene.add(table);
 
 function resize() {
@@ -345,6 +361,7 @@ function buildDie() {
   const geo = new THREE.BoxGeometry(size, size, size);
   const materials = FACE_NUMBERS.map((n) => new THREE.MeshStandardMaterial({ map: makeFaceTexture(n), roughness: 0.5 }));
   const mesh = new THREE.Mesh(geo, materials);
+  mesh.castShadow = true;
   mesh.userData.faces = FACE_LOCAL_NORMALS.map((n, i) => ({
     normal: new THREE.Vector3(...n),
     number: FACE_NUMBERS[i],
@@ -502,6 +519,7 @@ function buildD20Die(radius) {
 
   geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
   const mesh = new THREE.Mesh(geo, materials);
+  mesh.castShadow = true;
   mesh.userData.faces = userFaces;
   return mesh;
 }
