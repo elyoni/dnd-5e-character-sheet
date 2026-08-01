@@ -16,6 +16,11 @@
     height: 100%;
   }
 
+  :root {
+    --num-font-size: 16px;
+    --num-font-family: system-ui, sans-serif;
+  }
+
   body {
     overflow: hidden;
     background: radial-gradient(ellipse at center, #3a3a45 0%, #202027 100%);
@@ -131,7 +136,9 @@
   .d8-face .num {
     position: absolute;
     left: 50%;
-    font: 700 37.5px system-ui, sans-serif;
+    font-weight: 700;
+    font-size: var(--num-font-size);
+    font-family: var(--num-font-family);
     color: #131210;
     transform: translate(-50%, -50%);
   }
@@ -153,7 +160,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    font: 700 32.5px system-ui, sans-serif;
+    font-weight: 700;
+    font-size: var(--num-font-size);
+    font-family: var(--num-font-family);
     color: #131210;
     transform: translate(-50%, -50%);
   }
@@ -173,7 +182,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    font: 700 32.5px system-ui, sans-serif;
+    font-weight: 700;
+    font-size: var(--num-font-size);
+    font-family: var(--num-font-family);
     color: #131210;
     transform: translate(-50%, -50%);
   }
@@ -218,11 +229,106 @@
     min-height: 1.4em;
     text-shadow: 0 1px 3px rgba(0,0,0,.6);
   }
+
+  /* ---------- debug panel ---------- */
+
+  .debug-panel {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+    width: 230px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(20, 20, 26, .85);
+    color: #eee;
+    font: 12px system-ui, sans-serif;
+    backdrop-filter: blur(3px);
+  }
+
+  .debug-panel.collapsed .debug-body {
+    display: none;
+  }
+
+  .debug-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  .debug-row {
+    margin-top: 10px;
+  }
+
+  .debug-row label {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+
+  .debug-row input[type="range"] {
+    width: 100%;
+  }
+
+  .debug-row select {
+    width: 100%;
+    font: inherit;
+  }
+
+  .debug-dice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+
+  .debug-dice label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+  }
 </style>
 </head>
 <body>
 
   <div class="arena" id="arena"></div>
+
+  <div class="debug-panel" id="debug-panel">
+    <div class="debug-title" id="debug-title">Debug <span id="debug-toggle-icon">▾</span></div>
+    <div class="debug-body">
+      <div class="debug-row">
+        <label>Die size <span id="dbg-scale-out">1.0x</span></label>
+        <input type="range" id="dbg-scale" min="0.4" max="1.8" step="0.1" value="1" />
+      </div>
+      <div class="debug-row">
+        <label>Font size <span id="dbg-font-size-out">16px</span></label>
+        <input type="range" id="dbg-font-size" min="8" max="48" step="1" value="16" />
+      </div>
+      <div class="debug-row">
+        <label>Font family</label>
+        <select id="dbg-font-family">
+          <option value="system-ui, sans-serif">System UI</option>
+          <option value="Georgia, serif">Georgia (serif)</option>
+          <option value="'Courier New', monospace">Courier New (mono)</option>
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="Verdana, sans-serif">Verdana</option>
+        </select>
+      </div>
+      <div class="debug-row">
+        <label>Bounces <span id="dbg-bounces-out">1</span></label>
+        <input type="range" id="dbg-bounces" min="0" max="5" step="1" value="1" />
+      </div>
+      <div class="debug-row">
+        <label>Which dice</label>
+        <div class="debug-dice" id="dbg-dice"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="hud">
     <div class="result" id="result">&nbsp;</div>
@@ -792,7 +898,9 @@
 
   // ---------- shared toss/roll machinery ----------
 
-  const DICE_DEFS = [
+  // "size"/"faceSize" here are the BASE values at debug scale 1.0 — actual
+  // build sizes are these times the current debug scale (see buildAllDice).
+  const BASE_DICE_DEFS = [
     { label: "d4", size: 100, faceSize: 62, build: (s) => buildD4(s), idleX: -330, idleY: -90 },
     { label: "d6", size: 90, faceSize: 90, build: (s) => ({ dice: buildD6(s), rotations: D6_FACE_ROTATIONS }), idleX: -170, idleY: -90 },
     { label: "d8", size: 150, faceSize: 92, build: (s) => ({ dice: buildD8(s), rotations: D8_FACE_ROTATIONS }), idleX: 0, idleY: -90 },
@@ -802,36 +910,88 @@
     { label: "d100", size: 110, faceSize: 52, build: (s) => buildD10(s, 10), idleX: 90, idleY: 110, chainGroup: "d100" },
   ];
 
-  const instances = DICE_DEFS.map((def) => {
-    const wrap = document.createElement("div");
-    wrap.className = "dice-wrap";
-    wrap.style.setProperty("--size", def.size + "px");
-    wrap.style.transform = `translate(${def.idleX}px, ${def.idleY}px)`;
+  let instances = [];
+  let dieScale = 1;
+  let bounceCount = 1;
+  const visibleLabels = new Set(BASE_DICE_DEFS.map((d) => d.label));
 
-    const shadow = document.createElement("div");
-    shadow.className = "shadow";
-    shadow.style.setProperty("--size", def.size + "px");
-    shadow.style.transform = `translate(${def.idleX}px, ${def.idleY}px)`;
+  // The d20/d4/d10/d12 faces are laid out from raw pixel math computed at
+  // build time (matrix3d translations, clip-path point coordinates) — they
+  // don't respond to a CSS scale the way the d6/d8's calc()-based faces do,
+  // so resizing means rebuilding those dice from scratch at the new size.
+  function buildAllDice(scale) {
+    dieScale = scale;
+    instances.forEach((inst) => {
+      if (inst.wrapAnim) inst.wrapAnim.cancel();
+      if (inst.diceAnim) inst.diceAnim.cancel();
+      if (inst.shadowAnim) inst.shadowAnim.cancel();
+    });
+    arena.innerHTML = "";
 
-    const { dice: diceEl, rotations } = def.build(def.faceSize);
-    wrap.appendChild(diceEl);
+    instances = BASE_DICE_DEFS.map((def) => {
+      const size = def.size * scale;
+      const wrap = document.createElement("div");
+      wrap.className = "dice-wrap";
+      wrap.style.setProperty("--size", size + "px");
+      wrap.style.transform = `translate(${def.idleX}px, ${def.idleY}px)`;
 
-    arena.appendChild(shadow);
-    arena.appendChild(wrap);
+      const shadow = document.createElement("div");
+      shadow.className = "shadow";
+      shadow.style.setProperty("--size", size + "px");
+      shadow.style.transform = `translate(${def.idleX}px, ${def.idleY}px)`;
 
-    return { def, wrap, diceEl, shadow, rotations, wrapAnim: null, diceAnim: null, shadowAnim: null };
-  });
+      const { dice: diceEl, rotations } = def.build(def.faceSize * scale);
+      wrap.appendChild(diceEl);
+
+      arena.appendChild(shadow);
+      arena.appendChild(wrap);
+
+      return { def, wrap, diceEl, shadow, rotations, wrapAnim: null, diceAnim: null, shadowAnim: null };
+    });
+
+    applyVisibility();
+  }
+
+  function applyVisibility() {
+    instances.forEach((inst) => {
+      const show = visibleLabels.has(inst.def.label);
+      inst.wrap.style.display = show ? "" : "none";
+      inst.shadow.style.display = show ? "" : "none";
+    });
+  }
+
+  // Builds the settling bounce as a list of {t, lift} keyframes after the
+  // main flight ends at t=flightEnd: each bounce is an up-then-down pair,
+  // with amplitude decaying geometrically, packed into the remaining
+  // timeline. bounces=0 means it just lands and stays down.
+  function buildBouncePoints(flightEnd, bounceHeight, bounces) {
+    if (bounces <= 0) return [{ t: 1, lift: 0 }];
+    const span = 1 - flightEnd;
+    const step = span / (bounces + 0.5);
+    const points = [];
+    let t = flightEnd;
+    for (let i = 0; i < bounces; i++) {
+      const amp = bounceHeight * Math.pow(0.45, i);
+      t += step * 0.5;
+      points.push({ t, lift: amp });
+      t += step * 0.5;
+      points.push({ t, lift: 0 });
+    }
+    points.push({ t: 1, lift: 0 });
+    return points;
+  }
 
   // Builds a toss trajectory landing at (landX, landY) — offsets in px from
-  // the arena center — with a gravity-like arc and a small settling bounce,
-  // spinning through (rotX, rotY) degrees total along the way. The wrap
-  // (translate/lift) and the die (rotation only) are animated separately so
-  // the die's own perspective travels with it and it never looks skewed.
-  function buildTrajectory(landX, landY, rotX, rotY) {
+  // the arena center — with a gravity-like arc and a configurable number of
+  // settling bounces, spinning through (rotX, rotY) degrees total along the
+  // way. The wrap (translate/lift) and the die (rotation only) are animated
+  // separately so the die's own perspective travels with it and it never
+  // looks skewed.
+  function buildTrajectory(landX, landY, rotX, rotY, bounces) {
     const liftHeight = 160 + Math.random() * 80;
     const bounceHeight = liftHeight * 0.18;
     const flightEnd = 0.68; // fraction of the timeline spent in the air
-    const spinEnd = 0.8;    // fraction of the timeline spent still spinning
+    const spinEnd = Math.min(0.8, flightEnd + 0.1); // fraction of the timeline spent still spinning
 
     const wrapFrames = [];
     const diceFrames = [];
@@ -856,13 +1016,7 @@
       });
     }
 
-    // small settling bounce after landing
-    const bouncePoints = [
-      { t: 0.82, lift: bounceHeight },
-      { t: 0.92, lift: 0 },
-      { t: 1.0, lift: 0 },
-    ];
-    for (const { t, lift } of bouncePoints) {
+    for (const { t, lift } of buildBouncePoints(flightEnd, bounceHeight, bounces)) {
       const spinT = Math.min(t / spinEnd, 1);
       const rx = rotX * spinT;
       const ry = rotY * spinT;
@@ -904,7 +1058,10 @@
   }
 
   function rollDice() {
-    instances.forEach((inst) => {
+    const active = instances.filter((inst) => visibleLabels.has(inst.def.label));
+    if (active.length === 0) return;
+
+    active.forEach((inst) => {
       if (inst.wrapAnim) inst.wrapAnim.cancel();
       if (inst.diceAnim) inst.diceAnim.cancel();
       if (inst.shadowAnim) inst.shadowAnim.cancel();
@@ -913,12 +1070,12 @@
     rollBtn.disabled = true;
     resultEl.textContent = " ";
 
-    const spots = pickLandingSpots(instances.length);
+    const spots = pickLandingSpots(active.length);
     const duration = 1300;
     const results = []; // { label, value, chainGroup }
-    let remaining = instances.length;
+    let remaining = active.length;
 
-    instances.forEach((inst, idx) => {
+    active.forEach((inst, idx) => {
       // Values aren't always 1..N integers (the d10 pair uses 0-9 and
       // 0/10/../90), so pick a random KEY out of the rotations table
       // rather than assuming a range.
@@ -934,7 +1091,7 @@
       const rotY = faceY + spinY * (Math.random() < 0.5 ? 1 : -1);
 
       const { x: landX, y: landY } = spots[idx];
-      const { wrapFrames, diceFrames, shadowFrames } = buildTrajectory(landX, landY, rotX, rotY);
+      const { wrapFrames, diceFrames, shadowFrames } = buildTrajectory(landX, landY, rotX, rotY, bounceCount);
 
       inst.wrapAnim = inst.wrap.animate(wrapFrames, { duration, easing: "linear", fill: "forwards" });
       inst.diceAnim = inst.diceEl.animate(diceFrames, { duration, easing: "linear", fill: "forwards" });
@@ -969,6 +1126,61 @@
   }
 
   rollBtn.addEventListener("click", rollDice);
+
+  // ---------- debug panel wiring ----------
+
+  const debugTitle = document.getElementById("debug-title");
+  const debugPanel = document.getElementById("debug-panel");
+  debugTitle.addEventListener("click", () => {
+    debugPanel.classList.toggle("collapsed");
+    document.getElementById("debug-toggle-icon").textContent = debugPanel.classList.contains("collapsed") ? "▸" : "▾";
+  });
+
+  const scaleInput = document.getElementById("dbg-scale");
+  const scaleOut = document.getElementById("dbg-scale-out");
+  scaleInput.addEventListener("input", () => {
+    const v = Number(scaleInput.value);
+    scaleOut.textContent = v.toFixed(1) + "x";
+    buildAllDice(v);
+  });
+
+  const fontSizeInput = document.getElementById("dbg-font-size");
+  const fontSizeOut = document.getElementById("dbg-font-size-out");
+  fontSizeInput.addEventListener("input", () => {
+    const v = Number(fontSizeInput.value);
+    fontSizeOut.textContent = v + "px";
+    document.documentElement.style.setProperty("--num-font-size", v + "px");
+  });
+
+  const fontFamilyInput = document.getElementById("dbg-font-family");
+  fontFamilyInput.addEventListener("change", () => {
+    document.documentElement.style.setProperty("--num-font-family", fontFamilyInput.value);
+  });
+
+  const bouncesInput = document.getElementById("dbg-bounces");
+  const bouncesOut = document.getElementById("dbg-bounces-out");
+  bouncesInput.addEventListener("input", () => {
+    bounceCount = Number(bouncesInput.value);
+    bouncesOut.textContent = String(bounceCount);
+  });
+
+  const diceCheckboxes = document.getElementById("dbg-dice");
+  BASE_DICE_DEFS.forEach((def) => {
+    const label = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = true;
+    cb.addEventListener("change", () => {
+      if (cb.checked) visibleLabels.add(def.label);
+      else visibleLabels.delete(def.label);
+      applyVisibility();
+    });
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(def.label));
+    diceCheckboxes.appendChild(label);
+  });
+
+  buildAllDice(1);
 </script>
 
 </body>
