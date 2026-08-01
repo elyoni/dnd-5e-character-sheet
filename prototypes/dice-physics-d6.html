@@ -825,7 +825,46 @@ function tick() {
       die.slowFrames = 0;
     }
     const stuck = die.slowFrames > 6;
-    if (die.body.sleepState === CANNON.Body.SLEEPING || stuck) {
+    const onTable = die.body.position.y < die.groundY + die.extent * 0.25;
+    if (die.rollingElapsed > CONFIG.maxRollTime + 6) {
+      // Absolute last resort: whatever is happening (dice pressed together
+      // exchanging contact forces forever, or a die stuck stacked on another
+      // one that nudging never freed), stop waiting and force a valid result
+      // — this is the ONLY path allowed to bypass the onTable requirement,
+      // and when it does, it also fixes the *position*, not just the
+      // orientation, so the die actually ends up next to the other dice on
+      // the table rather than visibly floating/overlapping one of them.
+      const { face, worldNormal } = getTopFace(die.mesh);
+      if (face && worldNormal) {
+        const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, WORLD_UP);
+        die.mesh.quaternion.premultiply(correction);
+        die.body.quaternion.set(die.mesh.quaternion.x, die.mesh.quaternion.y, die.mesh.quaternion.z, die.mesh.quaternion.w);
+      }
+      if (!onTable) {
+        let closestOther = null;
+        let closestDist = Infinity;
+        for (const other of activeDice) {
+          if (other === die) continue;
+          const dist = die.body.position.distanceTo(other.body.position);
+          if (dist < closestDist) { closestDist = dist; closestOther = other; }
+        }
+        const trueRestY = die.groundY / 1.3;
+        if (closestOther) {
+          let dx = die.body.position.x - closestOther.body.position.x;
+          let dz = die.body.position.z - closestOther.body.position.z;
+          let len = Math.hypot(dx, dz);
+          if (len < 1e-4) { dx = 1; dz = 0; len = 1; }
+          const sep = (die.extent + closestOther.extent) * 0.9;
+          die.body.position.x = closestOther.body.position.x + (dx / len) * sep;
+          die.body.position.z = closestOther.body.position.z + (dz / len) * sep;
+        }
+        die.body.position.y = trueRestY;
+      }
+      die.settled = true;
+      die.body.velocity.setZero();
+      die.body.angularVelocity.setZero();
+      showLabel(die);
+    } else if (die.body.sleepState === CANNON.Body.SLEEPING || stuck) {
       const { worldNormal } = getTopFace(die.mesh);
       const flatEnough = worldNormal.dot(WORLD_UP) > 0.9986; // within ~3 degrees of true face-flat
       // A die resting flat on top of another die's flat face is a genuinely
@@ -834,9 +873,18 @@ function tick() {
       // to actually be down on the table, not perched well above groundY on
       // another die. Verified headlessly: ~5% of throws with two dice
       // landing near each other produced exactly this (dead flat, asleep in
-      // under 5s, resting height roughly 2x groundY).
-      const onTable = die.body.position.y < die.groundY + die.extent * 0.25;
-      if ((flatEnough && onTable) || die.nudgeCount >= 15) {
+      // under 5s, resting height roughly 2x groundY). The nudge-count cap
+      // below is only allowed to waive the flatness requirement (edge
+      // balance can keep nudging without ever landing perfectly flat) — it
+      // must NEVER waive onTable, otherwise a die stuck stacked on another
+      // one silently gets accepted as "settled" right where it's stacked.
+      // That was the actual bug behind a persistent "die on die" report: the
+      // old code used one shared nudgeCount>=15 escape hatch for both
+      // checks, so a die that kept failing to nudge itself off another die
+      // eventually got waved through anyway. The elapsed-time hard cutoff
+      // above is now the only thing allowed to bypass onTable, and it also
+      // repositions the die (not just its orientation) when it does.
+      if ((flatEnough && onTable) || (die.nudgeCount >= 15 && onTable)) {
         die.settled = true;
         die.body.velocity.setZero();
         die.body.angularVelocity.setZero();
@@ -873,24 +921,6 @@ function tick() {
         die.slowFrames = 0;
         die.nudgeCount++;
       }
-    } else if (die.rollingElapsed > CONFIG.maxRollTime + 6) {
-      // Two dice resting pressed against each other can keep exchanging
-      // tiny contact forces indefinitely, which can stop either one from
-      // ever going quiet enough (real sleep, or our own threshold check
-      // above) to finalize on its own. This bounds the worst-case wait
-      // instead of leaving the result hanging — correcting directly to the
-      // nearest flat face rather than accepting whatever pose physics
-      // happens to be stuck in.
-      const { face, worldNormal } = getTopFace(die.mesh);
-      if (face && worldNormal) {
-        const correction = new THREE.Quaternion().setFromUnitVectors(worldNormal, WORLD_UP);
-        die.mesh.quaternion.premultiply(correction);
-        die.body.quaternion.set(die.mesh.quaternion.x, die.mesh.quaternion.y, die.mesh.quaternion.z, die.mesh.quaternion.w);
-      }
-      die.settled = true;
-      die.body.velocity.setZero();
-      die.body.angularVelocity.setZero();
-      showLabel(die);
     }
   }
 
