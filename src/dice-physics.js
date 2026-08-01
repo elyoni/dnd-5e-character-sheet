@@ -36,8 +36,15 @@ const SHAPES = {
     values: [1,2,3,4,6,5,8,7],
   },
   10: {
+    // Y coordinates are the raw dual-of-antiprism derivation scaled by 0.75
+    // on the polar axis only — the un-squashed shape had a pole-to-pole
+    // height about 1.5x its equatorial width (visibly too tall/thin next to
+    // the other dice); squashing one axis of a convex polyhedron is a linear
+    // map, which always preserves each face's planarity, so this stays a
+    // valid kite-faced solid (re-verified: all 10 faces still exactly
+    // planar, opposite-face numbering unaffected). New height:width ≈ 1.13.
     numbering: "face",
-    vertices: [[0,1.66666667,0],[0,-1.66666667,0],[0.89442719,0.17595468,0.64983939],[1.10557281,-0.17595468,0],[-0.34164079,0.17595468,1.05146222],[0.34164079,-0.17595468,1.05146222],[-1.10557281,0.17595468,0],[-0.89442719,-0.17595468,0.64983939],[-0.34164079,0.17595468,-1.05146222],[-0.89442719,-0.17595468,-0.64983939],[0.89442719,0.17595468,-0.64983939],[0.34164079,-0.17595468,-1.05146222]],
+    vertices: [[0,1.25,0],[0,-1.25,0],[0.89442719,0.13196601,0.64983939],[1.10557281,-0.13196601,0],[-0.34164079,0.13196601,1.05146222],[0.34164079,-0.13196601,1.05146222],[-1.10557281,0.13196601,0],[-0.89442719,-0.13196601,0.64983939],[-0.34164079,0.13196601,-1.05146222],[-0.89442719,-0.13196601,-0.64983939],[0.89442719,0.13196601,-0.64983939],[0.34164079,-0.13196601,-1.05146222]],
     faces: [[0,2,3,10],[4,5,2,0],[6,7,4,0],[8,9,6,0],[10,11,8,0],[1,3,2,5],[1,5,4,7],[1,7,6,9],[1,9,8,11],[11,10,3,1]],
     values: [1,2,3,4,5,7,6,10,9,8],
   },
@@ -55,7 +62,20 @@ const SHAPES = {
   },
 };
 
-const SIZE_SCALE = { 4: 0.85, 6: 0.72, 8: 0.8, 10: 0.75, 12: 0.72, 20: 0.68 }; // per-shape tuning so all dice read as roughly the same "size" on the table despite very different raw circumradii
+// The raw vertex coordinates above have very different inherent scales (the
+// d8's unit-axis vertices have circumradius 1, the d20's have ~1.9) — a
+// single BASE_SIZE multiplier alone would make dice wildly different visual
+// sizes on the table (this was a real bug: the d8 rendered at roughly half
+// the d4's size with the old hand-picked constants). Computing SIZE_SCALE
+// from each shape's actual circumradius instead guarantees every die has
+// the exact same true circumradius, removing the guesswork entirely.
+const TARGET_CIRCUMRADIUS = 1.3;
+const SIZE_SCALE = Object.fromEntries(
+  Object.entries(SHAPES).map(([sides, shape]) => {
+    const maxMag = Math.max(...shape.vertices.map((v) => Math.hypot(v[0], v[1], v[2])));
+    return [sides, TARGET_CIRCUMRADIUS / maxMag];
+  })
+);
 const BASE_SIZE = 1.15; // world-units circumradius at scale=1
 
 function vec3(v) { return new THREE.Vector3(v[0], v[1], v[2]); }
@@ -308,7 +328,10 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
 
   let tableBounds = { minX: -8, maxX: 8, minZ: -8, maxZ: 8 };
   const wallBodies = [];
-  const maxExtent = BASE_SIZE * 2;
+  // All shapes now share the same true circumradius (see SIZE_SCALE above),
+  // so this is the same for every die type — computed rather than assumed,
+  // so it can't silently drift out of sync with TARGET_CIRCUMRADIUS again.
+  const maxExtent = BASE_SIZE * TARGET_CIRCUMRADIUS * 2;
 
   function computeTableBounds() {
     camera.updateMatrixWorld(true);
@@ -391,27 +414,28 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
       if (d.labelEl) d.labelEl.remove();
     }
     activeDice.length = 0;
+    clearResultBanners();
   }
 
+  // Small, modest per-die readout of the actual face rolled — useful to
+  // visually confirm what each physical die landed on (especially with
+  // multiple damage dice), but deliberately NOT the prominent element on
+  // screen: showing the raw face this big/bold was confusing (it isn't the
+  // number that matters — the calculated total, after bonuses, is). The
+  // caller shows that total via showResultBanner() once every die tagged
+  // for a given roll has settled.
   function showLabel(die) {
     die.finalValue = die.numbering === "apex" ? readValue(die.mesh) : faceValue(die.mesh);
     const el = document.createElement("div");
     el.className = "dice-3d-label";
     el.textContent = String(die.finalValue);
-    el.style.fontSize = `${config.labelFontSize}px`;
+    el.style.fontSize = `${Math.round(config.labelFontSize * 0.6)}px`;
     el.style.fontFamily = config.labelFontFamily;
     el.style.color = config.labelColor;
-    // Announce the result big and bold first, then shrink down to its
-    // normal resting size — the number itself never changes, only its
-    // display size, so the "big" moment is purely a readability flourish.
-    el.style.transform = "translate(-50%, -50%) scale(2.6)";
     labelsEl.appendChild(el);
     die.labelEl = el;
     positionLabel(die);
-    requestAnimationFrame(() => {
-      el.classList.add("visible");
-      setTimeout(() => { el.style.transform = "translate(-50%, -50%) scale(1)"; }, 550);
-    });
+    requestAnimationFrame(() => el.classList.add("visible"));
   }
 
   function faceValue(mesh) {
@@ -614,14 +638,47 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
     });
   }
 
+  // The prominent readout: one banner per named result (e.g. "HIT" / "DAMAGE"),
+  // pinned to a FIXED screen position (not tied to wherever the physics dice
+  // happened to land — the dice can bounce anywhere, but the reader always
+  // knows where to look for "the hit number" vs "the damage number"). Shows
+  // the actual calculated total (bonuses included), not a raw die face.
+  // items: [{ key, title, value, y }] — y is a 0..1 fraction of the viewport
+  // height (e.g. 0.28 = near the top, 0.72 = near the bottom).
+  const bannerEls = new Map();
+  function clearResultBanners() {
+    for (const el of bannerEls.values()) el.remove();
+    bannerEls.clear();
+  }
+  function showResultBanner(items) {
+    clearResultBanners();
+    const w = canvasEl.clientWidth || window.innerWidth;
+    const h = canvasEl.clientHeight || window.innerHeight;
+    items.forEach((item) => {
+      const el = document.createElement("div");
+      el.className = "dice-3d-banner";
+      el.innerHTML = `<div class="dice-3d-banner-title">${item.title}</div><div class="dice-3d-banner-value">${item.value}</div>`;
+      el.style.left = `${w / 2}px`;
+      el.style.top = `${item.y * h}px`;
+      el.style.transform = "translate(-50%, -50%) scale(2.2)";
+      labelsEl.appendChild(el);
+      bannerEls.set(item.key, el);
+      requestAnimationFrame(() => {
+        el.classList.add("visible");
+        setTimeout(() => { el.style.transform = "translate(-50%, -50%) scale(1)"; }, 550);
+      });
+    });
+  }
+
   function dispose() {
     cancelAnimationFrame(rafHandle);
     window.removeEventListener("resize", resize);
     clearDice();
+    clearResultBanners();
     renderer.dispose();
   }
 
-  return { roll, resize, dispose };
+  return { roll, resize, dispose, showResultBanner, clearResultBanners };
 }
 
 function getFaceIndex(mesh, face) { return mesh.userData.faces.indexOf(face); }

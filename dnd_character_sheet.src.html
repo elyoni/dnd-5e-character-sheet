@@ -557,6 +557,20 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
   opacity:0; transition:opacity 0.3s ease-out; pointer-events:none;
 }
 .dice-3d-hint.visible{ opacity:0.85; }
+.dice-3d-banner{
+  position:absolute; transform:translate(-50%,-50%);
+  text-align:center; opacity:0;
+  transition:opacity 0.25s ease-out, transform 0.45s cubic-bezier(.34,1.2,.4,1);
+}
+.dice-3d-banner.visible{ opacity:1; }
+.dice-3d-banner-title{
+  font-size:14px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  color:#c9a227; text-shadow:0 0 4px #000,0 0 8px #000; margin-bottom:2px;
+}
+.dice-3d-banner-value{
+  font-size:52px; font-weight:800; font-family:'Cinzel',serif; line-height:1;
+  color:#f5e9c8; text-shadow:0 0 6px #000,0 0 14px #000,0 2px 3px #000;
+}
 </style>
 </head>
 <body>
@@ -1207,9 +1221,11 @@ async function rollSave(abil){
   const p = state.saveProf[abil];
   const prof = profByLevel(state.level);
   const bonus = mod(eff[abil]) + (p?prof:0);
-  const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], T[lang][abil] || abil);
+  const label = T[lang][abil] || abil;
+  const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
   const roll = results[0].value;
   const total = roll + bonus;
+  ensureDiceEngine().showResultBanner([{key:'save', title:label, value:total, y:0.42}]);
   saveRollFlash = {abil, roll, total};
   clearTimeout(saveRollFlashTimer);
   saveRollFlashTimer = setTimeout(()=>{ saveRollFlash = null; render(); }, 3000);
@@ -1224,9 +1240,11 @@ async function rollSkill(key){
   const e = !!state.skillExpertise[key];
   const prof = profByLevel(state.level);
   const bonus = mod(eff[abil]) + (p?prof*(e?2:1):0);
-  const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], lang==='he'?he:en);
+  const label = lang==='he'?he:en;
+  const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
   const roll = results[0].value;
   const total = roll + bonus;
+  ensureDiceEngine().showResultBanner([{key:'skill', title:label, value:total, y:0.42}]);
   skillRollFlash = {key, roll, total};
   clearTimeout(skillRollFlashTimer);
   skillRollFlashTimer = setTimeout(()=>{ skillRollFlash = null; render(); }, 3000);
@@ -1256,6 +1274,7 @@ async function rollSpellDamage(i){
   const rolls = sumTag(results, 'dmg');
   const sum = rolls.reduce((a,b)=>a+b,0);
   const total = sum + (parsed.flat||0);
+  ensureDiceEngine().showResultBanner([{key:'dmg', title:T[lang].atkDmg, value:total, y:0.42}]);
   spellRolls[i] = {rolls, total};
   if(!spellRollHistories[i]) spellRollHistories[i] = [];
   spellRollHistories[i].unshift({total});
@@ -1291,6 +1310,13 @@ async function rollAttack(i){
   const dmgFlat = parsed ? (parsed.flat||0) : 0;
   const dmgBonus = dmgFlat + abilMod + dmgFeatBonus;
   const dmgTotal = dmgDiceSum + dmgBonus;
+  // Fixed screen zones (not tied to wherever the physics dice landed) so
+  // it's always unambiguous which number is which: damage up top, hit
+  // lower down — matches the labels, not a guess based on die position/size.
+  const hitValueText = `${hitTotal}${hitRoll===20?' 🎯':hitRoll===1?' 💀':''}`;
+  const banners = [{key:'hit', title:T[lang].atkHit, value:hitValueText, y:0.72}];
+  if(parsed) banners.push({key:'dmg', title:T[lang].atkDmg, value:dmgTotal, y:0.28});
+  ensureDiceEngine().showResultBanner(banners);
   attackRolls[i] = {hitRoll, hitTotal, bonus, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal, crit: hitRoll===20, fumble: hitRoll===1, hasDmg: !!parsed};
   if(!attackRollHistories[i]) attackRollHistories[i] = [];
   attackRollHistories[i].unshift({hitTotal, dmgTotal: parsed ? dmgTotal : null, crit: hitRoll===20, fumble: hitRoll===1});
@@ -2008,6 +2034,7 @@ async function rollDice(sides){
     : results[0].value;
   diceState.lastRoll = roll;
   diceState.lastTotal = roll + (parseInt(diceState.modifier)||0);
+  ensureDiceEngine().showResultBanner([{key:'roll', title:`d${sides}`, value:diceState.lastTotal, y:0.42}]);
   diceState.history.unshift({sides, roll, total: diceState.lastTotal});
   diceState.history = diceState.history.slice(0, 8);
   mainDiceJustRolled = true;
