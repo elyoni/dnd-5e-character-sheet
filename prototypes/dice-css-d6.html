@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CSS 3D Dice Prototype (d6)</title>
+<title>CSS 3D Dice Prototype (d6 + d8)</title>
 <style>
   * {
     margin: 0;
@@ -26,10 +26,6 @@
     position: relative;
     width: 100%;
     height: 100%;
-  }
-
-  .die-size {
-    --size: 90px;
   }
 
   .shadow {
@@ -68,22 +64,28 @@
     transform-style: preserve-3d;
   }
 
-  .face {
+  /* ---------- d6 (cube) faces ---------- */
+
+  .d6-face {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: calc(var(--size) * 0.2);
-    border: calc(var(--size) * 0.05) solid #f6f3f0;
+    width: var(--d6-size);
+    height: var(--d6-size);
+    top: 50%;
+    left: 50%;
+    margin-left: calc(var(--d6-size) / -2);
+    margin-top: calc(var(--d6-size) / -2);
+    border-radius: calc(var(--d6-size) * 0.2);
+    border: calc(var(--d6-size) * 0.05) solid #f6f3f0;
     transform-style: preserve-3d;
     background: linear-gradient(145deg, #dddbd8, #fff);
   }
 
-  .face::before {
+  .d6-face::before {
     position: absolute;
     content: '';
     width: 100%;
     height: 100%;
-    border-radius: calc(var(--size) * 0.2);
+    border-radius: calc(var(--d6-size) * 0.2);
     background: #f6f3f0;
     transform: translateZ(-1px);
   }
@@ -106,12 +108,33 @@
   .p-bl { top: 82%; left: 18%; transform: translateY(-100%); }
   .p-br { top: 82%; left: 82%; transform: translate(-100%, -100%); }
 
-  .front { transform: translateZ(calc(var(--size) / 2)); }
-  .back  { transform: rotateX(180deg) translateZ(calc(var(--size) / 2)); }
-  .top   { transform: rotateX(90deg) translateZ(calc(var(--size) / 2)); }
-  .bottom{ transform: rotateX(-90deg) translateZ(calc(var(--size) / 2)); }
-  .right { transform: rotateY(90deg) translateZ(calc(var(--size) / 2)); }
-  .left  { transform: rotateY(-90deg) translateZ(calc(var(--size) / 2)); }
+  .d6-front { transform: translateZ(calc(var(--d6-size) / 2)); }
+  .d6-back  { transform: rotateX(180deg) translateZ(calc(var(--d6-size) / 2)); }
+  .d6-top   { transform: rotateX(90deg) translateZ(calc(var(--d6-size) / 2)); }
+  .d6-bottom{ transform: rotateX(-90deg) translateZ(calc(var(--d6-size) / 2)); }
+  .d6-right { transform: rotateY(90deg) translateZ(calc(var(--d6-size) / 2)); }
+  .d6-left  { transform: rotateY(-90deg) translateZ(calc(var(--d6-size) / 2)); }
+
+  /* ---------- d8 (octahedron) faces ---------- */
+  /* Built as two 4-sided pyramids glued base-to-base at a shared square
+     equator. Each face is an equilateral triangle, positioned/tilted via
+     inline styles computed in JS (the geometry needs real numbers, not
+     values that are practical to hand-write in CSS). */
+
+  .d8-face {
+    position: absolute;
+    display: flex;
+    background: linear-gradient(145deg, #dddbd8, #fff);
+    filter: drop-shadow(0 0 1px rgba(0,0,0,.4));
+  }
+
+  .d8-face .num {
+    position: absolute;
+    left: 50%;
+    font: 700 15px system-ui, sans-serif;
+    color: #131210;
+    transform: translate(-50%, -50%);
+  }
 
   .hud {
     position: absolute;
@@ -157,19 +180,7 @@
 </head>
 <body>
 
-  <div class="arena" id="arena">
-    <div class="shadow die-size" id="shadow"></div>
-    <div class="dice-wrap die-size" id="dice-wrap">
-      <div class="dice" id="dice">
-        <div class="face front" data-value="1"></div>
-        <div class="face back" data-value="6"></div>
-        <div class="face top" data-value="2"></div>
-        <div class="face bottom" data-value="5"></div>
-        <div class="face right" data-value="3"></div>
-        <div class="face left" data-value="4"></div>
-      </div>
-    </div>
-  </div>
+  <div class="arena" id="arena"></div>
 
   <div class="hud">
     <div class="result" id="result">&nbsp;</div>
@@ -177,8 +188,13 @@
   </div>
 
 <script>
-  // Standard d6 pip layouts, keyed by face value.
-  const PIP_LAYOUTS = {
+  const arena = document.getElementById("arena");
+  const rollBtn = document.getElementById("roll-btn");
+  const resultEl = document.getElementById("result");
+
+  // ---------- d6 ----------
+
+  const D6_PIP_LAYOUTS = {
     1: ["p-mc"],
     2: ["p-tl", "p-br"],
     3: ["p-tl", "p-mc", "p-br"],
@@ -188,8 +204,8 @@
   };
 
   // Each face's resting rotation, i.e. what rotateX/rotateY value brings
-  // that face's data-value to the front (facing the camera).
-  const FACE_ROTATIONS = {
+  // that face's value to the front (facing the camera).
+  const D6_FACE_ROTATIONS = {
     1: { x: 0, y: 0 },     // front
     6: { x: 180, y: 0 },   // back
     2: { x: -90, y: 0 },   // top (its local transform is rotateX(90), so
@@ -199,28 +215,141 @@
     4: { x: 0, y: 90 },    // left
   };
 
-  const arena = document.getElementById("arena");
-  const diceWrap = document.getElementById("dice-wrap");
-  const dice = document.getElementById("dice");
-  const shadow = document.getElementById("shadow");
-  const rollBtn = document.getElementById("roll-btn");
-  const resultEl = document.getElementById("result");
+  function buildD6(size) {
+    const dice = document.createElement("div");
+    dice.className = "dice";
+    dice.style.setProperty("--d6-size", size + "px");
 
-  let wrapAnim = null;
-  let diceAnim = null;
-  let shadowAnim = null;
-
-  function paintPips() {
-    dice.querySelectorAll(".face").forEach((face) => {
-      const value = Number(face.dataset.value);
-      face.querySelectorAll(".pip").forEach((p) => p.remove());
-      for (const pos of PIP_LAYOUTS[value]) {
+    const faces = [
+      ["d6-front", 1], ["d6-back", 6], ["d6-top", 2],
+      ["d6-bottom", 5], ["d6-right", 3], ["d6-left", 4],
+    ];
+    for (const [cls, value] of faces) {
+      const face = document.createElement("div");
+      face.className = `d6-face ${cls}`;
+      for (const pos of D6_PIP_LAYOUTS[value]) {
         const pip = document.createElement("div");
         pip.className = `pip ${pos}`;
         face.appendChild(pip);
       }
-    });
+      dice.appendChild(face);
+    }
+    return dice;
   }
+
+  // ---------- d8 (octahedron) ----------
+
+  // Regular-octahedron geometry: base edge W, equilateral-triangle face
+  // height H = W*sqrt(3)/2, base radius (center to base-edge midpoint)
+  // r = W/2. The tilt angle that folds a flat vertical face up into the
+  // pyramid (about its base edge) satisfies sin(tilt) = r/H, which for an
+  // equilateral triangle always works out to ~35.264deg regardless of W.
+  const OCT_TILT_DEG = (Math.asin(0.5 / (Math.sqrt(3) / 2)) * 180) / Math.PI;
+
+  function buildD8(edge) {
+    const H = edge * (Math.sqrt(3) / 2);
+    const r = edge / 2;
+
+    const dice = document.createElement("div");
+    dice.className = "dice";
+
+    // top pyramid: apex up, values 1-4; bottom pyramid: apex down, values 5-8
+    const tiers = [
+      { apex: "up", values: [1, 2, 3, 4] },
+      { apex: "down", values: [5, 6, 7, 8] },
+    ];
+
+    for (const tier of tiers) {
+      for (let i = 0; i < 4; i++) {
+        const value = tier.values[i];
+        const face = document.createElement("div");
+        face.className = "d8-face";
+        face.style.width = edge + "px";
+        face.style.height = H + "px";
+        face.style.left = "50%";
+        face.style.top = "50%";
+        face.style.marginLeft = -edge / 2 + "px";
+
+        const num = document.createElement("span");
+        num.className = "num";
+        num.textContent = String(value);
+
+        if (tier.apex === "up") {
+          face.style.marginTop = -H + "px";
+          face.style.transformOrigin = "50% 100%";
+          face.style.clipPath = "polygon(50% 0%, 100% 100%, 0% 100%)";
+          // Positive rotateX folds this face's far (apex) edge in toward
+          // the vertical axis so all 4 top faces converge on one point
+          // above the equator; the opposite sign pushes them apart instead.
+          face.style.transform =
+            `rotateY(${i * 90}deg) translateZ(${r}px) rotateX(${OCT_TILT_DEG}deg)`;
+          num.style.top = "66.7%"; // centroid of an apex-top triangle
+        } else {
+          face.style.marginTop = "0px";
+          face.style.transformOrigin = "50% 0%";
+          face.style.clipPath = "polygon(50% 100%, 0% 0%, 100% 0%)";
+          face.style.transform =
+            `rotateY(${i * 90}deg) translateZ(${r}px) rotateX(${-OCT_TILT_DEG}deg)`;
+          num.style.top = "33.3%"; // centroid of an apex-down triangle
+        }
+
+        face.appendChild(num);
+        dice.appendChild(face);
+      }
+    }
+
+    return dice;
+  }
+
+  // A face's resting rotation is derived from its outward normal's
+  // azimuth (around Y, matching its rotateY(i*90)) and elevation (+/-
+  // OCT_TILT_DEG, matching the fold direction). Rotating the whole die by
+  // rotateX(-elevation) rotateY(-azimuth) brings that normal to point
+  // straight at the camera (see d6's front/back for the same idea, just
+  // computed instead of hand-picked since d8's faces aren't axis-aligned).
+  function buildD8FaceRotations() {
+    const rotations = {};
+    const tiers = [
+      { values: [1, 2, 3, 4], elevation: OCT_TILT_DEG },
+      { values: [5, 6, 7, 8], elevation: -OCT_TILT_DEG },
+    ];
+    for (const tier of tiers) {
+      tier.values.forEach((value, i) => {
+        const azimuth = i * 90;
+        rotations[value] = { x: -tier.elevation, y: -azimuth };
+      });
+    }
+    return rotations;
+  }
+
+  const D8_FACE_ROTATIONS = buildD8FaceRotations();
+
+  // ---------- shared toss/roll machinery ----------
+
+  const DICE_DEFS = [
+    { size: 90, faceSize: 90, build: (s) => buildD6(s), faceRotations: D6_FACE_ROTATIONS, idleX: -80 },
+    { size: 150, faceSize: 92, build: (s) => buildD8(s), faceRotations: D8_FACE_ROTATIONS, idleX: 80 },
+  ];
+
+  const instances = DICE_DEFS.map((def) => {
+    const wrap = document.createElement("div");
+    wrap.className = "dice-wrap";
+    wrap.style.setProperty("--size", def.size + "px");
+    wrap.style.transform = `translate(${def.idleX}px, 0px)`;
+
+    const shadow = document.createElement("div");
+    shadow.className = "shadow";
+    shadow.style.setProperty("--size", def.size + "px");
+    shadow.style.transform = `translate(${def.idleX}px, 0px)`;
+
+    const diceEl = def.build(def.faceSize);
+    wrap.appendChild(diceEl);
+
+    arena.appendChild(shadow);
+    arena.appendChild(wrap);
+
+    return { def, wrap, diceEl, shadow, wrapAnim: null, diceAnim: null, shadowAnim: null };
+  });
 
   // Builds a toss trajectory landing at (landX, landY) — offsets in px from
   // the arena center — with a gravity-like arc and a small settling bounce,
@@ -278,46 +407,74 @@
     return { wrapFrames, diceFrames, shadowFrames };
   }
 
-  function pickLandingSpot() {
+  function pickLandingSpots(count) {
     const rect = arena.getBoundingClientRect();
-    const margin = 90; // keep the die fully on screen, clear of the HUD
+    const margin = 110; // keep every die fully on screen, clear of the HUD
     const maxX = rect.width / 2 - margin;
     const maxY = rect.height / 2 - margin - 40;
-    const x = (Math.random() * 2 - 1) * maxX;
-    const y = (Math.random() * 2 - 1) * maxY * 0.7 - 20; // bias upward, away from the HUD
-    return { x, y };
+    const minSeparation = 130;
+
+    const spots = [];
+    for (let n = 0; n < count; n++) {
+      let spot;
+      let attempts = 0;
+      do {
+        const x = (Math.random() * 2 - 1) * maxX;
+        const y = (Math.random() * 2 - 1) * maxY * 0.7 - 20; // bias upward, away from the HUD
+        spot = { x, y };
+        attempts++;
+      } while (
+        attempts < 8 &&
+        spots.some((s) => Math.hypot(s.x - spot.x, s.y - spot.y) < minSeparation)
+      );
+      spots.push(spot);
+    }
+    return spots;
   }
 
   function rollDice() {
-    if (wrapAnim) wrapAnim.cancel();
-    if (diceAnim) diceAnim.cancel();
-    if (shadowAnim) shadowAnim.cancel();
+    instances.forEach((inst) => {
+      if (inst.wrapAnim) inst.wrapAnim.cancel();
+      if (inst.diceAnim) inst.diceAnim.cancel();
+      if (inst.shadowAnim) inst.shadowAnim.cancel();
+    });
 
     rollBtn.disabled = true;
     resultEl.textContent = " ";
 
-    const value = 1 + Math.floor(Math.random() * 6);
-    const { x: faceX, y: faceY } = FACE_ROTATIONS[value];
-    const spinX = 360 * (2 + Math.floor(Math.random() * 2));
-    const spinY = 360 * (2 + Math.floor(Math.random() * 2));
-    const rotX = faceX + spinX * (Math.random() < 0.5 ? 1 : -1);
-    const rotY = faceY + spinY * (Math.random() < 0.5 ? 1 : -1);
-
-    const { x: landX, y: landY } = pickLandingSpot();
-    const { wrapFrames, diceFrames, shadowFrames } = buildTrajectory(landX, landY, rotX, rotY);
-
+    const spots = pickLandingSpots(instances.length);
     const duration = 1300;
-    wrapAnim = diceWrap.animate(wrapFrames, { duration, easing: "linear", fill: "forwards" });
-    diceAnim = dice.animate(diceFrames, { duration, easing: "linear", fill: "forwards" });
-    shadowAnim = shadow.animate(shadowFrames, { duration, easing: "linear", fill: "forwards" });
+    const values = [];
+    let remaining = instances.length;
 
-    diceAnim.onfinish = () => {
-      resultEl.textContent = `Result: ${value}`;
-      rollBtn.disabled = false;
-    };
+    instances.forEach((inst, idx) => {
+      const faceCount = Object.keys(inst.def.faceRotations).length;
+      const value = 1 + Math.floor(Math.random() * faceCount);
+      values[idx] = value;
+
+      const { x: faceX, y: faceY } = inst.def.faceRotations[value];
+      const spinX = 360 * (2 + Math.floor(Math.random() * 2));
+      const spinY = 360 * (2 + Math.floor(Math.random() * 2));
+      const rotX = faceX + spinX * (Math.random() < 0.5 ? 1 : -1);
+      const rotY = faceY + spinY * (Math.random() < 0.5 ? 1 : -1);
+
+      const { x: landX, y: landY } = spots[idx];
+      const { wrapFrames, diceFrames, shadowFrames } = buildTrajectory(landX, landY, rotX, rotY);
+
+      inst.wrapAnim = inst.wrap.animate(wrapFrames, { duration, easing: "linear", fill: "forwards" });
+      inst.diceAnim = inst.diceEl.animate(diceFrames, { duration, easing: "linear", fill: "forwards" });
+      inst.shadowAnim = inst.shadow.animate(shadowFrames, { duration, easing: "linear", fill: "forwards" });
+
+      inst.diceAnim.onfinish = () => {
+        remaining--;
+        if (remaining === 0) {
+          resultEl.textContent = `Result: ${values.join(" + ")} = ${values.reduce((a, b) => a + b, 0)}`;
+          rollBtn.disabled = false;
+        }
+      };
+    });
   }
 
-  paintPips();
   rollBtn.addEventListener("click", rollDice);
 </script>
 
