@@ -12,44 +12,50 @@
     box-sizing: border-box;
   }
 
+  html, body {
+    height: 100%;
+  }
+
   body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    background: #2b2b33;
+    overflow: hidden;
+    background: radial-gradient(ellipse at center, #3a3a45 0%, #202027 100%);
     font-family: system-ui, sans-serif;
   }
 
-  .stage {
-    display: grid;
-    place-items: center;
-    width: 260px;
-    padding: 60px 0 40px;
-    border-radius: 30px;
-    background: #eeeeee;
-    box-shadow: 0 0 20px rgba(0, 0, 0, .3);
-    perspective: 700px;
+  .arena {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    perspective: 900px;
   }
 
   .die-size {
-    --size: 100px;
+    --size: 90px;
+  }
+
+  .shadow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--size) * 1.3);
+    height: calc(var(--size) * 0.5);
+    margin-left: calc(var(--size) * -0.65);
+    margin-top: calc(var(--size) * -0.25);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 70%);
+    transform: translate(0, 0) scale(1);
+    pointer-events: none;
   }
 
   .dice {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: var(--size);
     height: var(--size);
+    margin-left: calc(var(--size) / -2);
+    margin-top: calc(var(--size) / -2);
     transform-style: preserve-3d;
-    transition: transform 1s ease;
-  }
-
-  @keyframes rolling {
-    50% {
-      transform: rotateX(455deg) rotateY(725deg) rotateZ(315deg);
-    }
   }
 
   .face {
@@ -97,6 +103,17 @@
   .right { transform: rotateY(90deg) translateZ(calc(var(--size) / 2)); }
   .left  { transform: rotateY(-90deg) translateZ(calc(var(--size) / 2)); }
 
+  .hud {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
   .roll {
     cursor: pointer;
     color: #eeeeee;
@@ -104,7 +121,7 @@
     border-radius: 6px;
     font: 700 16px system-ui, sans-serif;
     border: 2px solid #eeeeee;
-    background: transparent;
+    background: rgba(0, 0, 0, .2);
     transition: .2s;
   }
 
@@ -113,16 +130,25 @@
     background: #eeeeee;
   }
 
+  .roll:disabled {
+    opacity: .5;
+    cursor: default;
+    background: rgba(0, 0, 0, .2);
+    color: #eeeeee;
+  }
+
   .result {
     color: #eeeeee;
     font: 700 20px system-ui, sans-serif;
     min-height: 1.4em;
+    text-shadow: 0 1px 3px rgba(0,0,0,.6);
   }
 </style>
 </head>
 <body>
 
-  <div class="stage">
+  <div class="arena" id="arena">
+    <div class="shadow die-size" id="shadow"></div>
     <div class="dice die-size" id="dice">
       <div class="face front" data-value="1"></div>
       <div class="face back" data-value="6"></div>
@@ -133,8 +159,10 @@
     </div>
   </div>
 
-  <div class="result" id="result">&nbsp;</div>
-  <button class="roll" id="roll-btn">Roll Dice</button>
+  <div class="hud">
+    <div class="result" id="result">&nbsp;</div>
+    <button class="roll" id="roll-btn">Roll Dice</button>
+  </div>
 
 <script>
   // Standard d6 pip layouts, keyed by face value.
@@ -159,9 +187,14 @@
     4: { x: 0, y: 90 },    // left
   };
 
+  const arena = document.getElementById("arena");
   const dice = document.getElementById("dice");
+  const shadow = document.getElementById("shadow");
   const rollBtn = document.getElementById("roll-btn");
   const resultEl = document.getElementById("result");
+
+  let diceAnim = null;
+  let shadowAnim = null;
 
   function paintPips() {
     dice.querySelectorAll(".face").forEach((face) => {
@@ -175,29 +208,98 @@
     });
   }
 
+  // Builds a toss trajectory landing at (landX, landY) — offsets in px from
+  // the arena center — with a gravity-like arc and a small settling bounce,
+  // spinning through (rotX, rotY) degrees total along the way.
+  function buildTrajectory(landX, landY, rotX, rotY) {
+    const liftHeight = 160 + Math.random() * 80;
+    const bounceHeight = liftHeight * 0.18;
+    const flightEnd = 0.68; // fraction of the timeline spent in the air
+    const spinEnd = 0.8;    // fraction of the timeline spent still spinning
+
+    const diceFrames = [];
+    const shadowFrames = [];
+
+    const flightPoints = [0, 0.22, 0.45, flightEnd];
+    for (const t of flightPoints) {
+      const ft = t / flightEnd; // 0..1 progress through the arc
+      const x = landX * ft;
+      const y = landY * ft;
+      const lift = liftHeight * 4 * ft * (1 - ft);
+      const spinT = Math.min(t / spinEnd, 1);
+      const rx = rotX * spinT;
+      const ry = rotY * spinT;
+
+      diceFrames.push({
+        offset: t,
+        transform: `translate(${x}px, ${y - lift}px) rotateX(${rx}deg) rotateY(${ry}deg)`,
+      });
+      shadowFrames.push({
+        offset: t,
+        transform: `translate(${x}px, ${y}px) scale(${1 - 0.55 * (lift / liftHeight)})`,
+        opacity: 1 - 0.6 * (lift / liftHeight),
+      });
+    }
+
+    // small settling bounce after landing
+    const bouncePoints = [
+      { t: 0.82, lift: bounceHeight },
+      { t: 0.92, lift: 0 },
+      { t: 1.0, lift: 0 },
+    ];
+    for (const { t, lift } of bouncePoints) {
+      const spinT = Math.min(t / spinEnd, 1);
+      const rx = rotX * spinT;
+      const ry = rotY * spinT;
+      diceFrames.push({
+        offset: t,
+        transform: `translate(${landX}px, ${landY - lift}px) rotateX(${rx}deg) rotateY(${ry}deg)`,
+      });
+      shadowFrames.push({
+        offset: t,
+        transform: `translate(${landX}px, ${landY}px) scale(${1 - 0.55 * (lift / liftHeight)})`,
+        opacity: 1 - 0.6 * (lift / liftHeight),
+      });
+    }
+
+    return { diceFrames, shadowFrames };
+  }
+
+  function pickLandingSpot() {
+    const rect = arena.getBoundingClientRect();
+    const margin = 90; // keep the die fully on screen, clear of the HUD
+    const maxX = rect.width / 2 - margin;
+    const maxY = rect.height / 2 - margin - 40;
+    const x = (Math.random() * 2 - 1) * maxX;
+    const y = (Math.random() * 2 - 1) * maxY * 0.7 - 20; // bias upward, away from the HUD
+    return { x, y };
+  }
+
   function rollDice() {
+    if (diceAnim) diceAnim.cancel();
+    if (shadowAnim) shadowAnim.cancel();
+
     rollBtn.disabled = true;
-    resultEl.textContent = " ";
+    resultEl.textContent = " ";
 
     const value = 1 + Math.floor(Math.random() * 6);
-    const { x, y } = FACE_ROTATIONS[value];
-
-    // extra full turns so every roll spins, regardless of start orientation
+    const { x: faceX, y: faceY } = FACE_ROTATIONS[value];
     const spinX = 360 * (2 + Math.floor(Math.random() * 2));
     const spinY = 360 * (2 + Math.floor(Math.random() * 2));
+    const rotX = faceX + spinX * (Math.random() < 0.5 ? 1 : -1);
+    const rotY = faceY + spinY * (Math.random() < 0.5 ? 1 : -1);
 
-    dice.style.transition = "none";
-    dice.style.transform = "rotateX(0deg) rotateY(0deg)";
-    // force reflow so the transition reset above takes effect before we
-    // re-enable it and animate to the target
-    void dice.offsetHeight;
-    dice.style.transition = "transform 1.1s cubic-bezier(.2,.9,.3,1)";
-    dice.style.transform = `rotateX(${x + spinX}deg) rotateY(${y + spinY}deg)`;
+    const { x: landX, y: landY } = pickLandingSpot();
+    const { diceFrames, shadowFrames } = buildTrajectory(landX, landY, rotX, rotY);
 
-    window.setTimeout(() => {
+    const duration = 1300;
+    diceAnim = dice.animate(diceFrames, { duration, easing: "linear", fill: "forwards" });
+    shadowAnim = shadow.animate(shadowFrames, { duration, easing: "linear", fill: "forwards" });
+
+    diceAnim.onfinish = () => {
       resultEl.textContent = `Result: ${value}`;
       rollBtn.disabled = false;
-    }, 1150);
+    };
   }
 
   paintPips();
