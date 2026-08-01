@@ -752,7 +752,8 @@ function faceCentroidAndNormal(vertsArr, faceIdx) {
 // triangle keeps the SAME material index, so the whole face still shows one
 // continuous texture.
 const textureCache = new Map(); // key: `${sides}:${value}:${dieColor}:${textColor}:${fontSize}:${fontFamily}` -> THREE.CanvasTexture
-function invalidateTextureCache() { textureCache.clear(); }
+const apexTextureCache = new Map(); // same idea, for d4-style per-vertex face textures (see getApexFaceTexture)
+function invalidateTextureCache() { textureCache.clear(); apexTextureCache.clear(); }
 
 function getFaceTexture(config, sides, value) {
   const fontPx = (config.fontSizeBySides && config.fontSizeBySides[sides]) || config.fontSize;
@@ -771,6 +772,40 @@ function getFaceTexture(config, sides, value) {
   ctx.fillText(String(value), 64, 64 + fontPx * 0.067);
   const tex = new THREE.CanvasTexture(canvas);
   textureCache.set(key, tex);
+  return tex;
+}
+
+// The d4 (apex numbering) has no single "up face" — the result is read off
+// whichever VERTEX ends up pointing highest, and each face touches 3 of the
+// die's 4 vertices. A real d4 prints each of those 3 vertex numbers near its
+// own corner of the face (so whichever corner ends up "up" is legible), which
+// is what this draws — unlike the other shapes, a d4 face texture needs 3
+// numbers, not 1. cornerUVs/cornerValues are aligned arrays (same order as
+// the face's vertices).
+function getApexFaceTexture(config, sides, cornerUVs, cornerValues) {
+  const fontPx = ((config.fontSizeBySides && config.fontSizeBySides[sides]) || config.fontSize) * 0.55;
+  const key = `${config.dieColor}|${config.textColor}|${fontPx}|${config.fontFamily}|${cornerValues.join(",")}|${cornerUVs.map((c) => c.map((n) => n.toFixed(3)).join(":")).join(",")}`;
+  if (apexTextureCache.has(key)) return apexTextureCache.get(key);
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = config.dieColor;
+  ctx.fillRect(0, 0, 128, 128);
+  ctx.fillStyle = config.textColor;
+  ctx.font = `bold ${fontPx}px ${config.fontFamily}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const cx = 64, cy = 64;
+  cornerUVs.forEach(([u, v], i) => {
+    // Pull each corner in toward the centroid so the digit sits inside the
+    // face instead of getting clipped at the edge.
+    const px = cx + (u * 128 - cx) * 0.62;
+    const py = cy + (v * 128 - cy) * 0.62;
+    ctx.fillText(String(cornerValues[i]), px, py + fontPx * 0.067);
+  });
+  const tex = new THREE.CanvasTexture(canvas);
+  apexTextureCache.set(key, tex);
   return tex;
 }
 
@@ -815,11 +850,16 @@ function buildDieMesh(sides, config) {
     const triCount = faceIdx.length - 2;
     const geoGroupIndex = f;
 
-    const value = shape.numbering === "face" ? shape.values[f] : null;
-    materials.push(new THREE.MeshStandardMaterial({
-      map: value !== null ? getFaceTexture(config, sides, value) : new THREE.CanvasTexture(document.createElement("canvas")),
-      roughness: 0.5,
-    }));
+    let faceTexture;
+    if (shape.numbering === "apex") {
+      const cornerUVs = locals.map(([lu, lv]) => [0.5 + lu * uvScale, 0.5 + lv * uvScale]);
+      const cornerValues = faceIdx.map((vi) => shape.values[vi]);
+      faceTexture = getApexFaceTexture(config, sides, cornerUVs, cornerValues);
+    } else {
+      const value = shape.values[f];
+      faceTexture = getFaceTexture(config, sides, value);
+    }
+    materials.push(new THREE.MeshStandardMaterial({ map: faceTexture, roughness: 0.5 }));
     userFaces.push({ normal: normal.clone(), centroid: centroid.clone(), materialIndex: geoGroupIndex, vertexIdx: faceIdx.slice(), triStart: groupStart, triCount });
   });
 
@@ -917,7 +957,7 @@ const DEFAULT_CONFIG = {
   textColor: "#1c150f",
   dieColor: "#c9a227",
   fontSize: 56,
-  fontSizeBySides: {}, // optional per-shape override, e.g. {20: 50} — see debug panel
+  fontSizeBySides: { 20: 44, 12: 44, 8: 44, 6: 44, 10: 40 }, // tuned per shape via the debug panel
   fontFamily: "'Cinzel', serif",
   rollSpeed: 2.5,
   rollSpin: 1.7,
