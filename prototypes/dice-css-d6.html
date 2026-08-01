@@ -17,7 +17,7 @@
   }
 
   :root {
-    --num-font-size: 16px;
+    --num-font-size: 26px;
     --num-font-family: system-ui, sans-serif;
   }
 
@@ -140,6 +140,7 @@
     font-size: var(--num-font-size);
     font-family: var(--num-font-family);
     color: #131210;
+    text-shadow: 1px 2px 3px rgba(0, 0, 0, .35);
     transform: translate(-50%, -50%);
   }
 
@@ -164,6 +165,7 @@
     font-size: var(--num-font-size);
     font-family: var(--num-font-family);
     color: #131210;
+    text-shadow: 1px 2px 3px rgba(0, 0, 0, .35);
     transform: translate(-50%, -50%);
   }
 
@@ -186,6 +188,7 @@
     font-size: var(--num-font-size);
     font-family: var(--num-font-family);
     color: #131210;
+    text-shadow: 1px 2px 3px rgba(0, 0, 0, .35);
     transform: translate(-50%, -50%);
   }
 
@@ -306,8 +309,8 @@
         <input type="range" id="dbg-scale" min="0.4" max="1.8" step="0.1" value="1" />
       </div>
       <div class="debug-row">
-        <label>Font size <span id="dbg-font-size-out">16px</span></label>
-        <input type="range" id="dbg-font-size" min="8" max="48" step="1" value="16" />
+        <label>Font size (at 1.0x) <span id="dbg-font-size-out">26px</span></label>
+        <input type="range" id="dbg-font-size" min="8" max="60" step="1" value="26" />
       </div>
       <div class="debug-row">
         <label>Font family</label>
@@ -1136,20 +1139,28 @@
     document.getElementById("debug-toggle-icon").textContent = debugPanel.classList.contains("collapsed") ? "▸" : "▾";
   });
 
+  // The "Font size" slider is the base size at scale 1.0x — it's kept
+  // proportional to the die size slider so numbers stay legible (and don't
+  // overflow) as dice grow or shrink, rather than staying a fixed px value.
+  function applyFontSize() {
+    const base = Number(fontSizeInput.value);
+    document.documentElement.style.setProperty("--num-font-size", base * dieScale + "px");
+  }
+
   const scaleInput = document.getElementById("dbg-scale");
   const scaleOut = document.getElementById("dbg-scale-out");
   scaleInput.addEventListener("input", () => {
     const v = Number(scaleInput.value);
     scaleOut.textContent = v.toFixed(1) + "x";
     buildAllDice(v);
+    applyFontSize();
   });
 
   const fontSizeInput = document.getElementById("dbg-font-size");
   const fontSizeOut = document.getElementById("dbg-font-size-out");
   fontSizeInput.addEventListener("input", () => {
-    const v = Number(fontSizeInput.value);
-    fontSizeOut.textContent = v + "px";
-    document.documentElement.style.setProperty("--num-font-size", v + "px");
+    fontSizeOut.textContent = fontSizeInput.value + "px";
+    applyFontSize();
   });
 
   const fontFamilyInput = document.getElementById("dbg-font-family");
@@ -1181,6 +1192,7 @@
   });
 
   buildAllDice(1);
+  applyFontSize();
 </script>
 
 </body>
