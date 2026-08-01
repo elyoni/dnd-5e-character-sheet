@@ -556,14 +556,16 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 }
 .dice-3d-label.visible{ opacity:1; }
 .dice-3d-hint{
-  position:absolute; top:56px; left:50%; transform:translateX(-50%);
+  position:absolute; top:56px; left:50%; transform:translateX(-50%) scale(1);
   max-width:90vw; text-align:center;
-  background:rgba(255,255,255,0.25); padding:8px 22px; border-radius:10px;
+  background:rgba(255,255,255,0.75); padding:8px 22px; border-radius:10px;
   color:#241c0f; font-size:32px; font-family:'Cinzel',serif; font-weight:700;
   letter-spacing:1px; text-transform:uppercase;
-  opacity:0; transition:opacity 0.3s ease-out; pointer-events:none;
+  opacity:0; transition:opacity 0.3s ease-out, transform 0.3s cubic-bezier(.34,1.2,.4,1);
+  pointer-events:none;
 }
 .dice-3d-hint.visible{ opacity:1; }
+.dice-3d-hint.settled{ transform:translateX(-50%) scale(1.35); }
 .dice-3d-banner{
   position:absolute; transform:translate(-50%,-50%);
   text-align:center; opacity:0;
@@ -2805,12 +2807,14 @@ function showDiceOverlay(hint, immediate){
   const hintEl = document.getElementById("dice-3d-hint");
   overlay.classList.add("visible");
   hintEl.textContent = hint || "";
+  hintEl.classList.remove("settled");
   if(immediate && hint) hintEl.classList.add("visible");
   else hintEl.classList.remove("visible");
 }
 function hideDiceOverlay(){
   document.getElementById("dice-3d-overlay").classList.remove("visible");
   document.getElementById("dice-3d-hint").classList.remove("visible");
+  document.getElementById("dice-3d-hint").classList.remove("settled");
   document.getElementById("dice-debug-panel").classList.remove("visible");
 }
 function dismissDiceOverlay(){
@@ -2825,7 +2829,8 @@ function dismissDiceOverlay(){
 // not just once they've settled — pass {immediateHint:false} to hold it
 // back until settle instead (used for attacks, which already get their own
 // HIT/DAMAGE banners and don't need the weapon name competing for attention
-// mid-throw).
+// mid-throw). Once every die has settled the caption also grows (.settled,
+// see the CSS) to draw the eye back to it now that the result is final.
 async function rollPhysicalDice(specs, hint, opts){
   const immediateHint = !opts || opts.immediateHint !== false;
   const engine = ensureDiceEngine();
@@ -2834,6 +2839,7 @@ async function rollPhysicalDice(specs, hint, opts){
   const hintEl = document.getElementById("dice-3d-hint");
   hintEl.textContent = hint || "";
   hintEl.classList.add("visible");
+  hintEl.classList.add("settled");
   return results;
 }
 function sumTag(results, tag){ return results.filter(r=>r.tag===tag).map(r=>r.value); }
