@@ -265,102 +265,119 @@ const ICOSA_FACES = [
   [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
 ];
 
-const ATLAS_COLS = 5;
-const ATLAS_ROWS = 4;
-const ATLAS_CELL = 128;
-let d20Atlas = null;
-function getD20Atlas() {
-  if (d20Atlas) return d20Atlas;
-  const canvas = document.createElement("canvas");
-  canvas.width = ATLAS_COLS * ATLAS_CELL;
-  canvas.height = ATLAS_ROWS * ATLAS_CELL;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#c9a227";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#1c150f";
-  ctx.font = "bold 64px system-ui, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  for (let n = 1; n <= 20; n++) {
-    const col = (n - 1) % ATLAS_COLS;
-    const row = Math.floor((n - 1) / ATLAS_COLS);
-    ctx.fillText(String(n), col * ATLAS_CELL + ATLAS_CELL / 2, row * ATLAS_CELL + ATLAS_CELL / 2 + 4);
-  }
-  d20Atlas = new THREE.CanvasTexture(canvas);
-  return d20Atlas;
-}
-
-// Assigns 1-20 so opposite faces sum to 21, like a real d20 (same technique
-// as the CSS prototype's assignD20Values, just against a plain JS antipode
-// lookup instead of a Map keyed by sorted-index strings).
-function assignD20Numbers() {
-  const antipode = ICOSA_RAW_VERTICES.map((v) =>
-    ICOSA_RAW_VERTICES.findIndex(
-      (w) => Math.abs(w[0] + v[0]) < 1e-6 && Math.abs(w[1] + v[1]) < 1e-6 && Math.abs(w[2] + v[2]) < 1e-6
-    )
-  );
-  const faceKey = (f) => f.slice().sort((a, b) => a - b).join(",");
-  const oppositeKey = (f) => f.map((i) => antipode[i]).sort((a, b) => a - b).join(",");
-  const byKey = new Map(ICOSA_FACES.map((f) => [faceKey(f), f]));
-  const values = new Map();
-  let next = 1;
-  for (const f of ICOSA_FACES) {
-    const key = faceKey(f);
-    if (values.has(key)) continue;
-    const opp = byKey.get(oppositeKey(f));
-    values.set(key, next);
-    if (opp) values.set(faceKey(opp), 21 - next);
-    next++;
-  }
-  return ICOSA_FACES.map((f) => values.get(faceKey(f)));
-}
-const D20_NUMBERS = assignD20Numbers();
-
-function buildD20Die(radius) {
-  const geo = new THREE.IcosahedronGeometry(radius, 0).toNonIndexed();
-  const atlas = getD20Atlas();
-  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: atlas, roughness: 0.5 });
-  const mesh = new THREE.Mesh(geo, mat);
-
+// Reads the actual centroid/normal of every triangle out of a generated
+// IcosahedronGeometry — three.js's own face order doesn't match our hand
+// -built ICOSA_FACES list above, so numbering must be derived from the real
+// mesh rather than assumed to line up with it.
+function computeMeshFaces(geo) {
   const pos = geo.attributes.position;
   const faceCount = pos.count / 3;
-  const uv = new Float32Array(pos.count * 2);
-  const WORLD_UP_LOCAL = new THREE.Vector3(0, 1, 0);
-  const REF_FALLBACK = new THREE.Vector3(0, 0, 1);
   const faces = [];
-
   for (let f = 0; f < faceCount; f++) {
     const a = new THREE.Vector3().fromBufferAttribute(pos, f * 3);
     const b = new THREE.Vector3().fromBufferAttribute(pos, f * 3 + 1);
     const c = new THREE.Vector3().fromBufferAttribute(pos, f * 3 + 2);
     const centroid = a.clone().add(b).add(c).divideScalar(3);
-    const normal = centroid.clone().normalize();
+    faces.push({ a, b, c, centroid, normal: centroid.clone().normalize() });
+  }
+  return faces;
+}
 
+// Assigns 1-20 so opposite faces sum to 21, like a real d20 — matches each
+// face to its geometric opposite by most-anti-parallel normal (robust to
+// whatever face order the geometry generator happens to use).
+function assignD20Numbers(faces) {
+  const used = new Array(faces.length).fill(false);
+  const numbers = new Array(faces.length).fill(0);
+  let next = 1;
+  for (let i = 0; i < faces.length; i++) {
+    if (used[i]) continue;
+    let oppIdx = -1, bestDot = Infinity;
+    for (let j = 0; j < faces.length; j++) {
+      if (j === i) continue;
+      const dot = faces[i].normal.dot(faces[j].normal);
+      if (dot < bestDot) { bestDot = dot; oppIdx = j; }
+    }
+    numbers[i] = next;
+    used[i] = true;
+    if (oppIdx >= 0 && !used[oppIdx]) {
+      numbers[oppIdx] = 21 - next;
+      used[oppIdx] = true;
+    }
+    next++;
+  }
+  return numbers;
+}
+
+// Face order is deterministic for a given IcosahedronGeometry(radius, 0)
+// call regardless of radius, so the numbering can be computed once from a
+// throwaway template and reused for the real (radius = D20_RADIUS) mesh.
+const D20_TEMPLATE_FACES = computeMeshFaces(new THREE.IcosahedronGeometry(1, 0).toNonIndexed());
+const D20_NUMBERS = assignD20Numbers(D20_TEMPLATE_FACES);
+
+const d20FaceTextureCache = new Map();
+function getD20FaceTexture(number) {
+  if (d20FaceTextureCache.has(number)) return d20FaceTextureCache.get(number);
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#c9a227";
+  ctx.fillRect(0, 0, 128, 128);
+  ctx.fillStyle = "#1c150f";
+  ctx.font = "bold 64px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(String(number), 64, 70);
+  const tex = new THREE.CanvasTexture(canvas);
+  d20FaceTextureCache.set(number, tex);
+  return tex;
+}
+
+// One dedicated material (and texture) per face, wired up via geometry
+// groups — same approach as the d6's per-face materials array. This avoids
+// the shared-atlas UV bleeding the first version had, where each triangle's
+// texture coordinates could stray into a neighboring cell.
+function buildD20Die(radius) {
+  const geo = new THREE.IcosahedronGeometry(radius, 0).toNonIndexed();
+  const faces = computeMeshFaces(geo);
+
+  const pos = geo.attributes.position;
+  const uv = new Float32Array(pos.count * 2);
+  const WORLD_UP_LOCAL = new THREE.Vector3(0, 1, 0);
+  const REF_FALLBACK = new THREE.Vector3(0, 0, 1);
+  geo.clearGroups();
+  const materials = [];
+  const userFaces = [];
+
+  faces.forEach((face, f) => {
+    const { a, b, c, centroid, normal } = face;
     const ref = Math.abs(normal.dot(WORLD_UP_LOCAL)) > 0.95 ? REF_FALLBACK : WORLD_UP_LOCAL;
     const vAxis = ref.clone().sub(normal.clone().multiplyScalar(normal.dot(ref))).normalize();
     const uAxis = new THREE.Vector3().crossVectors(vAxis, normal).normalize();
 
+    let maxR = 0;
+    const locals = [a, b, c].map((v) => {
+      const rel = v.clone().sub(centroid);
+      const lu = rel.dot(uAxis), lv = rel.dot(vAxis);
+      maxR = Math.max(maxR, Math.hypot(lu, lv));
+      return [lu, lv];
+    });
+    const scale = 0.46 / maxR; // keeps the triangle's UVs inside its own cell
+    locals.forEach(([lu, lv], k) => {
+      uv[(f * 3 + k) * 2] = 0.5 + lu * scale;
+      uv[(f * 3 + k) * 2 + 1] = 0.5 + lv * scale;
+    });
+
+    geo.addGroup(f * 3, 3, f);
     const number = D20_NUMBERS[f];
-    const col = (number - 1) % ATLAS_COLS;
-    const row = Math.floor((number - 1) / ATLAS_COLS);
-    const cellCenterU = (col + 0.5) / ATLAS_COLS;
-    const cellCenterV = 1 - (row + 0.5) / ATLAS_ROWS;
+    materials.push(new THREE.MeshStandardMaterial({ map: getD20FaceTexture(number), roughness: 0.5 }));
+    userFaces.push({ normal: normal.clone(), number });
+  });
 
-    const verts = [a, b, c];
-    for (let k = 0; k < 3; k++) {
-      const rel = verts[k].clone().sub(centroid);
-      const localU = rel.dot(uAxis);
-      const localV = rel.dot(vAxis);
-      const localRadius = rel.length();
-      const scalePx = (ATLAS_CELL * 0.41) / localRadius;
-      uv[(f * 3 + k) * 2] = cellCenterU + (localU * scalePx) / (ATLAS_COLS * ATLAS_CELL);
-      uv[(f * 3 + k) * 2 + 1] = cellCenterV + (localV * scalePx) / (ATLAS_ROWS * ATLAS_CELL);
-    }
-
-    faces.push({ normal, number });
-  }
   geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-  mesh.userData.faces = faces;
+  const mesh = new THREE.Mesh(geo, materials);
+  mesh.userData.faces = userFaces;
   return mesh;
 }
 
