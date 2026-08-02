@@ -3172,7 +3172,7 @@ function render(){
       </div>
       <div class="combat-box">
         <span class="label">${t.init}</span>
-        <div class="big mono">${fm(effInit)}</div>
+        <div class="big mono roll-trigger no-print" onclick="rollInitiative()" title="${t.atkRoll}">${initRollFlash ? `<b class="roll-flash">${fm(initRollFlash.total)}</b>` : fm(effInit)}</div>
         <div class="formula-note">d20+DEX${getFeatBonus(state,"init")!==0 ? ` ${fm(getFeatBonus(state,"init"))} ${lang==='en'?'feat':'תכונה'}` : ""}</div>
       </div>
       <div class="combat-box">
