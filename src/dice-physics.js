@@ -100,8 +100,7 @@ function faceCentroidAndNormal(vertsArr, faceIdx) {
 // triangle keeps the SAME material index, so the whole face still shows one
 // continuous texture.
 const textureCache = new Map(); // key: `${sides}:${value}:${dieColor}:${textColor}:${fontSize}:${fontFamily}` -> THREE.CanvasTexture
-const apexTextureCache = new Map(); // same idea, for d4-style per-vertex face textures (see getApexFaceTexture)
-function invalidateTextureCache() { textureCache.clear(); apexTextureCache.clear(); }
+function invalidateTextureCache() { textureCache.clear(); }
 
 function getFaceTexture(config, sides, value) {
   const fontPx = (config.fontSizeBySides && config.fontSizeBySides[sides]) || config.fontSize;
@@ -124,37 +123,16 @@ function getFaceTexture(config, sides, value) {
 }
 
 // The d4 (apex numbering) has no single "up face" — the result is read off
-// whichever VERTEX ends up pointing highest, and each face touches 3 of the
-// die's 4 vertices. A real d4 prints each of those 3 vertex numbers near its
-// own corner of the face (so whichever corner ends up "up" is legible), which
-// is what this draws — unlike the other shapes, a d4 face texture needs 3
-// numbers, not 1. cornerUVs/cornerValues are aligned arrays (same order as
-// the face's vertices).
-function getApexFaceTexture(config, sides, cornerUVs, cornerValues) {
-  const fontPx = ((config.fontSizeBySides && config.fontSizeBySides[sides]) || config.fontSize) * 0.55;
-  const key = `${config.dieColor}|${config.textColor}|${fontPx}|${config.fontFamily}|${cornerValues.join(",")}|${cornerUVs.map((c) => c.map((n) => n.toFixed(3)).join(":")).join(",")}`;
-  if (apexTextureCache.has(key)) return apexTextureCache.get(key);
-  const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 128;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = config.dieColor;
-  ctx.fillRect(0, 0, 128, 128);
-  ctx.fillStyle = config.textColor;
-  ctx.font = `bold ${fontPx}px ${config.fontFamily}`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  const cx = 64, cy = 64;
-  cornerUVs.forEach(([u, v], i) => {
-    // Pull each corner in toward the centroid so the digit sits inside the
-    // face instead of getting clipped at the edge.
-    const px = cx + (u * 128 - cx) * 0.62;
-    const py = cy + (v * 128 - cy) * 0.62;
-    ctx.fillText(String(cornerValues[i]), px, py + fontPx * 0.067);
-  });
-  const tex = new THREE.CanvasTexture(canvas);
-  apexTextureCache.set(key, tex);
-  return tex;
+// whichever VERTEX ends up pointing highest, not a face. A previous version
+// of this drew 3 small corner numbers per face to mimic a real d4's print
+// layout, but that custom draw path was unverified (no WebGL in this sandbox)
+// and turned out to render blank live. This instead reuses getFaceTexture
+// — the exact same single-centered-digit path already proven to work on the
+// other 5 shapes — labeling each face with the value of the one vertex it
+// does NOT touch (so all 4 faces get a distinct 1..4 label).
+function faceValueForApex(shape, faceIdx) {
+  const missing = shape.vertices.findIndex((_, vi) => !faceIdx.includes(vi));
+  return shape.values[missing];
 }
 
 const WORLD_UP_LOCAL = new THREE.Vector3(0, 1, 0);
@@ -198,16 +176,8 @@ function buildDieMesh(sides, config) {
     const triCount = faceIdx.length - 2;
     const geoGroupIndex = f;
 
-    let faceTexture;
-    if (shape.numbering === "apex") {
-      const cornerUVs = locals.map(([lu, lv]) => [0.5 + lu * uvScale, 0.5 + lv * uvScale]);
-      const cornerValues = faceIdx.map((vi) => shape.values[vi]);
-      faceTexture = getApexFaceTexture(config, sides, cornerUVs, cornerValues);
-    } else {
-      const value = shape.values[f];
-      faceTexture = getFaceTexture(config, sides, value);
-    }
-    materials.push(new THREE.MeshStandardMaterial({ map: faceTexture, roughness: 0.5 }));
+    const value = shape.numbering === "apex" ? faceValueForApex(shape, faceIdx) : shape.values[f];
+    materials.push(new THREE.MeshStandardMaterial({ map: getFaceTexture(config, sides, value), roughness: 0.5 }));
     userFaces.push({ normal: normal.clone(), centroid: centroid.clone(), materialIndex: geoGroupIndex, vertexIdx: faceIdx.slice(), triStart: groupStart, triCount });
   });
 
