@@ -2127,7 +2127,7 @@ async function rollDice(sides){
     ? ((results[0].value===10?0:results[0].value)*10 + (results[1].value===10?0:results[1].value)) || 100
     : results[0].value;
   diceState.lastRoll = roll;
-  ensureDiceEngine().showResultBanner([{key:'roll', title:`d${sides}`, value:fmtCalcBanner(roll, 0, roll), y:0.42}]);
+  ensureDiceEngine().showResultBanner([{key:'roll', title:`d${sides}`, value:roll, y:0.42}]);
   diceState.history.unshift({sides, roll});
   diceState.history = diceState.history.slice(0, 8);
   mainDiceJustRolled = true;
