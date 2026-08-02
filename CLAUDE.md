@@ -4,25 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A D&D 5e character sheet web app that ships as a **single self-contained HTML file**: `dnd_character_sheet.html`. That file is a **generated build artifact** — do not hand-edit it. It's produced by `node build.js`, which concatenates:
+A D&D 5e character sheet web app that ships as a **single self-contained HTML file**: `dnd_character_sheet.html`. That file is a **generated build artifact** — it is git-ignored, not committed, and must never be hand-edited. It's produced by `node build.js`, which concatenates:
 
 - `dnd_character_sheet.src.html` — the actual source template (~3000 lines: `<style>` block, then the app's `<script>` block, no `<body>` markup beyond a single `<div id="app">` plus the 3D dice overlay markup). **Edit this file**, not `dnd_character_sheet.html`.
 - `vendor/three.module.min.js` / `vendor/cannon-es.min.js` — pinned third-party library builds, vendored (not fetched from a CDN) so the shipped file has zero runtime network dependency and keeps working fully offline. Rewritten from ES modules into plain-script IIFEs at build time so the whole app can stay one classic `<script>` block with no `type="module"`/importmap at runtime.
 - `src/dice-physics.js` — the 3D dice engine (Three.js + cannon-es), kept as a separate module so it can be edited/reasoned about without pulling the whole character sheet into context. **Edit this file**, not the copy baked into `dnd_character_sheet.html`.
 
-Run `node build.js` after editing `dnd_character_sheet.src.html` or `src/dice-physics.js`, before committing — there's no CI build step, so `dnd_character_sheet.html` must be committed pre-built and up to date. `package.json` exists to pull in Playwright for end-to-end tests (there's still no bundler/transpiler involved in the build — `build.js` is dependency-free string concatenation).
+Run `node build.js` locally after editing `dnd_character_sheet.src.html` or `src/dice-physics.js` — it's how you get a `dnd_character_sheet.html` to open/test at all, since none is committed. `package.json` exists to pull in Playwright for end-to-end tests (there's still no bundler/transpiler involved in the build — `build.js` is dependency-free string concatenation, no `npm install` required to run it).
 
 Bilingual (English / Hebrew with RTL layout) — all UI text is looked up through a translation table, never hardcoded inline.
 
 ## Running / deploying
 
 ```bash
-node build.js                     # after any change to dnd_character_sheet.src.html or src/dice-physics.js
+node build.js                     # generates dnd_character_sheet.html from source (git-ignored, not committed)
 python3 -m http.server 8000
 # then open http://localhost:8000/dnd_character_sheet.html
 ```
 
-Deployment is automatic: `.github/workflows/deploy.yml` copies `dnd_character_sheet.html` (the built file, as committed) to `site/index.html` and publishes it to GitHub Pages on every push to `main`. There is no separate staging step, and deploy does NOT run `build.js` — pushing to `main` ships whatever `dnd_character_sheet.html` was last committed, so always rebuild and commit the result together with source changes.
+Deployment is automatic: `.github/workflows/deploy.yml` runs `node build.js` on every push to `main`, then copies the freshly built `dnd_character_sheet.html` to `site/index.html` and publishes it to GitHub Pages. There is no separate staging step. `.github/workflows/test.yml` likewise runs `node build.js` before `npm test`, since the Playwright suite serves `dnd_character_sheet.html` directly and no copy of it lives in the repo.
 
 ## Testing
 
@@ -31,6 +31,7 @@ End-to-end tests live in `tests/*.spec.js` and drive the real page with Playwrig
 ```bash
 npm install                       # first time only
 npx playwright install chromium   # first time only (downloads the browser binary)
+node build.js                     # generates dnd_character_sheet.html (git-ignored, not committed)
 npm test                          # run the full suite headless
 npx playwright test tests/onboarding.spec.js   # a single file
 npx playwright test -g "remembers the last-used character"  # a single test by title

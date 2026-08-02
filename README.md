@@ -1,19 +1,12 @@
 # D&D 5e Character Sheet
 
-A single-file, no-build-step character sheet for D&D 5e. Everything — markup, styles, and logic — lives in one HTML file: [`dnd_character_sheet.html`](dnd_character_sheet.html). Open it in a browser (or serve it locally) and it just works, no server or install required.
+A character sheet for D&D 5e that ships as a single self-contained HTML file. Everything — markup, styles, and logic — lives in one page, built from source with `node build.js` (see [Development](#development) below); the built page needs no server or install to run, just a browser.
 
 Bilingual: **English** and **Hebrew** (with right-to-left layout), switchable at any time.
 
 ## Running it
 
-```bash
-python3 -m http.server 8000
-# then open http://localhost:8000/dnd_character_sheet.html
-```
-
-Or just double-click the file and open it directly in a browser.
-
-Every push to `main` auto-deploys it to GitHub Pages — there's no separate staging step.
+The live app is auto-deployed to GitHub Pages on every push to `main` — there's no separate staging step. To run it from this repo, see [Development](#development) below for the build step.
 
 ## Characters
 
@@ -103,11 +96,22 @@ This one generic `{stat, amount, perLevel, matchSpeed, fixed}` shape drives all 
 - **Ask AI** — copies a curated YAML snapshot of the character (plus instructions) to the clipboard for pasting into any AI chat, so you can ask things like "which feat should I take?" or "does anything look wrong here?" If the AI suggests concrete additions (a feat, weapon, spell, resource, or item) in the expected format, paste its reply back in and each suggestion appears as its own card to accept or discard individually. It can also set level or subclass directly, but never HP or ability scores — an ability score change must be a feat addition instead — and a schema-version mismatch is rejected with a message the user can hand back to the AI to self-correct. Suggestions matching something already on the sheet by name are silently skipped, so re-pasting the same or an updated reply doesn't offer duplicates. The instructions also tell the AI to ask the player rather than decide for them (or invent a placeholder entry) whenever 5e rules present a choice, such as an Ability Score Improvement or a subclass feature, and to only include the additions block once something is actually settled rather than attaching it speculatively to every reply.
 - **Print view** — a separate, print-optimized layout independent of the on-screen sheet.
 - **First-run onboarding** — a lightweight language-picker flow for brand-new installs only; existing users never see it.
+- **What's New** — a one-time popup summarizing recent changes for returning users after an update; dismissing it marks that update seen so it doesn't reappear. Brand-new installs never see it (onboarding covers them instead).
 - **Destructive-action confirmation** — deleting an attack, spell, feat, resource, item, or entire character always asks for confirmation first.
 - **Fold/collapse** any panel to declutter the sheet, independently per panel.
 - **Lock** the Saving Throws or Skills panel (🔒/🔓 icon in its header) to disable its proficiency/expertise checkboxes and guard against accidental misclicks; the lock state persists across sessions.
 
 ## Development
+
+`dnd_character_sheet.html` — the file that actually ships — is a **generated build artifact** and is not committed to this repo. To build and run it locally:
+
+```bash
+node build.js                     # generates dnd_character_sheet.html from source
+python3 -m http.server 8000
+# then open http://localhost:8000/dnd_character_sheet.html
+```
+
+Re-run `node build.js` after editing `dnd_character_sheet.src.html` or `src/dice-physics.js`. CI (`.github/workflows/deploy.yml`) runs the same build step before publishing to GitHub Pages, so nothing needs to be built or committed by hand before pushing.
 
 See [`CLAUDE.md`](CLAUDE.md) for architecture notes, coding conventions, and how the automated test suite (`tests/*.spec.js`, Playwright) is run.
 
