@@ -701,7 +701,7 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
       el.innerHTML = `<div class="dice-3d-banner-title">${item.title}</div><div class="dice-3d-banner-value">${item.value}</div>`;
       el.style.left = `${w / 2}px`;
       el.style.top = `${item.y * h}px`;
-      el.style.transform = "translate(-50%, -50%) scale(2.2)";
+      el.style.transform = "translate(-50%, -50%) scale(1.5)";
       labelsEl.appendChild(el);
       bannerEls.set(item.key, el);
       requestAnimationFrame(() => {
