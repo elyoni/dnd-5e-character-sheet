@@ -17,6 +17,8 @@ test.describe('character sheet editing', () => {
     await dismissOnboarding(page);
 
     await page.locator('.die-btn:has-text("d20")').click();
+    // The 3D physics die resolves asynchronously once it actually settles.
+    await page.waitForFunction(() => diceState.lastRoll !== null, null, { timeout: 10000 });
     const lastRoll = await page.evaluate(() => diceState.lastRoll);
     expect(lastRoll).toBeGreaterThanOrEqual(1);
     expect(lastRoll).toBeLessThanOrEqual(20);
