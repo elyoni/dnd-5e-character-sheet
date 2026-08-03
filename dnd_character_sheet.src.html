@@ -463,6 +463,8 @@ select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:92px;font-size:1
 .feat-notes-display.dim{color:var(--ink-faint);font-style:italic;}
 input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 .item-notes-input{width:100%;resize:vertical;overflow:hidden;}
+.item-static{display:block;padding:8px 10px;font-size:13.5px;line-height:1.4;color:var(--ink);}
+.item-static-notes{white-space:pre-wrap;overflow-wrap:anywhere;}
 .res-notes-input{width:100%;font-size:13.5px;line-height:1.4;resize:vertical;overflow:hidden;}
 .spell-level-header{
   display:flex;justify-content:space-between;align-items:center;
@@ -596,6 +598,24 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
   .char-select-group select{flex:1 1 auto;min-width:0;}
   .lang-row{justify-content:center;}
   .view-toggle-group{width:100%;justify-content:flex-start;}
+  .table-scroll:has(.responsive-table){overflow-x:visible;}
+  .responsive-table{width:100%;}
+  .responsive-table thead{display:none;}
+  .responsive-table, .responsive-table tbody{display:block;}
+  .responsive-table tr{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;
+    background:var(--panel-2);border:1px solid var(--leather-line);border-radius:6px;
+    padding:8px;margin-bottom:8px;
+  }
+  .responsive-table td{display:block;padding:0;border-bottom:none;flex:1 1 100px;min-width:0;}
+  .responsive-table td[data-label]::before{
+    content:attr(data-label);display:block;font-size:10px;letter-spacing:1px;
+    text-transform:uppercase;color:var(--gold);margin-bottom:2px;
+  }
+  .responsive-table td.td-delete{flex:0 0 auto;padding-bottom:2px;}
+  .armor-table td.td-eq{order:5;flex:0 0 auto;padding-bottom:2px;}
+  .armor-table td.td-eq input{width:20px;height:20px;}
+  .armor-table td.td-delete{order:6;}
 }
 
 /* ============ 3D dice overlay ============ */
@@ -3423,21 +3443,39 @@ function setItemCategory(i, value){
 }
 function gearRow(it, i){
   const t = T[lang];
-  return `<tr>
-    <td><select onchange="setItemCategory(${i}, this.value)">
+  const locked = !!panelLocks['gear'];
+  const catLabel = t["gearCat"+it.category.charAt(0).toUpperCase()+it.category.slice(1)] || it.category;
+  const catCell = locked
+    ? `<span class="item-static">${esc2(catLabel)}</span>`
+    : `<select onchange="setItemCategory(${i}, this.value)">
       ${GEAR_CATEGORIES.map(c=>`<option value="${c}" ${it.category===c?"selected":""}>${t["gearCat"+c.charAt(0).toUpperCase()+c.slice(1)]}</option>`).join("")}
-    </select></td>
-    <td><input type="text" class="item-name-input" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)"></td>
-    <td style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
-    <td><textarea class="item-notes-input" dir="auto" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea></td>
-    <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button></td>
+    </select>`;
+  const nameCell = locked
+    ? `<span class="item-static">${esc2(it.name)||"—"}</span>`
+    : `<input type="text" class="item-name-input" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)">`;
+  const notesCell = locked
+    ? `<span class="item-static item-static-notes" dir="auto">${esc2(it.notes)||"—"}</span>`
+    : `<textarea class="item-notes-input" dir="auto" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea>`;
+  return `<tr>
+    <td data-label="${t.itemCategory}">${catCell}</td>
+    <td data-label="${t.itemName}">${nameCell}</td>
+    <td data-label="${t.itemQty}" style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td data-label="${t.itemNotes}">${notesCell}</td>
+    <td class="td-delete">${locked ? "" : `<button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button>`}</td>
   </tr>`;
 }
 function armorRow(it, i){
   const t = T[lang];
-  const equippedCell = `<input type="checkbox" ${it.equipped?"checked":""} onchange="set('inventory.items.${i}.equipped', this.checked)" title="${t.shieldOn}">`;
+  const locked = !!panelLocks['armor'];
+  const equippedCell = locked
+    ? `<span class="item-static">${it.equipped ? "✓" : "—"}</span>`
+    : `<input type="checkbox" ${it.equipped?"checked":""} onchange="set('inventory.items.${i}.equipped', this.checked)" title="${t.shieldOn}">`;
   let acCell = "";
-  if(it.type==="armor"){
+  if(locked){
+    acCell = it.type==="armor"
+      ? `<span class="item-static">${it.acBase}${it.acAbility!=="none" ? ` +${t[it.acAbility]}` : ""}</span>`
+      : `<span class="item-static">+${it.shieldBonus}</span>`;
+  } else if(it.type==="armor"){
     acCell = `<div style="display:inline-flex;gap:4px;align-items:center">
       <input type="number" min="0" style="width:56px;text-align:center;flex:none" value="${it.acBase}" onchange="set('inventory.items.${i}.acBase', parseInt(this.value)||0)">
       <select style="width:60px;flex:none" title="${t.armorAbilHint}" onchange="set('inventory.items.${i}.acAbility', this.value)">
@@ -3448,17 +3486,26 @@ function armorRow(it, i){
   } else {
     acCell = `<input type="number" min="0" style="width:56px;text-align:center" value="${it.shieldBonus}" onchange="set('inventory.items.${i}.shieldBonus', parseInt(this.value)||0)">`;
   }
-  return `<tr>
-    <td><select onchange="set('inventory.items.${i}.type', this.value)">
+  const typeCell = locked
+    ? `<span class="item-static">${it.type==="armor" ? t.itemTypeArmor : t.itemTypeShield}</span>`
+    : `<select onchange="set('inventory.items.${i}.type', this.value)">
       <option value="armor" ${it.type==="armor"?"selected":""}>${t.itemTypeArmor}</option>
       <option value="shield" ${it.type==="shield"?"selected":""}>${t.itemTypeShield}</option>
-    </select></td>
-    <td><input type="text" class="item-name-input" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)"></td>
-    <td style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
-    <td style="text-align:center">${equippedCell}</td>
-    <td style="text-align:center">${acCell}</td>
-    <td><textarea class="item-notes-input" dir="auto" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea></td>
-    <td><button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button></td>
+    </select>`;
+  const nameCell = locked
+    ? `<span class="item-static">${esc2(it.name)||"—"}</span>`
+    : `<input type="text" class="item-name-input" value="${it.name}" style="min-width:120px" onchange="set('inventory.items.${i}.name', this.value)">`;
+  const notesCell = locked
+    ? `<span class="item-static item-static-notes" dir="auto">${esc2(it.notes)||"—"}</span>`
+    : `<textarea class="item-notes-input" dir="auto" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea>`;
+  return `<tr>
+    <td data-label="${t.itemType}">${typeCell}</td>
+    <td data-label="${t.itemName}">${nameCell}</td>
+    <td data-label="${t.itemQty}" style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td class="td-eq" data-label="${t.itemEquippedAbbr}" style="text-align:center">${equippedCell}</td>
+    <td data-label="${t.itemAC}" style="text-align:center">${acCell}</td>
+    <td data-label="${t.itemNotes}">${notesCell}</td>
+    <td class="td-delete">${locked ? "" : `<button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button>`}</td>
   </tr>`;
 }
 function addGear(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}); sortGearItems(); render(); queueSave(); }
@@ -3982,15 +4029,15 @@ function render(){
         ${["cp","sp","ep","gp","pp"].map(c=>`<span class="dim-label" style="text-transform:uppercase">${c}</span><input type="number" min="0" value="${state.inventory.currency[c]}" style="width:64px;text-align:center" onchange="set('inventory.currency.${c}', parseInt(this.value)||0)">`).join("")}
       </div>
     </div>
-    <h3 style="margin:12px 0 4px;font-size:13px;color:var(--gold)">${t.gearTable}</h3>
-    <div class="table-scroll"><table>
+    <h3 style="margin:12px 0 4px;font-size:13px;color:var(--gold);display:flex;align-items:center;justify-content:space-between">${t.gearTable}${lockIcon('gear')}</h3>
+    <div class="table-scroll"><table class="responsive-table gear-table">
       <thead><tr><th>${t.itemCategory}</th><th>${t.itemName}</th><th style="text-align:center">${t.itemQty}</th><th>${t.itemNotes}</th><th></th></tr></thead>
       <tbody>${state.inventory.items.map((it,i)=>({it,i})).filter(x=>x.it.type==="gear").map(x=>gearRow(x.it,x.i)).join("")}</tbody>
     </table></div>
     <button class="btn primary no-print" style="margin-top:10px" onclick="addGear()">➕ ${t.addGear}</button>
 
-    <h3 style="margin:16px 0 4px;font-size:13px;color:var(--gold)">${t.armorTable}</h3>
-    <div class="table-scroll"><table>
+    <h3 style="margin:16px 0 4px;font-size:13px;color:var(--gold);display:flex;align-items:center;justify-content:space-between">${t.armorTable}${lockIcon('armor')}</h3>
+    <div class="table-scroll"><table class="responsive-table armor-table">
       <thead><tr><th>${t.itemType}</th><th>${t.itemName}</th><th style="text-align:center">${t.itemQty}</th><th style="text-align:center">${t.itemEquippedAbbr}</th><th style="text-align:center">${t.itemAC}</th><th>${t.itemNotes}</th><th></th></tr></thead>
       <tbody>${state.inventory.items.map((it,i)=>({it,i})).filter(x=>x.it.type==="armor"||x.it.type==="shield").map(x=>armorRow(x.it,x.i)).join("")}</tbody>
     </table></div>
