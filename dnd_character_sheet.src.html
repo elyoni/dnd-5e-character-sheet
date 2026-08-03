@@ -1586,7 +1586,7 @@ async function rollAttack(i){
   // it's always unambiguous which number is which: hit up top, damage
   // lower down — matches the labels, not a guess based on die position/size.
   const hitValueText = `${fmtCalcBanner(hitRoll, bonus, hitTotal)}${crit?' 🎯':fumble?' 💀':''}`;
-  const banners = [{key:'hit', title:T[lang].atkHit, value:hitValueText, y:0.28}];
+  const banners = [{key:'hit', title:T[lang].atkHit, value:hitValueText, y:0.38}];
   if(parsed) banners.push({key:'dmg', title:T[lang].atkDmg, value:fmtCalcBanner(dmgRolls.join("+"), dmgBonus, dmgTotal), y:0.72});
   ensureDiceEngine().showResultBanner(banners);
   attackRolls[i] = {hitRoll, hitTotal, bonus, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal, crit, fumble, hasDmg: !!parsed};
@@ -2316,19 +2316,18 @@ function dismissDiceOverlay(){
 // no auto-hide timer, so the result never disappears on its own.
 // By default the caption (hint) appears the instant the dice are thrown,
 // not just once they've settled — pass {immediateHint:false} to hold it
-// back until settle instead (used for attacks, which already get their own
-// HIT/DAMAGE banners and don't need the weapon name competing for attention
-// mid-throw).
+// back until settle instead (used for attacks: the weapon name stays hidden
+// during the throw so it doesn't compete with the tumbling dice, but still
+// shows once they land, alongside the HIT/DAMAGE banners — those banners are
+// positioned lower on screen specifically to leave room for it).
 async function rollPhysicalDice(specs, hint, opts){
   const immediateHint = !opts || opts.immediateHint !== false;
   const engine = ensureDiceEngine();
   showDiceOverlay(hint, immediateHint);
   const results = await engine.roll(specs);
-  if(immediateHint){
-    const hintEl = document.getElementById("dice-3d-hint");
-    hintEl.textContent = hint || "";
-    hintEl.classList.add("visible");
-  }
+  const hintEl = document.getElementById("dice-3d-hint");
+  hintEl.textContent = hint || "";
+  hintEl.classList.add("visible");
   return results;
 }
 function sumTag(results, tag){ return results.filter(r=>r.tag===tag).map(r=>r.value); }
