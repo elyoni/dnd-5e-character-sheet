@@ -603,19 +603,29 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
   .responsive-table thead{display:none;}
   .responsive-table, .responsive-table tbody{display:block;}
   .responsive-table tr{
-    display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;
+    display:flex;flex-wrap:wrap;gap:6px 8px;align-items:flex-end;
     background:var(--panel-2);border:1px solid var(--leather-line);border-radius:6px;
     padding:8px;margin-bottom:8px;
   }
-  .responsive-table td{display:block;padding:0;border-bottom:none;flex:1 1 100px;min-width:0;}
+  .responsive-table td{display:block;padding:0;border-bottom:none;flex:1 1 auto;min-width:0;order:1;}
   .responsive-table td[data-label]::before{
-    content:attr(data-label);display:block;font-size:10px;letter-spacing:1px;
-    text-transform:uppercase;color:var(--gold);margin-bottom:2px;
+    content:attr(data-label);display:block;font-size:9px;letter-spacing:1px;
+    text-transform:uppercase;color:var(--gold);margin-bottom:1px;
   }
-  .responsive-table td.td-delete{flex:0 0 auto;padding-bottom:2px;}
-  .armor-table td.td-eq{order:5;flex:0 0 auto;padding-bottom:2px;}
-  .armor-table td.td-eq input{width:20px;height:20px;}
-  .armor-table td.td-delete{order:6;}
+  .responsive-table select, .responsive-table .item-static{font-size:12.5px;padding:5px 6px;}
+  .responsive-table input[type=text].item-name-input{font-size:12.5px;padding:5px 6px;}
+  .item-static{padding:5px 2px;font-size:12.5px;}
+  .responsive-table td.td-cat{flex:0 1 78px;}
+  .responsive-table td.td-name{flex:1 1 90px;}
+  .responsive-table td.td-qty{flex:0 0 56px;}
+  .responsive-table td.td-ac{flex:0 0 64px;}
+  .responsive-table td.td-notes{flex:1 1 100%;order:2;}
+  .responsive-table td.td-eq{order:3;flex:0 0 auto;padding-bottom:2px;}
+  .responsive-table td.td-eq input{width:18px;height:18px;}
+  .responsive-table td.td-delete{order:4;flex:0 0 auto;padding-bottom:2px;margin-inline-start:auto;}
+  .armor-table td.td-ac > div{gap:2px !important;}
+  .armor-table td.td-ac input[type=number]{width:34px !important;font-size:12px;padding:5px 2px;}
+  .armor-table td.td-ac select{width:40px !important;font-size:10px !important;padding:5px 12px 5px 2px !important;}
 }
 
 /* ============ 3D dice overlay ============ */
@@ -3457,10 +3467,10 @@ function gearRow(it, i){
     ? `<span class="item-static item-static-notes" dir="auto">${esc2(it.notes)||"—"}</span>`
     : `<textarea class="item-notes-input" dir="auto" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea>`;
   return `<tr>
-    <td data-label="${t.itemCategory}">${catCell}</td>
-    <td data-label="${t.itemName}">${nameCell}</td>
-    <td data-label="${t.itemQty}" style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
-    <td data-label="${t.itemNotes}">${notesCell}</td>
+    <td class="td-cat" data-label="${t.itemCategory}">${catCell}</td>
+    <td class="td-name" data-label="${t.itemName}">${nameCell}</td>
+    <td class="td-qty" data-label="${t.itemQty}" style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td class="td-notes" data-label="${t.itemNotes}">${notesCell}</td>
     <td class="td-delete">${locked ? "" : `<button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button>`}</td>
   </tr>`;
 }
@@ -3499,12 +3509,12 @@ function armorRow(it, i){
     ? `<span class="item-static item-static-notes" dir="auto">${esc2(it.notes)||"—"}</span>`
     : `<textarea class="item-notes-input" dir="auto" rows="${estimateTextRows(it.notes)}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('inventory.items.${i}.notes', this.value)">${it.notes}</textarea>`;
   return `<tr>
-    <td data-label="${t.itemType}">${typeCell}</td>
-    <td data-label="${t.itemName}">${nameCell}</td>
-    <td data-label="${t.itemQty}" style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
+    <td class="td-cat" data-label="${t.itemType}">${typeCell}</td>
+    <td class="td-name" data-label="${t.itemName}">${nameCell}</td>
+    <td class="td-qty" data-label="${t.itemQty}" style="text-align:center"><input type="number" min="0" style="width:56px;text-align:center" value="${it.qty}" onchange="set('inventory.items.${i}.qty', parseInt(this.value)||0)"></td>
     <td class="td-eq" data-label="${t.itemEquippedAbbr}" style="text-align:center">${equippedCell}</td>
-    <td data-label="${t.itemAC}" style="text-align:center">${acCell}</td>
-    <td data-label="${t.itemNotes}">${notesCell}</td>
+    <td class="td-ac" data-label="${t.itemAC}" style="text-align:center">${acCell}</td>
+    <td class="td-notes" data-label="${t.itemNotes}">${notesCell}</td>
     <td class="td-delete">${locked ? "" : `<button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button>`}</td>
   </tr>`;
 }
