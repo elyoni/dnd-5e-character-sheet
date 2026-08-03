@@ -463,7 +463,7 @@ select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:92px;font-size:1
 .feat-notes-display.dim{color:var(--ink-faint);font-style:italic;}
 input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 .item-notes-input{width:100%;resize:vertical;overflow:hidden;}
-.item-static{display:block;padding:8px 10px;font-size:13.5px;line-height:1.4;color:var(--ink-dim);opacity:0.75;}
+.item-static{display:block;padding:8px 10px;font-size:13.5px;line-height:1.4;color:var(--ink);}
 .item-static-notes{white-space:pre-wrap;overflow-wrap:anywhere;}
 .res-notes-input{width:100%;font-size:13.5px;line-height:1.4;resize:vertical;overflow:hidden;}
 .spell-level-header{
@@ -3480,9 +3480,7 @@ function gearRow(it, i){
 function armorRow(it, i){
   const t = T[lang];
   const locked = !!panelLocks['armor'];
-  const equippedCell = locked
-    ? `<span class="item-static">${it.equipped ? "✓" : "—"}</span>`
-    : `<input type="checkbox" ${it.equipped?"checked":""} onchange="set('inventory.items.${i}.equipped', this.checked)" title="${t.shieldOn}">`;
+  const equippedCell = `<input type="checkbox" ${it.equipped?"checked":""} ${locked?"disabled":""} onchange="set('inventory.items.${i}.equipped', this.checked)" title="${t.shieldOn}">`;
   let acCell = "";
   if(locked){
     acCell = it.type==="armor"
