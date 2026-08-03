@@ -41,49 +41,70 @@ Any race/subrace name can also be typed in freely (`raceCustom`/`subraceCustom`)
 
 ## Classes
 
-Picking a class similarly auto-applies saving-throw proficiencies, suggested skill proficiencies, class resources, and (where relevant) the spellcasting ability — again, additive only:
+Picking a class similarly auto-applies saving-throw proficiencies, suggested skill proficiencies, class resources, hit die size, and whether the class casts spells at all — again, additive only for saves/skills/resources (it never overwrites anything you've already filled in), while Hit Die size and the Has Spells toggle are set directly since they're determined entirely by class, not a starting suggestion:
 
-| Class | Saving Throws | Suggested Skills | Resources / Spellcasting granted |
-|---|---|---|---|
-| **Barbarian** | Str, Con | Athletics, Perception | Rage |
-| **Bard** | Dex, Cha | Performance, Persuasion | Bardic Inspiration; spellcasting (Cha) |
-| **Cleric** | Wis, Cha | Religion, Insight | Channel Divinity; spellcasting (Wis) |
-| **Druid** | Int, Wis | Nature, Survival | Wild Shape; spellcasting (Wis) |
-| **Fighter** | Str, Con | Athletics, Perception | Second Wind, Action Surge |
-| **Monk** | Str, Dex | Acrobatics, Stealth | Ki Points; default attack becomes Unarmed Strike (Martial Arts) |
-| **Paladin** | Wis, Cha | Religion, Persuasion | Spellcasting (Cha) |
-| **Ranger** | Str, Dex | Survival, Stealth | Spellcasting (Wis) |
-| **Rogue** | Dex, Int | Stealth, Sleight of Hand | — |
-| **Sorcerer** | Con, Cha | Arcana, Persuasion | Sorcery Points; spellcasting (Cha) |
-| **Warlock** | Wis, Cha | Arcana, Deception | Spellcasting (Cha) |
-| **Wizard** | Int, Wis | Arcana, Investigation | Spellcasting (Int) |
-| **Artificer** | Con, Int | Investigation, Arcana | — |
+| Class | Hit Die | Saving Throws | Suggested Skills | Resources / Spellcasting granted |
+|---|---|---|---|---|
+| **Barbarian** | d12 | Str, Con | Athletics, Perception | Rage |
+| **Bard** | d8 | Dex, Cha | Performance, Persuasion | Bardic Inspiration; spellcasting (Cha) |
+| **Cleric** | d8 | Wis, Cha | Religion, Insight | Channel Divinity; spellcasting (Wis) |
+| **Druid** | d8 | Int, Wis | Nature, Survival | Wild Shape; spellcasting (Wis) |
+| **Fighter** | d10 | Str, Con | Athletics, Perception | Second Wind, Action Surge |
+| **Monk** | d8 | Str, Dex | Acrobatics, Stealth | Ki Points; default attack becomes Unarmed Strike (Martial Arts) |
+| **Paladin** | d10 | Wis, Cha | Religion, Persuasion | Spellcasting (Cha) |
+| **Ranger** | d10 | Str, Dex | Survival, Stealth | Spellcasting (Wis) |
+| **Rogue** | d8 | Dex, Int | Stealth, Sleight of Hand | — |
+| **Sorcerer** | d6 | Con, Cha | Arcana, Persuasion | Sorcery Points; spellcasting (Cha) |
+| **Warlock** | d8 | Wis, Cha | Arcana, Deception | Spellcasting (Cha) |
+| **Wizard** | d6 | Int, Wis | Arcana, Investigation | Spellcasting (Int) |
+| **Artificer** | d8 | Con, Int | Investigation, Arcana | — |
 
-As with race, a custom class name can be typed in instead (`clsCustom`). A free-text **Subclass** field sits next to Class (e.g. "Champion", "Battle Master") — it's not tied to a preset list or auto-applied template, just a place to record the player's choice.
+As with race, a custom class name can be typed in instead (`clsCustom`) — Hit Die stays freely editable for custom classes, since there's no list entry to look it up from. A free-text **Subclass** field sits next to Class (e.g. "Champion", "Battle Master") — it's not tied to a preset list or auto-applied template, just a place to record the player's choice.
+
+**Has Spells** (in Identity → Configuration) shows or hides the whole Spells panel and spellcasting stat block; it's auto-set from the class table above (Bard/Cleric/Druid/Paladin/Ranger/Sorcerer/Warlock/Wizard default on, everyone else off) but can be flipped manually any time — useful for a spellcasting subclass of an otherwise non-caster class (e.g. Eldritch Knight), or the reverse.
 
 ## Feats
 
 Feats are modeled generically rather than as a fixed list — add any feat by name with free-text notes, and optionally a single mechanical modifier:
 
-- **Stat** — which derived value it affects (an ability score, HP, speed, initiative, an attack/damage type, etc.)
+- **Stat** — which derived value it affects (an ability score, HP, speed, initiative, an attack/damage type, Crit Range, etc.)
 - **Amount** — the flat bonus
 - **Per level** — whether the bonus scales with character level instead of staying flat
 - **Equal to Speed** / **Set base value** — Climb/Swim/Fly Speed only: instead of a flat bonus, the feat can instead *replace* the base value — either matching it to walking speed (e.g. a Fairy's Flight trait) or to a fixed number you choose (optionally scaling per level too). Other feats' flat bonuses still stack on top of whichever base a replacing feat establishes.
+- **Crit Range** — lowers the natural-roll threshold that counts as a critical hit (e.g. amount 1 = crit on 19–20, matching the Champion Fighter's Improved Critical). Every attack roll checks against this lowered threshold, the feat shows a "Crit on X–20" badge, and affected attack rows note the lowered threshold under their to-hit bonus.
+
+Feat notes are edit-locked in the feat card itself (read-only display) — change them via the ✏️ edit button, which opens the same modal used to add a feat; that's also the field the Ask AI import writes into.
 
 This one generic `{stat, amount, perLevel, matchSpeed, fixed}` shape drives all feat math in combat/derived stats, so any homebrew or official feat can be represented without code changes — including the ones races grant automatically (Darkvision, Lucky, Dwarven Toughness, etc., listed above), which show up in the same Feats panel.
+
+## Identity & Configuration
+
+Besides Name/Class/Race/Level/Size, the Identity panel has a **Configuration** sub-section holding settings that change less often than combat numbers but more often than your character's core identity:
+
+- **Has Spells** — shows/hides the Spells panel (see [Classes](#classes) and Spellcasting above).
+- **Theme** — Leather (default), Parchment (Light), or High Contrast. This is a global app preference (like language), not saved per-character — switching characters doesn't change it.
+- **Auto-calc HP** and **Base Speed** — the input controls live here; the Combat panel always shows the resulting computed value and its formula, never the raw input.
+- **Armor / Weapon / Language proficiencies** — checklist pickers plus a free-text "Other" slot each, replacing the old single free-text fields (still shown correctly on the Print view and any character exported before this change still imports cleanly — see [Development](#development)):
+  - **Armor**: Light, Medium, Heavy, Shields.
+  - **Weapons**: the Simple/Martial category checkboxes, plus every individual PHB simple and martial weapon (club, dagger, rapier, longsword, hand crossbow, etc.) for classes/races that grant specific weapons instead of a whole category.
+  - **Languages**: the 16 standard 5e languages (Common, Dwarvish, Elvish, Giant, Gnomish, Goblin, Halfling, Orc, Abyssal, Celestial, Draconic, Deep Speech, Infernal, Primordial, Sylvan, Undercommon).
+  - **Tools** stays a single free-text field (no fixed list in 5e).
+- A read-only **"Proficiencies & Languages"** panel sits below Saving Throws/Skills and always shows the current Armor/Weapons/Languages/Tools picks as plain text (side-by-side badges on wide screens, stacked on narrow ones, text direction matching whichever language you typed it in) — so you can see them at a glance without unlocking Identity. Editing still only happens in Identity → Configuration.
 
 ## Combat & abilities
 
 - **Ability scores** (Str/Dex/Con/Int/Wis/Cha) with auto-computed modifiers, feeding every derived stat below.
 - **AC** — driven by your Inventory: mark an item as type Armor and Equipped to set the base AC plus its own governing-ability modifier (or None), and equip Shield-type item(s) to add their bonus on top. With no Armor item equipped, AC falls back to 10 + a selectable ability (Dex by default, Wis for Animals, or None), chosen right in the AC box.
-- **HP** — auto-calculated from class hit die + Constitution (toggleable to manual entry), with current/max/temp tracking.
-- **Initiative, Speed**, **Passive Perception**, **Proficiency Bonus** (auto by level), all as live-derived values — never hand-entered or stored stale.
+- **HP** — auto-calculated from class hit die + Constitution, or toggleable to manual entry via the **Auto-calc** checkbox in Identity → Configuration (the Combat panel's HP box always shows the resulting number and, when auto-calc is on, the formula behind it), with current/max/temp tracking.
+- **Hit Dice** — die size (d6/d8/d10/d12) is fixed by class (see the Classes table above) and locked from editing once a list class is picked; custom classes keep it free-text. The count always equals your level. A row of click-to-toggle dots (one per hit die) tracks how many you've spent on short rests — click a dot to mark/unmark it spent.
+- **Critical hits** — a natural 20 always crits; a Crit Range feat (see Feats above) can lower that threshold. On a crit, the extra damage dice are rolled automatically as a second dice throw immediately after the hit lands (5e's roll-the-damage-dice-twice rule), with the combined total shown as one result.
+- **Initiative, Speed**, **Passive Perception**, **Proficiency Bonus** (auto by level), all as live-derived values — never hand-entered or stored stale. Speed's base number is set in Identity → Configuration; the Combat panel always shows the final effective speed (including feat bonuses) and the formula behind it.
 - **Climb/Swim/Fly speed** — each only shows up in the Combat panel once it's nonzero. Swim speed has a manually-editable base (plus any feat bonus); climb and fly speed are feat-only — the only way to grant them is a feat with Stat set to Climb Speed/Fly Speed, either as a flat bonus, matching walking speed (e.g. a Fairy's Flight trait), or a fixed base value of your choosing.
 - **Size** (Tiny/Small/Medium/Large/Huge/Gargantuan) — a simple field in Identity; purely descriptive, doesn't feed into any derived stat.
-- **Saving throws** and all 18 **skills**, each with proficiency and expertise toggles, computed off the right ability + proficiency bonus. Click the modifier itself to roll a real d20 for that save/skill in the 3D dice overlay; the total flashes in place of the modifier for a few seconds afterward.
+- **Saving throws** and all 18 **skills**, each with proficiency and expertise toggles, computed off the right ability + proficiency bonus. Click the modifier itself to roll a real d20 for that save/skill in the 3D dice overlay; the total flashes in place of the modifier for a few seconds afterward. Both panels are **locked by default** on a brand-new install (🔒 icon in the header) so a stray tap can't silently flip a proficiency — unlock to edit; existing installs keep whatever lock state they already had before this changed.
 - **3D physics dice** — every roll in the app (attacks, spell damage, saves, skills, the freeform dice panel) throws real dice with real physics (Three.js + cannon-es) in a full-screen overlay, rather than a scripted animation; the result is whatever face the die actually lands on. All seven standard polyhedral dice are modeled with true geometry (tetrahedron/cube/octahedron/pentagonal-trapezohedron/dodecahedron/icosahedron; d100 is two physical d10s combined into a percentile). Tap the overlay to dismiss it early.
-- **Attacks** — a repeatable list (name, type, damage die, damage type, notes) with a real-physics dice roll for attack rolls and damage, plus roll history per row. Each attack's type (Melee 🗡️/Ranged 🏹/Finesse 🤺/Natural 🐾/Spell 🔮) shows as an icon next to its name at a glance. Rolling replaces the roll button with the hit/damage dice themselves — click either die again to reroll — and the totals show beside them. Each attack can be individually collapsed to just its name/icon (hiding the type/prof controls, stat block, dice, and notes); "Collapse"/"Expand" buttons fold or unfold the whole list at once. Damage type is a dropdown of the 13 D&D 5e types (bludgeoning, piercing, slashing, acid, cold, fire, force, lightning, necrotic, poison, psychic, radiant, thunder) or blank. The "New Attack" modal also offers an optional preset picker (Unarmed Strike, Dagger, Shortsword, Longsword, Greatsword, Shortbow, Longbow, Light Crossbow, Fire Bolt, Eldritch Blast) that pre-fills name/type/damage/damage-type (and casting stat for spell attacks) with a short hint about how the weapon/cantrip works — you can still edit everything before confirming, and plain manual entry works exactly as before.
-- **Spellcasting** — spell slots (levels 1–9) with click-to-toggle used/available dots, a spell list, and dice-rolled spell damage. The New Spell dialog includes an optional premade-spell picker for classes with a defined preset list (currently Cleric, Druid, and Ranger — a handful of common cantrips/1st/2nd-level spells each) that pre-fills level/name/damage/notes/type, which you can still edit before adding; other classes (and a blank or custom class) simply don't show the picker, and manual entry always works. Each spell can be tagged as Attack (⚔️), Buff/Aid (✨), or Other (🔹) — the icon shows next to the name at a glance — and individually collapsed to just its name/icon (hiding range, cast type, components, damage, and notes); "Collapse"/"Expand" buttons fold or unfold the whole list at once. The Damage field only shows for spells tagged Attack (or untagged ones); Buff/Aid and Other spells hide it. Cast Type is a dropdown grouped into "Action Used" (Action/Bonus Action/Reaction) and "Longer Casting Time" (1 Minute–24 Hours), with a "Custom…" option for anything else (e.g. Shield's reaction trigger).
+- **Attacks** — a repeatable list (name, type, damage die, damage type, notes) with a real-physics dice roll for attack rolls and damage, plus roll history per row. Each attack's type (Melee 🗡️/Ranged 🏹/Finesse 🤺/Natural 🐾/Spell 🔮) shows as an icon next to its name at a glance. Rolling replaces the roll button with the hit/damage dice themselves — click either die again to reroll — and the totals show beside them. Each attack can be individually collapsed to just its name/icon and a small die-roll icon (hiding the type/prof controls, stat block, delete button, dice history, and notes) — you can still roll straight from a collapsed row; "Collapse"/"Expand" buttons fold or unfold the whole list at once. Damage type is a dropdown of the 13 D&D 5e types (bludgeoning, piercing, slashing, acid, cold, fire, force, lightning, necrotic, poison, psychic, radiant, thunder) or blank. The "New Attack" modal also offers an optional preset picker (Unarmed Strike, Dagger, Shortsword, Longsword, Greatsword, Shortbow, Longbow, Light Crossbow, Fire Bolt, Eldritch Blast) that pre-fills name/type/damage/damage-type (and casting stat for spell attacks) with a short hint about how the weapon/cantrip works — you can still edit everything before confirming, and plain manual entry works exactly as before.
+- **Spellcasting** — the whole Spells panel only shows when **Has Spells** (Identity → Configuration) is on; see [Classes](#classes) above for the default per class. When shown: spell slots (levels 1–9) with click-to-toggle used/available dots, a spell list, and dice-rolled spell damage. The New Spell dialog includes an optional premade-spell picker for classes with a defined preset list (currently Cleric, Druid, and Ranger — a handful of common cantrips/1st/2nd-level spells each) that pre-fills level/name/damage/notes/type, which you can still edit before adding; other classes (and a blank or custom class) simply don't show the picker, and manual entry always works. Each spell can be tagged as Attack (⚔️), Buff/Aid (✨), or Other (🔹) — the icon shows next to the name at a glance — and individually collapsed to just its name/icon and a small die-roll icon when it has a damage die (hiding range, cast type, components, delete button, and notes) — you can still roll straight from a collapsed row; "Collapse"/"Expand" buttons fold or unfold the whole list at once. The Damage field only shows for spells tagged Attack (or untagged ones); Buff/Aid and Other spells hide it. Cast Type is a dropdown grouped into "Action Used" (Action/Bonus Action/Reaction) and "Longer Casting Time" (1 Minute–24 Hours), with a "Custom…" option for anything else (e.g. Shield's reaction trigger).
 - **Resources** — arbitrary trackable pools (Rage, Ki Points, Second Wind, custom homebrew resources, ...) with per-use dots, short/long-rest recharge, and a free-text notes field (e.g. what Channel Divinity actually does).
 - **Concentration tracker**, **inventory** (currency, plus two separate item tables: a **Gear** table — name/qty/notes, tagged with a Category: Food, Potion, Poison, Ammunition, Tool, Focus, Magic Item, Container, or Other, which auto-sorts the list into that order — and an **Armor & Shields** table — name/qty/notes plus an Equipped flag and AC fields (base + governing ability for Armor, bonus for Shields) that feed the AC calculation), and free-text **notes**.
 - **Turn-flow reference** — an in-sheet cheat-sheet/diagram of what you can do on your turn (currently text-only; the interactive diagram view is hidden pending a fix).
@@ -99,7 +120,7 @@ This one generic `{stat, amount, perLevel, matchSpeed, fixed}` shape drives all 
 - **What's New** — a one-time popup summarizing recent changes for returning users after an update; dismissing it marks that update seen so it doesn't reappear. Brand-new installs never see it (onboarding covers them instead).
 - **Destructive-action confirmation** — deleting an attack, spell, feat, resource, item, or entire character always asks for confirmation first.
 - **Fold/collapse** any panel to declutter the sheet, independently per panel.
-- **Lock** the Saving Throws or Skills panel (🔒/🔓 icon in its header) to disable its proficiency/expertise checkboxes and guard against accidental misclicks; the lock state persists across sessions.
+- **Lock** the Saving Throws or Skills panel (🔒/🔓 icon in its header) to disable its proficiency/expertise checkboxes and guard against accidental misclicks; locked by default on a brand-new install, and the lock state persists across sessions.
 
 ## Development
 

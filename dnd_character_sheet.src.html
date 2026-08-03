@@ -32,6 +32,45 @@
   --forest-bright:#6fae82;
   --shadow: rgba(0,0,0,0.55);
   --radius: 3px;
+  --input-bg: rgba(0,0,0,0.25);
+}
+:root[data-theme="parchment"]{
+  --bg:#efe4cc;
+  --bg-vignette: radial-gradient(ellipse at 50% -10%, #f7f0dc 0%, #efe4cc 55%);
+  --panel:#faf3e4;
+  --panel-2:#f0e6d2;
+  --leather-line:#c2ac7e;
+  --ink:#2b2013;
+  --ink-dim:#5b4a30;
+  --ink-faint:#8a7551;
+  --gold:#8a6d1f;
+  --gold-bright:#6b530f;
+  --blood:#8b2635;
+  --blood-bright:#a8384a;
+  --forest:#3f6d4f;
+  --forest-bright:#2f5a3d;
+  --shadow: rgba(60,45,20,0.18);
+  --radius: 3px;
+  --input-bg: rgba(255,255,255,0.55);
+}
+:root[data-theme="contrast"]{
+  --bg:#000000;
+  --bg-vignette: #000000;
+  --panel:#000000;
+  --panel-2:#0e0e0e;
+  --leather-line:#ffffff;
+  --ink:#ffffff;
+  --ink-dim:#eeeeee;
+  --ink-faint:#cfcfcf;
+  --gold:#ffd400;
+  --gold-bright:#ffe873;
+  --blood:#ff5566;
+  --blood-bright:#ff8899;
+  --forest:#33ff66;
+  --forest-bright:#77ffa0;
+  --shadow: rgba(0,0,0,0.85);
+  --radius: 2px;
+  --input-bg: rgba(255,255,255,0.1);
 }
 *{box-sizing:border-box;}
 body{
@@ -119,7 +158,7 @@ select{
 @media(max-width:700px){.id-fields{grid-template-columns:1fr 1fr;}}
 .field label{display:block;font-size:11px;letter-spacing:2px;color:var(--ink-faint);text-transform:uppercase;margin-bottom:4px;}
 input[type=text], input[type=number], textarea{
-  width:100%;background:rgba(0,0,0,0.25);border:1px solid var(--leather-line);
+  width:100%;background:var(--input-bg);border:1px solid var(--leather-line);
   color:var(--ink);border-radius:var(--radius);padding:8px 10px;font-family:'EB Garamond',serif;font-size:16.5px;
 }
 input:focus, textarea:focus, select:focus{outline:1px solid var(--gold);outline-offset:1px;}
@@ -301,6 +340,12 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .prof-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:640px){.prof-grid{grid-template-columns:1fr;}}
 
+/* ---------- identity config section ---------- */
+.id-config{margin-top:14px;padding-top:14px;border-top:1px solid var(--leather-line);}
+.id-config-heading{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin:0 0 10px 0;}
+.prof-checklist{display:flex;flex-wrap:wrap;gap:4px 12px;margin:4px 0 6px;}
+.prof-checklist.prof-checklist-weapons{max-height:120px;overflow-y:auto;padding:4px 6px;background:var(--input-bg);border-radius:var(--radius);}
+
 /* ---------- print settings modal ---------- */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;}
 .modal-box{background:var(--panel-2);border:1px solid var(--gold);border-radius:8px;padding:22px 24px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.6);}
@@ -369,14 +414,12 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .spell-item.folded .spell-dmg-row,
 .spell-item.folded .spell-notes-input,
 .spell-item.folded .ctv-group,
-.spell-item.folded .formula-note{display:none;}
+.spell-item.folded .formula-note,
+.spell-item.folded .fold-hidden-actions{display:none;}
 .attack-type-icon{flex:0 0 auto;font-size:14px;}
-.attack-card.folded .attack-card-mid,
+.attack-card.folded .attack-card-row2,
 .attack-card.folded .dice-history,
-.attack-card.folded .attack-notes-input,
-.attack-card.folded .atk-prof-chip,
-.attack-card.folded .attack-type-select,
-.attack-card.folded .attack-spellabil-select{display:none;}
+.attack-card.folded .attack-notes-input{display:none;}
 .view-toggle-group{display:flex;gap:4px;}
 .view-toggle-group .btn{padding:3px 9px;font-size:11px;}
 .spell-actions-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
@@ -392,10 +435,12 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .attack-card{background:var(--panel-2);border:1px solid var(--leather-line);border-radius:6px;padding:10px 12px;}
 .attack-card-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
 .attack-card-top select{width:auto;flex:0 1 auto;}
+.attack-card-row2{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;justify-content:center;align-items:center;}
+.attack-card-row2 .fold-hidden-actions{margin-top:0;}
+.attack-card-row2 select{width:auto;flex:0 1 auto;}
 .attack-name-input{flex:1 1 10ch;min-width:10ch;font-weight:600;}
 .atk-prof-chip{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-faint);white-space:nowrap;}
 .atk-prof-chip input{margin:0;}
-.attack-card-mid{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;justify-content:center;align-items:center;}
 .attack-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:110px;flex:1;}
 .attack-stat-dmg{min-width:190px;}
 .attack-stat-val{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:var(--gold-bright);}
@@ -414,6 +459,8 @@ select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:92px;font-size:1
 .feat-badge{background:rgba(201,162,39,0.12);border:1px solid var(--leather-line);border-radius:4px;padding:3px 8px;font-size:12px;color:var(--ink-dim);white-space:nowrap;}
 .feat-lvmark{color:var(--gold-bright);font-family:'IBM Plex Mono',monospace;font-weight:700;}
 .feat-notes-input{width:100%;margin-top:6px;font-size:13.5px;line-height:1.4;resize:vertical;overflow:hidden;}
+.feat-notes-display{white-space:pre-wrap;color:var(--ink-dim);min-height:1.4em;}
+.feat-notes-display.dim{color:var(--ink-faint);font-style:italic;}
 input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 .item-notes-input{width:100%;resize:vertical;overflow:hidden;}
 .res-notes-input{width:100%;font-size:13.5px;line-height:1.4;resize:vertical;overflow:hidden;}
@@ -481,6 +528,13 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 .atk-roll-btn:hover{border-color:var(--gold-bright);}
 .atk-roll-btn:disabled{opacity:0.35;cursor:not-allowed;}
 .atk-roll-btn:disabled:hover{border-color:var(--gold);}
+.atk-roll-btn-mini{
+  width:22px;height:22px;border-radius:5px;border:1px solid var(--gold);background:var(--panel-2);
+  color:var(--gold-bright);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;padding:0;
+}
+.atk-roll-btn-mini:hover{border-color:var(--gold-bright);}
+.atk-roll-btn-mini svg{width:14px;height:14px;}
+.fold-hidden-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:6px;}
 .atk-roll-result{font-size:14px;color:var(--ink-dim);margin-top:4px;line-height:1.4;white-space:nowrap;}
 .atk-roll-result .crit{color:var(--blood-bright);font-weight:700;}
 
@@ -491,6 +545,11 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 }
 .passive-badge .label{font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
 .passive-badge .val{font-size:20px;font-weight:700;font-family:'Cinzel',serif;color:var(--gold-bright);}
+
+.prof-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;}
+.prof-badge{flex:1 1 220px;min-width:0;background:var(--panel-2);border:1px solid var(--leather-line);border-radius:6px;padding:8px 12px;}
+.prof-badge .label{display:block;font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.prof-badge .val{display:block;font-size:14px;line-height:1.4;color:var(--ink);}
 
 /* RTL */
 [dir="rtl"] .list-row{grid-template-columns:40px 1fr 22px;}
@@ -568,6 +627,9 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 .dice-3d-banner{
   position:absolute; transform:translate(-50%,-50%);
   text-align:center; opacity:0;
+  max-width:92vw; box-sizing:border-box;
+  padding:8px 16px;
+  background:rgba(10,8,4,0.72); border:1px solid rgba(201,162,39,0.45); border-radius:10px;
   transition:opacity 0.25s ease-out, transform 0.45s cubic-bezier(.34,1.2,.4,1);
 }
 .dice-3d-banner.visible{ opacity:1; }
@@ -576,8 +638,9 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
   color:#c9a227; text-shadow:0 0 4px #000,0 0 8px #000; margin-bottom:2px;
 }
 .dice-3d-banner-value{
-  font-size:45px; font-weight:800; font-family:'Cinzel',serif; line-height:1;
+  font-size:clamp(20px,6.5vw,45px); font-weight:800; font-family:'Cinzel',serif; line-height:1.15;
   color:#f5e9c8; text-shadow:0 0 6px #000,0 0 14px #000,0 2px 3px #000;
+  white-space:normal; overflow-wrap:anywhere; word-break:break-word;
 }
 </style>
 </head>
@@ -604,14 +667,17 @@ const T = {
     newChar:"New Character", del:"Delete", edit:"Edit", saved:"saved", saving:"saving…", sessionOnly:"not saved (session only)",
     confirmRemoveTitle:"Remove this?", confirmRemoveMsg:"This can't be undone.",
     hideAll:"Hide All", showAll:"Show All",
-    identity:"Identity", name:"Name", cls:"Class", subclass:"Subclass", level:"Level", race:"Race", subrace:"Subrace", bg:"Background", size:"Size",
+    identity:"Identity", identityConfigTitle:"Identity / Configuration", name:"Name", cls:"Class", subclass:"Subclass", level:"Level", race:"Race", subrace:"Subrace", bg:"Background", size:"Size",
     sizeTiny:"Tiny", sizeSmall:"Small", sizeMedium:"Medium", sizeLarge:"Large", sizeHuge:"Huge", sizeGargantuan:"Gargantuan",
     selectPlaceholder:"— select —", customOption:"Custom…", backToList:"← back to list", noneOption:"None",
     clsAutoNote:"Picking a Class from the list fills in its two fixed Saving Throw proficiencies, a couple of thematically common skills as a starting suggestion (adjust to your actual picks), and class resources (Rage, Second Wind, etc.). It only adds — switching classes won't remove saves/skills you already set.",
-    identityLockedHint:"Name, Class, Subclass, Race, Subrace, and Size are locked to prevent accidental changes. Level stays editable since it changes often.",
-    identityUnlockedHint:"Unlocked — Name/Class/Subclass/Race/Subrace/Size can be edited now.",
+    identityLockedHint:"Name, Class, Subclass, Race, Subrace, Size, and Configuration are hidden/locked to keep this panel to a quick glance. Level stays editable since it changes often.",
+    identityUnlockedHint:"Unlocked — Name/Class/Subclass/Race/Subrace/Size can be edited, and Configuration is now visible below.",
     identityUnlockBtn:"🔓 Unlock to edit", identityLockNow:"🔒 Lock again",
     lockPanel:"Lock to prevent accidental changes", unlockPanel:"Unlock to allow editing",
+    configTitle:"Configuration", hasSpellsLabel:"Has Spells", hasSpellsHint:"Shows/hides the Spells panel. Auto-guessed from Class, editable any time.",
+    otherCustom:"Other / Custom", baseSpeedLabel:"Base Speed (ft)",
+    themeLabel:"Theme", themeLeather:"Leather (default)", themeParchment:"Parchment (Light)", themeContrast:"High Contrast",
     shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped", itemEquippedAbbr:"Eq.",
     proficiencies:"Proficiencies & Languages", profArmor:"Armor", profWeapons:"Weapons", profTools:"Tools", profLanguages:"Languages",
     inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
@@ -624,7 +690,7 @@ const T = {
     armorAbilHint:"Ability modifier added to this armor's AC — DEX for light/medium armor, none for heavy armor",
     noneOption:"— none —",
     abilities:"Ability Scores", str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA",
-    combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", flySpeed:"Fly Speed", hp:"Hit Points", hitdice:"Hit Dice", prof:"Proficiency",
+    combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", flySpeed:"Fly Speed", hp:"Hit Points", hitdice:"Hit Dice", hitDiceSpent:"Click to mark a hit die spent on a short rest", prof:"Proficiency",
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
     diceRoller:"Dice Roller", diceClear:"Clear", diceNoRolls:"No rolls yet",
     saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception", proficient:"Proficient", expertise:"Expertise",
@@ -679,12 +745,15 @@ const T = {
     whatsNewItem2:"🤖 Ask AI — export a curated snapshot of your character to paste into any AI chat, and bring its suggested feats/attacks/spells/resources/items back as one-by-one accept/discard cards.",
     whatsNewItem3:"A free-text Subclass field now sits next to Class.",
     whatsNewItem4:"🔒 Lock the Saving Throws or Skills panel to guard its checkboxes against accidental misclicks.",
+    whatsNewItem5:"🛡️ Identity now has a hidden-by-default Configuration section (theme, HP auto-calc, speed, armor/weapon/language proficiencies) — unlock the panel to edit it. A new read-only \"Proficiencies & Languages\" panel under Skills always shows the current picks.",
+    whatsNewItem6:"⚔️ Attack cards were reorganized: the folded/unfolded header row no longer shifts, To Attack/Damage/type/Prof now share one row, and there's a single roll button instead of two.",
+    whatsNewItem7:"🎲 Non-spellcaster classes, class hit dice with a dot-based uses tracker, and crit-range feats (e.g. crit on 19–20) are now supported.",
     onboardNewChar:"+ Create New Character", onboardDemoChar:"🎲 Load Demo Character",
     noCharTitle:"No characters yet", noCharBody:"Create a blank character and build it up yourself, or load a pre-filled demo character to see how the sheet works.",
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
     feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat", featLvlAbbr:"Lvl",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
-    featHP:"Max HP", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed", featFixedValue:"Set base value",
+    featHP:"Max HP", featCritRange:"Crit Range (lower threshold)", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed", featFixedValue:"Set base value", critOnLabel:"Crit on",
     featLevelHint:"\"Level\" here means your character's current level (set in Identity) — a feat with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
     featDmgGroup:"Damage rolls", featDmgAll:"All damage", featDmgMelee:"Melee damage", featDmgRanged:"Ranged damage", featDmgFinesse:"Finesse damage", featDmgSpell:"Spell damage",
     resources:"Class Resources", resName:"Resource", resUses:"Uses", resRecharge:"Recharges", resNotes:"What it does", addResource:"Resource",
@@ -759,14 +828,17 @@ const T = {
     newChar:"דמות חדשה", del:"מחק", edit:"עריכה", saved:"נשמר", saving:"שומר…", sessionOnly:"לא נשמר (הפעלה זו בלבד)",
     confirmRemoveTitle:"למחוק?", confirmRemoveMsg:"לא ניתן לבטל פעולה זו.",
     hideAll:"הסתר הכל", showAll:"הצג הכל",
-    identity:"זהות", name:"שם", cls:"מחלקה", subclass:"תת-מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע", size:"גודל",
+    identity:"זהות", identityConfigTitle:"זהות / הגדרות", name:"שם", cls:"מחלקה", subclass:"תת-מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע", size:"גודל",
     sizeTiny:"זעיר", sizeSmall:"קטן", sizeMedium:"בינוני", sizeLarge:"גדול", sizeHuge:"ענק", sizeGargantuan:"עצום",
     selectPlaceholder:"— בחר —", customOption:"מותאם אישית…", backToList:"← חזרה לרשימה", noneOption:"ללא",
     clsAutoNote:"בחירת מחלקה מהרשימה ממלאת את שתי מיומנויות ההצלה הקבועות שלה, כמה כישורים נפוצים כהצעת התחלה (התאם לבחירות האמיתיות שלך), ומשאבי מחלקה (Rage, Second Wind וכו'). זה רק מוסיף — החלפת מחלקה לא תסיר הצלות/כישורים שכבר סימנת.",
-    identityLockedHint:"שם, מחלקה, תת-מחלקה, גזע, תת-גזע וגודל נעולים כדי למנוע שינויים בטעות. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
-    identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/תת-מחלקה/גזע/תת-גזע/גודל עכשיו.",
+    identityLockedHint:"שם, מחלקה, תת-מחלקה, גזע, תת-גזע, גודל וההגדרות מוסתרים/נעולים כדי לשמור על הפאנל הזה תמציתי. רמה נשארת ניתנת לעריכה כי היא משתנה לעיתים קרובות.",
+    identityUnlockedHint:"פתוח — אפשר לערוך שם/מחלקה/תת-מחלקה/גזע/תת-גזע/גודל, וההגדרות גלויות למטה.",
     identityUnlockBtn:"🔓 פתח לעריכה", identityLockNow:"🔒 נעל שוב",
     lockPanel:"נעל כדי למנוע שינויים בטעות", unlockPanel:"פתח כדי לאפשר עריכה",
+    configTitle:"הגדרות", hasSpellsLabel:"בעל קסמים", hasSpellsHint:"מציג/מסתיר את פאנל הקסמים. מוערך אוטומטית לפי המחלקה, ניתן לשינוי בכל עת.",
+    otherCustom:"אחר / מותאם אישית", baseSpeedLabel:"מהירות בסיס (רגל)",
+    themeLabel:"ערכת נושא", themeLeather:"עור (ברירת מחדל)", themeParchment:"קלף (בהיר)", themeContrast:"ניגודיות גבוהה",
     shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש", itemEquippedAbbr:"חבוש",
     proficiencies:"מיומנויות ושפות", profArmor:"שריון", profWeapons:"נשקים", profTools:"כלים", profLanguages:"שפות",
     inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
@@ -779,7 +851,7 @@ const T = {
     armorAbilHint:"מכפיל התכונה שמתווסף לשריון זה — זריזות בשריון קל/בינוני, ללא בשריון כבד",
     noneOption:"— ללא —",
     abilities:"תכונות", str:"כוח",dex:"זריזות",con:"חוסן",int:"אינטליגנציה",wis:"חוכמה",cha:"כריזמה",
-    combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", flySpeed:"מהירות מעוף", hp:"נקודות חיים", hitdice:"קוביות פגיעה", prof:"מיומנות",
+    combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", flySpeed:"מהירות מעוף", hp:"נקודות חיים", hitdice:"קוביות פגיעה", hitDiceSpent:"לחץ כדי לסמן קובית פגיעה שנוצלה במנוחה קצרה", prof:"מיומנות",
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
     diceRoller:"הטלת קוביות", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
     saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית", proficient:"מיומן", expertise:"מומחיות",
@@ -834,12 +906,15 @@ const T = {
     whatsNewItem2:"🤖 שאל AI — מייצא תמונת מצב אוצרת של הדמות להדבקה בכל צ'אט AI, ומחזיר את ההצעות שלו (כישורים/התקפות/קסמים/משאבים/פריטים) ככרטיסים נפרדים לאישור או דחייה.",
     whatsNewItem3:"שדה טקסט חופשי לתת-מחלקה נוסף עכשיו ליד המחלקה.",
     whatsNewItem4:"🔒 ניתן לנעול את פאנל ההצלות או הכישורים כדי להגן על התיבות מפני לחיצות בטעות.",
+    whatsNewItem5:"🛡️ בפאנל הזהות יש עכשיו תת-פרק הגדרות שמוסתר כברירת מחדל (ערכת נושא, חישוב אוטומטי של נק\"ח, מהירות, מיומנויות שריון/נשק/שפות) — יש לפתוח נעילה כדי לערוך. פאנל חדש לקריאה בלבד \"מיומנויות ושפות\" מתחת לכישורים מציג תמיד את הבחירות הנוכחיות.",
+    whatsNewItem6:"⚔️ כרטיסי ההתקפה סודרו מחדש: שורת הכותרת המקופלת/פתוחה כבר לא זזה, לתקיפה/נזק/סוג/מיומן חולקים עכשיו שורה אחת, ויש כפתור הטלה אחד במקום שניים.",
+    whatsNewItem7:"🎲 נתמכות עכשיו מחלקות בלי קסמים, קוביות חיים לפי מחלקה עם מעקב שימושים בנקודות, וכישורים עם טווח קריטי (למשל קריטי על 19–20).",
     onboardNewChar:"+ צור דמות חדשה", onboardDemoChar:"🎲 טען דמות הדגמה",
     noCharTitle:"עדיין אין דמויות", noCharBody:"צור דמות ריקה ובנה אותה בעצמך, או טען דמות הדגמה מוכנה מראש כדי לראות איך הגיליון עובד.",
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
     feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה", featLvlAbbr:"רמה",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
-    featHP:"נק״ח מקס", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות", featFixedValue:"קביעת ערך בסיס",
+    featHP:"נק״ח מקס", featCritRange:"טווח קריטי (הורדת סף)", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות", featFixedValue:"קביעת ערך בסיס", critOnLabel:"קריטי על",
     featLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
     featDmgGroup:"הטלות נזק", featDmgAll:"כל הנזק", featDmgMelee:"נזק קרב מגע", featDmgRanged:"נזק טווח", featDmgFinesse:"נזק זריזות", featDmgSpell:"נזק קסם",
     resources:"משאבי מחלקה", resName:"משאב", resUses:"שימושים", resRecharge:"מתאפס ב", resNotes:"מה זה עושה", addResource:"הוסף משאב",
@@ -911,6 +986,14 @@ const T = {
   }
 };
 let lang = "en";
+let theme = "leather";
+const THEME_LIST = ["leather","parchment","contrast"];
+function setTheme(v){
+  theme = THEME_LIST.includes(v) ? v : "leather";
+  document.documentElement.setAttribute("data-theme", theme);
+  (async ()=>{ try{ await storageSet("dnd-theme", theme); }catch(e){} })();
+  render();
+}
 
 const SKILLS = [
   ["acrobatics","dex","Acrobatics","אקרובטיקה"],["animal","wis","Animal Handling","טיפול בבעלי חיים"],
@@ -933,7 +1016,53 @@ const CLASS_LIST_HE = {Barbarian:"ברברי", Bard:"בארד", Cleric:"כומר
 const RACE_LIST_HE = {Human:"אדם", Dwarf:"גמד", Elf:"אלף", Halfling:"הוביט", Dragonborn:"דרקוני", Gnome:"גנום", "Half-Elf":"חצי-אלף", "Half-Orc":"חצי-אורק", Tiefling:"טיפלינג", Orc:"אורק", Aasimar:"אסימר", Fairy:"פיה", Minotaur:"מינוטאור"};
 function clsLabel(c, lang){ return lang==='he' ? (CLASS_LIST_HE[c]||c) : c; }
 function raceLabel(r, lang){ return lang==='he' ? (RACE_LIST_HE[r]||r) : r; }
+function armorProfLabel(id, lang){ return lang==='he' ? (ARMOR_PROF_LIST_HE[id]||id) : (ARMOR_PROF_LIST_EN[id]||id); }
+function languageLabel(id, lang){ return lang==='he' ? (LANGUAGE_LIST_HE[id]||id) : (LANGUAGE_LIST_EN[id]||id); }
+function weaponCategoryLabel(id, lang){ return lang==='he' ? (WEAPON_PROF_CATEGORIES_HE[id]||id) : (WEAPON_PROF_CATEGORIES_EN[id]||id); }
+function weaponItemLabel(id, lang){ return lang==='he' ? (WEAPON_PROF_ITEMS_HE[id]||id) : (WEAPON_PROF_ITEMS_EN[id]||id); }
+function armorProfSummary(s, lang){
+  const parts = (s.proficiencies.armorList||[]).map(id=>armorProfLabel(id, lang));
+  if(s.proficiencies.armorOther) parts.push(s.proficiencies.armorOther);
+  return parts.join(", ");
+}
+function weaponProfSummary(s, lang){
+  const parts = (s.proficiencies.weaponList||[]).map(id => WEAPON_PROF_CATEGORIES.includes(id) ? weaponCategoryLabel(id, lang) : weaponItemLabel(id, lang));
+  if(s.proficiencies.weaponOther) parts.push(s.proficiencies.weaponOther);
+  return parts.join(", ");
+}
+function languageProfSummary(s, lang){
+  const parts = (s.proficiencies.languageList||[]).map(id=>languageLabel(id, lang));
+  if(s.proficiencies.languageOther) parts.push(s.proficiencies.languageOther);
+  return parts.join(", ");
+}
+const CASTER_CLASSES = ["Bard","Cleric","Druid","Paladin","Ranger","Sorcerer","Warlock","Wizard"];
+const CLASS_HIT_DIE = {
+  Barbarian:12, Fighter:10, Paladin:10, Ranger:10,
+  Bard:8, Cleric:8, Druid:8, Monk:8, Rogue:8, Warlock:8, Artificer:8,
+  Sorcerer:6, Wizard:6
+};
 const SIZE_LIST = ["Tiny","Small","Medium","Large","Huge","Gargantuan"];
+const ARMOR_PROF_LIST = ["light","medium","heavy","shields"];
+const ARMOR_PROF_LIST_EN = {light:"Light armor", medium:"Medium armor", heavy:"Heavy armor", shields:"Shields"};
+const ARMOR_PROF_LIST_HE = {light:"שריון קל", medium:"שריון בינוני", heavy:"שריון כבד", shields:"מגנים"};
+const LANGUAGE_LIST = ["common","dwarvish","elvish","giant","gnomish","goblin","halfling","orc","abyssal","celestial","draconic","deepspeech","infernal","primordial","sylvan","undercommon"];
+const LANGUAGE_LIST_EN = {common:"Common", dwarvish:"Dwarvish", elvish:"Elvish", giant:"Giant", gnomish:"Gnomish", goblin:"Goblin", halfling:"Halfling", orc:"Orc", abyssal:"Abyssal", celestial:"Celestial", draconic:"Draconic", deepspeech:"Deep Speech", infernal:"Infernal", primordial:"Primordial", sylvan:"Sylvan", undercommon:"Undercommon"};
+const LANGUAGE_LIST_HE = {common:"משותפת", dwarvish:"גמדית", elvish:"אלפית", giant:"ענקית", gnomish:"גנומית", goblin:"גובלינית", halfling:"הוביטית", orc:"אורקית", abyssal:"תהומית", celestial:"שמימית", draconic:"דרקונית", deepspeech:"דיבור עמוק", infernal:"תופתית", primordial:"קדמונית", sylvan:"יערית", undercommon:"תת-משותפת"};
+const WEAPON_PROF_CATEGORIES = ["simple","martial"];
+const WEAPON_PROF_CATEGORIES_EN = {simple:"Simple weapons", martial:"Martial weapons"};
+const WEAPON_PROF_CATEGORIES_HE = {simple:"נשקים פשוטים", martial:"נשקים צבאיים"};
+const WEAPON_PROF_ITEMS = {
+  simple: ["club","dagger","greatclub","handaxe","javelin","lighthammer","mace","quarterstaff","sickle","spear","lightcrossbow","dart","shortbow","sling"],
+  martial: ["battleaxe","flail","glaive","greataxe","greatsword","halberd","lance","longsword","maul","morningstar","pike","rapier","scimitar","shortsword","trident","warpick","warhammer","whip","blowgun","handcrossbow","heavycrossbow","longbow","net"]
+};
+const WEAPON_PROF_ITEMS_EN = {
+  club:"Club", dagger:"Dagger", greatclub:"Greatclub", handaxe:"Handaxe", javelin:"Javelin", lighthammer:"Light Hammer", mace:"Mace", quarterstaff:"Quarterstaff", sickle:"Sickle", spear:"Spear", lightcrossbow:"Light Crossbow", dart:"Dart", shortbow:"Shortbow", sling:"Sling",
+  battleaxe:"Battleaxe", flail:"Flail", glaive:"Glaive", greataxe:"Greataxe", greatsword:"Greatsword", halberd:"Halberd", lance:"Lance", longsword:"Longsword", maul:"Maul", morningstar:"Morningstar", pike:"Pike", rapier:"Rapier", scimitar:"Scimitar", shortsword:"Shortsword", trident:"Trident", warpick:"War Pick", warhammer:"Warhammer", whip:"Whip", blowgun:"Blowgun", handcrossbow:"Hand Crossbow", heavycrossbow:"Heavy Crossbow", longbow:"Longbow", net:"Net"
+};
+const WEAPON_PROF_ITEMS_HE = {
+  club:"אלה", dagger:"פגיון", greatclub:"אלה גדולה", handaxe:"גרזן יד", javelin:"כידון", lighthammer:"פטיש קל", mace:"שרביט", quarterstaff:"מקל קרב", sickle:"מגל", spear:"חנית", lightcrossbow:"קשת-רובה קלה", dart:"חץ יד", shortbow:"קשת קצרה", sling:"קלע",
+  battleaxe:"גרזן קרב", flail:"מכשיר חבטה", glaive:"גלייב", greataxe:"גרזן גדול", greatsword:"חרב גדולה", halberd:"הלברד", lance:"רומח פרשים", longsword:"חרב ארוכה", maul:"קורנס", morningstar:"כוכב בוקר", pike:"פייק", rapier:"חרב זריזה", scimitar:"סקימיטר", shortsword:"חרב קצרה", trident:"קלשון", warpick:"מכוש קרב", warhammer:"פטיש קרב", whip:"שוט", blowgun:"קנה נשיפה", handcrossbow:"קשת-רובה יד", heavycrossbow:"קשת-רובה כבדה", longbow:"קשת ארוכה", net:"רשת"
+};
 const DMG_TYPES = ["bludgeoning","piercing","slashing","acid","cold","fire","force","lightning","necrotic","poison","psychic","radiant","thunder"];
 const SPELL_CATEGORIES = ["attack","buff","other"];
 const SPELL_CATEGORY_ICONS = {attack:"⚔️", buff:"✨", other:"🔹"};
@@ -978,9 +1107,10 @@ function defaultChar(id){
     level:1, size:"Medium",
     armor:{acAbility:"dex", migrated:true},
     speed:30, climbSpeed:0, swimSpeed:0, flySpeed:0, hasFlySpeed:false, hpCur:10, hpMax:10, hitDice:"1d8", hpAutoCalc:true,
+    hitDiceUsed:0, hasSpells:true,
     saveProf:{str:false,dex:false,con:false,int:false,wis:false,cha:false},
     skillProf:{}, skillExpertise:{},
-    proficiencies:{armor:"", weapons:"", tools:"", languages:""},
+    proficiencies:{armor:"", weapons:"", tools:"", languages:"", armorList:[], weaponList:[], languageList:[], armorOther:"", weaponOther:"", languageOther:""},
     inventory:{currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]},
     attacks:[{name:"Shortsword", type:"finesse", dmg:"1d6", dmgType:"piercing", spellAbil:"cha", prof:true, notes:""}],
     spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
@@ -998,6 +1128,7 @@ function animalChar(id){
   c.abilities = {str:14, dex:14, con:12, int:2, wis:12, cha:6};
   c.armor.acAbility = "wis";
   c.attacks = [{name:"Bite", type:"natural", dmg:"1d6", dmgType:"piercing", spellAbil:"cha", prof:true, notes:""}];
+  c.hasSpells = false;
   return c;
 }
 function hydrate(s){
@@ -1011,6 +1142,14 @@ function hydrate(s){
   if(!s.armor) s.armor = {acAbility: s.charType==="animal" ? "wis" : "dex"};
   if(!s.armor.acAbility) s.armor.acAbility = s.charType==="animal" ? "wis" : "dex";
   if(!s.proficiencies) s.proficiencies = {armor:"", weapons:"", tools:"", languages:""};
+  if(!Array.isArray(s.proficiencies.armorList)) s.proficiencies.armorList = [];
+  if(!Array.isArray(s.proficiencies.weaponList)) s.proficiencies.weaponList = [];
+  if(!Array.isArray(s.proficiencies.languageList)) s.proficiencies.languageList = [];
+  if(typeof s.proficiencies.armorOther !== "string") s.proficiencies.armorOther = s.proficiencies.armor || "";
+  if(typeof s.proficiencies.weaponOther !== "string") s.proficiencies.weaponOther = s.proficiencies.weapons || "";
+  if(typeof s.proficiencies.languageOther !== "string") s.proficiencies.languageOther = s.proficiencies.languages || "";
+  if(typeof s.hasSpells !== "boolean") s.hasSpells = s.cls ? CASTER_CLASSES.includes(s.cls) : true;
+  if(typeof s.hitDiceUsed !== "number") s.hitDiceUsed = 0;
   if(!s.inventory) s.inventory = {currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]};
   s.inventory.items.forEach(it=>{
     if(typeof it.type !== "string") it.type = "gear";
@@ -1088,13 +1227,16 @@ function demoChar(id){
     level:3, size:"Medium",
     armor:{acAbility:"dex", migrated:true},
     speed:30, climbSpeed:0, swimSpeed:0, flySpeed:0, hasFlySpeed:false, hpCur:28, hpMax:28, hitDice:"3d10", hpAutoCalc:true,
+    hitDiceUsed:0, hasSpells:false,
     saveProf:{str:true,dex:false,con:true,int:false,wis:false,cha:false},
     skillProf:{athletics:true, perception:true, intimidation:true}, skillExpertise:{},
     proficiencies:{
       armor: isHe ? "שריון קל, בינוני, כבד; מגנים" : "Light, Medium, Heavy armor; Shields",
       weapons: isHe ? "נשקים פשוטים וצבאיים" : "Simple and Martial weapons",
       tools:"",
-      languages: isHe ? "משותפת, אורקית" : "Common, Orc"
+      languages: isHe ? "משותפת, אורקית" : "Common, Orc",
+      armorList:["light","medium","heavy","shields"], weaponList:["simple","martial"], languageList:["common","orc"],
+      armorOther:"", weaponOther:"", languageOther:""
     },
     inventory:{
       currency:{cp:0,sp:0,ep:0,gp:15,pp:0},
@@ -1143,7 +1285,7 @@ function saveFoldedPanels(){
 }
 function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); saveFoldedPanels(); }
 function togglePanelLock(id){ panelLocks[id] = !panelLocks[id]; render(); saveFoldedPanels(); }
-const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","proficiencies","inventory","attacks","spells","feats","resources","notes","turnFlow","atkFlow"];
+const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","inventory","attacks","spells","feats","resources","notes","turnFlow","atkFlow"];
 function setAllFolded(hide){
   ALL_PANEL_IDS.forEach(id => foldedPanels[id] = hide);
   diceFolded = hide;
@@ -1392,7 +1534,17 @@ async function rollAttack(i){
 
   const hitRoll = results.find(r=>r.tag==='hit').value;
   const hitTotal = hitRoll + bonus;
-  const dmgRolls = sumTag(results, 'dmg');
+  const crit = hitRoll >= getCritThreshold(state);
+  const fumble = hitRoll===1;
+  let dmgRolls = sumTag(results, 'dmg');
+  // 5e crit rule: roll the damage dice a second time and add them, on top
+  // of the normal roll — a separate physics throw since the die count for
+  // the first (simultaneous) throw has to be decided before the hit die
+  // has landed, so whether it's a crit isn't known yet at that point.
+  if(crit && parsed){
+    const critResults = await rollPhysicalDice([{sides:parsed.die, count:parsed.count, tag:'critdmg'}], a.name || '', { immediateHint: false });
+    dmgRolls = dmgRolls.concat(sumTag(critResults, 'critdmg'));
+  }
   const dmgDiceSum = dmgRolls.reduce((a,b)=>a+b,0);
   const abilMod = (a.type !== "spell") ? mod(eff[abil]) : 0;
   const dmgFeatBonus = getDamageFeatBonus(state, a.type);
@@ -1400,15 +1552,15 @@ async function rollAttack(i){
   const dmgBonus = dmgFlat + abilMod + dmgFeatBonus;
   const dmgTotal = dmgDiceSum + dmgBonus;
   // Fixed screen zones (not tied to wherever the physics dice landed) so
-  // it's always unambiguous which number is which: damage up top, hit
+  // it's always unambiguous which number is which: hit up top, damage
   // lower down — matches the labels, not a guess based on die position/size.
-  const hitValueText = `${fmtCalcBanner(hitRoll, bonus, hitTotal)}${hitRoll===20?' 🎯':hitRoll===1?' 💀':''}`;
-  const banners = [{key:'hit', title:T[lang].atkHit, value:hitValueText, y:0.72}];
-  if(parsed) banners.push({key:'dmg', title:T[lang].atkDmg, value:fmtCalcBanner(dmgRolls.join("+"), dmgBonus, dmgTotal), y:0.28});
+  const hitValueText = `${fmtCalcBanner(hitRoll, bonus, hitTotal)}${crit?' 🎯':fumble?' 💀':''}`;
+  const banners = [{key:'hit', title:T[lang].atkHit, value:hitValueText, y:0.28}];
+  if(parsed) banners.push({key:'dmg', title:T[lang].atkDmg, value:fmtCalcBanner(dmgRolls.join("+"), dmgBonus, dmgTotal), y:0.72});
   ensureDiceEngine().showResultBanner(banners);
-  attackRolls[i] = {hitRoll, hitTotal, bonus, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal, crit: hitRoll===20, fumble: hitRoll===1, hasDmg: !!parsed};
+  attackRolls[i] = {hitRoll, hitTotal, bonus, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal, crit, fumble, hasDmg: !!parsed};
   if(!attackRollHistories[i]) attackRollHistories[i] = [];
-  attackRollHistories[i].unshift({hitTotal, dmgTotal: parsed ? dmgTotal : null, crit: hitRoll===20, fumble: hitRoll===1});
+  attackRollHistories[i].unshift({hitTotal, dmgTotal: parsed ? dmgTotal : null, crit, fumble});
   attackRollHistories[i] = attackRollHistories[i].slice(0, 10);
   render();
 }
@@ -1494,6 +1646,9 @@ function getAttackFeatBonus(s, type){
 }
 function getDamageFeatBonus(s, type){
   return getFeatBonus(s, "dmg_all") + getFeatBonus(s, "dmg_"+type);
+}
+function getCritThreshold(s){
+  return Math.max(2, 20 - getFeatBonus(s, "critRange"));
 }
 function getEffectiveAbilities(s){
   const eff = {};
@@ -1629,6 +1784,13 @@ function set(path, value){
   let o = state;
   for(let i=0;i<keys.length-1;i++) o = o[keys[i]];
   o[keys[keys.length-1]] = value;
+  render();
+  queueSave();
+}
+function toggleProfListItem(field, id){
+  const list = state.proficiencies[field];
+  const idx = list.indexOf(id);
+  if(idx === -1) list.push(id); else list.splice(idx, 1);
   render();
   queueSave();
 }
@@ -1869,37 +2031,20 @@ function attackRow(a, i){
       <button class="fold-toggle no-print" onclick="toggleAttackFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
       <input type="text" value="${a.name}" class="attack-name-input" placeholder="${t.atkName}" onchange="set('attacks.${i}.name', this.value)">
       <span class="attack-type-icon" title="${attackTypeLabel(a.type,t)}">${attackTypeIcon(a.type)}</span>
-      <select class="attack-type-select" onchange="set('attacks.${i}.type', this.value)">
-        <option value="melee" ${a.type==="melee"?"selected":""}>${t.melee}</option>
-        <option value="ranged" ${a.type==="ranged"?"selected":""}>${t.ranged}</option>
-        <option value="finesse" ${a.type==="finesse"?"selected":""}>${t.finesse}</option>
-        <option value="natural" ${a.type==="natural"?"selected":""}>${t.natural}</option>
-        <option value="spell" ${a.type==="spell"?"selected":""}>${t.spell}</option>
-      </select>
-      ${spellAbilSelect}
-      <label class="atk-prof-chip"><input type="checkbox" ${a.prof?"checked":""} onchange="set('attacks.${i}.prof', this.checked)">${t.atkProf}</label>
-      <button class="remove-row no-print" onclick="confirmRemove(()=>removeAttack(${i}))" title="${t.del}">🗑️</button>
+      <button class="atk-roll-btn-mini no-print" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
     </div>
-    <div class="attack-card-mid">
-      <div class="attack-stat attack-stat-dmg">
-        <span class="dim-label">${t.atkDmg}</span>
-        <div class="attack-dmg-row">
-          <input type="text" value="${a.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(a.dmg)}ch" oninput="autoWidthInput(this)" onchange="set('attacks.${i}.dmg', this.value)">
-          <select class="attack-dmgtype-select" title="${dmgTypeHint(a.dmgType,t)}" onchange="set('attacks.${i}.dmgType', this.value)">${dmgTypeOptions(a.dmgType)}</select>
-        </div>
-        ${a.dmgType ? `<div class="attack-dmgtype-hint">${dmgTypeHint(a.dmgType,t)}</div>` : ""}
-        <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}</span>
+    <div class="attack-card-row2">
+      <div class="fold-hidden-actions">
+        <button class="remove-row no-print" onclick="confirmRemove(()=>removeAttack(${i}))" title="${t.del}">🗑️</button>
       </div>
       <div class="attack-tohit-group">
         <div class="attack-stat">
           <span class="dim-label">${t.atkBonus}</span>
           <span class="attack-stat-val">${fm(bonus)}</span>
-          <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}</span>
+          <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}${getCritThreshold(state)<20?`<br>🎯 ${t.critOnLabel} ${getCritThreshold(state)}–20`:""}</span>
         </div>
         <div class="attack-cube-row no-print">
-          ${!attackRolls[i] ? `
-          <button class="atk-roll-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
-          ` : `
+          ${!attackRolls[i] ? `` : `
           <div class="atk-cube-col">
             <span class="dim-label">${t.atkHit}</span>
             <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(20, attackRolls[i].hitRoll)}</div>
@@ -1918,6 +2063,24 @@ function attackRow(a, i){
           `}
         </div>
       </div>
+      <div class="attack-stat attack-stat-dmg">
+        <span class="dim-label">${t.atkDmg}</span>
+        <div class="attack-dmg-row">
+          <input type="text" value="${a.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(a.dmg)}ch" oninput="autoWidthInput(this)" onchange="set('attacks.${i}.dmg', this.value)">
+          <select class="attack-dmgtype-select" title="${dmgTypeHint(a.dmgType,t)}" onchange="set('attacks.${i}.dmgType', this.value)">${dmgTypeOptions(a.dmgType)}</select>
+        </div>
+        ${a.dmgType ? `<div class="attack-dmgtype-hint">${dmgTypeHint(a.dmgType,t)}</div>` : ""}
+        <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}</span>
+      </div>
+      <select class="attack-type-select" onchange="set('attacks.${i}.type', this.value)">
+        <option value="melee" ${a.type==="melee"?"selected":""}>${t.melee}</option>
+        <option value="ranged" ${a.type==="ranged"?"selected":""}>${t.ranged}</option>
+        <option value="finesse" ${a.type==="finesse"?"selected":""}>${t.finesse}</option>
+        <option value="natural" ${a.type==="natural"?"selected":""}>${t.natural}</option>
+        <option value="spell" ${a.type==="spell"?"selected":""}>${t.spell}</option>
+      </select>
+      ${spellAbilSelect}
+      <label class="atk-prof-chip"><input type="checkbox" ${a.prof?"checked":""} onchange="set('attacks.${i}.prof', this.checked)">${t.atkProf}</label>
     </div>
     ${(attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print">${attackRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${t.atkHitAbbr}:${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}${h.dmgTotal!==null?`/${t.atkDmgAbbr}:${h.dmgTotal}`:""}</span>`).join("")}</div>` : ""}
     <textarea rows="${estimateTextRows(a.notes)}" class="attack-notes-input" dir="auto" placeholder="${t.atkNotes}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('attacks.${i}.notes', this.value)">${a.notes}</textarea>
@@ -1991,7 +2154,7 @@ async function closeOnboardingWelcome(){
 }
 // Bump this whenever a "what's new" entry should resurface for returning
 // users. Genuinely new installs never see it — they get onboarding instead.
-const WHATS_NEW_VERSION = "2026-08-dice3d";
+const WHATS_NEW_VERSION = "2026-08-usability";
 async function closeWhatsNewModal(){
   whatsNewModalOpen = false;
   try{ await storageSet("dnd-whatsnew-seen", WHATS_NEW_VERSION); }catch(e){}
@@ -2007,6 +2170,9 @@ function whatsNewModalHTML(t){
         <li>${t.whatsNewItem2}</li>
         <li>${t.whatsNewItem3}</li>
         <li>${t.whatsNewItem4}</li>
+        <li>${t.whatsNewItem5}</li>
+        <li>${t.whatsNewItem6}</li>
+        <li>${t.whatsNewItem7}</li>
       </ul>
       <div class="modal-actions">
         <button class="btn primary" onclick="closeWhatsNewModal()">${t.whatsNewOk}</button>
@@ -2719,6 +2885,7 @@ function buildPrintHTML(opts){
     if(stat==='swim') return t.swimSpeed;
     if(stat==='fly') return t.flySpeed;
     if(stat==='hp') return t.featHP;
+    if(stat==='critRange') return t.featCritRange;
     if(stat==='atk_all') return t.featAtkAll;
     if(stat==='atk_melee') return t.featAtkMelee;
     if(stat==='atk_ranged') return t.featAtkRanged;
@@ -2866,8 +3033,8 @@ function buildPrintHTML(opts){
 
     <div class="panel"><h2>${t.proficiencies}</h2>
       <div class="two-col" style="font-size:13px">
-        <div><b>${t.profArmor}:</b> ${esc(state.proficiencies.armor)||"—"}<br><b>${t.profWeapons}:</b> ${esc(state.proficiencies.weapons)||"—"}</div>
-        <div><b>${t.profTools}:</b> ${esc(state.proficiencies.tools)||"—"}<br><b>${t.profLanguages}:</b> ${esc(state.proficiencies.languages)||"—"}</div>
+        <div><b>${t.profArmor}:</b> ${esc(armorProfSummary(state, lang))||"—"}<br><b>${t.profWeapons}:</b> ${esc(weaponProfSummary(state, lang))||"—"}</div>
+        <div><b>${t.profTools}:</b> ${esc(state.proficiencies.tools)||"—"}<br><b>${t.profLanguages}:</b> ${esc(languageProfSummary(state, lang))||"—"}</div>
       </div>
     </div>
 
@@ -3010,7 +3177,7 @@ function spellRow(sp, i){
         <label class="ctv-chip"><input type="checkbox" ${sp.somatic?"checked":""} title="${t.spSomaticFull}" onchange="set('spells.${i}.somatic', this.checked)">${t.spSomatic}</label>
         <label class="ctv-chip"><input type="checkbox" ${sp.material?"checked":""} title="${t.spMaterialFull}" onchange="set('spells.${i}.material', this.checked)">${t.spMaterial}</label>
       </div>
-      <button class="remove-row no-print" onclick="confirmRemove(()=>removeSpell(${i}))" title="${t.del}">🗑️</button>
+      ${sp.dmg ? `<button class="atk-roll-btn-mini no-print" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>` : ""}
     </div>
     <div class="spell-meta-row">
       <span class="spell-meta-item"><span class="dim-label">${t.spRange}</span><input type="text" value="${sp.range}" placeholder="60 ft" style="width:${dmgInputWidthCh(sp.range)}ch" oninput="autoWidthInput(this)" onchange="set('spells.${i}.range', this.value)"></span>
@@ -3036,6 +3203,9 @@ function spellRow(sp, i){
       ${(spellRollHistories[i]||[]).length ? `<div class="dice-history compact" style="margin:0">${spellRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${h.total}</span>`).join("")}</div>` : ""}
       ` : ""}
     </div>` : ""}
+    <div class="fold-hidden-actions">
+      <button class="remove-row no-print" onclick="confirmRemove(()=>removeSpell(${i}))" title="${t.del}">🗑️</button>
+    </div>
     <textarea rows="${estimateTextRows(sp.notes)}" class="spell-notes-input" dir="auto" placeholder="${t.spNotes}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('spells.${i}.notes', this.value)">${sp.notes}</textarea>
   </div>`;
 }
@@ -3107,6 +3277,7 @@ function featModLabelForRow(t, stat){
   if(stat==='swim') return t.swimSpeed;
   if(stat==='fly') return t.flySpeed;
   if(stat==='hp') return t.featHP;
+  if(stat==='critRange') return t.featCritRange;
   if(stat==='atk_all') return t.featAtkAll;
   if(stat==='atk_melee') return t.featAtkMelee;
   if(stat==='atk_ranged') return t.featAtkRanged;
@@ -3133,7 +3304,10 @@ function featRow(f, i){
   const matchSpeed = !!(f.mod && f.mod.matchSpeed);
   const fixed = !!(f.mod && f.mod.fixed);
   const amtText = `${fm(modAmt)}${perLevel ? ` <span class="feat-lvmark">× Lv${state.level} = ${fm(modAmt*Math.max(1,state.level))}</span>` : ""}`;
-  const badge = modStat ? `<span class="feat-badge">${featModLabelForRow(t,modStat)} ${matchSpeed ? `= ${t.speed}` : fixed ? `= ${amtText}` : amtText}</span>` : "";
+  const badge = modStat ? `<span class="feat-badge">${featModLabelForRow(t,modStat)} ${
+    modStat === 'critRange' ? `${20 - Math.abs(modAmt)}–20`
+    : matchSpeed ? `= ${t.speed}` : fixed ? `= ${amtText}` : amtText
+  }</span>` : "";
   return `<div class="feat-card">
     <div class="feat-card-top">
       <span class="feat-name-display">${t.featLvlAbbr}${lang==='he'?' ':''}${f.level||1}</span>
@@ -3143,7 +3317,7 @@ function featRow(f, i){
       <button class="edit-row no-print" onclick="openEditFeatModal(${i})" title="${t.edit}">✏️</button>
       <button class="remove-row no-print" onclick="confirmRemove(()=>removeFeat(${i}))" title="${t.del}">🗑️</button>
     </div>
-    <textarea class="feat-notes-input" rows="${estimateTextRows(f.notes)}" placeholder="${t.featNotes}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('feats.${i}.notes', this.value)">${f.notes}</textarea>
+    <div class="feat-notes-input feat-notes-display${f.notes ? "" : " dim"}">${f.notes ? esc2(f.notes) : t.featNotes}</div>
   </div>`;
 }
 function esc2(s){ return String(s??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
@@ -3312,6 +3486,13 @@ function applyTemplate(cls){
   (CLASS_SAVES[cls]||[]).forEach(a => state.saveProf[a] = true);
   (CLASS_SKILL_SUGGEST[cls]||[]).forEach(sk => state.skillProf[sk] = true);
 
+  state.hasSpells = CASTER_CLASSES.includes(cls);
+  if(CLASS_HIT_DIE[cls]){
+    const m = /^\s*(\d+)/.exec(state.hitDice || "");
+    const count = m ? Math.max(1, parseInt(m[1])) : Math.max(1, state.level);
+    state.hitDice = `${count}d${CLASS_HIT_DIE[cls]}`;
+  }
+
   if(cls==="Fighter"){
     addRes("Second Wind", 1, "short");
     addRes("Action Surge", 1, "short");
@@ -3410,7 +3591,7 @@ function applySubraceTemplate(race, subrace){
     addFeat("Superior Darkvision", "120 ft — double the range of standard Darkvision.");
     addFeat("Sunlight Sensitivity", "Disadvantage on attack rolls and Wisdom (Perception) checks that rely on sight when you, the target, or whatever you're perceiving is in direct sunlight.");
     addFeat("Drow Magic", "You know the Dancing Lights cantrip. At 3rd level, cast Faerie Fire once per Long Rest. At 5th level, cast Darkness once per Long Rest. Charisma is your spellcasting ability.");
-    if(!state.proficiencies.weapons) state.proficiencies.weapons = "Rapiers, shortswords, hand crossbows";
+    ["rapier","shortsword","handcrossbow"].forEach(w=>{ if(!state.proficiencies.weaponList.includes(w)) state.proficiencies.weaponList.push(w); });
   }
   render(); queueSave();
 }
@@ -3438,6 +3619,21 @@ function slotDotsInteractive(i){
   for(let d=0; d<sl.total; d++){
     const filled = d < sl.used;
     out += `<span class="dot ${filled?'filled':''}" onclick="toggleSlotDot(${i},${d})" title="${t.slotUsed}"></span>`;
+  }
+  return out;
+}
+function toggleHitDieDot(d){
+  state.hitDiceUsed = (d+1 === state.hitDiceUsed) ? d : d+1;
+  state.hitDiceUsed = Math.max(0, Math.min(Math.max(1,state.level), state.hitDiceUsed));
+  render(); queueSave();
+}
+function hitDiceDotsInteractive(){
+  const t = T[lang];
+  const total = Math.max(1, state.level);
+  let out = "";
+  for(let d=0; d<total; d++){
+    const filled = d < state.hitDiceUsed;
+    out += `<span class="dot ${filled?'filled':''}" onclick="toggleHitDieDot(${d})" title="${t.hitDiceSpent}"></span>`;
   }
   return out;
 }
@@ -3521,7 +3717,7 @@ function render(){
     </div>
 
   <div class="panel ${foldedPanels['identity'] ? 'folded' : ''}">
-    <h2 class="ref-toggle" onclick="togglePanelFold('identity')">${t.identity} ${foldIcon('identity')}</h2>
+    <h2 class="ref-toggle" onclick="togglePanelFold('identity')">${t.identityConfigTitle} ${foldIcon('identity')}</h2>
     <div class="id-fields">
       <div class="field"><label>${t.name}</label>
         ${identityUnlocked ? `<input type="text" value="${state.name}" style="width:${dmgInputWidthCh(state.name)}ch" oninput="autoWidthInput(this)" onchange="set('name', this.value)">` : `<span class="feat-name-display">${esc2(state.name)||"—"}</span>`}
@@ -3580,6 +3776,55 @@ function render(){
       <span>${identityUnlocked ? t.identityUnlockedHint : t.identityLockedHint}</span>
       <button class="btn" style="padding:4px 10px;font-size:11px" onclick="toggleIdentityLock()">${identityUnlocked ? t.identityLockNow : t.identityUnlockBtn}</button>
     </div>
+
+    ${!identityUnlocked ? "" : `
+    <div class="id-config no-print">
+      <h3 class="id-config-heading">${t.configTitle}</h3>
+      <div class="prof-grid">
+        <div class="field">
+          <label class="atk-prof-chip"><input type="checkbox" ${state.hasSpells?"checked":""} onchange="set('hasSpells', this.checked)">${t.hasSpellsLabel}</label>
+          <div class="formula-note">${t.hasSpellsHint}</div>
+        </div>
+        <div class="field">
+          <label>${t.themeLabel}</label>
+          <select onchange="setTheme(this.value)">
+            <option value="leather" ${theme==='leather'?"selected":""}>${t.themeLeather}</option>
+            <option value="parchment" ${theme==='parchment'?"selected":""}>${t.themeParchment}</option>
+            <option value="contrast" ${theme==='contrast'?"selected":""}>${t.themeContrast}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="atk-prof-chip"><input type="checkbox" ${state.hpAutoCalc?"checked":""} onchange="set('hpAutoCalc', this.checked)">${t.hpAuto}</label>
+        </div>
+        <div class="field"><label>${t.baseSpeedLabel}</label><input type="number" min="0" style="width:70px" value="${state.speed}" onchange="set('speed', parseInt(this.value)||30)"></div>
+        <div class="field">
+          <label>${t.profArmor}</label>
+          <div class="prof-checklist">
+            ${ARMOR_PROF_LIST.map(id=>`<label class="atk-prof-chip"><input type="checkbox" ${state.proficiencies.armorList.includes(id)?"checked":""} onchange="toggleProfListItem('armorList','${id}')">${armorProfLabel(id,lang)}</label>`).join("")}
+          </div>
+          <input type="text" value="${state.proficiencies.armorOther}" placeholder="${t.otherCustom}" onchange="set('proficiencies.armorOther', this.value)">
+        </div>
+        <div class="field">
+          <label>${t.profLanguages}</label>
+          <div class="prof-checklist">
+            ${LANGUAGE_LIST.map(id=>`<label class="atk-prof-chip"><input type="checkbox" ${state.proficiencies.languageList.includes(id)?"checked":""} onchange="toggleProfListItem('languageList','${id}')">${languageLabel(id,lang)}</label>`).join("")}
+          </div>
+          <input type="text" value="${state.proficiencies.languageOther}" placeholder="${t.otherCustom}" onchange="set('proficiencies.languageOther', this.value)">
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label>${t.profWeapons}</label>
+          <div class="prof-checklist">
+            ${WEAPON_PROF_CATEGORIES.map(id=>`<label class="atk-prof-chip"><input type="checkbox" ${state.proficiencies.weaponList.includes(id)?"checked":""} onchange="toggleProfListItem('weaponList','${id}')">${weaponCategoryLabel(id,lang)}</label>`).join("")}
+          </div>
+          <div class="prof-checklist prof-checklist-weapons">
+            ${WEAPON_PROF_CATEGORIES.map(cat=>WEAPON_PROF_ITEMS[cat].map(id=>`<label class="atk-prof-chip"><input type="checkbox" ${state.proficiencies.weaponList.includes(id)?"checked":""} onchange="toggleProfListItem('weaponList','${id}')">${weaponItemLabel(id,lang)}</label>`).join("")).join("")}
+          </div>
+          <input type="text" value="${state.proficiencies.weaponOther}" placeholder="${t.otherCustom}" onchange="set('proficiencies.weaponOther', this.value)">
+        </div>
+        <div class="field"><label>${t.profTools}</label><input type="text" value="${state.proficiencies.tools}" onchange="set('proficiencies.tools', this.value)"></div>
+      </div>
+    </div>
+    `}
   </div>
 
   <div class="panel no-print">
@@ -3635,17 +3880,16 @@ function render(){
         <div class="speed-value-group">
           <div class="big mono">${effSpeed}</div>
           <span class="speed-sq-badge">${Math.floor(effSpeed/5)} ${lang==='en'?'sq':'מש'}</span>
-          <span class="dim-label">${t.speedBase}</span>
-          <input type="number" min="0" style="width:34px;text-align:center;padding:0" value="${state.speed}" onchange="set('speed', parseInt(this.value)||30)">
         </div>
-        <div class="formula-note">${state.speed}${getFeatBonus(state,"speed")!==0 ? ` ${fm(getFeatBonus(state,"speed"))} ${lang==='en'?'feat':'תכונה'}` : ""}</div>
+        <div class="formula-note">${t.speedBase} ${state.speed}${getFeatBonus(state,"speed")!==0 ? ` ${fm(getFeatBonus(state,"speed"))} ${lang==='en'?'feat':'תכונה'}` : ""}</div>
         ${secondarySpeedRowHTML(t, "climb", "🕷️")}
         ${secondarySpeedRowHTML(t, "swim", "🏊")}
         ${secondarySpeedRowHTML(t, "fly", "🦅")}
       </div>
       <div class="combat-box">
         <span class="label">${t.hitdice}</span>
-        <input type="text" class="big" style="width:70px;text-align:center;font-size:16px" value="${computeHitDice(state)}" ${state.charType==="animal"?"disabled":""} onchange="set('hitDice', this.value)">
+        <input type="text" class="big" style="width:70px;text-align:center;font-size:16px" value="${computeHitDice(state)}" ${(state.charType==="animal" || (state.cls && CLASS_HIT_DIE[state.cls]))?"disabled":""} onchange="set('hitDice', this.value)">
+        <div class="dots-row">${hitDiceDotsInteractive()}</div>
       </div>
       <div class="combat-box">
         <span class="label">${t.prof}</span>
@@ -3663,10 +3907,6 @@ function render(){
           <span>${lang==='en'?'current':'נוכחי'}</span><span>${lang==='en'?'max (total)':'מקס (סה״כ)'}</span>
         </div>
         <div class="hp-bar"><div class="hp-bar-fill" style="width:${hpPct}%"></div></div>
-        <label style="display:flex;align-items:center;gap:5px;justify-content:center;margin-top:5px;font-size:11px;color:var(--ink-faint)">
-          <input type="checkbox" ${state.hpAutoCalc?"checked":""} onchange="set('hpAutoCalc', this.checked)">
-          ${t.hpAuto}
-        </label>
         <div class="formula-note">${state.hpAutoCalc ? t.hpAutoNote : (lang==='en'?'CON mod / level → max HP':'מודיפייר חוסן / רמה → נק"ח מקס')}${getFeatBonus(state,'hp')!==0 ? `<br>${lang==='en'?'includes':'כולל'} ${fm(getFeatBonus(state,'hp'))} ${lang==='en'?'from feats':'מתכונות'} (${lang==='en'?'base':'בסיס'} ${state.hpMax})` : ""}</div>
       </div>
     </div>
@@ -3725,12 +3965,13 @@ function render(){
 
   <div class="panel ${foldedPanels['proficiencies'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('proficiencies')">${t.proficiencies} ${foldIcon('proficiencies')}</h2>
-    <div class="prof-grid">
-      <div class="field"><label>${t.profArmor}</label><input type="text" value="${state.proficiencies.armor}" onchange="set('proficiencies.armor', this.value)" placeholder="Light, Medium, Shields"></div>
-      <div class="field"><label>${t.profWeapons}</label><input type="text" value="${state.proficiencies.weapons}" onchange="set('proficiencies.weapons', this.value)" placeholder="Simple, Martial"></div>
-      <div class="field"><label>${t.profTools}</label><input type="text" value="${state.proficiencies.tools}" onchange="set('proficiencies.tools', this.value)"></div>
-      <div class="field"><label>${t.profLanguages}</label><input type="text" value="${state.proficiencies.languages}" onchange="set('proficiencies.languages', this.value)" placeholder="Common, Elvish"></div>
+    <div class="prof-badges">
+      <div class="prof-badge"><span class="label">${t.profArmor}</span><span class="val" dir="auto">${esc2(armorProfSummary(state,lang))||"—"}</span></div>
+      <div class="prof-badge"><span class="label">${t.profWeapons}</span><span class="val" dir="auto">${esc2(weaponProfSummary(state,lang))||"—"}</span></div>
+      <div class="prof-badge"><span class="label">${t.profLanguages}</span><span class="val" dir="auto">${esc2(languageProfSummary(state,lang))||"—"}</span></div>
+      <div class="prof-badge"><span class="label">${t.profTools}</span><span class="val" dir="auto">${esc2(state.proficiencies.tools)||"—"}</span></div>
     </div>
+    <div class="formula-note no-print" style="margin-top:8px">${lang==='en'?'Edit these in Identity / Configuration → Unlock to edit.':'לעריכה: זהות / הגדרות ← פתח נעילה לעריכה.'}</div>
   </div>
 
   <div class="panel ${foldedPanels['inventory'] ? 'folded' : ''}">
@@ -3768,6 +4009,7 @@ function render(){
     <div class="attack-list">${state.attacks.map(attackRow).join("")}</div>
   </div>
 
+  ${!state.hasSpells ? "" : `
   <div class="panel ${foldedPanels['spells'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('spells')">${t.spells} ${foldIcon('spells')}</h2>
     <div class="spellcast-summary">
@@ -3821,6 +4063,7 @@ function render(){
         </div>`).join("");
     })()}
   </div>
+  `}
 
   <div class="panel ${foldedPanels['feats'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('feats')">${t.feats} ${foldIcon('feats')}</h2>
@@ -4052,6 +4295,7 @@ function render(){
             <option value="swim" ${selOpt("swim")}>${t.swimSpeed}</option>
             <option value="fly" ${selOpt("fly")}>${t.flySpeed}</option>
             <option value="hp" ${selOpt("hp")}>${t.featHP}</option>
+            <option value="critRange" ${selOpt("critRange")}>${t.featCritRange}</option>
             ${ABILS.map(a=>`<option value="${a}" ${selOpt(a)}>${t[a]}</option>`).join("")}
             <optgroup label="${t.featAtkGroup}">
               <option value="atk_all" ${selOpt("atk_all")}>${t.featAtkAll}</option>
@@ -4204,6 +4448,7 @@ function render(){
   ${whatsNewModalOpen ? whatsNewModalHTML(t) : ""}
   `;
   document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
+  document.documentElement.setAttribute("data-theme", theme);
   trimDiceHistories();
   restoreScroll();
 }
@@ -4231,6 +4476,10 @@ window.addEventListener('resize', trimDiceHistories);
       if(langRes && (langRes.value==='en' || langRes.value==='he')) lang = langRes.value;
     }catch(e){}
     try{
+      const themeRes = await storageGet("dnd-theme");
+      if(themeRes && THEME_LIST.includes(themeRes.value)) theme = themeRes.value;
+    }catch(e){}
+    try{
       const trustRes = await storageGet("dnd-ai-trust");
       if(trustRes && ["guided","trusted","fullyTrusted"].includes(trustRes.value)) aiTrustLevel = trustRes.value;
     }catch(e){}
@@ -4244,6 +4493,13 @@ window.addEventListener('resize', trimDiceHistories);
           if(typeof parsed.ref === "boolean") refOpen = parsed.ref;
           if(parsed.locks && typeof parsed.locks === "object") panelLocks = parsed.locks;
         }
+      } else {
+        // Brand-new install (no fold/lock state saved yet at all) — lock
+        // Saving Throws and Skills by default so a stray tap doesn't
+        // silently flip a proficiency checkbox. Existing installs keep
+        // whatever lock state they already have; this only applies once,
+        // the first time there's nothing saved under this key at all.
+        panelLocks = {saves:true, skills:true};
       }
     }catch(e){}
     await loadIndex();

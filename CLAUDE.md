@@ -51,7 +51,7 @@ Everything lives in global scope inside the one `<script>` tag. There's no frame
 - **Modals** are plain booleans (`newCharModalOpen`, `attackModalOpen`, `featModalOpen`, `exportModalOpen`, `printModalOpen`, `onboardingModalOpen`, `pendingRemove`, ...) that gate template blocks inside `render()`'s template string. `newCharModalHTML(t)` and `onboardingModalHTML(t)` are factored into standalone functions (rather than inlined like the others) specifically because they need to render both from the normal sheet branch and from the `state === null` branch — follow that pattern if a new modal needs to be reachable from both. Follow the existing `.modal-backdrop` / `.modal-box` / `.modal-row` / `.modal-actions` CSS classes for new ones.
 - **Destructive actions ask first**: every delete button — attacks, spells, feats, resources, items, and the character selector's trash icon — routes through `confirmRemove(fn)` / `pendingRemove` / `doRemove()` / `cancelRemove()`, which shows one generic "Remove this? This can't be undone." popup and only calls `fn` if the user confirms. Wire new delete buttons the same way (`onclick="confirmRemove(yourDeleteFn)"`) instead of calling the delete function directly.
 - **Translations**: `T.en` / `T.he` are flat key→string maps (`T[lang].someKey`), consulted in `render()` via `const t = T[lang]`. Every new user-facing string needs an entry in *both* language blocks — there's no fallback. `document.documentElement.dir` is set to `rtl`/`ltr` based on `lang` at the end of `render()`.
-- **Storage abstraction** (`storageGet`/`storageSet`/`storageDelete`, `LS_PREFIX = "dnd-sheet:"`) tries, in order: `window.storage` (used when embedded in claude.ai as an artifact) → `localStorage` (standalone-file/browser usage) → an in-memory object as a last resort (private-browsing fallback, does not survive reload). Never call `localStorage` directly — always go through these wrappers so all three modes keep working. Known storage keys: `dnd-char-index`, `dnd-char:<id>`, `dnd-last-char` (last active character, restored on load), `dnd-lang`, `dnd-onboarded`.
+- **Storage abstraction** (`storageGet`/`storageSet`/`storageDelete`, `LS_PREFIX = "dnd-sheet:"`) tries, in order: `window.storage` (used when embedded in claude.ai as an artifact) → `localStorage` (standalone-file/browser usage) → an in-memory object as a last resort (private-browsing fallback, does not survive reload). Never call `localStorage` directly — always go through these wrappers so all three modes keep working. Known storage keys: `dnd-char-index`, `dnd-char:<id>`, `dnd-last-char` (last active character, restored on load), `dnd-lang`, `dnd-theme` (global UI theme — Leather/Parchment/High Contrast — not per-character), `dnd-onboarded`, `dnd-folded-panels` (also carries `panelLocks`; if this key is entirely absent, `init()` defaults Saving Throws/Skills to locked — a brand-new-install-only default, existing installs keep whatever they already have).
 - **Autosave**: `queueSave()` debounces (400ms) writes of `state` to `dnd-char:<id>` and updates the save-status indicator; call it after any mutation via the generic `set(path, value)` helper (dotted-path setter) or a dedicated mutator.
 - **First-run onboarding**: `init()` (bottom of the script) shows the onboarding welcome modal (language picker only) for genuinely new installs (empty `charIndex` and no `dnd-onboarded` flag); pre-existing installs are silently marked onboarded so they never see it. Dismissing it (`closeOnboardingWelcome()`) just reveals the same "no characters yet" screen that a fresh delete-down-to-zero lands on — there's one landing state for "you have no character," not a separate onboarding-only variant of it.
 - **Import/export**: JSON file export/import, plus a shareable link that base64-encodes the whole character into a URL hash (`#char=...`), decoded by `checkURLImport()` on load.
@@ -60,32 +60,32 @@ Everything lives in global scope inside the one `<script>` tag. There's no frame
 
 ## File map (line numbers)
 
-`dnd_character_sheet.html` is ~4200 lines — reading it broadly burns a lot of context on a fresh session. Before reading, `grep -n` for the function/key name to confirm the exact line (numbers below drift as the file grows), then `Read` with a targeted `offset`/`limit` instead of the whole file.
+`dnd_character_sheet.html` is ~4500 lines — reading it broadly burns a lot of context on a fresh session. Before reading, `grep -n` for the function/key name to confirm the exact line (numbers below drift as the file grows), then `Read` with a targeted `offset`/`limit` instead of the whole file.
 
 | Region | Lines |
 |---|---|
-| `<style>` block | 17–580 |
-| Translations: `T.en` / `T.he` | 588–887 |
-| Static reference data (`SKILLS`, `CLASS_LIST`/`RACE_LIST` + Hebrew maps, `ATTACK_PRESETS`, `SUBRACE_MAP`) | 891–949 |
-| `defaultChar` / `animalChar` / `hydrate` / `demoChar` | 950–1103 |
-| UI-flag globals + fold/lock helpers (`foldedPanels`, `panelLocks`, `identityUnlocked`, `togglePanelFold`, `togglePanelLock`) | 1104–1135 |
-| On Your Turn decision-tree builders (`buildTurnDiagram` and friends) | 1136–1258 |
-| Remove-confirmation (`confirmRemove`/`pendingRemove`/`doRemove`) + dice-roll globals + `rollAttack`/`rollSpellDamage` | 1259–1328 |
-| Storage wrappers (`storageGet`/`storageSet`/`storageDelete`, `lsAvailable`, `LS_PREFIX`) | 1329–1394 |
-| Derived-stat helpers (`getFeatBonus`, `getEffectiveAbilities`, `computeMaxHP`, `computeAC`, `computePassivePerception`, etc.) | 1395–1520 |
-| `queueSave`/`set()` mutator, New Character modal, attack rows/modal | 1521–1893 |
-| Onboarding + "no characters yet" screen (`onboardingModalHTML`, `noCharactersHTML`) | 1894–1945 |
-| Dice/cube SVG helpers + main d20 roller (`rollDice`) | 1946–2045 |
-| Export/import — JSON file + shareable link (`exportCharacter`, `buildShareURL`, `decodeBase64ToState`) | 2046–2139 |
-| Hand-rolled YAML parse/dump (used by Ask AI) | 2140–2243 |
-| **Ask AI** flow (`AI_ADDITION_SCHEMAS`, `buildCuratedCharacterForAI`, `buildAIExport`, `parseAIPaste`, `addAIItem`, `aiItemLabel`) | 2244–2516 |
-| `buildPrintHTML` (separate print document) | 2517–2811 |
-| Spell presets + `spellRow` / spell modal | 2812–2951 |
-| Feat rows/modal + secondary-speed helpers | 2952–3071 |
-| Resources / inventory rows (gear, armor) | 3072–3174 |
-| Class/race template application (`applyTemplate`, `applyRaceTemplate`, `CLASS_SAVES`, `CLASS_SKILL_SUGGEST`) | 3175–3323 |
-| **`render()`** — rebuilds `#app` from scratch every call | 3324–4109 |
-| `trimDiceHistories` + `init()` (onboarding bootstrap, URL import) | 4110–4181 |
+| `<style>` block | 17–652 |
+| Translations: `T.en` / `T.he` | 653–980 |
+| Static reference data (`SKILLS`, `CLASS_LIST`/`RACE_LIST` + Hebrew maps, `CASTER_CLASSES`, `CLASS_HIT_DIE`, `ARMOR_PROF_LIST`/`WEAPON_PROF_*`/`LANGUAGE_LIST` + label helpers, `ATTACK_PRESETS`, `SUBRACE_MAP`) | 981–1085 |
+| `defaultChar` / `animalChar` / `hydrate` / `demoChar` | 1086–1260 |
+| UI-flag globals + fold/lock helpers (`foldedPanels`, `panelLocks`, `identityUnlocked`, `togglePanelFold`, `togglePanelLock`) | 1261–1285 |
+| On Your Turn decision-tree builders (`buildTurnDiagram` and friends) | 1286–1408 |
+| Remove-confirmation (`confirmRemove`/`pendingRemove`/`doRemove`) + dice-roll globals + `rollAttack` (two-phase crit damage roll) / `rollSpellDamage` | 1409–1500 (`rollAttack` itself: 1500–1538) |
+| Storage wrappers (`storageGet`/`storageSet`/`storageDelete`, `lsAvailable`, `LS_PREFIX`) | 1538–1573 |
+| Derived-stat helpers (`getFeatBonus`, `getCritThreshold`, `getEffectiveAbilities`, `computeMaxHP`, `computeAC`, `computePassivePerception`, etc.) | 1604–1745 |
+| `queueSave`/`set()`/`toggleProfListItem` mutators, New Character modal, attack rows/modal | 1745–2135 |
+| Onboarding + "no characters yet" screen (`onboardingModalHTML`, `noCharactersHTML`) | 2135–2225 |
+| Dice/cube SVG helpers + main d20 roller (`rollDice`) | 2225–2315 |
+| Export/import — JSON file + shareable link (`exportCharacter`, `buildShareURL`, `decodeBase64ToState`) | 2315–2410 |
+| Hand-rolled YAML parse/dump (used by Ask AI) | 2410–2513 |
+| **Ask AI** flow (`AI_ADDITION_SCHEMAS`, `buildCuratedCharacterForAI`, `buildAIExport`, `parseAIPaste`, `addAIItem`, `aiItemLabel`) | 2513–2815 |
+| `buildPrintHTML` (separate print document) | 2815–3143 |
+| Spell presets + `spellRow` / spell modal | 3143–3280 |
+| Feat rows/modal + secondary-speed helpers | 3280–3452 |
+| Resources / inventory rows (gear, armor) | 3452–3462 |
+| Class/race template application (`applyTemplate`, `applyRaceTemplate`, `CLASS_SAVES`, `CLASS_SKILL_SUGGEST`) | 3452–3623 |
+| **`render()`** — rebuilds `#app` from scratch every call (Identity → Configuration sub-section, hit-die dot tracker, conditional Spells panel all live inside here) | 3623–4424 |
+| `trimDiceHistories` + `init()` (onboarding bootstrap, theme/lock defaults for brand-new installs, URL import) | 4424–4517 |
 
 ## Conventions to follow
 
