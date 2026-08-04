@@ -342,7 +342,10 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .armor-row input[type=text]{width:100px;}
 .armor-row label{display:flex;align-items:center;gap:5px;}
 .currency-input-wrap{position:relative;display:inline-block;}
-.currency-input-wrap input[type=number]{width:64px;padding-inline-end:18px;text-align:center;}
+.currency-input-wrap input[type=number]{
+  width:64px;height:32px;line-height:30px;box-sizing:border-box;text-align:center;
+  padding:0 6px;padding-inline-end:18px;
+}
 .currency-stepper{position:absolute;top:1px;bottom:1px;inset-inline-end:1px;width:16px;display:flex;flex-direction:column;}
 .currency-stepper button{flex:1 1 50%;border:none;background:transparent;padding:0;margin:0;cursor:pointer;
   display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:8px;line-height:1;}
@@ -637,7 +640,7 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
   .responsive-table td.td-cat{flex:0 1 78px;}
   .responsive-table td.td-name{flex:1 1 90px;}
   .responsive-table td.td-qty{flex:0 0 56px;}
-  .currency-input-wrap input[type=number]{width:48px !important;height:32px;box-sizing:border-box;font-size:12.5px;padding:5px 6px;padding-inline-end:18px;}
+  .currency-input-wrap input[type=number]{width:48px;padding:0 6px;padding-inline-end:18px;}
   .responsive-table td.td-ac{flex:0 0 64px;}
   .responsive-table td.td-notes{flex:1 1 100%;order:3;}
   .responsive-table td.td-eq{order:2;flex:0 0 auto;padding-bottom:2px;}
