@@ -330,6 +330,12 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .armor-row input[type=number]{width:64px;}
 .armor-row input[type=text]{width:100px;}
 .armor-row label{display:flex;align-items:center;gap:5px;}
+.currency-input-wrap{position:relative;display:inline-block;}
+.currency-input-wrap input[type=number]{width:64px;padding-inline-end:18px;text-align:center;}
+.currency-stepper{position:absolute;top:1px;bottom:1px;inset-inline-end:1px;width:16px;display:flex;flex-direction:column;}
+.currency-stepper button{flex:1 1 50%;border:none;background:transparent;padding:0;margin:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:8px;line-height:1;}
+.currency-stepper button:hover{color:var(--gold-bright);}
 
 
 /* ---------- skills two-column layout ---------- */
@@ -614,10 +620,12 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
   }
   .responsive-table select, .responsive-table .item-static{font-size:12.5px;padding:5px 6px;}
   .responsive-table input[type=text].item-name-input{font-size:12.5px;padding:5px 6px;min-width:0 !important;}
+  .responsive-table td.td-qty input[type=number]{width:48px !important;height:32px;box-sizing:border-box;font-size:12.5px;padding:5px 6px;}
   .item-static{padding:5px 2px;font-size:12.5px;}
   .responsive-table td.td-cat{flex:0 1 78px;}
   .responsive-table td.td-name{flex:1 1 90px;}
   .responsive-table td.td-qty{flex:0 0 56px;}
+  .currency-input-wrap input[type=number]{width:48px !important;height:32px;box-sizing:border-box;font-size:12.5px;padding:5px 6px;padding-inline-end:18px;}
   .responsive-table td.td-ac{flex:0 0 64px;}
   .responsive-table td.td-notes{flex:1 1 100%;order:3;}
   .responsive-table td.td-eq{order:2;flex:0 0 auto;padding-bottom:2px;}
@@ -1817,6 +1825,10 @@ function set(path, value){
   o[keys[keys.length-1]] = value;
   render();
   queueSave();
+}
+function stepCurrency(field, delta){
+  const cur = state.inventory.currency[field] || 0;
+  set(`inventory.currency.${field}`, Math.max(0, cur + delta));
 }
 function toggleProfListItem(field, id){
   const list = state.proficiencies[field];
@@ -4036,7 +4048,7 @@ function render(){
     <div class="armor-row" style="margin-top:0;padding-top:0;border-top:none">
       <div class="grp">
         <span class="dim-label">${t.currency}</span>
-        ${["cp","sp","ep","gp","pp"].map(c=>`<span class="dim-label" style="text-transform:uppercase">${c}</span><input type="number" min="0" value="${state.inventory.currency[c]}" style="width:64px;text-align:center" onchange="set('inventory.currency.${c}', parseInt(this.value)||0)">`).join("")}
+        ${["cp","sp","ep","gp","pp"].map(c=>`<span class="dim-label" style="text-transform:uppercase">${c}</span><span class="currency-input-wrap"><input type="number" min="0" class="no-spinner" value="${state.inventory.currency[c]}" onchange="set('inventory.currency.${c}', parseInt(this.value)||0)"><span class="currency-stepper"><button type="button" tabindex="-1" onclick="stepCurrency('${c}',1)" title="+1">▲</button><button type="button" tabindex="-1" onclick="stepCurrency('${c}',-1)" title="-1">▼</button></span></span>`).join("")}
       </div>
     </div>
     <h3 style="margin:12px 0 4px;font-size:13px;color:var(--gold);display:flex;align-items:center;justify-content:space-between">${t.gearTable}${lockIcon('gear')}</h3>
