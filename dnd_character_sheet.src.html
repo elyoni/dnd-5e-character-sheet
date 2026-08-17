@@ -772,12 +772,19 @@ const T = {
     aiReviewTitle:"3. Review suggested additions", aiAddBtn:"✓ Add to character", aiRejectBtn:"✕ Discard", aiAdded:"Added.",
     aiCatTrait:"Trait", aiCatFeat:"Feat", aiCatAttack:"Attack / Weapon", aiCatSpell:"Spell", aiCatResource:"Resource", aiCatItem:"Item",
     aiCatLevel:"Level", aiCatSubclass:"Subclass", aiCatExpertise:"Expertise", aiCatSpellSlot:"Spell slots — level",
-    aiTrustStepTitle:"How much can the AI change directly?", aiTrustStepDesc:"This controls what the AI is allowed to modify on existing fields (beyond just adding new feats/weapons/etc). Everything still needs your one-by-one confirmation below either way.",
-    aiTrustGuided:"Guided — AI can add items and set my level, I handle the rest", aiTrustTrusted:"Trusted — AI can also grant skill Expertise", aiTrustFullyTrusted:"Fully Trusted — also lets AI set my spell slot totals",
-    aiTrustDesc_guided:"The AI can add new feats/weapons/spells/resources/items and set your level directly (HP is recalculated automatically). For anything else (Expertise, spell slots), it explains what to change and you do it yourself in the sheet — good if you want to stay closely involved in maintaining your character.",
-    aiTrustDesc_trusted:"Everything in Guided, plus the AI can grant skill Expertise directly (only on skills you're already proficient in). Spell slots still need to be set manually.",
-    aiTrustDesc_fullyTrusted:"Everything in Trusted, plus the AI can set your spell slot totals directly. Spell slot suggestions come with a warning — always double-check them against your own class/multiclass table.",
     aiSpellSlotWarning:"⚠ Spell slot progression depends on class/multiclass rules the AI may have gotten wrong — double-check this against your own table before relying on it.",
+    onboardCreateAI:"🤖 Create with AI", newCharAI:"Create with AI…",
+    createAIModalTitle:"Create a character with AI", createAIDefaultName:"New Adventurer",
+    createAIConceptStepTitle:"1. Describe your character", createAIConceptStepDesc:"A sentence or two is enough — concept, personality, backstory, whatever you have in mind.",
+    createAIConceptPlaceholder:"e.g. a half-orc barbarian, former sailor, gruff but loyal…",
+    createAICopyStepDesc:"Copy this, paste it into an AI chat (ChatGPT, Claude, Gemini, etc.), and send it. The AI may ask you a few follow-up questions first.",
+    createAIPasteStepDesc:"Once the AI proposes a character, paste its full reply below.",
+    createAIPreviewTitle:"2. Review the character", createAIBackBtn:"← Back", createAIConfirmBtn:"✓ Create character",
+    createAIExtrasDoneTitle:"3. Starting suggestions", createAIExtrasDoneDesc:"Your character has been created. Review anything else the AI suggested below, one at a time.",
+    createAINoExtras:"Nothing else was suggested.",
+    createAIParseErrorClass:"The AI's reply used \"__VALUE__\" for class, which isn't one of this app's known classes. Paste this back to the AI: \"Please use one of the exact class names I gave you, or leave class blank.\"",
+    createAIParseErrorRace:"The AI's reply used \"__VALUE__\" for race, which isn't one of this app's known races. Paste this back to the AI: \"Please use one of the exact race names I gave you, or leave race blank.\"",
+    createAIParseErrorSubrace:"The AI's reply used \"__VALUE__\" for subrace, which isn't a valid option for that race. Paste this back to the AI: \"Please use one of the exact subrace names I gave you for this race, or leave subrace blank.\"",
     printSettingsTitle:"Print Settings", printStyleLabel:"Layout:", printMinimal:"Minimal (sheet only)", printStandard:"Standard (+ flow & reference)",
     extraAttackRows:"Extra blank attack lines:", extraSpellRows:"Extra blank spell lines:", printGo:"Print", printCancel:"Cancel", closeBtn:"Close",
     spells:"Spells", spCastAbil:"Casting stat", spellSaveDC:"Spell Save DC", spellAtk:"Spell Attack Bonus",
@@ -937,12 +944,19 @@ const T = {
     aiReviewTitle:"3. סקור הצעות תוספת", aiAddBtn:"✓ הוסף לדמות", aiRejectBtn:"✕ התעלם", aiAdded:"נוסף.",
     aiCatTrait:"תכונה", aiCatFeat:"כשר", aiCatAttack:"נשק / התקפה", aiCatSpell:"כישוף", aiCatResource:"משאב", aiCatItem:"פריט",
     aiCatLevel:"רמה", aiCatSubclass:"תת-מחלקה", aiCatExpertise:"מומחיות", aiCatSpellSlot:"משבצות כישוף — רמה",
-    aiTrustStepTitle:"כמה ה-AI יכול לשנות ישירות?", aiTrustStepDesc:"זה קובע מה ה-AI רשאי לשנות בשדות קיימים (מעבר להוספת feats/נשקים/וכו' חדשים). בכל מקרה תמיד תידרש אישור שלך אחד־אחד למטה.",
-    aiTrustGuided:"מודרך — ה-AI יכול להוסיף פריטים ולקבוע את הרמה שלי, ואני מטפל בשאר", aiTrustTrusted:"נאמן — ה-AI יכול גם להעניק מומחיות בכישורים", aiTrustFullyTrusted:"נאמן מלא — מאפשר גם ל-AI לקבוע את משבצות הכישוף שלי",
-    aiTrustDesc_guided:"ה-AI יכול להוסיף feats/נשקים/כישופים/משאבים/פריטים חדשים ולקבוע את הרמה שלך ישירות (נק״ח מחושבות אוטומטית). לכל דבר אחר (מומחיות, משבצות כישוף) הוא מסביר מה לשנות ואתה עושה זאת בעצמך בגיליון — טוב אם אתה רוצה להישאר מעורב מקרוב בתחזוקת הדמות שלך.",
-    aiTrustDesc_trusted:"כל מה שיש במצב מודרך, ובנוסף ה-AI יכול להעניק מומחיות בכישורים ישירות (רק בכישורים שאתה כבר מיומן בהם). משבצות כישוף עדיין דורשות עדכון ידני.",
-    aiTrustDesc_fullyTrusted:"כל מה שיש במצב נאמן, ובנוסף ה-AI יכול לקבוע ישירות את סך משבצות הכישוף שלך. הצעות למשבצות כישוף מגיעות עם אזהרה — תמיד בדוק אותן מול הטבלה שלך.",
     aiSpellSlotWarning:"⚠ התקדמות משבצות הכישוף תלויה בכללי מחלקה/מחלקה כפולה שה-AI אולי טעה בהם — בדוק זאת מול הטבלה שלך לפני שאתה סומך על זה.",
+    onboardCreateAI:"🤖 צור עם AI", newCharAI:"צור עם AI…",
+    createAIModalTitle:"יצירת דמות עם AI", createAIDefaultName:"הרפתקן חדש",
+    createAIConceptStepTitle:"1. תאר את הדמות שלך", createAIConceptStepDesc:"משפט או שניים מספיקים — קונספט, אישיות, רקע, מה שיש לך בראש.",
+    createAIConceptPlaceholder:"למשל: ברברי חצי-אורק, מלח לשעבר, גס אך נאמן…",
+    createAICopyStepDesc:"העתק את זה, הדבק אותו בצ'אט AI (ChatGPT, Claude, Gemini וכו') ושלח. ה-AI עשוי לשאול אותך כמה שאלות המשך קודם.",
+    createAIPasteStepDesc:"ברגע שה-AI מציע דמות, הדבק כאן את התשובה המלאה שלו.",
+    createAIPreviewTitle:"2. סקור את הדמות", createAIBackBtn:"← חזרה", createAIConfirmBtn:"✓ צור דמות",
+    createAIExtrasDoneTitle:"3. הצעות פתיחה", createAIExtrasDoneDesc:"הדמות שלך נוצרה. סקור למטה כל דבר נוסף שה-AI הציע, אחד־אחד.",
+    createAINoExtras:"לא הוצע דבר נוסף.",
+    createAIParseErrorClass:"התשובה של ה-AI השתמשה ב-\"__VALUE__\" עבור מחלקה, וזו לא אחת מהמחלקות המוכרות לאפליקציה. הדבק בחזרה ל-AI: \"Please use one of the exact class names I gave you, or leave class blank.\"",
+    createAIParseErrorRace:"התשובה של ה-AI השתמשה ב-\"__VALUE__\" עבור גזע, וזה לא אחד הגזעים המוכרים לאפליקציה. הדבק בחזרה ל-AI: \"Please use one of the exact race names I gave you, or leave race blank.\"",
+    createAIParseErrorSubrace:"התשובה של ה-AI השתמשה ב-\"__VALUE__\" עבור תת-גזע, וזו לא אפשרות תקפה לגזע הזה. הדבק בחזרה ל-AI: \"Please use one of the exact subrace names I gave you for this race, or leave subrace blank.\"",
     linkReadyHint:"הקישור הועתק ללוח — אפשר גם להעתיק ידנית למטה.", linkCopied:"✓ הועתק ללוח.",
     printSettingsTitle:"הגדרות הדפסה", printStyleLabel:"פריסה:", printMinimal:"מינימלי (גיליון בלבד)", printStandard:"סטנדרטי (+ תהליך והסבר)",
     extraAttackRows:"שורות התקפה ריקות נוספות:", extraSpellRows:"שורות קסם ריקות נוספות:", printGo:"הדפסה", printCancel:"ביטול", closeBtn:"סגור",
@@ -2324,6 +2338,7 @@ function noCharactersHTML(t){
     <p class="formula-note" style="font-size:14px;margin:0 auto 22px;max-width:420px">${t.noCharBody}</p>
     <div style="display:flex;flex-direction:column;gap:10px;max-width:280px;margin:0 auto">
       <button class="btn primary" onclick="openNewCharModal()">${t.onboardNewChar}</button>
+      <button class="btn" onclick="openCreateAIModal()">${t.onboardCreateAI}</button>
       <button class="btn" onclick="loadDemoCharacter()">${t.onboardDemoChar}</button>
     </div>
   </div>`;
@@ -2685,24 +2700,15 @@ function buildAIExport(){
   const character = buildCuratedCharacterForAI();
   const languageLine = lang === 'he' ? "\n\nPlease write your answer (the prose part of your reply) in Hebrew. Keep all YAML field names/keys in this format in English exactly as shown below — only the free-text values you write (like a feat's notes) and your conversational reply should be in Hebrew." : "";
 
-  const trust = aiTrustLevel;
   let modSchema = `
 level: 5
-subclass: "Champion"`;
-  let modRules = ` This block can ADD new entries (as above), and can also set "level" (a single integer, the character's new total level) and/or "subclass" (a string, only once the user has told you what it is) directly — include either only if it should change. Never set ability scores or HP directly: HP recalculates automatically from level, and an ability score change should be a feat addition (see "feats" above) with the matching "mod" instead of a separate field.`;
-  if(trust === 'trusted' || trust === 'fullyTrusted'){
-    modSchema += `
+subclass: "Champion"
 expertise:
-  - "stealth"`;
-    modRules += ` The user has also opted in to letting you set "expertise" directly: a list of skill keys (matching the character's own skillProficiencies keys, e.g. "stealth") to grant Expertise on (doubled proficiency bonus) — only skills the character is already proficient in.`;
-  }
-  if(trust === 'fullyTrusted'){
-    modSchema += `
+  - "stealth"
 spellSlots:
   "1": 4
   "2": 3`;
-    modRules += ` You may also include "spellSlots": a map from spell level (string key "1"–"9") to its new total slot count — include only levels whose total actually changes. Because spell slot progression depends on class/multiclass/Pact Magic rules you may not have exactly right, explicitly tell the user in your plain-text reply to double-check this against their own table before trusting it.`;
-  }
+  let modRules = ` This block can ADD new entries (as above), and can also set "level" (a single integer, the character's new total level), "subclass" (a string, only once the user has told you what it is), "expertise" (a list of skill keys matching the character's own skillProficiencies keys, e.g. "stealth" — only skills the character is already proficient in), and/or "spellSlots" (a map from spell level, string key "1"-"9", to its new total slot count — include only levels whose total actually changes) directly — include any of these only if they should change. Because spell slot progression depends on class/multiclass/Pact Magic rules you may not have exactly right, explicitly tell the user in your plain-text reply to double-check "spellSlots" against their own table before trusting it. Never set ability scores or HP directly: HP recalculates automatically from level, and an ability score change should be a feat addition (see "feats" above) with the matching "mod" instead of a separate field.`;
 
   const instructions =
 `This is a D&D 5e character from a character-sheet web app, exported for an AI assistant. Answer the user's question about it below.${languageLine}
@@ -2768,12 +2774,15 @@ Rules for that block:${modRules} Always include "schemaVersion: ${AI_SCHEMA_VERS
 function stripStrayFenceLines(s){
   return s.split(/\r?\n/).filter(l => !/^\s*```/.test(l)).join('\n');
 }
-function extractAIAdditionsBlock(text){
-  const labeled = /```dnd-sheet-additions\s*\n([\s\S]*?)```/.exec(text);
+// Sheet Additions and Character Draft replies use distinct fenced-block labels
+// and schemas (see CONTEXT.md) — signatureRe lets each caller reject a block
+// that matches the other flow's shape when the fence label itself got lost.
+function extractAILabeledBlock(text, label, signatureRe){
+  const labeled = new RegExp("```" + label + "\\s*\\n([\\s\\S]*?)```").exec(text);
   if(labeled) return stripStrayFenceLines(labeled[1]);
   const re = /```[a-zA-Z0-9_-]*\s*\n([\s\S]*?)```/g;
   let m;
-  while((m = re.exec(text))){ if(/schemaVersion\s*:/.test(m[1])) return stripStrayFenceLines(m[1]); }
+  while((m = re.exec(text))){ if(/schemaVersion\s*:/.test(m[1]) && signatureRe.test(m[1])) return stripStrayFenceLines(m[1]); }
   // Some AI chat UIs strip fence markers entirely when a reply is copied (e.g. a
   // per-code-block "copy" button, or copying the rendered view instead of raw
   // markdown) — fall back to locating the bare "schemaVersion:" line and reading
@@ -2790,7 +2799,36 @@ function extractAIAdditionsBlock(text){
     if(i > startIdx && indentOf(line) === 0 && !/^[A-Za-z_][\w.]*\s*:/.test(trimmed)) break;
     collected.push(line);
   }
-  return collected.join('\n');
+  const block = collected.join('\n');
+  return signatureRe.test(block) ? block : null;
+}
+function extractAIAdditionsBlock(text){
+  return extractAILabeledBlock(text, "dnd-sheet-additions", /^\s*(feats|traits|attacks|spells|resources|items|level|subclass|expertise|spellSlots)\s*:/m);
+}
+function extractCreateAIBlock(text){
+  return extractAILabeledBlock(text, "dnd-sheet-newcharacter", /^\s*abilities\s*:/m);
+}
+// Shared by Sheet Additions and Character Draft: turns the raw parsed YAML's
+// addition-shaped categories into {kind:'add', category, data} entries,
+// skipping any whose name already exists on dedupeState (pass null to skip
+// dedup entirely, e.g. before a new character even exists).
+function collectAIAdditionEntries(parsed, dedupeState){
+  const items = [];
+  let sawAnyRawSuggestion = false;
+  Object.keys(AI_ADDITION_SCHEMAS).forEach(cat => {
+    const arr = parsed[cat];
+    if(!Array.isArray(arr)) return;
+    const existingList = dedupeState ? (cat === 'items' ? dedupeState.inventory.items : dedupeState[cat]) : [];
+    const existingNames = new Set((existingList||[]).map(e => (e.name||"").trim().toLowerCase()).filter(Boolean));
+    arr.forEach(data => {
+      if(!data || typeof data !== 'object') return;
+      sawAnyRawSuggestion = true;
+      const name = (data.name||"").trim().toLowerCase();
+      if(name && existingNames.has(name)) return;
+      items.push({kind:'add', category:cat, data});
+    });
+  });
+  return {items, sawAnyRawSuggestion};
 }
 
 let aiModalOpen = false;
@@ -2798,12 +2836,6 @@ let aiCopyDone = false;
 let aiParsedAdditions = [];
 let aiParseError = "";
 let aiPasteText = "";
-let aiTrustLevel = "guided"; // "guided" | "trusted" | "fullyTrusted"
-async function setAITrustLevel(v){
-  aiTrustLevel = v;
-  render();
-  try{ await storageSet("dnd-ai-trust", v); }catch(e){}
-}
 function openAIModal(){ aiModalOpen = true; aiCopyDone = false; aiParsedAdditions = []; aiParseError = ""; aiPasteText = ""; render(); }
 function closeAIModal(){ aiModalOpen = false; render(); }
 async function copyAIExport(){
@@ -2824,37 +2856,21 @@ function parseAIPaste(){
     aiParseError = t.aiParseErrorVersion.replace('__CURRENT__', AI_SCHEMA_VERSION).replace('__GIVEN__', parsed.schemaVersion===undefined?'none':parsed.schemaVersion);
     render(); return;
   }
-  const items = [];
-  let sawAnyRawSuggestion = false;
-  Object.keys(AI_ADDITION_SCHEMAS).forEach(cat => {
-    const arr = parsed[cat];
-    if(!Array.isArray(arr)) return;
-    const existingList = cat === 'items' ? state.inventory.items : state[cat];
-    const existingNames = new Set((existingList||[]).map(e => (e.name||"").trim().toLowerCase()).filter(Boolean));
-    arr.forEach(data => {
-      if(!data || typeof data !== 'object') return;
-      sawAnyRawSuggestion = true;
-      const name = (data.name||"").trim().toLowerCase();
-      if(name && existingNames.has(name)) return;
-      items.push({kind:'add', category:cat, data});
-    });
-  });
+  const {items, sawAnyRawSuggestion} = collectAIAdditionEntries(parsed, state);
   if(typeof parsed.level === 'number' && parsed.level > 0 && parsed.level !== state.level){
     items.push({kind:'modify', category:'level', data:{from: state.level, to: parsed.level}});
   }
   if(typeof parsed.subclass === 'string' && parsed.subclass.trim() && parsed.subclass.trim() !== state.subclass){
     items.push({kind:'modify', category:'subclass', data:{from: state.subclass, to: parsed.subclass.trim()}});
   }
-  if(aiTrustLevel === 'trusted' || aiTrustLevel === 'fullyTrusted'){
-    if(Array.isArray(parsed.expertise)){
-      parsed.expertise.forEach(skillKey => {
-        if(SKILLS.some(s=>s[0]===skillKey) && state.skillProf[skillKey] && !state.skillExpertise[skillKey]){
-          items.push({kind:'modify', category:'expertise', data:{skill: skillKey}});
-        }
-      });
-    }
+  if(Array.isArray(parsed.expertise)){
+    parsed.expertise.forEach(skillKey => {
+      if(SKILLS.some(s=>s[0]===skillKey) && state.skillProf[skillKey] && !state.skillExpertise[skillKey]){
+        items.push({kind:'modify', category:'expertise', data:{skill: skillKey}});
+      }
+    });
   }
-  if(aiTrustLevel === 'fullyTrusted' && isPlainObject(parsed.spellSlots)){
+  if(isPlainObject(parsed.spellSlots)){
     Object.entries(parsed.spellSlots).forEach(([lvlStr, total]) => {
       const idx = parseInt(lvlStr,10) - 1;
       if(idx>=0 && idx<9 && typeof total === 'number'){
@@ -2920,6 +2936,248 @@ function aiItemLabel(entry){
   if(category==='resources' && data.total) parts.push(`×${data.total}`);
   if(category==='items' && data.qty) parts.push(`×${data.qty}`);
   return parts.join(" · ");
+}
+
+/* ============ Character Draft (Ask AI: create a new character) ============
+   See CONTEXT.md — distinct from Sheet Additions because there's no existing
+   character to protect from being overwritten. Identity+abilities (the
+   "Character Draft") is one atomic confirm step; the extras it proposes
+   alongside (Starting Suggestions) reuse the exact same aiParsedAdditions/
+   addAIItem/rejectAIItem/aiItemLabel review mechanism as Sheet Additions,
+   just applied to the freshly created character instead of an existing one. */
+let createAIModalOpen = false;
+let createAIStep = "concept"; // "concept" | "preview" | "extras"
+let createAIConceptText = "";
+let createAICopyDone = false;
+let createAIPasteText = "";
+let createAIParseError = "";
+let createAIDraft = null; // {parsed, identity:{name,cls,subclass,race,subrace,bg,level,size,abilities,spellSlots}}
+function openCreateAIModal(){
+  createAIModalOpen = true; createAIStep = "concept"; createAIConceptText = "";
+  createAICopyDone = false; createAIPasteText = ""; createAIParseError = ""; createAIDraft = null;
+  render();
+}
+function closeCreateAIModal(){ createAIModalOpen = false; render(); }
+function backCreateAIDraft(){ createAIStep = "concept"; createAIDraft = null; createAIParseError = ""; render(); }
+async function copyCreateAIExport(){
+  const text = buildCreateAIExport();
+  try{ await navigator.clipboard.writeText(text); createAICopyDone = true; render(); }catch(err){}
+}
+function buildCreateAIExport(){
+  const languageLine = lang === 'he' ? "\n\nPlease write your answer (the prose part of your reply) in Hebrew. Keep all YAML field names/keys in this format in English exactly as shown below — only the free-text values you write (like a feat's notes) and your conversational reply should be in Hebrew." : "";
+  const classList = CLASS_LIST.join(", ");
+  const raceList = RACE_LIST.join(", ");
+  const subraceLines = Object.entries(SUBRACE_MAP).map(([r,subs])=>`- ${r}: ${subs.join(", ")}`).join("\n");
+  const concept = createAIConceptText.trim() || "(no concept given — ask me what kind of character I want before proposing anything)";
+
+  return `I want you to help me create a brand-new D&D 5e character for a character-sheet web app. Here's my concept:
+
+${concept}${languageLine}
+
+Whenever 5e rules present a choice you can't make on my behalf (e.g. which skills to pick for Expertise, which spells to learn, a fighting style), ask me directly and wait for my answer rather than inventing a placeholder. Once you're ready to propose the character, reply with ONE fenced code block labeled "dnd-sheet-newcharacter" containing YAML in exactly this shape:
+
+\`\`\`dnd-sheet-newcharacter
+schemaVersion: ${AI_SCHEMA_VERSION}
+name: "Thok Ironbrow"
+class: "Barbarian"
+subclass: ""
+race: "Half-Orc"
+subrace: ""
+background: "Sailor"
+level: 3
+size: "Medium"
+abilities:
+  str: 16
+  dex: 13
+  con: 15
+  int: 8
+  wis: 10
+  cha: 12
+spellSlots:
+  "1": 4
+feats:
+  - name: "Example Feat"
+    level: 1
+    notes: "What it does."
+    mod:
+      stat: "dex"
+      amount: 1
+      perLevel: false
+      fixed: false
+traits: []
+attacks:
+  - name: "Example Weapon"
+    type: "melee"
+    dmg: "1d8"
+    dmgType: "slashing"
+    prof: true
+    notes: ""
+spells: []
+resources:
+  - name: "Example Resource"
+    total: 2
+    recharge: "long"
+    notes: ""
+items:
+  - name: "Example Item"
+    qty: 1
+    notes: ""
+    category: "other"
+\`\`\`
+
+Rules for that block: "class" must be EXACTLY one of: ${classList} (case-sensitive), or an empty string if genuinely undecided. "race" must be EXACTLY one of: ${raceList}, or an empty string. If "race" is one of the races below, "subrace" must be EXACTLY one of that race's listed options, or an empty string for no subrace:
+${subraceLines}
+"background" and "subclass" are free text (subclass can be blank if not chosen yet). "level" is an integer 1-20. "abilities" must include all six of str/dex/con/int/wis/cha as integers — pick whatever generation method (standard array, point buy, or rolled) best fits the concept and level. Only include "spellSlots" if the class actually has spell slots at this level — a map from spell level (string key "1"-"9") to its total slot count; tell me in your plain-text reply to double-check it against the class table, since multiclass/Pact Magic rules are easy to get wrong. Don't repeat race/class traits the app already grants automatically (like a Half-Orc's Darkvision) under "traits" — only list one there if it's unusual and not implied by the standard race. "feats"/"traits"/"attacks"/"spells"/"resources"/"items" follow the same shape as this app's normal add-suggestion format and can each be omitted or empty. Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.
+`;
+}
+function parseCreateAIPaste(){
+  const t = T[lang];
+  const ta = document.getElementById("createAIPasteInput");
+  const text = ta ? ta.value : "";
+  createAIParseError = "";
+  const block = extractCreateAIBlock(text);
+  if(!block){ createAIParseError = t.aiParseErrorNone; render(); return; }
+  let parsed;
+  try{ parsed = parseYAML(block); }catch(err){ parsed = null; }
+  if(!parsed || typeof parsed !== 'object'){ createAIParseError = t.aiParseErrorBad; render(); return; }
+  if(parsed.schemaVersion !== AI_SCHEMA_VERSION){
+    createAIParseError = t.aiParseErrorVersion.replace('__CURRENT__', AI_SCHEMA_VERSION).replace('__GIVEN__', parsed.schemaVersion===undefined?'none':parsed.schemaVersion);
+    render(); return;
+  }
+  const cls = typeof parsed.class === 'string' ? parsed.class.trim() : "";
+  if(cls && !CLASS_LIST.includes(cls)){
+    createAIParseError = t.createAIParseErrorClass.replace('__VALUE__', cls);
+    render(); return;
+  }
+  const race = typeof parsed.race === 'string' ? parsed.race.trim() : "";
+  if(race && !RACE_LIST.includes(race)){
+    createAIParseError = t.createAIParseErrorRace.replace('__VALUE__', race);
+    render(); return;
+  }
+  const subrace = typeof parsed.subrace === 'string' ? parsed.subrace.trim() : "";
+  if(subrace && !(SUBRACE_MAP[race]||[]).includes(subrace)){
+    createAIParseError = t.createAIParseErrorSubrace.replace('__VALUE__', subrace);
+    render(); return;
+  }
+  const abilitiesIn = isPlainObject(parsed.abilities) ? parsed.abilities : {};
+  const abilities = {};
+  ABILS.forEach(a => { const v = parseInt(abilitiesIn[a]); abilities[a] = Number.isFinite(v) ? v : 10; });
+  const level = Math.max(1, Math.min(20, parseInt(parsed.level)||1));
+  const name = (typeof parsed.name === 'string' && parsed.name.trim()) || t.createAIDefaultName;
+  const size = (typeof parsed.size === 'string' && SIZE_LIST.includes(parsed.size.trim())) ? parsed.size.trim() : "Medium";
+  const subclass = typeof parsed.subclass === 'string' ? parsed.subclass.trim() : "";
+  const bg = typeof parsed.background === 'string' ? parsed.background.trim() : "";
+  const spellSlots = isPlainObject(parsed.spellSlots) ? parsed.spellSlots : {};
+
+  createAIDraft = { parsed, identity:{name, cls, subclass, race, subrace, bg, level, size, abilities, spellSlots} };
+  createAIStep = "preview";
+  render();
+}
+async function confirmCreateAIDraft(){
+  if(!createAIDraft) return;
+  const { identity, parsed } = createAIDraft;
+  const id = "c"+Date.now();
+  charIndex.push({id, name: identity.name});
+  await saveIndex();
+
+  state = defaultChar(id);
+  state.name = identity.name;
+  state.level = identity.level;
+  state.size = identity.size;
+  state.abilities = identity.abilities;
+  state.subclass = identity.subclass;
+  state.bg = identity.bg;
+  if(identity.cls){ state.cls = identity.cls; }
+  if(identity.race){ state.race = identity.race; }
+  state.subrace = identity.subrace;
+
+  if(identity.cls && CLASS_LIST.includes(identity.cls)) applyTemplate(identity.cls);
+  if(identity.race) applyRaceTemplate(raceToKind(identity.race));
+  if(identity.subrace) applySubraceTemplate(identity.race, identity.subrace);
+
+  Object.entries(identity.spellSlots).forEach(([lvlStr, total]) => {
+    const idx = parseInt(lvlStr,10) - 1;
+    const n = parseInt(total);
+    if(idx>=0 && idx<9 && Number.isFinite(n)) state.spellcasting.slots[idx].total = Math.max(0, n);
+  });
+
+  await storageSet("dnd-char:"+id, JSON.stringify(state));
+  await setLastUsedId(id);
+
+  const { items } = collectAIAdditionEntries(parsed, state);
+  aiParsedAdditions = items;
+  createAIStep = "extras";
+  render(); queueSave();
+}
+function createAIModalHTML(t){
+  const stepBody = createAIStep === "extras" ? `
+      <div class="modal-row">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.createAIExtrasDoneTitle}</div>
+        <div style="font-size:12px;color:var(--ink-faint)">${t.createAIExtrasDoneDesc}</div>
+      </div>
+      ${aiParsedAdditions.length ? `
+      <div class="modal-row" style="margin-top:16px">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t.aiReviewTitle}</div>
+        ${aiParsedAdditions.map((entry,i) => `
+        <div style="padding:8px 0;border-bottom:1px solid var(--leather-line)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div style="font-size:13px">${aiItemLabel(entry)}</div>
+            <div style="display:flex;gap:6px;flex:none">
+              <button class="btn primary" style="padding:4px 10px;font-size:12px" onclick="addAIItem(${i})">${t.aiAddBtn}</button>
+              <button class="btn" style="padding:4px 10px;font-size:12px" onclick="rejectAIItem(${i})">${t.aiRejectBtn}</button>
+            </div>
+          </div>
+        </div>`).join("")}
+      </div>` : `<div class="modal-row" style="margin-top:16px"><div class="formula-note">${t.createAINoExtras}</div></div>`}
+      <div class="modal-actions">
+        <button class="btn primary" onclick="closeCreateAIModal()">${t.closeBtn}</button>
+      </div>` : createAIStep === "preview" ? (() => {
+    const { identity } = createAIDraft;
+    return `
+      <div class="modal-row">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t.createAIPreviewTitle}</div>
+        <div style="font-size:14px;line-height:1.7">
+          <div><b>${esc2(identity.name)}</b></div>
+          <div class="dim-label">${esc2(identity.cls ? clsLabel(identity.cls,lang) : "—")}${identity.subclass?` (${esc2(identity.subclass)})`:""} · ${esc2(identity.race ? raceLabel(identity.race,lang) : "—")}${identity.subrace?` (${esc2(identity.subrace)})`:""} · ${t.level} ${identity.level}</div>
+          <div class="dim-label">${t.bg}: ${esc2(identity.bg)||"—"}</div>
+          <div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap">
+            ${ABILS.map(a=>`<span>${a.toUpperCase()} ${identity.abilities[a]} (${fm(mod(identity.abilities[a]))})</span>`).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="backCreateAIDraft()">${t.createAIBackBtn}</button>
+        <button class="btn primary" onclick="confirmCreateAIDraft()">${t.createAIConfirmBtn}</button>
+      </div>`;
+  })() : `
+      <div class="modal-row">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.createAIConceptStepTitle}</div>
+        <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.createAIConceptStepDesc}</div>
+        <textarea id="createAIConceptInput" placeholder="${t.createAIConceptPlaceholder}" style="width:100%;box-sizing:border-box;min-height:70px;font-size:13px" dir="auto" oninput="createAIConceptText=this.value">${esc2(createAIConceptText)}</textarea>
+      </div>
+      <div class="modal-row" style="margin-top:16px">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.aiCopyStepTitle}</div>
+        <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.createAICopyStepDesc}</div>
+        <button class="btn primary" onclick="copyCreateAIExport()">${t.aiCopyBtn}</button>
+        ${createAICopyDone ? `<div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t.aiCopyCopied}</div>` : ""}
+      </div>
+      <div class="modal-row" style="margin-top:16px">
+        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.aiPasteStepTitle}</div>
+        <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.createAIPasteStepDesc}</div>
+        <textarea id="createAIPasteInput" placeholder="${t.aiPastePlaceholder}" style="width:100%;box-sizing:border-box;min-height:110px;font-family:'IBM Plex Mono',monospace;font-size:12px" dir="auto" oninput="createAIPasteText=this.value">${esc2(createAIPasteText)}</textarea>
+        <button class="btn" style="margin-top:8px" onclick="parseCreateAIPaste()">${t.aiParseBtn}</button>
+        ${createAIParseError ? `<div style="font-size:12px;color:var(--danger,#c0392b);margin-top:8px;white-space:pre-wrap">${esc2(createAIParseError)}</div>` : ""}
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeCreateAIModal()">${t.printCancel}</button>
+      </div>`;
+  return `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeCreateAIModal()">
+    <div class="modal-box" style="max-width:560px">
+      <h3>${t.createAIModalTitle}</h3>
+      ${stepBody}
+    </div>
+  </div>`;
 }
 
 function confirmPrint(){
@@ -3855,6 +4113,7 @@ function render(){
     ${noCharactersHTML(t)}
     ${onboardingModalOpen ? onboardingModalHTML(t) : ""}
     ${newCharModalOpen ? newCharModalHTML(t) : ""}
+    ${createAIModalOpen ? createAIModalHTML(t) : ""}
     `;
     document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
     restoreScroll();
@@ -3887,9 +4146,10 @@ function render(){
   </div>
   <div class="controls no-print">
       <div class="char-select-group">
-        <select onchange="if(this.value==='__new__'){openNewCharModal();}else{switchCharacter(this.value)}">
+        <select onchange="if(this.value==='__new__'){openNewCharModal();}else if(this.value==='__newAI__'){openCreateAIModal();}else{switchCharacter(this.value)}">
           ${charIndex.map(c=>`<option value="${c.id}" ${c.id===state.id?"selected":""}>${c.name||"—"}</option>`).join("")}
           <option value="__new__">➕ ${t.newChar}</option>
+          <option value="__newAI__">🤖 ${t.newCharAI}</option>
         </select>
         <button class="btn danger icon-btn" onclick="confirmRemove(deleteCharacter)" title="${t.del}">🗑️</button>
       </div>
@@ -4451,6 +4711,7 @@ function render(){
   </div>` : ""}
 
   ${newCharModalOpen ? newCharModalHTML(t) : ""}
+  ${createAIModalOpen ? createAIModalHTML(t) : ""}
 
   ${featModalOpen ? (()=>{
     const isTrait = featModalListKey === "traits";
@@ -4573,17 +4834,6 @@ function render(){
       <h3>${t.aiModalTitle}</h3>
 
       <div class="modal-row">
-        <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.aiTrustStepTitle}</div>
-        <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.aiTrustStepDesc}</div>
-        <select onchange="setAITrustLevel(this.value)" style="width:100%">
-          <option value="guided" ${aiTrustLevel==='guided'?'selected':''}>${t.aiTrustGuided}</option>
-          <option value="trusted" ${aiTrustLevel==='trusted'?'selected':''}>${t.aiTrustTrusted}</option>
-          <option value="fullyTrusted" ${aiTrustLevel==='fullyTrusted'?'selected':''}>${t.aiTrustFullyTrusted}</option>
-        </select>
-        <div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t["aiTrustDesc_"+aiTrustLevel]}</div>
-      </div>
-
-      <div class="modal-row" style="margin-top:16px">
         <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.aiCopyStepTitle}</div>
         <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.aiCopyStepDesc}</div>
         <button class="btn primary" onclick="copyAIExport()">${t.aiCopyBtn}</button>
@@ -4676,10 +4926,6 @@ window.addEventListener('resize', trimDiceHistories);
     try{
       const themeRes = await storageGet("dnd-theme");
       if(themeRes && THEME_LIST.includes(themeRes.value)) theme = themeRes.value;
-    }catch(e){}
-    try{
-      const trustRes = await storageGet("dnd-ai-trust");
-      if(trustRes && ["guided","trusted","fullyTrusted"].includes(trustRes.value)) aiTrustLevel = trustRes.value;
     }catch(e){}
     try{
       const foldRes = await storageGet("dnd-folded-panels");
