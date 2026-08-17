@@ -741,7 +741,10 @@ const T = {
     gearCatFood:"Food", gearCatPotion:"Potion", gearCatPoison:"Poison", gearCatAmmunition:"Ammunition",
     gearCatTool:"Tool", gearCatFocus:"Focus", gearCatMagic:"Magic Item", gearCatContainer:"Container", gearCatOther:"Other",
     itemAC:"AC", acBreakdown:"AC breakdown", unarmoredAbilHint:"Ability that governs AC when no armor is equipped",
-    armorAbilHint:"Ability modifier added to this armor's AC — DEX for light/medium armor, none for heavy armor",
+    armorAbilHint:"Armor weight class — determines how much of your Dex modifier applies to this armor's AC (Light: full, Medium: max +2, Heavy: none)",
+    acBaseArmor:"Armor", acBaseUnarmored:"Unarmored",
+    wcLight:"Light", wcMedium:"Medium", wcHeavy:"Heavy", wcMediumCapNote:" (max +2)",
+    armorProfWarning:"⚠ Not proficient with this armor's weight class — Disadvantage on Strength/Dexterity checks, saves, and attacks; you can't cast spells while wearing it.",
     noneOption:"— none —",
     abilities:"Ability Scores", str:"STR",dex:"DEX",con:"CON",int:"INT",wis:"WIS",cha:"CHA",
     combat:"Combat", ac:"Armor Class", init:"Initiative", speed:"Speed", speedBase:"Base", climbSpeed:"Climb Speed", swimSpeed:"Swim Speed", flySpeed:"Fly Speed", hp:"Hit Points", hitdice:"Hit Dice", hitDiceSpent:"Click to mark a hit die spent on a short rest", prof:"Proficiency",
@@ -767,7 +770,7 @@ const T = {
     aiParseErrorAllExist:"Everything suggested in that reply is already on your sheet — nothing new to add.",
     aiParseErrorBad:"Couldn't read that suggestion — it doesn't match the expected format. Paste this back to the AI: \"That didn't parse. Please re-check the schema in my earlier message and try again.\"",
     aiReviewTitle:"3. Review suggested additions", aiAddBtn:"✓ Add to character", aiRejectBtn:"✕ Discard", aiAdded:"Added.",
-    aiCatFeat:"Feat", aiCatAttack:"Attack / Weapon", aiCatSpell:"Spell", aiCatResource:"Resource", aiCatItem:"Item",
+    aiCatTrait:"Trait", aiCatFeat:"Feat", aiCatAttack:"Attack / Weapon", aiCatSpell:"Spell", aiCatResource:"Resource", aiCatItem:"Item",
     aiCatLevel:"Level", aiCatSubclass:"Subclass", aiCatExpertise:"Expertise", aiCatSpellSlot:"Spell slots — level",
     aiTrustStepTitle:"How much can the AI change directly?", aiTrustStepDesc:"This controls what the AI is allowed to modify on existing fields (beyond just adding new feats/weapons/etc). Everything still needs your one-by-one confirmation below either way.",
     aiTrustGuided:"Guided — AI can add items and set my level, I handle the rest", aiTrustTrusted:"Trusted — AI can also grant skill Expertise", aiTrustFullyTrusted:"Fully Trusted — also lets AI set my spell slot totals",
@@ -783,7 +786,7 @@ const T = {
     quickSpellPh:"Spell name…", doneBtn:"Done",
     spName:"Spell", spLevel:"Lv", spPrepared:"Prep.", spConc:"C", spTouch:"T", spVerbal:"V", spSomatic:"S", spMaterial:"M", spDmg:"Damage", spNotes:"Notes", addSpell:"Spell",
     spVerbalFull:"Verbal — spoken incantations", spSomaticFull:"Somatic — physical gestures", spMaterialFull:"Material — physical ingredients",
-    spRange:"Range", spCastTime:"Cast Type", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", editFeatModalTitle:"Edit Feat", addAttackModalTitle:"New Attack",
+    spRange:"Range", spCastTime:"Cast Type", spSave:"Save", addSpellModalTitle:"New Spell", addFeatModalTitle:"New Feat", editFeatModalTitle:"Edit Feat", addTraitModalTitle:"New Trait", editTraitModalTitle:"Edit Trait", addAttackModalTitle:"New Attack",
     spCategory:"Type", spCategoryNone:"—", spCategoryAttack:"Attack", spCategoryBuff:"Buff/Aid", spCategoryOther:"Other",
     spCollapseAll:"Collapse", spExpandAll:"Expand",
     ct1Min:"1 Minute", ct10Min:"10 Minutes", ct1Hour:"1 Hour", ct8Hour:"8 Hours", ct12Hour:"12 Hours", ct24Hour:"24 Hours",
@@ -806,9 +809,11 @@ const T = {
     noCharTitle:"No characters yet", noCharBody:"Create a blank character and build it up yourself, or load a pre-filled demo character to see how the sheet works.",
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
     feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat", featLvlAbbr:"Lvl",
+    traits:"Traits", traitName:"Trait", addTrait:"Trait",
+    traitLevelHint:"\"Level\" here means your character's current level (set in Identity) — a trait with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
-    featHP:"Max HP", featCritRange:"Crit Range (lower threshold)", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed", featFixedValue:"Set base value", critOnLabel:"Crit on",
-    featLevelHint:"\"Level\" here means your character's current level (set in Identity) — a feat with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
+    featHP:"Max HP", featCritRange:"Crit Range (lower threshold)", featDarkvision:"Darkvision Range", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed", featFixedValue:"Set base value", critOnLabel:"Crit on",
+    featLevelHint:"\"Level\" here means your character's current level (set in Identity) — a feat with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. the Tough feat: +2 Max HP at level 1, +10 at level 5).",
     featDmgGroup:"Damage rolls", featDmgAll:"All damage", featDmgMelee:"Melee damage", featDmgRanged:"Ranged damage", featDmgFinesse:"Finesse damage", featDmgSpell:"Spell damage",
     resources:"Class Resources", resName:"Resource", resUses:"Uses", resRecharge:"Recharges", resNotes:"What it does", addResource:"Resource",
     rShort:"Short Rest", rLong:"Long Rest", rOther:"Other",
@@ -902,7 +907,10 @@ const T = {
     gearCatFood:"מזון", gearCatPotion:"שיקוי", gearCatPoison:"רעל", gearCatAmmunition:"תחמושת",
     gearCatTool:"כלי", gearCatFocus:"מוקד קסם", gearCatMagic:"פריט קסום", gearCatContainer:"כלי אחסון", gearCatOther:"אחר",
     itemAC:"שריון", acBreakdown:"פירוט שריון", unarmoredAbilHint:"התכונה שקובעת את השריון כשאין שריון חבוש",
-    armorAbilHint:"מכפיל התכונה שמתווסף לשריון זה — זריזות בשריון קל/בינוני, ללא בשריון כבד",
+    armorAbilHint:"סיווג משקל השריון — קובע כמה ממכפיל הזריזות שלך חל על השריון הזה (קל: מלא, בינוני: מקס +2, כבד: ללא)",
+    acBaseArmor:"שריון", acBaseUnarmored:"בלתי משוריין",
+    wcLight:"קל", wcMedium:"בינוני", wcHeavy:"כבד", wcMediumCapNote:" (מקס +2)",
+    armorProfWarning:"⚠ לא מיומן בסיווג המשקל של השריון הזה — נחיתות בבדיקות/הצלות/התקפות כוח וזריזות; אי אפשר להטיל קסמים בזמן שהוא חבוש.",
     noneOption:"— ללא —",
     abilities:"תכונות", str:"כוח",dex:"זריזות",con:"חוסן",int:"אינטליגנציה",wis:"חוכמה",cha:"כריזמה",
     combat:"קרב", ac:"דירוג שריון", init:"יוזמה", speed:"מהירות", speedBase:"בסיס", climbSpeed:"מהירות טיפוס", swimSpeed:"מהירות שחייה", flySpeed:"מהירות מעוף", hp:"נקודות חיים", hitdice:"קוביות פגיעה", hitDiceSpent:"לחץ כדי לסמן קובית פגיעה שנוצלה במנוחה קצרה", prof:"מיומנות",
@@ -927,7 +935,7 @@ const T = {
     aiParseErrorAllExist:"כל מה שהוצע בתשובה הזו כבר קיים בגיליון שלך — אין מה להוסיף.",
     aiParseErrorBad:"לא הצלחתי לקרוא את ההצעה הזו — היא לא תואמת לפורמט הצפוי. הדבק בחזרה ל-AI: \"That didn't parse. Please re-check the schema in my earlier message and try again.\"",
     aiReviewTitle:"3. סקור הצעות תוספת", aiAddBtn:"✓ הוסף לדמות", aiRejectBtn:"✕ התעלם", aiAdded:"נוסף.",
-    aiCatFeat:"תכונה", aiCatAttack:"נשק / התקפה", aiCatSpell:"כישוף", aiCatResource:"משאב", aiCatItem:"פריט",
+    aiCatTrait:"תכונה", aiCatFeat:"כשר", aiCatAttack:"נשק / התקפה", aiCatSpell:"כישוף", aiCatResource:"משאב", aiCatItem:"פריט",
     aiCatLevel:"רמה", aiCatSubclass:"תת-מחלקה", aiCatExpertise:"מומחיות", aiCatSpellSlot:"משבצות כישוף — רמה",
     aiTrustStepTitle:"כמה ה-AI יכול לשנות ישירות?", aiTrustStepDesc:"זה קובע מה ה-AI רשאי לשנות בשדות קיימים (מעבר להוספת feats/נשקים/וכו' חדשים). בכל מקרה תמיד תידרש אישור שלך אחד־אחד למטה.",
     aiTrustGuided:"מודרך — ה-AI יכול להוסיף פריטים ולקבוע את הרמה שלי, ואני מטפל בשאר", aiTrustTrusted:"נאמן — ה-AI יכול גם להעניק מומחיות בכישורים", aiTrustFullyTrusted:"נאמן מלא — מאפשר גם ל-AI לקבוע את משבצות הכישוף שלי",
@@ -944,7 +952,7 @@ const T = {
     quickSpellPh:"שם הקסם…", doneBtn:"סיום",
     spName:"קסם", spLevel:"רמה", spPrepared:"מוכן", spConc:"ר", spTouch:"מ", spVerbal:"ד", spSomatic:"ת", spMaterial:"ח", spDmg:"נזק", spNotes:"הערות", addSpell:"קסם",
     spVerbalFull:"מילולי — לחישות מוטלות", spSomaticFull:"תנועתי — מחוות פיזיות", spMaterialFull:"חומרי — מרכיבים פיזיים",
-    spRange:"טווח", spCastTime:"סוג הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"תכונה חדשה", editFeatModalTitle:"עריכת תכונה", addAttackModalTitle:"התקפה חדשה",
+    spRange:"טווח", spCastTime:"סוג הטלה", spSave:"הצלה", addSpellModalTitle:"קסם חדש", addFeatModalTitle:"כשר חדש", editFeatModalTitle:"עריכת כשר", addTraitModalTitle:"תכונה חדשה", editTraitModalTitle:"עריכת תכונה", addAttackModalTitle:"התקפה חדשה",
     spCategory:"סוג", spCategoryNone:"—", spCategoryAttack:"התקפה", spCategoryBuff:"עזרה/חיזוק", spCategoryOther:"אחר",
     spCollapseAll:"כווץ", spExpandAll:"הרחב",
     ct1Min:"דקה", ct10Min:"10 דקות", ct1Hour:"שעה", ct8Hour:"8 שעות", ct12Hour:"12 שעות", ct24Hour:"24 שעות",
@@ -966,10 +974,12 @@ const T = {
     onboardNewChar:"+ צור דמות חדשה", onboardDemoChar:"🎲 טען דמות הדגמה",
     noCharTitle:"עדיין אין דמויות", noCharBody:"צור דמות ריקה ובנה אותה בעצמך, או טען דמות הדגמה מוכנה מראש כדי לראות איך הגיליון עובד.",
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
-    feats:"תכונות (Feats)", featName:"תכונה", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"תכונה", featLvlAbbr:"רמה",
+    feats:"כשרים (Feats)", featName:"כשר", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"כשר", featLvlAbbr:"רמה",
+    traits:"תכונות (Traits)", traitName:"תכונה", addTrait:"תכונה",
+    traitLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
-    featHP:"נק״ח מקס", featCritRange:"טווח קריטי (הורדת סף)", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות", featFixedValue:"קביעת ערך בסיס", critOnLabel:"קריטי על",
-    featLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
+    featHP:"נק״ח מקס", featCritRange:"טווח קריטי (הורדת סף)", featDarkvision:"טווח ראיית לילה", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות", featFixedValue:"קביעת ערך בסיס", critOnLabel:"קריטי על",
+    featLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — כשר עם כמות 1 ו-\"/ רמה\" מסומן מתעצם פי 1 × הרמה שלך, ומתעדכן אוטומטית בכל פעם שאתה עולה רמה (למשל הכשר Tough: +2 לנק״ח מקס ברמה 1, +10 ברמה 5).",
     featDmgGroup:"הטלות נזק", featDmgAll:"כל הנזק", featDmgMelee:"נזק קרב מגע", featDmgRanged:"נזק טווח", featDmgFinesse:"נזק זריזות", featDmgSpell:"נזק קסם",
     resources:"משאבי מחלקה", resName:"משאב", resUses:"שימושים", resRecharge:"מתאפס ב", resNotes:"מה זה עושה", addResource:"הוסף משאב",
     rShort:"מנוחה קצרה", rLong:"מנוחה ארוכה", rOther:"אחר",
@@ -1170,6 +1180,7 @@ function defaultChar(id){
     spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
     spells:[],
     feats:[],
+    traits:[],
     resources:[],
     concentration:{active:false, spell:"", dmg:0},
     notes:""
@@ -1189,6 +1200,7 @@ function hydrate(s){
   if(!s.spellcasting) s.spellcasting = {abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))};
   if(!s.spells) s.spells = [];
   if(!s.feats) s.feats = [];
+  if(!s.traits) s.traits = [];
   if(!s.resources) s.resources = [];
   s.resources.forEach(r=>{ if(typeof r.notes !== "string") r.notes = ""; });
   if(!s.concentration) s.concentration = {active:false, spell:"", dmg:0};
@@ -1211,6 +1223,7 @@ function hydrate(s){
     if(typeof it.equipped !== "boolean") it.equipped = false;
     if(typeof it.acBase !== "number") it.acBase = 10;
     if(typeof it.acAbility !== "string") it.acAbility = "dex";
+    if(typeof it.weightClass !== "string") it.weightClass = it.acAbility === "none" ? "heavy" : "light";
     if(typeof it.shieldBonus !== "number") it.shieldBonus = 2;
     if(!GEAR_CATEGORIES.includes(it.category)) it.category = "other";
   });
@@ -1256,7 +1269,9 @@ function hydrate(s){
     if(typeof sp.folded !== "boolean") sp.folded = false;
     if(typeof sp.castTimeCustom !== "boolean") sp.castTimeCustom = false;
   });
-  if(s.feats) s.feats.forEach(f=>{ if(!f.mod) f.mod = {stat:"", amount:0, perLevel:false}; if(typeof f.mod.perLevel !== "boolean") f.mod.perLevel = false; if(typeof f.mod.matchSpeed !== "boolean") f.mod.matchSpeed = false; if(typeof f.mod.fixed !== "boolean") f.mod.fixed = false; if(typeof f.level !== "number") f.level = 1; });
+  const normalizeModList = list => list.forEach(f=>{ if(!f.mod) f.mod = {stat:"", amount:0, perLevel:false}; if(typeof f.mod.perLevel !== "boolean") f.mod.perLevel = false; if(typeof f.mod.matchSpeed !== "boolean") f.mod.matchSpeed = false; if(typeof f.mod.fixed !== "boolean") f.mod.fixed = false; if(typeof f.level !== "number") f.level = 1; });
+  if(s.feats) normalizeModList(s.feats);
+  if(s.traits) normalizeModList(s.traits);
   if(typeof s.hpAutoCalc !== "boolean") s.hpAutoCalc = false;
   if(typeof s.climbSpeed !== "number") s.climbSpeed = 0;
   if(typeof s.swimSpeed !== "number") s.swimSpeed = 0;
@@ -1295,11 +1310,11 @@ function demoChar(id){
     inventory:{
       currency:{cp:0,sp:0,ep:0,gp:15,pp:0},
       items:[
-        {name: isHe ? "שריון שרשראות" : "Chain Mail", qty:1, notes:"", type:"armor", equipped:true, acBase:16, acAbility:"none", shieldBonus:2},
-        {name: isHe ? "מגן" : "Shield", qty:1, notes:"", type:"shield", equipped:true, acBase:10, acAbility:"dex", shieldBonus:2},
-        {name: isHe ? "חרב ארוכה" : "Longsword", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2},
-        {name: isHe ? "קשת קצרה + 20 חצים" : "Shortbow + 20 arrows", qty:1, notes:"", type:"gear", category:"ammunition", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2},
-        {name: isHe ? "ערכת נוסע" : "Explorer's Pack", qty:1, notes:"", type:"gear", category:"container", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}
+        {name: isHe ? "שריון שרשראות" : "Chain Mail", qty:1, notes:"", type:"armor", equipped:true, acBase:16, acAbility:"none", weightClass:"heavy", shieldBonus:2},
+        {name: isHe ? "מגן" : "Shield", qty:1, notes:"", type:"shield", equipped:true, acBase:10, acAbility:"dex", weightClass:"light", shieldBonus:2},
+        {name: isHe ? "חרב ארוכה" : "Longsword", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", weightClass:"light", shieldBonus:2},
+        {name: isHe ? "קשת קצרה + 20 חצים" : "Shortbow + 20 arrows", qty:1, notes:"", type:"gear", category:"ammunition", equipped:false, acBase:10, acAbility:"dex", weightClass:"light", shieldBonus:2},
+        {name: isHe ? "ערכת נוסע" : "Explorer's Pack", qty:1, notes:"", type:"gear", category:"container", equipped:false, acBase:10, acAbility:"dex", weightClass:"light", shieldBonus:2}
       ]
     },
     attacks:[
@@ -1308,7 +1323,8 @@ function demoChar(id){
     ],
     spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
     spells:[],
-    feats:[
+    feats:[],
+    traits:[
       {name: isHe ? "תושייה" : "Resourceful", level:1, notes: isHe ? "מקבל השראה הרואית בכל סיום מנוחה ארוכה." : "You gain Heroic Inspiration whenever you finish a Long Rest.", mod:{stat:"", amount:0, perLevel:false}},
       {name: isHe ? "מיומן" : "Skillful", level:3, notes: isHe ? "מיומנות בכישור אחד לבחירה." : "Proficiency in one skill of your choice.", mod:{stat:"", amount:0, perLevel:false}}
     ],
@@ -1339,7 +1355,7 @@ function saveFoldedPanels(){
 }
 function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); saveFoldedPanels(); }
 function togglePanelLock(id){ panelLocks[id] = !panelLocks[id]; render(); saveFoldedPanels(); }
-const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","inventory","attacks","spells","feats","resources","notes","turnFlow","atkFlow"];
+const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","inventory","attacks","spells","traits","feats","resources","notes","turnFlow","atkFlow"];
 function setAllFolded(hide){
   ALL_PANEL_IDS.forEach(id => foldedPanels[id] = hide);
   diceFolded = hide;
@@ -1684,16 +1700,33 @@ async function storageDelete(key){
 const mod = s => Math.floor((s-10)/2);
 const fm = n => (n>=0?"+":"")+n;
 const profByLevel = lvl => Math.floor((Math.max(1,Math.min(20,lvl))-1)/4)+2;
+// Traits and Feats are mechanically identical (same mod shape) — only an
+// organizational/display split — so every numeric-effect helper reads both
+// lists together.
+function allEffectSources(s){ return (s.feats||[]).concat(s.traits||[]); }
 function getFeatBonus(s, stat){
   let bonus = 0;
   const lvl = Math.max(1, parseInt(s.level)||1);
-  (s.feats||[]).forEach(f=>{
+  allEffectSources(s).forEach(f=>{
     if(f.mod && f.mod.stat===stat){
       const amt = parseInt(f.mod.amount)||0;
       bonus += f.mod.perLevel ? amt*lvl : amt;
     }
   });
   return bonus;
+}
+function getEffectiveDarkvision(s){
+  // Multiple Darkvision sources don't stack additively — take the best one.
+  const lvl = Math.max(1, parseInt(s.level)||1);
+  let best = 0;
+  allEffectSources(s).forEach(f=>{
+    if(f.mod && f.mod.stat==="darkvision"){
+      const amt = parseInt(f.mod.amount)||0;
+      const val = f.mod.perLevel ? amt*lvl : amt;
+      if(val > best) best = val;
+    }
+  });
+  return best;
 }
 function getAttackFeatBonus(s, type){
   return getFeatBonus(s, "atk_all") + getFeatBonus(s, "atk_"+type);
@@ -1714,11 +1747,11 @@ const SECONDARY_SPEED_FIELD = {climb:"climbSpeed", swim:"swimSpeed", fly:"flySpe
 // A matchSpeed or fixed feat replaces the base value for `kind` instead of adding to it;
 // at most one such feat is meaningful per kind, so the first one found wins.
 function getSecondarySpeedOverrideFeat(s, kind){
-  return (s.feats||[]).find(f => f.mod && f.mod.stat===kind && (f.mod.matchSpeed || f.mod.fixed));
+  return allEffectSources(s).find(f => f.mod && f.mod.stat===kind && (f.mod.matchSpeed || f.mod.fixed));
 }
 function getSecondarySpeedBonus(s, kind){
   const lvl = Math.max(1, parseInt(s.level)||1);
-  return (s.feats||[]).reduce((sum, f) => {
+  return allEffectSources(s).reduce((sum, f) => {
     if(!f.mod || f.mod.stat !== kind || f.mod.matchSpeed || f.mod.fixed) return sum;
     const amt = parseInt(f.mod.amount)||0;
     return sum + (f.mod.perLevel ? amt*lvl : amt);
@@ -1764,22 +1797,40 @@ function getEquippedShieldBonus(s){
   return (s.inventory.items||[]).filter(it => it.type==="shield" && it.equipped)
     .reduce((sum,it)=> sum + (parseInt(it.shieldBonus)||0), 0);
 }
+// Medium armor caps the Dex contribution at +2 (never rounds a negative
+// mod up); Heavy armor gets none at all, regardless of the acAbility
+// dropdown's value. Only equipped armor items carry a weight class — the
+// unarmored fallback formula (10 + s.armor.acAbility) has no cap concept.
+function armorItemAbilMod(it, eff){
+  if(!it.acAbility || it.acAbility==="none") return 0;
+  const raw = mod(eff[it.acAbility]);
+  if(it.weightClass === "medium") return Math.min(raw, 2);
+  if(it.weightClass === "heavy") return 0;
+  return raw;
+}
+function getArmorProficiencyWarning(s){
+  const armorItem = getEquippedArmor(s);
+  if(!armorItem) return false;
+  const wc = armorItem.weightClass === "medium" || armorItem.weightClass === "heavy" ? armorItem.weightClass : "light";
+  return !(s.proficiencies.armorList||[]).includes(wc);
+}
 function computeAC(s){
   const armorItem = getEquippedArmor(s);
   const base = armorItem ? (parseInt(armorItem.acBase)||10) : 10;
-  const abil = armorItem ? armorItem.acAbility : s.armor.acAbility;
   const eff = getEffectiveAbilities(s);
-  const abilMod = (abil && abil!=="none") ? mod(eff[abil]) : 0;
+  const abilMod = armorItem ? armorItemAbilMod(armorItem, eff) : ((s.armor.acAbility && s.armor.acAbility!=="none") ? mod(eff[s.armor.acAbility]) : 0);
   return base + abilMod + getEquippedShieldBonus(s);
 }
 function acFormulaNote(s, t){
   const armorItem = getEquippedArmor(s);
   const eff = getEffectiveAbilities(s);
   const base = armorItem ? (parseInt(armorItem.acBase)||10) : 10;
+  const baseLabel = armorItem ? t.acBaseArmor : t.acBaseUnarmored;
   const abil = armorItem ? armorItem.acAbility : s.armor.acAbility;
-  const abilPart = (abil && abil!=="none") ? `+${t[abil]}(${fm(mod(eff[abil]))})` : "";
+  const abilMod = armorItem ? armorItemAbilMod(armorItem, eff) : ((abil && abil!=="none") ? mod(eff[abil]) : 0);
+  const abilPart = (abil && abil!=="none") ? `+${t[abil]}(${fm(abilMod)})` : "";
   const shieldPart = getEquippedShieldBonus(s) ? `+${t.shieldName}(${getEquippedShieldBonus(s)})` : "";
-  return `${base}${abilPart}${shieldPart}`;
+  return `${base}(${baseLabel})${abilPart}${shieldPart}`;
 }
 
 function abilForAttack(a){
@@ -2589,10 +2640,11 @@ function parseYAML(text){
    modify existing fields like level, HP, or ability scores. */
 const AI_ADDITION_SCHEMAS = {
   feats: { defaults: { name:"", level:1, notes:"", mod:{stat:"", amount:0, perLevel:false, matchSpeed:false, fixed:false} } },
+  traits: { defaults: { name:"", level:1, notes:"", mod:{stat:"", amount:0, perLevel:false, matchSpeed:false, fixed:false} } },
   attacks: { defaults: { name:"", type:"melee", dmg:"", dmgType:"", spellAbil:"str", prof:true, notes:"", folded:false } },
   spells: { defaults: { name:"", level:0, prepared:true, conc:false, touch:false, verbal:true, somatic:true, material:false, range:"", castTime:"Action", castTimeCustom:false, save:"", dmg:"", notes:"", category:"utility", folded:false } },
   resources: { defaults: { name:"", total:1, used:0, recharge:"long", notes:"" } },
-  items: { defaults: { name:"", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2 } }
+  items: { defaults: { name:"", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", weightClass:"light", shieldBonus:2 } }
 };
 function mergeAIDefaults(defaults, given){
   const out = JSON.parse(JSON.stringify(defaults));
@@ -2618,6 +2670,7 @@ function buildCuratedCharacterForAI(){
     spellcasting: { ability: s.spellcasting.abil, slots: s.spellcasting.slots },
     spells: (s.spells||[]).map(sp=>({name:sp.name, level:sp.level, prepared:sp.prepared, range:sp.range, castTime:sp.castTime, save:sp.save, dmg:sp.dmg, notes:sp.notes, category:sp.category})),
     feats: (s.feats||[]).map(f=>({name:f.name, level:f.level, notes:f.notes, mod:f.mod})),
+    traits: (s.traits||[]).map(f=>({name:f.name, level:f.level, notes:f.notes, mod:f.mod})),
     resources: (s.resources||[]).map(r=>({name:r.name, total:r.total, used:r.used, recharge:r.recharge, notes:r.notes})),
     inventory: {
       currency: s.inventory.currency,
@@ -2658,10 +2711,19 @@ Whenever 5e rules present the player with a choice (e.g. an Ability Score Improv
 
 Only include the dnd-sheet-additions block once something is actually settled and ready to add — after the user has answered your question, or when they explicitly ask you to output/apply a suggestion. Don't attach it speculatively to a reply that's still asking the player to choose between options, and don't re-send entries you already gave in an earlier reply unless the user asks you to.
 
-If you want to suggest concrete additions to the sheet (a new feat, weapon/attack, spell, resource, or inventory item), also include ONE extra fenced code block labeled "dnd-sheet-additions" with YAML in exactly this shape (omit any category you're not suggesting, and omit the whole block if you have nothing to add):
+If you want to suggest concrete additions to the sheet (a new trait, feat, weapon/attack, spell, resource, or inventory item), also include ONE extra fenced code block labeled "dnd-sheet-additions" with YAML in exactly this shape (omit any category you're not suggesting, and omit the whole block if you have nothing to add). "traits" are granted by race/class (not chosen) — e.g. Darkvision, Fey Ancestry; "feats" are the player's own optional picks, usually instead of an Ability Score Improvement — both use the same shape:
 
 \`\`\`dnd-sheet-additions
 schemaVersion: ${AI_SCHEMA_VERSION}
+traits:
+  - name: "Example Trait"
+    level: 1
+    notes: "What it does."
+    mod:
+      stat: ""
+      amount: 0
+      perLevel: false
+      fixed: false
 feats:
   - name: "Example Feat"
     level: 1
@@ -2850,9 +2912,9 @@ function aiItemLabel(entry){
     }
     if(category === 'spellSlot') return `<b>${t.aiCatSpellSlot} ${data.spellLevel}</b> <span class="dim-label">${data.from} → ${data.to}</span>`;
   }
-  const catLabel = {feats:t.aiCatFeat, attacks:t.aiCatAttack, spells:t.aiCatSpell, resources:t.aiCatResource, items:t.aiCatItem}[category];
+  const catLabel = {traits:t.aiCatTrait, feats:t.aiCatFeat, attacks:t.aiCatAttack, spells:t.aiCatSpell, resources:t.aiCatResource, items:t.aiCatItem}[category];
   const parts = [`<b>${esc2(data.name||"")}</b>`, `<span class="dim-label">${catLabel}</span>`];
-  if(category==='feats' && data.level) parts.push(`Lv.${data.level}`);
+  if((category==='feats' || category==='traits') && data.level) parts.push(`Lv.${data.level}`);
   if(category==='attacks') parts.push(esc2([data.dmg,data.dmgType].filter(Boolean).join(" ")));
   if(category==='spells' && data.level!==undefined) parts.push(`Lv.${data.level}`);
   if(category==='resources' && data.total) parts.push(`×${data.total}`);
@@ -2900,8 +2962,10 @@ function buildPrintHTML(opts){
   const dir = lang==='he' ? 'rtl' : 'ltr';
   const effAbil = getEffectiveAbilities(state);
   const effSpeed = getEffectiveSpeed(state);
+  const darkvisionRange = getEffectiveDarkvision(state);
   const secondarySpeedParts = [["climb","🕷️"],["swim","🏊"],["fly","🦅"]]
     .map(([k,icon])=>{ const v = getEffectiveSecondarySpeed(state,k); return v>0 ? `${icon} ${t[SECONDARY_SPEED_LABEL_KEY[k]]}: ${v} ft` : null; })
+    .concat([darkvisionRange>0 ? `👁️ ${t.featDarkvision}: ${darkvisionRange} ft` : null])
     .filter(Boolean).join(" · ");
   const effInit = getEffectiveInitiative(state);
   const dexMod = mod(effAbil.dex), conMod = mod(effAbil.con);
@@ -2945,6 +3009,7 @@ function buildPrintHTML(opts){
     if(stat==='fly') return t.flySpeed;
     if(stat==='hp') return t.featHP;
     if(stat==='critRange') return t.featCritRange;
+    if(stat==='darkvision') return t.featDarkvision;
     if(stat==='atk_all') return t.featAtkAll;
     if(stat==='atk_melee') return t.featAtkMelee;
     if(stat==='atk_ranged') return t.featAtkRanged;
@@ -2957,11 +3022,13 @@ function buildPrintHTML(opts){
     if(stat==='dmg_spell') return t.featDmgSpell;
     return t[stat] || stat;
   };
-  const featRows = state.feats.slice().sort((a,b)=>(a.level||1)-(b.level||1)).map(f=>{
+  const buildFeatRows = list => list.slice().sort((a,b)=>(a.level||1)-(b.level||1)).map(f=>{
     const modAmtText = `${fm(parseInt(f.mod.amount)||0)}${f.mod.perLevel?t.featPerLevel:""}`;
     const modText = (f.mod && f.mod.stat) ? ` <span class="f">(${featModLabel(f.mod.stat)} ${f.mod.matchSpeed ? `= ${t.speed}` : f.mod.fixed ? `= ${modAmtText}` : modAmtText})</span>` : "";
     return `<tr><td class="num">${f.level||1}</td><td>${esc(f.name)}</td><td style="white-space:pre-wrap">${esc(f.notes)}${modText}</td></tr>`;
   }).join("");
+  const traitRows = buildFeatRows(state.traits);
+  const featRows = buildFeatRows(state.feats);
   const resourceRows = state.resources.map(r=>{
     const rechargeLabel = r.recharge==='short'?t.rShort:r.recharge==='long'?t.rLong:t.rOther;
     return `<tr><td>${esc(r.name)}</td><td class="num">${r.total}</td><td><div class="dots-row" style="justify-content:${dir==='rtl'?'flex-end':'flex-start'}">${resourceDotsStatic(r)}</div></td><td>${rechargeLabel}</td><td style="white-space:pre-wrap">${esc(r.notes)}</td></tr>`;
@@ -3108,7 +3175,7 @@ function buildPrintHTML(opts){
         }).join("")}</tbody></table></div>` : "";
         const armorHTML = armorItems.length ? `<h3 style="font-size:12px;color:var(--gold);margin:8px 0 4px">${t.armorTable}</h3><div class="table-scroll"><table><thead><tr><th>${t.itemType}</th><th>${t.itemName}</th><th>${t.itemQty}</th><th>${t.itemEquippedAbbr}</th><th>${t.itemAC}</th><th>${t.itemNotes}</th></tr></thead><tbody>${armorItems.map(it=>{
           const typeLabel = it.type==="shield" ? t.itemTypeShield : t.itemTypeArmor;
-          const acCell = it.type==="armor" ? `${it.acBase}${it.acAbility!=='none'?` +${t[it.acAbility]}`:''}` : `+${it.shieldBonus}`;
+          const acCell = it.type==="armor" ? `${it.acBase}${it.acAbility!=='none'?` +${t[it.acAbility]}${it.weightClass==='medium'?t.wcMediumCapNote:''}`:''}` : `+${it.shieldBonus}`;
           return `<tr><td>${esc(typeLabel)}</td><td>${esc(it.name)}</td><td class="num">${it.qty}</td><td>${it.equipped ? "✓" : ""}</td><td>${acCell}</td><td>${esc(it.notes)}</td></tr>`;
         }).join("")}</tbody></table></div>` : "";
         return gearHTML + armorHTML;
@@ -3130,6 +3197,7 @@ function buildPrintHTML(opts){
       ${(state.spells.length || extraSpells) ? `<div class="pdim" style="margin-bottom:6px">${t.spLegend}</div><div class="table-scroll"><table><thead><tr><th>${t.spLevel}</th><th>${t.spPrepared}</th><th>${t.spName}</th><th>${t.spCategory}</th><th>${t.spRange}</th><th>${t.spCastTime}</th><th>${t.spSave}</th><th>${t.spVerbal}</th><th>${t.spSomatic}</th><th>${t.spMaterial}</th><th>${t.spDmg}</th><th>${t.spNotes}</th></tr></thead><tbody>${spellRows}</tbody></table></div>` : ""}
     </div>
 
+    ${state.traits.length ? `<div class="panel"><h2>${t.traits}</h2><div class="table-scroll"><table><thead><tr><th>${t.featLvlAbbr}</th><th>${t.traitName}</th><th>${t.featNotes}</th></tr></thead><tbody>${traitRows}</tbody></table></div></div>` : ""}
     ${state.feats.length ? `<div class="panel"><h2>${t.feats}</h2><div class="table-scroll"><table><thead><tr><th>${t.featLvlAbbr}</th><th>${t.featName}</th><th>${t.featNotes}</th></tr></thead><tbody>${featRows}</tbody></table></div></div>` : ""}
 
     ${state.resources.length ? `<div class="panel"><h2>${t.resources}</h2><div class="table-scroll"><table><thead><tr><th>${t.resName}</th><th>${t.resUses}</th><th></th><th>${t.resRecharge}</th><th>${t.resNotes}</th></tr></thead><tbody>${resourceRows}</tbody></table></div></div>` : ""}
@@ -3330,6 +3398,14 @@ function secondarySpeedRowHTML(t, kind, icon){
   </div>
   <div class="formula-note">${noteText}</div>`;
 }
+function darkvisionRowHTML(t){
+  const val = getEffectiveDarkvision(state);
+  if(val === 0) return "";
+  return `<div class="speed-value-group" style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--leather-line)">
+    <span class="dim-label" title="${t.featDarkvision}">👁️</span>
+    <span class="mono" style="font-weight:700">${val} ${lang==='en'?'ft':'רגל'}</span>
+  </div>`;
+}
 function featModLabelForRow(t, stat){
   if(stat==='speed') return t.speed;
   if(stat==='climb') return t.climbSpeed;
@@ -3337,6 +3413,7 @@ function featModLabelForRow(t, stat){
   if(stat==='fly') return t.flySpeed;
   if(stat==='hp') return t.featHP;
   if(stat==='critRange') return t.featCritRange;
+  if(stat==='darkvision') return t.featDarkvision;
   if(stat==='atk_all') return t.featAtkAll;
   if(stat==='atk_melee') return t.featAtkMelee;
   if(stat==='atk_ranged') return t.featAtkRanged;
@@ -3355,7 +3432,8 @@ function estimateTextRows(text){
   lines.forEach(l => { rows += Math.max(1, Math.ceil(l.length/48)); });
   return Math.max(1, Math.min(14, rows));
 }
-function featRow(f, i){
+function featRow(f, i, listKey){
+  listKey = listKey || "feats";
   const t = T[lang];
   const modStat = (f.mod && f.mod.stat) || "";
   const modAmt = (f.mod && f.mod.amount) || 0;
@@ -3365,6 +3443,7 @@ function featRow(f, i){
   const amtText = `${fm(modAmt)}${perLevel ? ` <span class="feat-lvmark">× Lv${state.level} = ${fm(modAmt*Math.max(1,state.level))}</span>` : ""}`;
   const badge = modStat ? `<span class="feat-badge">${featModLabelForRow(t,modStat)} ${
     modStat === 'critRange' ? `${20 - Math.abs(modAmt)}–20`
+    : modStat === 'darkvision' ? `${modAmt} ${lang==='en'?'ft':'רגל'}`
     : matchSpeed ? `= ${t.speed}` : fixed ? `= ${amtText}` : amtText
   }</span>` : "";
   return `<div class="feat-card">
@@ -3373,8 +3452,8 @@ function featRow(f, i){
       <span class="feat-name-display">|</span>
       <span class="feat-name-display">${esc2(f.name)}</span>
       ${badge}
-      <button class="edit-row no-print" onclick="openEditFeatModal(${i})" title="${t.edit}">✏️</button>
-      <button class="remove-row no-print" onclick="confirmRemove(()=>removeFeat(${i}))" title="${t.del}">🗑️</button>
+      <button class="edit-row no-print" onclick="openEditFeatModal('${listKey}', ${i})" title="${t.edit}">✏️</button>
+      <button class="remove-row no-print" onclick="confirmRemove(()=>removeFeat('${listKey}', ${i}))" title="${t.del}">🗑️</button>
     </div>
     <div class="feat-notes-input feat-notes-display${f.notes ? "" : " dim"}">${f.notes ? esc2(f.notes) : t.featNotes}</div>
   </div>`;
@@ -3382,8 +3461,9 @@ function featRow(f, i){
 function esc2(s){ return String(s??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 let featModalOpen = false;
 let editingFeatIndex = null;
-function openFeatModal(){ editingFeatIndex = null; featModalOpen = true; render(); }
-function openEditFeatModal(i){ editingFeatIndex = i; featModalOpen = true; render(); }
+let featModalListKey = "feats";
+function openFeatModal(listKey){ featModalListKey = listKey || "feats"; editingFeatIndex = null; featModalOpen = true; render(); }
+function openEditFeatModal(listKey, i){ featModalListKey = listKey || "feats"; editingFeatIndex = i; featModalOpen = true; render(); }
 function closeFeatModal(){ featModalOpen = false; editingFeatIndex = null; render(); }
 function confirmFeatModal(){
   const nameEl = document.getElementById("modalFeatName");
@@ -3398,14 +3478,15 @@ function confirmFeatModal(){
   const fixed = isSpd && !matchSpeed && document.getElementById("modalFeatFixed").checked;
   const notes = document.getElementById("modalFeatNotes").value;
   const feat = {name, level, notes, mod:{stat, amount: (stat && !matchSpeed) ? amount : 0, perLevel: stat && !matchSpeed ? perLevel:false, matchSpeed, fixed}};
-  if(editingFeatIndex===null) state.feats.push(feat);
-  else state.feats[editingFeatIndex] = feat;
+  const list = state[featModalListKey];
+  if(editingFeatIndex===null) list.push(feat);
+  else list[editingFeatIndex] = feat;
   featModalOpen = false;
   editingFeatIndex = null;
   render();
   queueSave();
 }
-function removeFeat(i){ state.feats.splice(i,1); render(); queueSave(); }
+function removeFeat(listKey, i){ state[listKey || "feats"].splice(i,1); render(); queueSave(); }
 function setFeatModStat(i, stat){
   if(!state.feats[i].mod) state.feats[i].mod = {stat:"", amount:0, perLevel:false};
   state.feats[i].mod.stat = stat;
@@ -3503,6 +3584,23 @@ function gearRow(it, i){
     <td class="td-delete">${locked ? "" : `<button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button>`}</td>
   </tr>`;
 }
+// A single dropdown encodes both the ability and the weight class for
+// standard armor (they always pair up in real 5e: Dex+Light, Dex+Medium,
+// None+Heavy), while still allowing a homebrew ability choice for
+// non-standard armor — see CONTEXT.md "Weight class".
+function armorItemClassValue(it){
+  if(it.acAbility === "dex") return it.weightClass === "medium" ? "medium" : "light";
+  if(it.acAbility === "none") return "heavy";
+  return it.acAbility;
+}
+function setArmorItemClass(i, value){
+  const it = state.inventory.items[i];
+  if(value==="light"){ it.acAbility="dex"; it.weightClass="light"; }
+  else if(value==="medium"){ it.acAbility="dex"; it.weightClass="medium"; }
+  else if(value==="heavy"){ it.acAbility="none"; it.weightClass="heavy"; }
+  else { it.acAbility=value; it.weightClass="light"; }
+  render(); queueSave();
+}
 function armorRow(it, i){
   const t = T[lang];
   const locked = !!panelLocks['armor'];
@@ -3510,14 +3608,17 @@ function armorRow(it, i){
   let acCell = "";
   if(locked){
     acCell = it.type==="armor"
-      ? `<span class="item-static">${it.acBase}${it.acAbility!=="none" ? ` +${t[it.acAbility]}` : ""}</span>`
+      ? `<span class="item-static">${it.acBase}${it.acAbility!=="none" ? ` +${t[it.acAbility]}${it.weightClass==='medium' ? t.wcMediumCapNote : ''}` : ""}</span>`
       : `<span class="item-static">+${it.shieldBonus}</span>`;
   } else if(it.type==="armor"){
+    const classVal = armorItemClassValue(it);
     acCell = `<div style="display:inline-flex;gap:4px;align-items:center">
       <input type="number" min="0" style="width:56px;text-align:center;flex:none" value="${it.acBase}" onchange="set('inventory.items.${i}.acBase', parseInt(this.value)||0)">
-      <select style="width:60px;flex:none" title="${t.armorAbilHint}" onchange="set('inventory.items.${i}.acAbility', this.value)">
-        ${ABILS.map(a=>`<option value="${a}" ${it.acAbility===a?"selected":""}>${t[a]}</option>`).join("")}
-        <option value="none" ${it.acAbility==="none"?"selected":""}>&nbsp;</option>
+      <select style="width:60px;flex:none" title="${t.armorAbilHint}" onchange="setArmorItemClass(${i}, this.value)">
+        <option value="light" ${classVal==="light"?"selected":""}>${t.wcLight}</option>
+        <option value="medium" ${classVal==="medium"?"selected":""}>${t.wcMedium}</option>
+        <option value="heavy" ${classVal==="heavy"?"selected":""}>${t.wcHeavy}</option>
+        ${ABILS.filter(a=>a!=='dex').map(a=>`<option value="${a}" ${classVal===a?"selected":""}>${t[a]}</option>`).join("")}
       </select>
     </div>`;
   } else {
@@ -3545,8 +3646,8 @@ function armorRow(it, i){
     <td class="td-delete">${locked ? "" : `<button class="remove-row no-print" onclick="confirmRemove(()=>removeItem(${i}))" title="${t.del}">🗑️</button>`}</td>
   </tr>`;
 }
-function addGear(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}); sortGearItems(); render(); queueSave(); }
-function addArmorShield(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"armor", category:"other", equipped:false, acBase:10, acAbility:"dex", shieldBonus:2}); render(); queueSave(); }
+function addGear(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", weightClass:"light", shieldBonus:2}); sortGearItems(); render(); queueSave(); }
+function addArmorShield(){ state.inventory.items.push({name:"", qty:1, notes:"", type:"armor", category:"other", equipped:false, acBase:10, acAbility:"dex", weightClass:"light", shieldBonus:2}); render(); queueSave(); }
 function removeItem(i){ state.inventory.items.splice(i,1); render(); queueSave(); }
 
 /* Quick-start templates: add a class's signature resources/attacks without
@@ -3616,21 +3717,23 @@ function selectClass(value){
 function applyRaceTemplate(kind){
   const hasRes = name => state.resources.some(r => r.name.toLowerCase()===name.toLowerCase());
   const addRes = (name, total, recharge) => { if(!hasRes(name)) state.resources.push({name, total, used:0, recharge, notes:""}); };
-  const hasFeat = name => state.feats.some(f => f.name.toLowerCase()===name.toLowerCase());
-  const addFeat = (name, notes, mod) => { if(!hasFeat(name)) state.feats.push({name, notes, mod: mod || {stat:"", amount:0, perLevel:false}}); };
+  // Race templates grant Traits (not chosen by the player), so this closure
+  // targets state.traits, not state.feats — see CONTEXT.md.
+  const hasFeat = name => state.traits.some(f => f.name.toLowerCase()===name.toLowerCase());
+  const addFeat = (name, notes, mod) => { if(!hasFeat(name)) state.traits.push({name, notes, mod: mod || {stat:"", amount:0, perLevel:false}}); };
   const prof = profByLevel(state.level);
 
   if(kind==="human"){
     addFeat("Resourceful", "You gain Heroic Inspiration whenever you finish a Long Rest.");
     addFeat("Skillful", "You gain proficiency in one skill of your choice (pick it in the Skills panel).");
   } else if(kind==="dwarf"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).");
+    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
     addFeat("Dwarven Resilience", "Advantage on saves vs being Poisoned; resistance to Poison damage.");
     addFeat("Dwarven Toughness", "Max HP increases by 1, and again every level.", {stat:"hp", amount:1, perLevel:true});
     addRes("Stonecunning (Tremorsense)", prof, "long");
     if(!state.proficiencies.tools) state.proficiencies.tools = "Smith's tools, Brewer's supplies, or Mason's tools (choose one)";
   } else if(kind==="elf"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).");
+    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
     addFeat("Fey Ancestry", "Advantage on saves vs being Charmed; magic can't put you to sleep.");
     addFeat("Trance", "4 hours of light meditation instead of 8 hours of sleep.");
     state.skillProf.perception = true;
@@ -3643,15 +3746,15 @@ function applyRaceTemplate(kind){
     addFeat("Damage Resistance", "Resistance to the damage type of your Draconic Ancestry.");
     addRes("Breath Weapon", 1, "short");
   } else if(kind==="gnome"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).");
+    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
     addFeat("Gnomish Cunning", "Advantage on INT, WIS, and CHA saving throws vs magic.");
   } else if(kind==="half_orc"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).");
+    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
     addFeat("Relentless Endurance", "When reduced to 0 HP but not killed outright, drop to 1 HP instead. Once per Long Rest.");
     addFeat("Savage Attacks", "When you score a critical hit with a melee weapon, roll one extra damage die.");
     addRes("Relentless Endurance", 1, "long");
   } else if(kind==="tiefling"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).");
+    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
     addFeat("Otherworldly Presence", "You know the Thaumaturgy cantrip.");
     addFeat("Fiendish Resilience", "Resistance to one damage type tied to your Fiendish Legacy (commonly Fire).");
   } else if(kind==="fairy"){
@@ -3668,11 +3771,11 @@ function applyRaceTemplate(kind){
 }
 function raceToKind(race){ return (race||"").toLowerCase().replace(/[^a-z]+/g,"_").replace(/^_+|_+$/g,""); }
 function applySubraceTemplate(race, subrace){
-  const hasFeat = name => state.feats.some(f => f.name.toLowerCase()===name.toLowerCase());
-  const addFeat = (name, notes, mod) => { if(!hasFeat(name)) state.feats.push({name, notes, mod: mod || {stat:"", amount:0, perLevel:false}}); };
+  const hasFeat = name => state.traits.some(f => f.name.toLowerCase()===name.toLowerCase());
+  const addFeat = (name, notes, mod) => { if(!hasFeat(name)) state.traits.push({name, notes, mod: mod || {stat:"", amount:0, perLevel:false}}); };
 
   if(subrace==="Drow"){
-    addFeat("Superior Darkvision", "120 ft — double the range of standard Darkvision.");
+    addFeat("Superior Darkvision", "120 ft — double the range of standard Darkvision.", {stat:"darkvision", amount:120, perLevel:false});
     addFeat("Sunlight Sensitivity", "Disadvantage on attack rolls and Wisdom (Perception) checks that rely on sight when you, the target, or whatever you're perceiving is in direct sunlight.");
     addFeat("Drow Magic", "You know the Dancing Lights cantrip. At 3rd level, cast Faerie Fire once per Long Rest. At 5th level, cast Darkness once per Long Rest. Charisma is your spellcasting ability.");
     ["rapier","shortsword","handcrossbow"].forEach(w=>{ if(!state.proficiencies.weaponList.includes(w)) state.proficiencies.weaponList.push(w); });
@@ -3953,6 +4056,7 @@ function render(){
           </select>
         </div>
         <div class="formula-note">${acFormulaNote(state, t)}</div>
+        ${getArmorProficiencyWarning(state) ? `<div class="save-warning" style="margin-top:6px">${t.armorProfWarning}</div>` : ""}
       </div>
       <div class="combat-box">
         <span class="label">${t.init}</span>
@@ -3969,6 +4073,7 @@ function render(){
         ${secondarySpeedRowHTML(t, "climb", "🕷️")}
         ${secondarySpeedRowHTML(t, "swim", "🏊")}
         ${secondarySpeedRowHTML(t, "fly", "🦅")}
+        ${darkvisionRowHTML(t)}
       </div>
       <div class="combat-box">
         <span class="label">${t.hitdice}</span>
@@ -4149,11 +4254,18 @@ function render(){
   </div>
   `}
 
+  <div class="panel ${foldedPanels['traits'] ? 'folded' : ''}">
+    <h2 class="ref-toggle" onclick="togglePanelFold('traits')">${t.traits} ${foldIcon('traits')}</h2>
+    <div class="formula-note" style="margin-bottom:8px;line-height:1.5">${t.traitLevelHint}</div>
+    <div class="attack-list">${state.traits.map((f,i)=>({f,i})).sort((a,b)=>(a.f.level||1)-(b.f.level||1)).map(x=>featRow(x.f,x.i,'traits')).join("")}</div>
+    <button class="btn primary no-print" style="margin-top:10px" onclick="openFeatModal('traits')">➕ ${t.addTrait}</button>
+  </div>
+
   <div class="panel ${foldedPanels['feats'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('feats')">${t.feats} ${foldIcon('feats')}</h2>
     <div class="formula-note" style="margin-bottom:8px;line-height:1.5">${t.featLevelHint}</div>
-    <div class="attack-list">${state.feats.map((f,i)=>({f,i})).sort((a,b)=>(a.f.level||1)-(b.f.level||1)).map(x=>featRow(x.f,x.i)).join("")}</div>
-    <button class="btn primary no-print" style="margin-top:10px" onclick="openFeatModal()">➕ ${t.addFeat}</button>
+    <div class="attack-list">${state.feats.map((f,i)=>({f,i})).sort((a,b)=>(a.f.level||1)-(b.f.level||1)).map(x=>featRow(x.f,x.i,'feats')).join("")}</div>
+    <button class="btn primary no-print" style="margin-top:10px" onclick="openFeatModal('feats')">➕ ${t.addFeat}</button>
   </div>
 
   <div class="panel ${foldedPanels['resources'] ? 'folded' : ''}">
@@ -4341,7 +4453,8 @@ function render(){
   ${newCharModalOpen ? newCharModalHTML(t) : ""}
 
   ${featModalOpen ? (()=>{
-    const ef = editingFeatIndex!==null ? state.feats[editingFeatIndex] : null;
+    const isTrait = featModalListKey === "traits";
+    const ef = editingFeatIndex!==null ? state[featModalListKey][editingFeatIndex] : null;
     const efStat = ef ? (ef.mod.stat||"") : "";
     const selOpt = v => efStat===v ? "selected" : "";
     const efIsSpd = efStat==='climb' || efStat==='swim' || efStat==='fly';
@@ -4351,15 +4464,15 @@ function render(){
     return `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeFeatModal()">
     <div class="modal-box">
-      <h3>${ef ? t.editFeatModalTitle : t.addFeatModalTitle}</h3>
+      <h3>${ef ? (isTrait ? t.editTraitModalTitle : t.editFeatModalTitle) : (isTrait ? t.addTraitModalTitle : t.addFeatModalTitle)}</h3>
       <div class="modal-row" style="display:flex;gap:10px">
         <div style="flex:0 0 70px">
           <label>${t.featLvlAbbr}</label>
           <input type="number" id="modalFeatLevel" min="1" max="20" value="${ef ? (ef.level||1) : 1}" class="no-spinner" style="text-align:center">
         </div>
         <div style="flex:2">
-          <label>${t.featName}</label>
-          <input type="text" id="modalFeatName" placeholder="Darkvision" value="${ef ? esc2(ef.name) : ""}">
+          <label>${isTrait ? t.traitName : t.featName}</label>
+          <input type="text" id="modalFeatName" placeholder="${isTrait ? 'Darkvision' : 'Alert'}" value="${ef ? esc2(ef.name) : ""}">
         </div>
       </div>
       <div class="modal-row" style="display:flex;gap:10px">
@@ -4380,6 +4493,7 @@ function render(){
             <option value="fly" ${selOpt("fly")}>${t.flySpeed}</option>
             <option value="hp" ${selOpt("hp")}>${t.featHP}</option>
             <option value="critRange" ${selOpt("critRange")}>${t.featCritRange}</option>
+            <option value="darkvision" ${selOpt("darkvision")}>${t.featDarkvision}</option>
             ${ABILS.map(a=>`<option value="${a}" ${selOpt(a)}>${t[a]}</option>`).join("")}
             <optgroup label="${t.featAtkGroup}">
               <option value="atk_all" ${selOpt("atk_all")}>${t.featAtkAll}</option>
