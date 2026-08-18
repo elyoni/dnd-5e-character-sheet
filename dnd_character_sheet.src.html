@@ -2845,13 +2845,28 @@ resources:
     recharge: "long"
     notes: ""
 items:
-  - name: "Example Item"
+  - name: "Example Gear Item"
     qty: 1
     notes: ""
-    category: "other"${modSchema}
+    type: "gear"
+    category: "other"
+  - name: "Example Armor"
+    qty: 1
+    notes: ""
+    type: "armor"
+    equipped: true
+    acBase: 11
+    acAbility: "dex"
+    weightClass: "light"
+  - name: "Example Shield"
+    qty: 1
+    notes: ""
+    type: "shield"
+    equipped: true
+    shieldBonus: 2${modSchema}
 \`\`\`
 
-Rules for that block:${modRules} Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.`;
+Rules for that block: each list ("traits"/"feats"/"attacks"/"spells"/"resources"/"items") MUST contain full objects in exactly the shape shown above, never bare name strings. Keep "attacks", "spells", and "items" straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with; every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". A weapon already listed under "attacks" should NOT also get a separate "items" entry, but armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry; "acBase" for armor is the total AC while worn (not a bonus on top of 10).${modRules} Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.`;
   return instructions + "\n\n```yaml\nschemaVersion: " + AI_SCHEMA_VERSION + "\ncharacter:\n" + yamlDump(character, 1) + "```\n";
 }
 function stripStrayFenceLines(s){
@@ -2903,7 +2918,12 @@ function collectAIAdditionEntries(parsed, dedupeState){
     if(!Array.isArray(arr)) return;
     const existingList = dedupeState ? (cat === 'items' ? dedupeState.inventory.items : dedupeState[cat]) : [];
     const existingNames = new Set((existingList||[]).map(e => (e.name||"").trim().toLowerCase()).filter(Boolean));
-    arr.forEach(data => {
+    arr.forEach(raw => {
+      // AI replies sometimes give a bare name string instead of the documented
+      // object shape (e.g. a spell list as `- "Fireball"`) — coerce rather than
+      // silently dropping the entry, since "name" is the one field every
+      // schema actually requires.
+      const data = (typeof raw === 'string' && raw.trim()) ? {name: raw.trim()} : raw;
       if(!data || typeof data !== 'object') return;
       sawAnyRawSuggestion = true;
       const name = (data.name||"").trim().toLowerCase();
@@ -2987,6 +3007,7 @@ function addAIItem(idx){
   } else {
     const merged = mergeAIDefaults(AI_ADDITION_SCHEMAS[entry.category].defaults, entry.data);
     if(entry.category === 'items'){
+      if(!["gear","armor","shield"].includes(merged.type)) merged.type = 'gear';
       if(!GEAR_CATEGORIES.includes(merged.category)) merged.category = 'other';
       state.inventory.items.push(merged);
       sortGearItems();
@@ -3052,6 +3073,9 @@ function buildCreateAIExport(){
   const raceList = RACE_LIST.join(", ");
   const subraceLines = Object.entries(SUBRACE_MAP).map(([r,subs])=>`- ${r}: ${subs.join(", ")}`).join("\n");
   const concept = createAIConceptText.trim() || "(no concept given — ask me what kind of character I want before proposing anything)";
+  const armorProfIds = ARMOR_PROF_LIST.join(", ");
+  const weaponProfIds = [...WEAPON_PROF_CATEGORIES, ...WEAPON_PROF_ITEMS.simple, ...WEAPON_PROF_ITEMS.martial].join(", ");
+  const languageProfIds = LANGUAGE_LIST.join(", ");
 
   return `I want you to help me create a brand-new D&D 5e character for a character-sheet web app. Here's my concept:
 
@@ -3078,6 +3102,14 @@ abilities:
   cha: 12
 spellSlots:
   "1": 4
+proficiencies:
+  armorList: ["light", "medium", "shields"]
+  weaponList: ["simple", "martial"]
+  languageList: ["common", "orc"]
+  tools: "Smith's tools"
+  armorOther: ""
+  weaponOther: ""
+  languageOther: ""
 feats:
   - name: "Example Feat"
     level: 1
@@ -3087,7 +3119,15 @@ feats:
       amount: 1
       perLevel: false
       fixed: false
-traits: []
+traits:
+  - name: "Example Trait"
+    level: 1
+    notes: "What it does."
+    mod:
+      stat: ""
+      amount: 0
+      perLevel: false
+      fixed: false
 attacks:
   - name: "Example Weapon"
     type: "melee"
@@ -3095,22 +3135,48 @@ attacks:
     dmgType: "slashing"
     prof: true
     notes: ""
-spells: []
+spells:
+  - name: "Example Spell"
+    level: 1
+    prepared: true
+    range: "60 ft"
+    castTime: "Action"
+    save: "dex"
+    dmg: "2d6"
+    notes: ""
+    category: "attack"
 resources:
   - name: "Example Resource"
     total: 2
     recharge: "long"
     notes: ""
 items:
-  - name: "Example Item"
+  - name: "Example Gear Item"
     qty: 1
     notes: ""
+    type: "gear"
     category: "other"
+  - name: "Example Armor"
+    qty: 1
+    notes: ""
+    type: "armor"
+    equipped: true
+    acBase: 11
+    acAbility: "dex"
+    weightClass: "light"
+  - name: "Example Shield"
+    qty: 1
+    notes: ""
+    type: "shield"
+    equipped: true
+    shieldBonus: 2
 \`\`\`
 
 Rules for that block: "class" must be EXACTLY one of: ${classList} (case-sensitive), or an empty string if genuinely undecided. "race" must be EXACTLY one of: ${raceList}, or an empty string. If "race" is one of the races below, "subrace" must be EXACTLY one of that race's listed options, or an empty string for no subrace:
 ${subraceLines}
-"background" and "subclass" are free text (subclass can be blank if not chosen yet). "level" is an integer 1-20. "abilities" must include all six of str/dex/con/int/wis/cha as integers — pick whatever generation method (standard array, point buy, or rolled) best fits the concept and level. Only include "spellSlots" if the class actually has spell slots at this level — a map from spell level (string key "1"-"9") to its total slot count; tell me in your plain-text reply to double-check it against the class table, since multiclass/Pact Magic rules are easy to get wrong. Don't repeat race/class traits the app already grants automatically (like a Half-Orc's Darkvision) under "traits" — only list one there if it's unusual and not implied by the standard race. "feats"/"traits"/"attacks"/"spells"/"resources"/"items" follow the same shape as this app's normal add-suggestion format and can each be omitted or empty. Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.
+"background" and "subclass" are free text (subclass can be blank if not chosen yet). "level" is an integer 1-20. "abilities" must include all six of str/dex/con/int/wis/cha as integers — pick whatever generation method (standard array, point buy, or rolled) best fits the concept and level. Only include "spellSlots" if the class actually has spell slots at this level — a map from spell level (string key "1"-"9") to its total slot count; tell me in your plain-text reply to double-check it against the class table, since multiclass/Pact Magic rules are easy to get wrong. "proficiencies" is optional and only needs entries beyond what the class/race already grants automatically: "armorList" is a subset of [${armorProfIds}]; "weaponList" is a subset of [${weaponProfIds}] (whole categories like "simple"/"martial", individual weapon ids for one-off exotic proficiencies, or both); "languageList" is a subset of [${languageProfIds}]; anything that doesn't fit one of those exact ids (a specific tool proficiency, a homebrew armor/weapon/language) goes in the free-text "tools"/"armorOther"/"weaponOther"/"languageOther" strings instead of inventing a new id. Don't repeat race/class traits the app already grants automatically (like a Half-Orc's Darkvision) under "traits" — only list one there if it's unusual and not implied by the standard race.
+
+"feats", "traits", "attacks", "spells", "resources", and "items" each MUST be a list of full objects in exactly the shape shown above (never a bare list of name strings) and can each be omitted or empty. Keep these three straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with (melee or ranged) — every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". "items" is inventory — a weapon already listed under "attacks" should NOT also get a separate "items" entry, but its armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry or an "attacks"/"category" workaround; "acBase" for armor is the total AC while worn (not a bonus on top of 10). Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.
 `;
 }
 function parseCreateAIPaste(){
@@ -3183,6 +3249,18 @@ async function confirmCreateAIDraft(){
     const n = parseInt(total);
     if(idx>=0 && idx<9 && Number.isFinite(n)) state.spellcasting.slots[idx].total = Math.max(0, n);
   });
+
+  // Additive only, matching applyTemplate/applyRaceTemplate above — never
+  // overwrites proficiencies the class/race template already granted.
+  const profIn = isPlainObject(parsed.proficiencies) ? parsed.proficiencies : {};
+  const validWeaponProfIds = new Set([...WEAPON_PROF_CATEGORIES, ...WEAPON_PROF_ITEMS.simple, ...WEAPON_PROF_ITEMS.martial]);
+  if(Array.isArray(profIn.armorList)) profIn.armorList.forEach(id => { if(ARMOR_PROF_LIST.includes(id) && !state.proficiencies.armorList.includes(id)) state.proficiencies.armorList.push(id); });
+  if(Array.isArray(profIn.weaponList)) profIn.weaponList.forEach(id => { if(validWeaponProfIds.has(id) && !state.proficiencies.weaponList.includes(id)) state.proficiencies.weaponList.push(id); });
+  if(Array.isArray(profIn.languageList)) profIn.languageList.forEach(id => { if(LANGUAGE_LIST.includes(id) && !state.proficiencies.languageList.includes(id)) state.proficiencies.languageList.push(id); });
+  if(typeof profIn.tools === 'string' && profIn.tools.trim() && !state.proficiencies.tools) state.proficiencies.tools = profIn.tools.trim();
+  if(typeof profIn.armorOther === 'string' && profIn.armorOther.trim() && !state.proficiencies.armorOther) state.proficiencies.armorOther = profIn.armorOther.trim();
+  if(typeof profIn.weaponOther === 'string' && profIn.weaponOther.trim() && !state.proficiencies.weaponOther) state.proficiencies.weaponOther = profIn.weaponOther.trim();
+  if(typeof profIn.languageOther === 'string' && profIn.languageOther.trim() && !state.proficiencies.languageOther) state.proficiencies.languageOther = profIn.languageOther.trim();
 
   await storageSet("dnd-char:"+id, JSON.stringify(state));
   await setLastUsedId(id);
