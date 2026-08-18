@@ -2,10 +2,11 @@ const { test, expect } = require('@playwright/test');
 const { dismissOnboarding } = require('./helpers');
 
 test.describe('traits vs feats', () => {
-  test('Traits and Feats are separate panels with separate add buttons', async ({ page }) => {
+  test('Traits and Feats are separate lists with separate add buttons in one shared panel', async ({ page }) => {
     await dismissOnboarding(page);
-    await expect(page.locator('h2:has-text("Traits")')).toBeVisible();
-    await expect(page.locator('h2:has-text("Feats")')).toBeVisible();
+    await expect(page.locator('h2:has-text("Feats & Traits")')).toBeVisible();
+    await expect(page.locator('h3:has-text("Traits")')).toBeVisible();
+    await expect(page.locator('h3:has-text("Feats")')).toBeVisible();
 
     await page.evaluate(() => openFeatModal('traits'));
     await page.fill('#modalFeatName', 'Darkvision');

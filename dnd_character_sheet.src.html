@@ -758,7 +758,7 @@ const T = {
     atkPreset:"Preset (optional)", atkPresetNone:"— pick a preset —",
     spellAbility:"Casting stat",
     notes:"Notes & Equipment",
-    printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import", aiBtn:"🤖 Ask AI",
+    printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import", aiBtn:"🤖 Ask AI", helpBtn:"❓ Help",
     exportModalTitle:"Export Character", exportAsFileBtn:"Download JSON file", exportAsLinkBtn:"🔗 Copy shareable link", copyLinkBtn:"Copy link",
     linkReadyHint:"Link copied to clipboard — you can also copy it manually below.", linkCopied:"✓ Copied to clipboard.",
     aiModalTitle:"Ask an AI about your character", aiCopyStepTitle:"1. Copy your character",
@@ -805,6 +805,31 @@ const T = {
     onboardTitle:"Welcome to Character Scroll", onboardBody:"A free, self-explaining D&D 5e character sheet. Everything you enter is saved automatically in this browser — nothing is uploaded anywhere. Pick a language to get started:",
     onboardLangLabel:"Language", onboardOk:"OK",
     whatsNewTitle:"What's New", whatsNewOk:"Got it",
+    helpModalTitle:"Help & Rules",
+    helpSecStart:"Getting Started",
+    helpSecStartBody:"Pick a character from the dropdown in the top bar, or create a new one — blank, or from a class/race template. 🔒/🔓 icons on each panel lock it against accidental edits (handy once you've filled it in); \"Hide All\" / \"Show All\" collapse or expand every panel at once. Your last-used character and language are remembered automatically, and every change is saved as you type.",
+    helpSecIdentity:"Identity & Configuration",
+    helpSecIdentityBody:"Name, class, race, background, level, and other basics. Picking a class or race template fills in suggested saving throws, skills, and racial traits, but only adds to what you've already entered — it never overwrites existing values.",
+    helpSecAbilities:"Ability Scores & Saving Throws",
+    helpSecAbilitiesBody:"Each of the six ability scores (Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma) gives a modifier of floor((score − 10) / 2) — a score of 14 gives +2, a score of 8 gives −1. Your Proficiency Bonus (based on level) is added to a saving throw's modifier when you check the box for that save. Feats and racial traits can add further bonuses automatically.",
+    helpSecSkills:"Skills",
+    helpSecSkillsBody:"Each skill uses one ability's modifier plus your Proficiency Bonus if you're proficient, or double the bonus if you have Expertise. Passive Perception is 10 + your Wisdom (Perception) modifier, shown automatically at the top of the sheet.",
+    helpSecAC:"Armor Class & Armor/Shields",
+    helpSecACBody:"Each Armor row has a base AC and a single dropdown that sets both its weight class and which ability adds to it: Light adds your full ability modifier, Medium caps that bonus at +2, and Heavy adds none — the standard 5e pairing is Dex with Light/Medium and no ability with Heavy. Choosing STR/CON/INT/WIS/CHA instead lets homebrew armor use a different ability at full (uncapped) bonus. Only one Armor item can be equipped for AC purposes; Shields just add their bonus on top. A ⚠ warning appears if you're not proficient with the equipped armor's weight class.",
+    helpSecAttacks:"Attacks",
+    helpSecAttacksBody:"Each attack row rolls a d20 plus its attack bonus (ability modifier, plus Proficiency Bonus if proficient), and separately rolls its damage dice plus modifier. Rolling a natural 20 is a critical hit — the app automatically re-rolls the damage dice a second time and adds both results. Presets fill in common weapons' damage and type for you.",
+    helpSecSpells:"Spells",
+    helpSecSpellsBody:"Spell Save DC is 8 + Proficiency Bonus + your casting ability modifier; a spell attack roll uses Proficiency Bonus + casting modifier the same way a weapon attack does. Track spell slots per level and mark them used as you cast — they're not deducted automatically.",
+    helpSecFeats:"Feats & Traits",
+    helpSecFeatsBody:"Feats (chosen abilities) and Traits (racial/background grants) are tracked separately but work the same way: a feat can add a flat or per-level bonus to a stat (like HP, speed, or an ability score), and that bonus is applied automatically wherever the affected stat is shown.",
+    helpSecResources:"Resources",
+    helpSecResourcesBody:"Limited-use features — Rages, Ki points, Channel Divinity, and similar — are tracked as a current/max pool you can tick down as you spend them and reset on a rest.",
+    helpSecInventory:"Inventory & Currency",
+    helpSecInventoryBody:"General gear, currency, and armor/shields are tracked in separate sections. Gear rows are free-form (name, quantity, notes); armor/shield rows additionally drive your Armor Class as described above.",
+    helpSecDice:"Rolling Dice",
+    helpSecDiceBody:"Every roll button — attacks, damage, saves, skills, or the standalone dice roller — throws real physics-simulated 3D dice; the face they land on is the actual result, not a number chosen first and animated after. Recent rolls for each row are kept in a small history strip.",
+    helpSecShare:"Import, Export & Sharing",
+    helpSecShareBody:"Export downloads your character as a JSON file or generates a shareable link that encodes the whole character; Import loads either back in. \"Ask AI\" lets you copy a text summary of your character to paste into an AI assistant, then paste its suggestions back in for review before anything is added to your sheet.",
     whatsNewItem1:"🎲 Real physics-based 3D dice — every roll (attacks, saves, skills, spell damage, the plain dice roller) now throws an actual die that settles for real, instead of an instant number.",
     whatsNewItem2:"🤖 Ask AI — export a curated snapshot of your character to paste into any AI chat, and bring its suggested feats/attacks/spells/resources/items back as one-by-one accept/discard cards.",
     whatsNewItem3:"A free-text Subclass field now sits next to Class.",
@@ -816,7 +841,7 @@ const T = {
     noCharTitle:"No characters yet", noCharBody:"Create a blank character and build it up yourself, or load a pre-filled demo character to see how the sheet works.",
     spLegend:"Three types of components: V = Verbal (spoken incantations), S = Somatic (physical gestures), M = Material (physical ingredients)",
     feats:"Feats", featName:"Feat", featNotes:"What it does", featAffects:"Affects", featAmount:"Amount", featModNone:"— none —", addFeat:"Feat", featLvlAbbr:"Lvl",
-    traits:"Traits", traitName:"Trait", addTrait:"Trait",
+    traits:"Traits", traitName:"Trait", addTrait:"Trait", featsTraits:"Feats & Traits",
     traitLevelHint:"\"Level\" here means your character's current level (set in Identity) — a trait with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
     featHP:"Max HP", featCritRange:"Crit Range (lower threshold)", featDarkvision:"Darkvision Range", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed", featFixedValue:"Set base value", critOnLabel:"Crit on",
@@ -931,7 +956,7 @@ const T = {
     atkPreset:"תבנית מוכנה (רשות)", atkPresetNone:"— בחר תבנית —",
     spellAbility:"תכונת כישוף",
     notes:"הערות וציוד",
-    printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא", aiBtn:"🤖 שאל AI",
+    printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא", aiBtn:"🤖 שאל AI", helpBtn:"❓ עזרה",
     exportModalTitle:"ייצוא דמות", exportAsFileBtn:"הורדת קובץ JSON", exportAsLinkBtn:"🔗 העתקת קישור לשיתוף", copyLinkBtn:"העתק קישור",
     aiModalTitle:"שאל AI על הדמות שלך", aiCopyStepTitle:"1. העתק את הדמות שלך",
     aiCopyStepDesc:"העתק את זה, הדבק אותו בצ'אט AI (ChatGPT, Claude, Gemini וכו') ושאל את שאלתך — למשל \"איזה feat כדאי לי לקחת?\" או \"יש משהו שנראה לא נכון כאן?\"",
@@ -978,6 +1003,31 @@ const T = {
     onboardTitle:"ברוכים הבאים למגילת הדמות", onboardBody:"גיליון דמות חופשי ל-D&D 5e שמסביר את עצמו. כל מה שתזין נשמר אוטומטית בדפדפן הזה — שום דבר לא מועלה לשום מקום. בחר שפה כדי להתחיל:",
     onboardLangLabel:"שפה", onboardOk:"אישור",
     whatsNewTitle:"מה חדש", whatsNewOk:"הבנתי",
+    helpModalTitle:"עזרה וכללים",
+    helpSecStart:"התחלה",
+    helpSecStartBody:"בחרו דמות מהרשימה בסרגל העליון, או צרו דמות חדשה — ריקה או לפי תבנית מחלקה/גזע. סמלי 🔒/🔓 בכל פאנל נועלים אותו מפני עריכה בטעות (שימושי אחרי שמילאתם אותו); \"הסתר הכול\"/\"הצג הכול\" מכווצים או פותחים את כל הפאנלים בבת אחת. הדמות והשפה האחרונות שבהן השתמשתם נשמרות אוטומטית, וכל שינוי נשמר תוך כדי הקלדה.",
+    helpSecIdentity:"זהות והגדרות",
+    helpSecIdentityBody:"שם, מחלקה, גזע, רקע, רמה ופרטים בסיסיים נוספים. בחירת תבנית מחלקה או גזע ממלאת הצעות להצלות, מיומנויות ותכונות גזעיות, אך רק מוסיפה למה שכבר הזנתם — היא לעולם לא דורסת ערכים קיימים.",
+    helpSecAbilities:"יכולות והצלות",
+    helpSecAbilitiesBody:"לכל אחת משש היכולות (כוח, זריזות, חוסן, אינטליגנציה, חוכמה, כריזמה) יש מכפיל של floor((ניקוד − 10) / 2) — ניקוד 14 נותן ‎+2, ניקוד 8 נותן ‎-1. בונוס המיומנות שלכם (לפי רמה) מתווסף למכפיל של הצלה כאשר מסמנים את התיבה עבור אותה הצלה. פֶטים ותכונות גזעיות יכולים להוסיף בונוסים נוספים אוטומטית.",
+    helpSecSkills:"מיומנויות",
+    helpSecSkillsBody:"כל מיומנות משתמשת במכפיל של יכולת אחת בתוספת בונוס המיומנות שלכם אם אתם מיומנים בה, או כפול הבונוס אם יש לכם מומחיות. תפיסה פסיבית היא 10 + מכפיל החוכמה (תפיסה) שלכם, ומוצגת אוטומטית בראש הגיליון.",
+    helpSecAC:"דירוג שריון (AC) ושריון/מגנים",
+    helpSecACBody:"לכל שורת שריון יש AC בסיס ותפריט נפתח יחיד שקובע גם את סיווג המשקל וגם איזו יכולת מתווספת אליו: קל מוסיף את מלוא מכפיל היכולת, בינוני מגביל את הבונוס הזה ל-‎+2, וכבד לא מוסיף כלום — הצירוף הסטנדרטי ב-5e הוא זריזות עם קל/בינוני, ואין יכולת עם כבד. בחירת כוח/חוסן/אינטליגנציה/חוכמה/כריזמה במקום זאת מאפשרת לשריון תוצרת בית להשתמש ביכולת אחרת בבונוס מלא (ללא הגבלה). ניתן לצייד פריט שריון אחד בלבד לצורך AC; מגנים רק מוסיפים את הבונוס שלהם מעל. אזהרת ⚠ מופיעה אם אינכם מיומנים בסיווג המשקל של השריון המצויד.",
+    helpSecAttacks:"התקפות",
+    helpSecAttacksBody:"כל שורת התקפה מטילה d20 בתוספת בונוס ההתקפה שלה (מכפיל יכולת, בתוספת בונוס מיומנות אם מיומנים), ובנפרד מטילה את קוביות הנזק שלה בתוספת מכפיל. הטלת 20 טבעי היא פגיעה קריטית — האפליקציה מטילה שוב אוטומטית את קוביות הנזק בפעם שנייה ומחברת את שתי התוצאות. תבניות מוכנות ממלאות עבורכם נזק וסוג של נשקים נפוצים.",
+    helpSecSpells:"קסמים",
+    helpSecSpellsBody:"דרגת קושי להצלת קסם (Spell Save DC) היא 8 + בונוס מיומנות + מכפיל יכולת ההטלה שלכם; הטלת התקפת קסם משתמשת בבונוס מיומנות + מכפיל הטלה באותו אופן שבו משתמשת התקפת נשק. עקבו אחרי משבצות קסם לפי רמה וסמנו אותן כמנוצלות כשאתם מטילים קסם — הן לא מנוכות אוטומטית.",
+    helpSecFeats:"פֶטים ותכונות",
+    helpSecFeatsBody:"פֶטים (יכולות נבחרות) ותכונות (הענקות גזעיות/רקע) נשמרים בנפרד אך פועלים באותו אופן: פֶט יכול להוסיף בונוס קבוע או לפי רמה לנתון (כמו נקודות פגיעה, מהירות או ניקוד יכולת), והבונוס הזה מוחל אוטומטית בכל מקום שבו מוצג הנתון המושפע.",
+    helpSecResources:"משאבים",
+    helpSecResourcesBody:"יכולות בשימוש מוגבל — זעם, נקודות קי, ערוץ אלוהי וכדומה — נשמרות כמאגר נוכחי/מרבי שניתן להוריד ככל שמנצלים אותו ולאפס במנוחה.",
+    helpSecInventory:"ציוד ומטבעות",
+    helpSecInventoryBody:"ציוד כללי, מטבעות ושריון/מגנים נשמרים בחלקים נפרדים. שורות ציוד הן חופשיות (שם, כמות, הערות); שורות שריון/מגן משפיעות גם על דירוג השריון שלכם כפי שתואר לעיל.",
+    helpSecDice:"הטלת קוביות",
+    helpSecDiceBody:"כל כפתור הטלה — התקפות, נזק, הצלות, מיומנויות, או מטיל הקוביות העצמאי — מטיל קוביות תלת-ממדיות עם סימולציית פיזיקה אמיתית; הצד שעליו הן נוחתות הוא התוצאה בפועל, לא מספר שנבחר מראש והוצג באנימציה. הטלות אחרונות של כל שורה נשמרות ברצועת היסטוריה קטנה.",
+    helpSecShare:"ייבוא, ייצוא ושיתוף",
+    helpSecShareBody:"ייצוא מוריד את הדמות שלכם כקובץ JSON או יוצר קישור לשיתוף שמקודד את כל הדמות; ייבוא טוען את אחד מהם בחזרה. \"שאל AI\" מאפשר להעתיק סיכום טקסטואלי של הדמות שלכם להדבקה בעוזר AI, ואז להדביק את ההצעות שלו בחזרה לבדיקה לפני שמשהו נוסף לגיליון שלכם.",
     whatsNewItem1:"🎲 קוביות תלת-ממד עם פיזיקה אמיתית — כל הטלה (התקפות, הצלות, כישורים, נזק קסם, מטיל הקוביות הרגיל) מטילה עכשיו קובייה אמיתית שמתיישבת בפועל, במקום מספר מיידי.",
     whatsNewItem2:"🤖 שאל AI — מייצא תמונת מצב אוצרת של הדמות להדבקה בכל צ'אט AI, ומחזיר את ההצעות שלו (כישורים/התקפות/קסמים/משאבים/פריטים) ככרטיסים נפרדים לאישור או דחייה.",
     whatsNewItem3:"שדה טקסט חופשי לתת-מחלקה נוסף עכשיו ליד המחלקה.",
@@ -989,7 +1039,7 @@ const T = {
     noCharTitle:"עדיין אין דמויות", noCharBody:"צור דמות ריקה ובנה אותה בעצמך, או טען דמות הדגמה מוכנה מראש כדי לראות איך הגיליון עובד.",
     spLegend:"שלושה סוגי רכיבים: ד = מילולי (לחישות מוטלות), ת = תנועתי (מחוות פיזיות), ח = חומרי (מרכיבים פיזיים)",
     feats:"כשרים (Feats)", featName:"כשר", featNotes:"מה זה עושה", featAffects:"משפיע על", featAmount:"כמות", featModNone:"— ללא —", addFeat:"כשר", featLvlAbbr:"רמה",
-    traits:"תכונות (Traits)", traitName:"תכונה", addTrait:"תכונה",
+    traits:"תכונות (Traits)", traitName:"תכונה", addTrait:"תכונה", featsTraits:"כשרים ותכונות",
     traitLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
     featHP:"נק״ח מקס", featCritRange:"טווח קריטי (הורדת סף)", featDarkvision:"טווח ראיית לילה", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות", featFixedValue:"קביעת ערך בסיס", critOnLabel:"קריטי על",
@@ -1369,7 +1419,7 @@ function saveFoldedPanels(){
 }
 function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); saveFoldedPanels(); }
 function togglePanelLock(id){ panelLocks[id] = !panelLocks[id]; render(); saveFoldedPanels(); }
-const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","inventory","attacks","spells","traits","feats","resources","notes","turnFlow","atkFlow"];
+const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","inventory","attacks","spells","featsTraits","resources","notes","turnFlow","atkFlow"];
 function setAllFolded(hide){
   ALL_PANEL_IDS.forEach(id => foldedPanels[id] = hide);
   diceFolded = hide;
@@ -2299,6 +2349,39 @@ function whatsNewModalHTML(t){
       </ul>
       <div class="modal-actions">
         <button class="btn primary" onclick="closeWhatsNewModal()">${t.whatsNewOk}</button>
+      </div>
+    </div>
+  </div>`;
+}
+let helpModalOpen = false;
+function openHelpModal(){ helpModalOpen = true; render(); }
+function closeHelpModal(){ helpModalOpen = false; render(); }
+function helpModalHTML(t){
+  const sections = [
+    ["helpSecStart", "helpSecStartBody"],
+    ["helpSecIdentity", "helpSecIdentityBody"],
+    ["helpSecAbilities", "helpSecAbilitiesBody"],
+    ["helpSecSkills", "helpSecSkillsBody"],
+    ["helpSecAC", "helpSecACBody"],
+    ["helpSecAttacks", "helpSecAttacksBody"],
+    ["helpSecSpells", "helpSecSpellsBody"],
+    ["helpSecFeats", "helpSecFeatsBody"],
+    ["helpSecResources", "helpSecResourcesBody"],
+    ["helpSecInventory", "helpSecInventoryBody"],
+    ["helpSecDice", "helpSecDiceBody"],
+    ["helpSecShare", "helpSecShareBody"],
+  ];
+  return `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeHelpModal()">
+    <div class="modal-box" style="max-width:640px">
+      <h3>${t.helpModalTitle}</h3>
+      ${sections.map(([head, body]) => `
+      <div class="modal-row">
+        <div style="font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t[head]}</div>
+        <div style="font-size:13px;color:var(--ink-dim);line-height:1.6">${t[body]}</div>
+      </div>`).join("")}
+      <div class="modal-actions">
+        <button class="btn primary" onclick="closeHelpModal()">${t.closeBtn}</button>
       </div>
     </div>
   </div>`;
@@ -4159,6 +4242,7 @@ function render(){
       <button class="btn" onclick="openExportModal()">${t.exportBtn}</button>
       <button class="btn" onclick="triggerImport()">${t.importBtn}</button>
       <button class="btn" onclick="openAIModal()">${t.aiBtn}</button>
+      <button class="btn" onclick="openHelpModal()">${t.helpBtn}</button>
       <input type="file" id="importFileInput" accept="application/json,.json" style="display:none" onchange="handleImportFile(this)">
       <span class="save-status" id="saveStatus">✓ ${t.saved}</span>
     </div>
@@ -4514,15 +4598,14 @@ function render(){
   </div>
   `}
 
-  <div class="panel ${foldedPanels['traits'] ? 'folded' : ''}">
-    <h2 class="ref-toggle" onclick="togglePanelFold('traits')">${t.traits} ${foldIcon('traits')}</h2>
+  <div class="panel ${foldedPanels['featsTraits'] ? 'folded' : ''}">
+    <h2 class="ref-toggle" onclick="togglePanelFold('featsTraits')">${t.featsTraits} ${foldIcon('featsTraits')}</h2>
+    <h3 style="margin:0 0 4px;font-size:13px;color:var(--gold)">${t.traits}</h3>
     <div class="formula-note" style="margin-bottom:8px;line-height:1.5">${t.traitLevelHint}</div>
     <div class="attack-list">${state.traits.map((f,i)=>({f,i})).sort((a,b)=>(a.f.level||1)-(b.f.level||1)).map(x=>featRow(x.f,x.i,'traits')).join("")}</div>
     <button class="btn primary no-print" style="margin-top:10px" onclick="openFeatModal('traits')">➕ ${t.addTrait}</button>
-  </div>
 
-  <div class="panel ${foldedPanels['feats'] ? 'folded' : ''}">
-    <h2 class="ref-toggle" onclick="togglePanelFold('feats')">${t.feats} ${foldIcon('feats')}</h2>
+    <h3 style="margin:16px 0 4px;font-size:13px;color:var(--gold)">${t.feats}</h3>
     <div class="formula-note" style="margin-bottom:8px;line-height:1.5">${t.featLevelHint}</div>
     <div class="attack-list">${state.feats.map((f,i)=>({f,i})).sort((a,b)=>(a.f.level||1)-(b.f.level||1)).map(x=>featRow(x.f,x.i,'feats')).join("")}</div>
     <button class="btn primary no-print" style="margin-top:10px" onclick="openFeatModal('feats')">➕ ${t.addFeat}</button>
@@ -4894,6 +4977,7 @@ function render(){
     </div>
   </div>` : ""}
   ${whatsNewModalOpen ? whatsNewModalHTML(t) : ""}
+  ${helpModalOpen ? helpModalHTML(t) : ""}
   `;
   document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
   document.documentElement.setAttribute("data-theme", theme);
