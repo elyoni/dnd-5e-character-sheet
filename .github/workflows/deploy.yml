@@ -37,7 +37,9 @@ jobs:
           mkdir site
           cp dnd_character_sheet.html site/index.html
           DEPLOY_TIME="$(date -u '+%Y-%m-%d %H:%M UTC')"
+          COMMIT_SHA="$(git rev-parse --short HEAD)"
           sed -i "s/__DEPLOY_TIME__/${DEPLOY_TIME}/" site/index.html
+          sed -i "s/__COMMIT_SHA__/${COMMIT_SHA}/" site/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
