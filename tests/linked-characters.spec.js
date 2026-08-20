@@ -123,4 +123,36 @@ test.describe('Linked Characters', () => {
     const selected = named.find(o => o.selected);
     expect(selected.value).toBe(secondId);
   });
+
+  test('importing a single Linked Character elsewhere (its owner absent) clears the dangling link', async ({ page, browser }) => {
+    await dismissOnboarding(page);
+    await enableLinkedChar(page);
+    await page.click('button:has-text("➕ New Linked Character")');
+    await page.selectOption('#modalNewCharType', 'animal');
+    await page.fill('#modalNewName', 'Bear Form');
+    await page.locator('.modal-backdrop button:has-text("Done")').click();
+    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+
+    const bearJSON = await page.evaluate(() => JSON.parse(JSON.stringify(state)));
+    expect(bearJSON.linkedTo).toBeTruthy();
+
+    // A fresh browser context = a different browser/device with empty storage
+    // and no knowledge of the original owner, unlike the source page above.
+    const page2 = await (await browser.newContext()).newPage();
+    await page2.goto('/dnd_character_sheet.html');
+    await page2.locator('.modal-backdrop button:has-text("OK")').click();
+    await page2.locator('.modal-backdrop').waitFor({ state: 'detached' });
+
+    await page2.evaluate((parsed) => importParsedCharacter(parsed), bearJSON);
+    // `state` is a top-level `let`, not a `window` property, so check it as
+    // a bare identifier (still resolves fine in the page's own scope).
+    await page2.waitForFunction(() => typeof state !== 'undefined' && state && state.name === 'Bear Form');
+
+    const result = await page2.evaluate(() => ({
+      linkedTo: state.linkedTo,
+      charIndexLen: charIndex.length,
+    }));
+    expect(result.linkedTo).toBeNull();
+    expect(result.charIndexLen).toBe(1);
+  });
 });

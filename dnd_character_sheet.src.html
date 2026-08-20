@@ -2618,6 +2618,13 @@ async function importParsedCharacter(parsed){
   const id = "c"+Date.now();
   parsed.id = id;
   state = hydrate(parsed);
+  // Importing a single character outside of its Bundle (e.g. sharing just
+  // one player's own linked character over the plain share link): if it was
+  // linked to an owner that isn't present in this browser, that link is
+  // dangling and meaningless here — "Transform back" would silently spawn a
+  // blank stray character under the missing id otherwise. Comes in as an
+  // ordinary standalone character instead, same as one that was never linked.
+  if(state.linkedTo && !charIndex.some(c=>c.id===state.linkedTo)) state.linkedTo = null;
   charIndex.push({id, name: state.name || "Imported", linkedTo: state.linkedTo || null});
   await saveIndex();
   await storageSet("dnd-char:"+id, JSON.stringify(state));

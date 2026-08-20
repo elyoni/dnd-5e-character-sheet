@@ -23,6 +23,8 @@ Any character can spawn one or more **Linked Characters** — separate character
 
 Export (⬇) offers extra **bundle** options — "Download JSON bundle" / "🔗 Copy shareable bundle link" — whenever the current character is linked to others: the bundle is always the owner plus every character linked to it, all together, with no partial selection. This is separate from (and doesn't change) the normal single-character Export, which still only ever covers whichever one character is currently active. Importing a bundle (file or link) always creates every character in it fresh — new ids, relinked to each other the same way they were linked in the original — and lands you on the imported owner.
 
+The plain single-character Export also works fine on a Linked Character by itself (e.g. sharing just your own beast form or one player's PC out of a group, rather than the whole bundle) — if whoever imports it doesn't have its owner, it just comes in as an ordinary standalone character instead of a broken link to nothing.
+
 ## Races
 
 Picking a race in the New Character form (or changing it later) auto-applies that race's traits (see [Traits vs. Feats](#traits-vs-feats) below) as traits/resources — it only *adds* to what you have, it never overwrites anything you've already filled in. Supported races and subraces:
