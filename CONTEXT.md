@@ -90,6 +90,37 @@ doesn't apply here.
 _Avoid_: New character generation (doesn't distinguish the AI flow from
 the app's own blank "New Character" form)
 
+**Linked Character**:
+A character created via the "+ New Linked Character" action, tied
+permanently to the character it was created from via `linkedTo` (set
+once at creation, never changed). That action, plus the rest of the
+Linked Characters box, only appears once **Has Linked Character** is
+checked in Identity → Configuration — the same shows/hides-a-box pattern
+as **Has Spells**, auto-enabled the moment a character becomes linked
+either way (as an owner or as the linked one) but freely toggleable
+after that. A Linked Character cannot itself own further Linked
+Characters — linking is strictly one level deep, never a chain. Deleting
+the character it's linked to also deletes it. The mechanism is generic
+(any PC can create one, of any `charType`); Druid Wild Shape is just its
+first use case, not a special case baked into the mechanism itself.
+_Avoid_: Beast form (too narrow — only correct when describing the Wild
+Shape use case specifically, not the general mechanism), child character
+(implies a tree/chain, which this explicitly isn't), sub-character
+
+**Bundle**:
+A Linked Character's owner plus every character linked to it, treated as
+one unit for sharing — always all of them together, never a partial
+selection. Exported as a distinct file/link shape (`{bundle: true,
+characters: [...]}`, or a `#charbundle=` URL) alongside — never in place
+of — the existing single-character export/share, which continues to
+cover only whichever one character is currently active. Importing a
+Bundle always assigns every character in it a fresh id and remaps
+`linkedTo` between them accordingly; it never reuses ids from the file,
+exactly like importing a single character never does.
+_Avoid_: Party (this app has no multi-character "party" concept — a
+Bundle is strictly one owner + its own Linked Characters), group export
+(doesn't name the specific owner+links relationship being exported)
+
 **Starting Suggestions**:
 The itemized Feats/Traits/Attacks/Spells/Resources/Items proposed
 alongside a Character Draft, reviewed and applied one at a time exactly

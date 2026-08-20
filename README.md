@@ -17,6 +17,12 @@ You can create and switch between any number of characters, each saved independe
 
 New characters can start blank, from the built-in **demo character** (a filled-in level-3 Human Fighter), or from a race/class quick-start (see below). Deleting a character is unrestricted — you can delete down to zero, at which point the app shows a "no characters yet" screen instead of the sheet.
 
+### Linked Characters
+
+Any character can spawn one or more **Linked Characters** — separate character sheets permanently tied to it, useful for anything that needs its own full stat block: a Druid's Wild Shape beast forms, a Ranger's animal companion, a Warlock's familiar, and so on. The Linked Characters box works like **Has Spells**: unlock Identity (🔓 "Unlock to edit") to reveal Configuration, then check **Has Linked Character** to show the box (it's auto-checked the moment a character actually becomes linked, either as the owner or as the linked one, but you can flip it manually any time — checking it off just hides the box, it doesn't touch any data). From there, "➕ New Linked Character" (the same blank/template New Character form) or "🤖 New Linked Character (AI)" (the same Create with AI flow) creates a new character automatically linked to whichever one you created it from, and the two are grouped together in the character switcher. The box lists any characters already linked to the current one as clickable buttons that switch straight to them; a Linked Character's own box shows who it's linked to instead, with a "↩ Transform back" button to switch straight back. Linking is permanent and one level deep — a Linked Character can't itself have further Linked Characters, and there's no way to unlink one short of deleting it — and deleting a character deletes everything linked to it too.
+
+Export (⬇) offers extra **bundle** options — "Download JSON bundle" / "🔗 Copy shareable bundle link" — whenever the current character is linked to others: the bundle is always the owner plus every character linked to it, all together, with no partial selection. This is separate from (and doesn't change) the normal single-character Export, which still only ever covers whichever one character is currently active. Importing a bundle (file or link) always creates every character in it fresh — new ids, relinked to each other the same way they were linked in the original — and lands you on the imported owner.
+
 ## Races
 
 Picking a race in the New Character form (or changing it later) auto-applies that race's traits (see [Traits vs. Feats](#traits-vs-feats) below) as traits/resources — it only *adds* to what you have, it never overwrites anything you've already filled in. Supported races and subraces:
@@ -62,6 +68,8 @@ Picking a class similarly auto-applies saving-throw proficiencies, suggested ski
 As with race, a custom class name can be typed in instead (`clsCustom`) — Hit Die stays freely editable for custom classes, since there's no list entry to look it up from. A free-text **Subclass** field sits next to Class (e.g. "Champion", "Battle Master") — it's not tied to a preset list or auto-applied template, just a place to record the player's choice.
 
 **Has Spells** (in Identity → Configuration) shows or hides the whole Spells panel and spellcasting stat block; it's auto-set from the class table above (Bard/Cleric/Druid/Paladin/Ranger/Sorcerer/Warlock/Wizard default on, everyone else off) but can be flipped manually any time — useful for a spellcasting subclass of an otherwise non-caster class (e.g. Eldritch Knight), or the reverse.
+
+A Druid's Wild Shape resource (added above) is just a uses tracker; the beast forms themselves are built as [Linked Characters](#linked-characters).
 
 ## Traits vs. Feats
 

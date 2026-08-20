@@ -730,6 +730,7 @@ const T = {
     identityUnlockBtn:"🔓 Unlock to edit", identityLockNow:"🔒 Lock again",
     lockPanel:"Lock to prevent accidental changes", unlockPanel:"Unlock to allow editing",
     configTitle:"Configuration", hasSpellsLabel:"Has Spells", hasSpellsHint:"Shows/hides the Spells panel. Auto-guessed from Class, editable any time.",
+    hasLinkedCharLabel:"Has Linked Character", hasLinkedCharHint:"Shows/hides the Linked Characters box below. Auto-enabled once this character is linked to another, editable any time.",
     otherCustom:"Other / Custom", baseSpeedLabel:"Base Speed (ft)",
     themeLabel:"Theme", themeLeather:"Leather (default)", themeParchment:"Parchment (Light)", themeContrast:"High Contrast",
     shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped", itemEquippedAbbr:"Eq.",
@@ -760,6 +761,7 @@ const T = {
     notes:"Notes & Equipment",
     printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import", aiBtn:"🤖 Ask AI", helpBtn:"❓ Help",
     exportModalTitle:"Export Character", exportAsFileBtn:"Download JSON file", exportAsLinkBtn:"🔗 Copy shareable link", copyLinkBtn:"Copy link",
+    bundleHint:"This character is linked to others — share all __COUNT__ together as a bundle:", exportAsBundleFileBtn:"Download JSON bundle", exportAsBundleLinkBtn:"🔗 Copy shareable bundle link",
     linkReadyHint:"Link copied to clipboard — you can also copy it manually below.", linkCopied:"✓ Copied to clipboard.",
     aiModalTitle:"Ask an AI about your character", aiCopyStepTitle:"1. Copy your character",
     aiCopyStepDesc:"Copy this, paste it into an AI chat (ChatGPT, Claude, Gemini, etc.), and ask your question — e.g. \"which feat should I take?\" or \"does anything look wrong here?\"",
@@ -802,6 +804,9 @@ const T = {
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
     charTypeLabel:"Type", charTypePc:"Player Character", charTypeAnimal:"Animal", species:"Species",
+    newCharLinkedHint:"This character will be linked to __NAME__.",
+    linkedCharsTitle:"Linked Characters", linkedToLabel:"Linked to: __NAME__", transformBackBtn:"↩ Transform back",
+    newLinkedChar:"New Linked Character", newLinkedCharAI:"New Linked Character (AI)", switchToBtn:"Switch to this character",
     onboardTitle:"Welcome to Character Scroll", onboardBody:"A free, self-explaining D&D 5e character sheet. Everything you enter is saved automatically in this browser — nothing is uploaded anywhere. Pick a language to get started:",
     onboardLangLabel:"Language", onboardOk:"OK",
     whatsNewTitle:"What's New", whatsNewOk:"Got it",
@@ -928,6 +933,7 @@ const T = {
     identityUnlockBtn:"🔓 פתח לעריכה", identityLockNow:"🔒 נעל שוב",
     lockPanel:"נעל כדי למנוע שינויים בטעות", unlockPanel:"פתח כדי לאפשר עריכה",
     configTitle:"הגדרות", hasSpellsLabel:"בעל קסמים", hasSpellsHint:"מציג/מסתיר את פאנל הקסמים. מוערך אוטומטית לפי המחלקה, ניתן לשינוי בכל עת.",
+    hasLinkedCharLabel:"יש דמות מקושרת", hasLinkedCharHint:"מציג/מסתיר את תיבת הדמויות המקושרות למטה. מופעל אוטומטית ברגע שהדמות מקושרת לדמות אחרת, ניתן לשינוי בכל עת.",
     otherCustom:"אחר / מותאם אישית", baseSpeedLabel:"מהירות בסיס (רגל)",
     themeLabel:"ערכת נושא", themeLeather:"עור (ברירת מחדל)", themeParchment:"קלף (בהיר)", themeContrast:"ניגודיות גבוהה",
     shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש", itemEquippedAbbr:"חבוש",
@@ -958,6 +964,7 @@ const T = {
     notes:"הערות וציוד",
     printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא", aiBtn:"🤖 שאל AI", helpBtn:"❓ עזרה",
     exportModalTitle:"ייצוא דמות", exportAsFileBtn:"הורדת קובץ JSON", exportAsLinkBtn:"🔗 העתקת קישור לשיתוף", copyLinkBtn:"העתק קישור",
+    bundleHint:"דמות זו מקושרת לאחרות — שתף את כל ה-__COUNT__ יחד כחבילה:", exportAsBundleFileBtn:"הורדת קובץ JSON כחבילה", exportAsBundleLinkBtn:"🔗 העתקת קישור לשיתוף החבילה",
     aiModalTitle:"שאל AI על הדמות שלך", aiCopyStepTitle:"1. העתק את הדמות שלך",
     aiCopyStepDesc:"העתק את זה, הדבק אותו בצ'אט AI (ChatGPT, Claude, Gemini וכו') ושאל את שאלתך — למשל \"איזה feat כדאי לי לקחת?\" או \"יש משהו שנראה לא נכון כאן?\"",
     aiCopyBtn:"📋 העתק ל-AI", aiCopyCopied:"✓ הועתק ללוח.",
@@ -1000,6 +1007,9 @@ const T = {
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
     charTypeLabel:"סוג", charTypePc:"דמות שחקן", charTypeAnimal:"חיה", species:"מין",
+    newCharLinkedHint:"דמות זו תקושר אל __NAME__.",
+    linkedCharsTitle:"דמויות מקושרות", linkedToLabel:"מקושרת אל: __NAME__", transformBackBtn:"↩ הפוך בחזרה",
+    newLinkedChar:"דמות מקושרת חדשה", newLinkedCharAI:"דמות מקושרת חדשה (AI)", switchToBtn:"עבור לדמות זו",
     onboardTitle:"ברוכים הבאים למגילת הדמות", onboardBody:"גיליון דמות חופשי ל-D&D 5e שמסביר את עצמו. כל מה שתזין נשמר אוטומטית בדפדפן הזה — שום דבר לא מועלה לשום מקום. בחר שפה כדי להתחיל:",
     onboardLangLabel:"שפה", onboardOk:"אישור",
     whatsNewTitle:"מה חדש", whatsNewOk:"הבנתי",
@@ -1230,7 +1240,7 @@ const SUBRACE_MAP = {
 
 function defaultChar(id){
   return {
-    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false,
+    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false, linkedTo:null, hasLinkedChar:false,
     abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
     level:1, size:"Medium",
     armor:{acAbility:"dex", migrated:true},
@@ -1269,6 +1279,10 @@ function hydrate(s){
   s.resources.forEach(r=>{ if(typeof r.notes !== "string") r.notes = ""; });
   if(!s.concentration) s.concentration = {active:false, spell:"", dmg:0};
   if(!s.charType) s.charType = "pc";
+  if(s.linkedTo === undefined) s.linkedTo = null;
+  // Auto-shows the box for characters that were already linked (or already
+  // had links) before this toggle existed, exactly once, on first hydrate.
+  if(s.hasLinkedChar === undefined) s.hasLinkedChar = !!s.linkedTo || charIndex.some(c=>c.linkedTo===s.id);
   if(!s.armor) s.armor = {acAbility: s.charType==="animal" ? "wis" : "dex"};
   if(!s.armor.acAbility) s.armor.acAbility = s.charType==="animal" ? "wis" : "dex";
   if(!s.proficiencies) s.proficiencies = {armor:"", weapons:"", tools:"", languages:""};
@@ -1419,7 +1433,7 @@ function saveFoldedPanels(){
 }
 function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); saveFoldedPanels(); }
 function togglePanelLock(id){ panelLocks[id] = !panelLocks[id]; render(); saveFoldedPanels(); }
-const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","inventory","attacks","spells","featsTraits","resources","notes","turnFlow","atkFlow"];
+const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","inventory","attacks","spells","featsTraits","resources","linkedChars","notes","turnFlow","atkFlow"];
 function setAllFolded(hide){
   ALL_PANEL_IDS.forEach(id => foldedPanels[id] = hide);
   diceFolded = hide;
@@ -1928,17 +1942,31 @@ async function loadChar(id){
   }catch(e){ state = defaultChar(id); }
   await setLastUsedId(id);
 }
+let pendingSave = null; // {id, state} — the save queueSave's debounce timer is currently waiting to write
+async function flushPendingSave(){
+  if(!pendingSave) return;
+  const {id, state: savingState} = pendingSave;
+  pendingSave = null;
+  try{
+    await storageSet("dnd-char:"+id, JSON.stringify(savingState));
+    const idxEntry = charIndex.find(c=>c.id===id);
+    if(idxEntry){ idxEntry.name = savingState.name; idxEntry.linkedTo = savingState.linkedTo || null; }
+    await saveIndex();
+  }catch(e){}
+}
 function queueSave(){
   const statusEl = document.getElementById("saveStatus");
   if(statusEl) statusEl.textContent = T[lang].saving;
   clearTimeout(saveTimer);
+  // The debounce below only coalesces repeated edits of the *same*
+  // character into one write. If a save is still pending for a *different*
+  // character (e.g. right after switching to a freshly-created Linked
+  // Character), flush it immediately instead of letting clearTimeout above
+  // silently cancel it.
+  if(pendingSave && pendingSave.id !== state.id) flushPendingSave();
+  pendingSave = {id: state.id, state};
   saveTimer = setTimeout(async ()=>{
-    try{
-      await storageSet("dnd-char:"+state.id, JSON.stringify(state));
-      const idxEntry = charIndex.find(c=>c.id===state.id);
-      if(idxEntry) idxEntry.name = state.name;
-      await saveIndex();
-    }catch(e){}
+    await flushPendingSave();
     if(statusEl){
       statusEl.textContent = (persistent ? "✓ " : "⚠ ") + T[lang][persistent ? "saved" : "sessionOnly"];
       statusEl.title = persistent
@@ -1977,13 +2005,16 @@ function selectRace(value){
 }
 
 let newCharModalOpen = false;
-function openNewCharModal(){ newCharModalOpen = true; render(); }
-function closeNewCharModal(){ newCharModalOpen = false; render(); }
+let pendingLinkOwnerId = null;
+function openNewCharModal(ownerId){ newCharModalOpen = true; pendingLinkOwnerId = ownerId || null; render(); }
+function closeNewCharModal(){ newCharModalOpen = false; pendingLinkOwnerId = null; render(); }
 function newCharModalHTML(t){
+  const ownerEntry = pendingLinkOwnerId ? charIndex.find(c=>c.id===pendingLinkOwnerId) : null;
   return `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeNewCharModal()">
     <div class="modal-box">
       <h3>${t.newCharModalTitle}</h3>
+      ${ownerEntry ? `<div class="formula-note" style="margin-bottom:8px">${t.newCharLinkedHint.replace('__NAME__', esc2(ownerEntry.name||"—"))}</div>` : ""}
       <div class="modal-row">
         <label>${t.charTypeLabel}</label>
         <select id="modalNewCharType" onchange="modalCharTypeChanged()">
@@ -2065,9 +2096,11 @@ async function confirmNewChar(){
   const charType = document.getElementById("modalNewCharType").value === "animal" ? "animal" : "pc";
   const name = document.getElementById("modalNewName").value.trim() || (charType==="animal" ? "New Animal" : "New Adventurer");
   const level = Math.max(1, Math.min(20, parseInt(document.getElementById("modalNewLevel").value)||1));
+  const linkedTo = pendingLinkOwnerId;
+  pendingLinkOwnerId = null;
 
   const id = "c"+Date.now();
-  charIndex.push({id, name});
+  charIndex.push({id, name, linkedTo});
   await saveIndex();
 
   if(charType === "animal"){
@@ -2075,6 +2108,8 @@ async function confirmNewChar(){
     state = animalChar(id);
     state.name = name;
     state.level = level;
+    state.linkedTo = linkedTo;
+    if(linkedTo) state.hasLinkedChar = true;
     if(species){ state.race = species; state.raceCustom = true; }
     newCharModalOpen = false;
     try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
@@ -2093,6 +2128,8 @@ async function confirmNewChar(){
   state = defaultChar(id);
   state.name = name;
   state.level = level;
+  state.linkedTo = linkedTo;
+  if(linkedTo) state.hasLinkedChar = true;
   if(cls){ state.cls = cls; state.clsCustom = !CLASS_LIST.includes(cls); }
   if(race){ state.race = race; state.raceCustom = !RACE_LIST.includes(race); }
   if(subrace){ state.subrace = subrace; state.subraceCustom = !(SUBRACE_MAP[race]||[]).includes(subrace); }
@@ -2106,7 +2143,7 @@ async function confirmNewChar(){
 }
 async function newCharacter(){
   const id = "c"+Date.now();
-  charIndex.push({id, name:"New Adventurer"});
+  charIndex.push({id, name:"New Adventurer", linkedTo:null});
   await saveIndex();
   state = defaultChar(id);
   try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
@@ -2118,8 +2155,13 @@ async function switchCharacter(id){
   render();
 }
 async function deleteCharacter(){
+  // Deleting a character cascades to anything linked to it (see docs/adr/0004).
+  const linkedIds = charIndex.filter(c=>c.linkedTo===state.id).map(c=>c.id);
+  for(const linkedId of linkedIds){
+    try{ await storageDelete("dnd-char:"+linkedId); }catch(e){}
+  }
   try{ await storageDelete("dnd-char:"+state.id); }catch(e){}
-  charIndex = charIndex.filter(c=>c.id!==state.id);
+  charIndex = charIndex.filter(c=>c.id!==state.id && !linkedIds.includes(c.id));
   await saveIndex();
   if(charIndex.length===0){
     state = null;
@@ -2389,7 +2431,7 @@ function helpModalHTML(t){
 async function loadDemoCharacter(){
   const id = "c"+Date.now();
   state = demoChar(id);
-  charIndex.push({id, name: state.name});
+  charIndex.push({id, name: state.name, linkedTo:null});
   await saveIndex();
   try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
   await setLastUsedId(id);
@@ -2550,6 +2592,21 @@ function exportCharacter(){
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+async function exportBundleAsFile(){
+  const characters = await collectBundleStates();
+  const owner = characters.find(c=>!c.linkedTo) || characters[0];
+  const dataStr = JSON.stringify({bundle:true, characters}, null, 2);
+  const blob = new Blob([dataStr], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = (owner.name || "character").replace(/[^a-z0-9\-_]+/gi, "_") + "_bundle.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  closeExportModal();
+}
 function triggerImport(){
   document.getElementById("importFileInput").click();
 }
@@ -2557,10 +2614,50 @@ async function importParsedCharacter(parsed){
   const id = "c"+Date.now();
   parsed.id = id;
   state = hydrate(parsed);
-  charIndex.push({id, name: state.name || "Imported"});
+  charIndex.push({id, name: state.name || "Imported", linkedTo: state.linkedTo || null});
   await saveIndex();
   await storageSet("dnd-char:"+id, JSON.stringify(state));
   await setLastUsedId(id);
+}
+// A bundle is the current character's owner (itself, if it has no linkedTo)
+// plus every character linked to that owner — always all of them, no partial
+// selection. bundleOwnerId()/bundleMemberCount() are cheap (charIndex only);
+// collectBundleStates() is the one that actually loads full character data.
+function bundleOwnerId(){ return state.linkedTo || state.id; }
+function bundleMemberCount(){ return 1 + charIndex.filter(c=>c.linkedTo===bundleOwnerId()).length; }
+async function loadCharState(id){
+  if(id === state.id) return state;
+  try{
+    const r = await storageGet("dnd-char:"+id);
+    return r ? hydrate(JSON.parse(r.value)) : null;
+  }catch(e){ return null; }
+}
+async function collectBundleStates(){
+  const ownerId = bundleOwnerId();
+  const ownerState = await loadCharState(ownerId);
+  const childEntries = charIndex.filter(c=>c.linkedTo===ownerId);
+  const childStates = await Promise.all(childEntries.map(c=>loadCharState(c.id)));
+  return [ownerState, ...childStates].filter(Boolean);
+}
+// Bundle import: every character gets a freshly generated id (never reuses
+// ids from the file, exactly like a single-character import), and linkedTo
+// references are remapped from the file's old ids to the new ones so the
+// group stays linked together. Lands on the owner once done.
+async function importParsedBundle(characters){
+  if(!Array.isArray(characters) || !characters.length) return;
+  const idMap = {};
+  characters.forEach((c,i) => { idMap[c.id] = "c"+Date.now()+"_"+i; });
+  let ownerNewId = null;
+  for(const c of characters){
+    const newId = idMap[c.id];
+    const newLinkedTo = (c.linkedTo && idMap[c.linkedTo]) ? idMap[c.linkedTo] : null;
+    const newState = hydrate({...c, id:newId, linkedTo:newLinkedTo});
+    charIndex.push({id:newId, name:newState.name || "Imported", linkedTo:newLinkedTo});
+    await storageSet("dnd-char:"+newId, JSON.stringify(newState));
+    if(!newLinkedTo) ownerNewId = newId;
+  }
+  await saveIndex();
+  await loadChar(ownerNewId || idMap[characters[0].id]);
 }
 function handleImportFile(input){
   const file = input.files && input.files[0];
@@ -2569,7 +2666,11 @@ function handleImportFile(input){
   reader.onload = async (e) => {
     try{
       const parsed = JSON.parse(e.target.result);
-      await importParsedCharacter(parsed);
+      if(parsed && parsed.bundle === true && Array.isArray(parsed.characters)){
+        await importParsedBundle(parsed.characters);
+      } else {
+        await importParsedCharacter(parsed);
+      }
       render();
     }catch(err){
       alert(lang==='he' ? "לא הצלחתי לקרוא את הקובץ הזה. ודא שזה קובץ JSON שיוצא מהגיליון הזה." : "Couldn't read that file. Make sure it's a JSON file exported from this sheet.");
@@ -2588,7 +2689,24 @@ function buildShareURL(){
   const base = location.href.split('#')[0].split('?')[0];
   return base + "#char=" + encodeURIComponent(encodeStateToBase64({lang, state}));
 }
+async function buildShareBundleURL(){
+  const characters = await collectBundleStates();
+  const base = location.href.split('#')[0].split('?')[0];
+  return base + "#charbundle=" + encodeURIComponent(encodeStateToBase64({lang, characters}));
+}
 async function checkURLImport(){
+  const mBundle = /(?:^|[#&])charbundle=([^&]+)/.exec(location.hash);
+  if(mBundle){
+    try{
+      const decoded = decodeBase64ToState(decodeURIComponent(mBundle[1]));
+      if(decoded && (decoded.lang === 'en' || decoded.lang === 'he')) await switchLang(decoded.lang);
+      await importParsedBundle(decoded && decoded.characters);
+      history.replaceState(null, "", location.pathname + location.search);
+      return true;
+    }catch(err){
+      return false;
+    }
+  }
   const m = /(?:^|[#&])char=([^&]+)/.exec(location.hash);
   if(!m) return false;
   try{
@@ -2611,6 +2729,16 @@ function closeExportModal(){ exportModalOpen = false; render(); }
 function exportAsFile(){ exportCharacter(); closeExportModal(); }
 async function generateShareLink(){
   exportLinkValue = buildShareURL();
+  exportLinkCopied = false;
+  render();
+  try{
+    await navigator.clipboard.writeText(exportLinkValue);
+    exportLinkCopied = true;
+    render();
+  }catch(err){}
+}
+async function generateShareBundleLink(){
+  exportLinkValue = await buildShareBundleURL();
   exportLinkCopied = false;
   render();
   try{
@@ -3056,12 +3184,13 @@ let createAICopyDone = false;
 let createAIPasteText = "";
 let createAIParseError = "";
 let createAIDraft = null; // {parsed, identity:{name,cls,subclass,race,subrace,bg,level,size,abilities,spellSlots}}
-function openCreateAIModal(){
+function openCreateAIModal(ownerId){
   createAIModalOpen = true; createAIStep = "concept"; createAIConceptText = "";
   createAICopyDone = false; createAIPasteText = ""; createAIParseError = ""; createAIDraft = null;
+  pendingLinkOwnerId = ownerId || null;
   render();
 }
-function closeCreateAIModal(){ createAIModalOpen = false; render(); }
+function closeCreateAIModal(){ createAIModalOpen = false; pendingLinkOwnerId = null; render(); }
 function backCreateAIDraft(){ createAIStep = "concept"; createAIDraft = null; createAIParseError = ""; render(); }
 async function copyCreateAIExport(){
   const text = buildCreateAIExport();
@@ -3226,13 +3355,17 @@ async function confirmCreateAIDraft(){
   if(!createAIDraft) return;
   const { identity, parsed } = createAIDraft;
   const id = "c"+Date.now();
-  charIndex.push({id, name: identity.name});
+  const linkedTo = pendingLinkOwnerId;
+  pendingLinkOwnerId = null;
+  charIndex.push({id, name: identity.name, linkedTo});
   await saveIndex();
 
   state = defaultChar(id);
   state.name = identity.name;
   state.level = identity.level;
   state.size = identity.size;
+  state.linkedTo = linkedTo;
+  if(linkedTo) state.hasLinkedChar = true;
   state.abilities = identity.abilities;
   state.subclass = identity.subclass;
   state.bg = identity.bg;
@@ -3332,10 +3465,12 @@ function createAIModalHTML(t){
       <div class="modal-actions">
         <button class="btn" onclick="closeCreateAIModal()">${t.printCancel}</button>
       </div>`;
+  const ownerEntry = pendingLinkOwnerId ? charIndex.find(c=>c.id===pendingLinkOwnerId) : null;
   return `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeCreateAIModal()">
     <div class="modal-box" style="max-width:560px">
       <h3>${t.createAIModalTitle}</h3>
+      ${ownerEntry ? `<div class="formula-note" style="margin-bottom:8px">${t.newCharLinkedHint.replace('__NAME__', esc2(ownerEntry.name||"—"))}</div>` : ""}
       ${stepBody}
     </div>
   </div>`;
@@ -4244,6 +4379,23 @@ function hitDiceDotsInteractive(){
   return out;
 }
 
+// Groups each owner (a character with no linkedTo, or an orphaned linkedTo
+// pointing at a character no longer in charIndex) together with its Linked
+// Characters via <optgroup>; anything else stays a flat top-level <option>.
+function charSwitcherOptionsHTML(){
+  const isOwner = c => !c.linkedTo || !charIndex.some(o=>o.id===c.linkedTo);
+  const childrenOf = ownerId => charIndex.filter(c=>c.linkedTo===ownerId);
+  const opt = (c, isChild) => `<option value="${c.id}" ${c.id===state.id?"selected":""}>${isChild?"↳ ":""}${esc2(c.name)||"—"}</option>`;
+  return charIndex.filter(isOwner).map(c=>{
+    const children = childrenOf(c.id);
+    // The "↳ " prefix on children carries the relationship on its own, since
+    // optgroup's own label duplicating the owner's name right above its own
+    // option renders as confusing on some pickers (esp. mobile) — no visible
+    // indentation, just the same name twice in a row.
+    return children.length ? `<optgroup label="${esc2(c.name)||"—"}">${opt(c,false)}${children.map(ch=>opt(ch,true)).join("")}</optgroup>` : opt(c,false);
+  }).join("");
+}
+
 function render(){
   const t = T[lang];
   const dir = lang==='he' ? 'rtl' : 'ltr';
@@ -4308,7 +4460,7 @@ function render(){
   <div class="controls no-print">
       <div class="char-select-group">
         <select onchange="if(this.value==='__new__'){openNewCharModal();}else if(this.value==='__newAI__'){openCreateAIModal();}else{switchCharacter(this.value)}">
-          ${charIndex.map(c=>`<option value="${c.id}" ${c.id===state.id?"selected":""}>${c.name||"—"}</option>`).join("")}
+          ${charSwitcherOptionsHTML()}
           <option value="__new__">➕ ${t.newChar}</option>
           <option value="__newAI__">🤖 ${t.newCharAI}</option>
         </select>
@@ -4393,6 +4545,10 @@ function render(){
         <div class="field">
           <label class="atk-prof-chip"><input type="checkbox" ${state.hasSpells?"checked":""} onchange="set('hasSpells', this.checked)">${t.hasSpellsLabel}</label>
           <div class="formula-note">${t.hasSpellsHint}</div>
+        </div>
+        <div class="field">
+          <label class="atk-prof-chip"><input type="checkbox" ${state.hasLinkedChar?"checked":""} onchange="set('hasLinkedChar', this.checked)">${t.hasLinkedCharLabel}</label>
+          <div class="formula-note">${t.hasLinkedCharHint}</div>
         </div>
         <div class="field">
           <label>${t.themeLabel}</label>
@@ -4698,6 +4854,26 @@ function render(){
     <button class="btn primary no-print" style="margin-top:10px" onclick="addResource()">➕ ${t.addResource}</button>
   </div>
 
+  ${!state.hasLinkedChar ? "" : `
+  <div class="panel ${foldedPanels['linkedChars'] ? 'folded' : ''}">
+    <h2 class="ref-toggle" onclick="togglePanelFold('linkedChars')">${t.linkedCharsTitle} ${foldIcon('linkedChars')}</h2>
+    ${state.linkedTo ? (() => {
+      const owner = charIndex.find(c=>c.id===state.linkedTo);
+      return `
+      <div class="formula-note" style="margin-bottom:10px">${t.linkedToLabel.replace('__NAME__', esc2(owner ? owner.name : "—"))}</div>
+      <button class="btn primary no-print" onclick="switchCharacter('${state.linkedTo}')">${t.transformBackBtn}</button>`;
+    })() : (() => {
+      const linked = charIndex.filter(c=>c.linkedTo===state.id);
+      return `
+      ${linked.length ? `<div class="prof-checklist" style="margin-bottom:10px">${linked.map(c=>`<button class="btn no-print" onclick="switchCharacter('${c.id}')" title="${t.switchToBtn}">${esc2(c.name)||"—"}</button>`).join("")}</div>` : ""}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn primary no-print" onclick="openNewCharModal(state.id)">➕ ${t.newLinkedChar}</button>
+        <button class="btn no-print" onclick="openCreateAIModal(state.id)">🤖 ${t.newLinkedCharAI}</button>
+      </div>`;
+    })()}
+  </div>
+  `}
+
   <div class="panel ${foldedPanels['notes'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('notes')">${t.notes} ${foldIcon('notes')}</h2>
     <textarea rows="4" onchange="set('notes', this.value)">${state.notes}</textarea>
@@ -4977,6 +5153,12 @@ function render(){
         <button class="btn primary" onclick="exportAsFile()">⬇ ${t.exportAsFileBtn}</button>
         <button class="btn" onclick="generateShareLink()">${t.exportAsLinkBtn}</button>
       </div>
+      ${bundleMemberCount() > 1 ? `
+      <div class="modal-row" style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+        <div class="formula-note">${t.bundleHint.replace('__COUNT__', bundleMemberCount())}</div>
+        <button class="btn primary" onclick="exportBundleAsFile()">⬇ ${t.exportAsBundleFileBtn}</button>
+        <button class="btn" onclick="generateShareBundleLink()">${t.exportAsBundleLinkBtn}</button>
+      </div>` : ""}
       ${exportLinkValue ? `
       <div class="modal-row">
         <input type="text" id="shareLinkInput" readonly value="${esc2(exportLinkValue)}" onclick="this.select()" style="width:100%;box-sizing:border-box">
