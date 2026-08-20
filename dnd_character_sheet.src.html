@@ -253,6 +253,9 @@ textarea{resize:vertical;font-size:15.5px;line-height:1.5;}
 .combat-box .big.roll-trigger{cursor:pointer;border-radius:4px;}
 .combat-box .big.roll-trigger:hover{background:var(--panel-2);color:var(--gold);}
 .combat-box .big.roll-trigger .roll-flash{color:var(--blood);}
+.ability .mod.roll-trigger{cursor:pointer;border-radius:4px;}
+.ability .mod.roll-trigger:hover{background:var(--panel-2);color:var(--gold);}
+.ability .mod.roll-trigger .roll-flash{color:var(--blood);}
 
 /* ---------- attacks table ---------- */
 .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
@@ -730,7 +733,6 @@ const T = {
     identityUnlockBtn:"🔓 Unlock to edit", identityLockNow:"🔒 Lock again",
     lockPanel:"Lock to prevent accidental changes", unlockPanel:"Unlock to allow editing",
     configTitle:"Configuration", hasSpellsLabel:"Has Spells", hasSpellsHint:"Shows/hides the Spells panel. Auto-guessed from Class, editable any time.",
-    hasLinkedCharLabel:"Has Linked Character", hasLinkedCharHint:"Shows/hides the Linked Characters box below. Auto-enabled once this character is linked to another, editable any time.",
     otherCustom:"Other / Custom", baseSpeedLabel:"Base Speed (ft)",
     themeLabel:"Theme", themeLeather:"Leather (default)", themeParchment:"Parchment (Light)", themeContrast:"High Contrast",
     shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped", itemEquippedAbbr:"Eq.",
@@ -806,9 +808,11 @@ const T = {
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
     charTypeLabel:"Type", charTypePc:"Player Character", charTypeAnimal:"Animal", species:"Species",
-    newCharLinkedHint:"This character will be linked to __NAME__.",
-    linkedCharsTitle:"Linked Characters", linkedToLabel:"Linked to: __NAME__", transformBackBtn:"↩ Transform back",
-    newLinkedChar:"New Linked Character", newLinkedCharAI:"New Linked Character (AI)", switchToBtn:"Switch to this character",
+    newCharLinkedToLabel:"Link to (optional)", linkedToLabel:"Linked to: __NAME__", transformBackBtn:"↩ Transform back",
+    createCharOption:"Create new character…", createChooserModalTitle:"Create New Character",
+    linkCharOption:"Link to another character…", unlinkOption:"Unlink",
+    linkCharModalTitle:"Link to Another Character", linkCharSelectLabel:"Link to", linkCharNoCandidates:"No other characters available to link to.",
+    unlinkConfirmTitle:"Unlink this character?", unlinkConfirmMsg:"It will become independent. You can link it again later.", unlinkBtn:"Unlink",
     onboardTitle:"Welcome to Character Scroll", onboardBody:"A free, self-explaining D&D 5e character sheet. Everything you enter is saved automatically in this browser — nothing is uploaded anywhere. Pick a language to get started:",
     onboardLangLabel:"Language", onboardOk:"OK",
     whatsNewTitle:"What's New", whatsNewOk:"Got it",
@@ -935,7 +939,6 @@ const T = {
     identityUnlockBtn:"🔓 פתח לעריכה", identityLockNow:"🔒 נעל שוב",
     lockPanel:"נעל כדי למנוע שינויים בטעות", unlockPanel:"פתח כדי לאפשר עריכה",
     configTitle:"הגדרות", hasSpellsLabel:"בעל קסמים", hasSpellsHint:"מציג/מסתיר את פאנל הקסמים. מוערך אוטומטית לפי המחלקה, ניתן לשינוי בכל עת.",
-    hasLinkedCharLabel:"יש דמות מקושרת", hasLinkedCharHint:"מציג/מסתיר את תיבת הדמויות המקושרות למטה. מופעל אוטומטית ברגע שהדמות מקושרת לדמות אחרת, ניתן לשינוי בכל עת.",
     otherCustom:"אחר / מותאם אישית", baseSpeedLabel:"מהירות בסיס (רגל)",
     themeLabel:"ערכת נושא", themeLeather:"עור (ברירת מחדל)", themeParchment:"קלף (בהיר)", themeContrast:"ניגודיות גבוהה",
     shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש", itemEquippedAbbr:"חבוש",
@@ -1011,9 +1014,11 @@ const T = {
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
     charTypeLabel:"סוג", charTypePc:"דמות שחקן", charTypeAnimal:"חיה", species:"מין",
-    newCharLinkedHint:"דמות זו תקושר אל __NAME__.",
-    linkedCharsTitle:"דמויות מקושרות", linkedToLabel:"מקושרת אל: __NAME__", transformBackBtn:"↩ הפוך בחזרה",
-    newLinkedChar:"דמות מקושרת חדשה", newLinkedCharAI:"דמות מקושרת חדשה (AI)", switchToBtn:"עבור לדמות זו",
+    newCharLinkedToLabel:"קשר אל (אופציונלי)", linkedToLabel:"מקושרת אל: __NAME__", transformBackBtn:"↩ הפוך בחזרה",
+    createCharOption:"צור דמות חדשה…", createChooserModalTitle:"יצירת דמות חדשה",
+    linkCharOption:"קשר לדמות אחרת…", unlinkOption:"בטל קישור",
+    linkCharModalTitle:"קישור לדמות אחרת", linkCharSelectLabel:"קשר אל", linkCharNoCandidates:"אין דמויות אחרות זמינות לקישור.",
+    unlinkConfirmTitle:"לבטל את הקישור של דמות זו?", unlinkConfirmMsg:"הדמות תהפוך לעצמאית. אפשר לקשר אותה שוב מאוחר יותר.", unlinkBtn:"בטל קישור",
     onboardTitle:"ברוכים הבאים למגילת הדמות", onboardBody:"גיליון דמות חופשי ל-D&D 5e שמסביר את עצמו. כל מה שתזין נשמר אוטומטית בדפדפן הזה — שום דבר לא מועלה לשום מקום. בחר שפה כדי להתחיל:",
     onboardLangLabel:"שפה", onboardOk:"אישור",
     whatsNewTitle:"מה חדש", whatsNewOk:"הבנתי",
@@ -1244,7 +1249,7 @@ const SUBRACE_MAP = {
 
 function defaultChar(id){
   return {
-    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false, linkedTo:null, hasLinkedChar:false,
+    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false, linkedTo:null,
     abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
     level:1, size:"Medium",
     armor:{acAbility:"dex", migrated:true},
@@ -1284,9 +1289,6 @@ function hydrate(s){
   if(!s.concentration) s.concentration = {active:false, spell:"", dmg:0};
   if(!s.charType) s.charType = "pc";
   if(s.linkedTo === undefined) s.linkedTo = null;
-  // Auto-shows the box for characters that were already linked (or already
-  // had links) before this toggle existed, exactly once, on first hydrate.
-  if(s.hasLinkedChar === undefined) s.hasLinkedChar = !!s.linkedTo || charIndex.some(c=>c.linkedTo===s.id);
   if(!s.armor) s.armor = {acAbility: s.charType==="animal" ? "wis" : "dex"};
   if(!s.armor.acAbility) s.armor.acAbility = s.charType==="animal" ? "wis" : "dex";
   if(!s.proficiencies) s.proficiencies = {armor:"", weapons:"", tools:"", languages:""};
@@ -1437,7 +1439,7 @@ function saveFoldedPanels(){
 }
 function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); saveFoldedPanels(); }
 function togglePanelLock(id){ panelLocks[id] = !panelLocks[id]; render(); saveFoldedPanels(); }
-const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","proficiencies","inventory","attacks","spells","featsTraits","resources","linkedChars","notes","turnFlow","atkFlow"];
+const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","proficiencies","inventory","attacks","spells","featsTraits","resources","notes","turnFlow","atkFlow"];
 function setAllFolded(hide){
   ALL_PANEL_IDS.forEach(id => foldedPanels[id] = hide);
   diceFolded = hide;
@@ -1631,6 +1633,21 @@ async function rollSkill(key){
   skillRollFlash = {key, roll, total};
   clearTimeout(skillRollFlashTimer);
   skillRollFlashTimer = setTimeout(()=>{ skillRollFlash = null; render(); }, 3000);
+  render();
+}
+let abilityRollFlash = null; // {abil, roll, total}
+let abilityRollFlashTimer = null;
+async function rollAbilityCheck(abil){
+  const eff = getEffectiveAbilities(state);
+  const bonus = mod(eff[abil]);
+  const label = T[lang][abil] || abil;
+  const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
+  const roll = results[0].value;
+  const total = roll + bonus;
+  ensureDiceEngine().showResultBanner([{key:'ability', title:label, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
+  abilityRollFlash = {abil, roll, total};
+  clearTimeout(abilityRollFlashTimer);
+  abilityRollFlashTimer = setTimeout(()=>{ abilityRollFlash = null; render(); }, 3000);
   render();
 }
 let attackRolls = {};
@@ -2009,16 +2026,29 @@ function selectRace(value){
 }
 
 let newCharModalOpen = false;
-let pendingLinkOwnerId = null;
-function openNewCharModal(ownerId){ newCharModalOpen = true; pendingLinkOwnerId = ownerId || null; render(); }
-function closeNewCharModal(){ newCharModalOpen = false; pendingLinkOwnerId = null; render(); }
+function openNewCharModal(){ newCharModalOpen = true; render(); }
+function closeNewCharModal(){ newCharModalOpen = false; render(); }
+// Options for a "link to an existing character" selector: only top-level
+// characters (not themselves already linked to someone) are eligible owners,
+// so the data stays a flat owner + children shape with no A→B→C chains.
+function ownerCandidateOptionsHTML(excludeId, selectedId){
+  const t = T[lang];
+  const candidates = charIndex.filter(c=>!c.linkedTo && c.id!==excludeId);
+  return `<option value="">${t.noneOption}</option>` +
+    candidates.map(c=>`<option value="${c.id}" ${c.id===selectedId?"selected":""}>${charDisambiguatedName(c)}</option>`).join("");
+}
 function newCharModalHTML(t){
-  const ownerEntry = pendingLinkOwnerId ? charIndex.find(c=>c.id===pendingLinkOwnerId) : null;
+  const defaultLinkedTo = (state && !state.linkedTo) ? state.id : "";
   return `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeNewCharModal()">
     <div class="modal-box">
       <h3>${t.newCharModalTitle}</h3>
-      ${ownerEntry ? `<div class="formula-note" style="margin-bottom:8px">${t.newCharLinkedHint.replace('__NAME__', esc2(ownerEntry.name||"—"))}</div>` : ""}
+      <div class="modal-row">
+        <label>${t.newCharLinkedToLabel}</label>
+        <select id="modalNewLinkedTo">
+          ${ownerCandidateOptionsHTML(null, defaultLinkedTo)}
+        </select>
+      </div>
       <div class="modal-row">
         <label>${t.charTypeLabel}</label>
         <select id="modalNewCharType" onchange="modalCharTypeChanged()">
@@ -2072,6 +2102,83 @@ function newCharModalHTML(t){
     </div>
   </div>`;
 }
+
+// The dropdown's single "Create new character" entry routes through this
+// tiny chooser before landing in either the manual or AI creation modal.
+let createChooserModalOpen = false;
+function openCreateChooserModal(){ createChooserModalOpen = true; render(); }
+function closeCreateChooserModal(){ createChooserModalOpen = false; render(); }
+function chooseJustCreate(){ createChooserModalOpen = false; openNewCharModal(); }
+function chooseCreateWithAI(){ createChooserModalOpen = false; openCreateAIModal(); }
+function createChooserModalHTML(t){
+  return `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeCreateChooserModal()">
+    <div class="modal-box">
+      <h3>${t.createChooserModalTitle}</h3>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeCreateChooserModal()">${t.printCancel}</button>
+        <button class="btn" onclick="chooseJustCreate()">➕ ${t.newChar}</button>
+        <button class="btn primary" onclick="chooseCreateWithAI()">🤖 ${t.newCharAI}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Linking two already-existing characters (as opposed to birth-linking a
+// brand-new one via the create modals above). Direction is fixed: the
+// currently active character becomes the CHILD of whichever owner is picked.
+let linkCharModalOpen = false;
+function openLinkCharModal(){ linkCharModalOpen = true; render(); }
+function closeLinkCharModal(){ linkCharModalOpen = false; render(); }
+function confirmLinkChar(){
+  const sel = document.getElementById("linkCharOwnerSelect");
+  const ownerId = sel ? sel.value : "";
+  if(!ownerId) return;
+  state.linkedTo = ownerId;
+  const idxEntry = charIndex.find(c=>c.id===state.id);
+  if(idxEntry) idxEntry.linkedTo = ownerId;
+  linkCharModalOpen = false;
+  saveIndex();
+  queueSave();
+  render();
+}
+function linkCharModalHTML(t){
+  const candidates = charIndex.filter(c=>!c.linkedTo && c.id!==state.id);
+  return `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeLinkCharModal()">
+    <div class="modal-box">
+      <h3>${t.linkCharModalTitle}</h3>
+      ${candidates.length ? `
+      <div class="modal-row">
+        <label>${t.linkCharSelectLabel}</label>
+        <select id="linkCharOwnerSelect">
+          ${candidates.map(c=>`<option value="${c.id}">${charDisambiguatedName(c)}</option>`).join("")}
+        </select>
+      </div>` : `<div class="formula-note">${t.linkCharNoCandidates}</div>`}
+      <div class="modal-actions">
+        <button class="btn" onclick="closeLinkCharModal()">${t.printCancel}</button>
+        <button class="btn primary" onclick="confirmLinkChar()" ${candidates.length?"":"disabled"}>${t.doneBtn}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Unlinking asks for confirmation (it's a structural change, even though
+// it's reversible) via its own small popup rather than the generic
+// confirmRemove one, since that one's fixed wording says "can't be undone" —
+// not true here, the character can simply be re-linked afterward.
+let pendingUnlinkConfirm = false;
+function requestUnlink(){ pendingUnlinkConfirm = true; render(); }
+function cancelUnlink(){ pendingUnlinkConfirm = false; render(); }
+function doUnlink(){
+  pendingUnlinkConfirm = false;
+  state.linkedTo = null;
+  const idxEntry = charIndex.find(c=>c.id===state.id);
+  if(idxEntry) idxEntry.linkedTo = null;
+  saveIndex();
+  queueSave();
+  render();
+}
 function modalRaceChanged(){
   const t = T[lang];
   const race = document.getElementById("modalNewRace").value;
@@ -2100,8 +2207,7 @@ async function confirmNewChar(){
   const charType = document.getElementById("modalNewCharType").value === "animal" ? "animal" : "pc";
   const name = document.getElementById("modalNewName").value.trim() || (charType==="animal" ? "New Animal" : "New Adventurer");
   const level = Math.max(1, Math.min(20, parseInt(document.getElementById("modalNewLevel").value)||1));
-  const linkedTo = pendingLinkOwnerId;
-  pendingLinkOwnerId = null;
+  const linkedTo = document.getElementById("modalNewLinkedTo").value || null;
 
   const id = "c"+Date.now();
   charIndex.push({id, name, linkedTo});
@@ -2113,7 +2219,6 @@ async function confirmNewChar(){
     state.name = name;
     state.level = level;
     state.linkedTo = linkedTo;
-    if(linkedTo) state.hasLinkedChar = true;
     if(species){ state.race = species; state.raceCustom = true; }
     newCharModalOpen = false;
     try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
@@ -2133,7 +2238,6 @@ async function confirmNewChar(){
   state.name = name;
   state.level = level;
   state.linkedTo = linkedTo;
-  if(linkedTo) state.hasLinkedChar = true;
   if(cls){ state.cls = cls; state.clsCustom = !CLASS_LIST.includes(cls); }
   if(race){ state.race = race; state.raceCustom = !RACE_LIST.includes(race); }
   if(subrace){ state.subrace = subrace; state.subraceCustom = !(SUBRACE_MAP[race]||[]).includes(subrace); }
@@ -3204,13 +3308,14 @@ let createAICopyDone = false;
 let createAIPasteText = "";
 let createAIParseError = "";
 let createAIDraft = null; // {parsed, identity:{name,cls,subclass,race,subrace,bg,level,size,abilities,spellSlots}}
-function openCreateAIModal(ownerId){
+let createAILinkedTo = "";
+function openCreateAIModal(){
   createAIModalOpen = true; createAIStep = "concept"; createAIConceptText = "";
   createAICopyDone = false; createAIPasteText = ""; createAIParseError = ""; createAIDraft = null;
-  pendingLinkOwnerId = ownerId || null;
+  createAILinkedTo = (state && !state.linkedTo) ? state.id : "";
   render();
 }
-function closeCreateAIModal(){ createAIModalOpen = false; pendingLinkOwnerId = null; render(); }
+function closeCreateAIModal(){ createAIModalOpen = false; render(); }
 function backCreateAIDraft(){ createAIStep = "concept"; createAIDraft = null; createAIParseError = ""; render(); }
 async function copyCreateAIExport(){
   const text = buildCreateAIExport();
@@ -3375,8 +3480,7 @@ async function confirmCreateAIDraft(){
   if(!createAIDraft) return;
   const { identity, parsed } = createAIDraft;
   const id = "c"+Date.now();
-  const linkedTo = pendingLinkOwnerId;
-  pendingLinkOwnerId = null;
+  const linkedTo = createAILinkedTo || null;
   charIndex.push({id, name: identity.name, linkedTo});
   await saveIndex();
 
@@ -3385,7 +3489,6 @@ async function confirmCreateAIDraft(){
   state.level = identity.level;
   state.size = identity.size;
   state.linkedTo = linkedTo;
-  if(linkedTo) state.hasLinkedChar = true;
   state.abilities = identity.abilities;
   state.subclass = identity.subclass;
   state.bg = identity.bg;
@@ -3465,6 +3568,12 @@ function createAIModalHTML(t){
       </div>`;
   })() : `
       <div class="modal-row">
+        <label>${t.newCharLinkedToLabel}</label>
+        <select id="createAILinkedToSelect" onchange="createAILinkedTo=this.value">
+          ${ownerCandidateOptionsHTML(null, createAILinkedTo)}
+        </select>
+      </div>
+      <div class="modal-row">
         <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.createAIConceptStepTitle}</div>
         <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.createAIConceptStepDesc}</div>
         <textarea id="createAIConceptInput" placeholder="${t.createAIConceptPlaceholder}" style="width:100%;box-sizing:border-box;min-height:70px;font-size:13px" dir="auto" oninput="createAIConceptText=this.value">${esc2(createAIConceptText)}</textarea>
@@ -3485,12 +3594,10 @@ function createAIModalHTML(t){
       <div class="modal-actions">
         <button class="btn" onclick="closeCreateAIModal()">${t.printCancel}</button>
       </div>`;
-  const ownerEntry = pendingLinkOwnerId ? charIndex.find(c=>c.id===pendingLinkOwnerId) : null;
   return `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeCreateAIModal()">
     <div class="modal-box" style="max-width:560px">
       <h3>${t.createAIModalTitle}</h3>
-      ${ownerEntry ? `<div class="formula-note" style="margin-bottom:8px">${t.newCharLinkedHint.replace('__NAME__', esc2(ownerEntry.name||"—"))}</div>` : ""}
       ${stepBody}
     </div>
   </div>`;
@@ -4491,10 +4598,10 @@ function render(){
   </div>
   <div class="controls no-print">
       <div class="char-select-group">
-        <select onchange="if(this.value==='__new__'){openNewCharModal();}else if(this.value==='__newAI__'){openCreateAIModal();}else{switchCharacter(this.value)}">
+        <select onchange="if(this.value==='__create__'){openCreateChooserModal();}else if(this.value==='__link__'){openLinkCharModal();}else if(this.value==='__unlink__'){requestUnlink();}else{switchCharacter(this.value)}">
           ${charSwitcherOptionsHTML()}
-          <option value="__new__">➕ ${t.newChar}</option>
-          <option value="__newAI__">🤖 ${t.newCharAI}</option>
+          <option value="__create__">➕ ${t.createCharOption}</option>
+          ${state.linkedTo ? `<option value="__unlink__">🔗 ${t.unlinkOption}</option>` : (charIndex.some(c=>c.linkedTo===state.id) ? "" : `<option value="__link__">🔗 ${t.linkCharOption}</option>`)}
         </select>
         <button class="btn danger icon-btn" onclick="confirmRemove(deleteCharacter)" title="${t.del}">🗑️</button>
       </div>
@@ -4564,6 +4671,14 @@ function render(){
         ` : `<span class="feat-name-display id-box">${t["size"+state.size]||esc2(state.size)}</span>`}
       </div>
     </div>
+    ${!state.linkedTo ? "" : (() => {
+      const owner = charIndex.find(c=>c.id===state.linkedTo);
+      return `
+      <div class="formula-note no-print" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <span>${t.linkedToLabel.replace('__NAME__', owner ? charDisambiguatedName(owner) : "—")}</span>
+        <button class="btn primary" style="padding:4px 10px;font-size:11px" onclick="switchCharacter('${state.linkedTo}')">${t.transformBackBtn}</button>
+      </div>`;
+    })()}
     ${identityUnlocked ? `<div class="formula-note" style="margin-top:6px">${t.clsAutoNote}</div>` : ""}
     <div class="formula-note no-print" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
       <span>${identityUnlocked ? t.identityUnlockedHint : t.identityLockedHint}</span>
@@ -4577,10 +4692,6 @@ function render(){
         <div class="field">
           <label class="atk-prof-chip"><input type="checkbox" ${state.hasSpells?"checked":""} onchange="set('hasSpells', this.checked)">${t.hasSpellsLabel}</label>
           <div class="formula-note">${t.hasSpellsHint}</div>
-        </div>
-        <div class="field">
-          <label class="atk-prof-chip"><input type="checkbox" ${state.hasLinkedChar?"checked":""} onchange="set('hasLinkedChar', this.checked)">${t.hasLinkedCharLabel}</label>
-          <div class="formula-note">${t.hasLinkedCharHint}</div>
         </div>
         <div class="field">
           <label>${t.themeLabel}</label>
@@ -4640,13 +4751,15 @@ function render(){
   <div class="panel ${foldedPanels['abilities'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('abilities')">📊 ${t.abilities} 💪🏹🛡️🧠👁️✨ ${foldIcon('abilities')}</h2>
     <div class="abilities">
-      ${ABILS.map(a=>`
+      ${ABILS.map(a=>{
+        const flash = abilityRollFlash && abilityRollFlash.abil===a ? abilityRollFlash : null;
+        return `
         <div class="ability">
           <div class="name">${ABIL_ICON[a]} ${t[a]}</div>
-          <div class="mod">${fm(mod(effAbil[a]))}</div>
+          <div class="mod roll-trigger no-print" onclick="rollAbilityCheck('${a}')" title="${t.atkRoll}">${flash ? `<b class="roll-flash">${flash.total}</b>` : fm(mod(effAbil[a]))}</div>
           <input class="score-input" type="number" value="${state.abilities[a]}" onchange="set('abilities.${a}', parseInt(this.value)||10)">
           <div class="formula-note">⌊(${effAbil[a]}−10)/2⌋${effAbil[a]!==state.abilities[a] ? `<br>${fm(effAbil[a]-state.abilities[a])} feat` : ""}</div>
-        </div>`).join("")}
+        </div>`;}).join("")}
     </div>
   </div>
 
@@ -4886,26 +4999,6 @@ function render(){
     <button class="btn primary no-print" style="margin-top:10px" onclick="addResource()">➕ ${t.addResource}</button>
   </div>
 
-  ${!state.hasLinkedChar ? "" : `
-  <div class="panel ${foldedPanels['linkedChars'] ? 'folded' : ''}">
-    <h2 class="ref-toggle" onclick="togglePanelFold('linkedChars')">${t.linkedCharsTitle} ${foldIcon('linkedChars')}</h2>
-    ${state.linkedTo ? (() => {
-      const owner = charIndex.find(c=>c.id===state.linkedTo);
-      return `
-      <div class="formula-note" style="margin-bottom:10px">${t.linkedToLabel.replace('__NAME__', owner ? charDisambiguatedName(owner) : "—")}</div>
-      <button class="btn primary no-print" onclick="switchCharacter('${state.linkedTo}')">${t.transformBackBtn}</button>`;
-    })() : (() => {
-      const linked = charIndex.filter(c=>c.linkedTo===state.id);
-      return `
-      ${linked.length ? `<div class="prof-checklist" style="margin-bottom:10px">${linked.map(c=>`<button class="btn no-print" onclick="switchCharacter('${c.id}')" title="${t.switchToBtn}">${charDisambiguatedName(c)}</button>`).join("")}</div>` : ""}
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn primary no-print" onclick="openNewCharModal(state.id)">➕ ${t.newLinkedChar}</button>
-        <button class="btn no-print" onclick="openCreateAIModal(state.id)">🤖 ${t.newLinkedCharAI}</button>
-      </div>`;
-    })()}
-  </div>
-  `}
-
   <div class="panel ${foldedPanels['notes'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('notes')">${t.notes} ${foldIcon('notes')}</h2>
     <textarea rows="4" onchange="set('notes', this.value)">${state.notes}</textarea>
@@ -5081,6 +5174,19 @@ function render(){
 
   ${newCharModalOpen ? newCharModalHTML(t) : ""}
   ${createAIModalOpen ? createAIModalHTML(t) : ""}
+  ${createChooserModalOpen ? createChooserModalHTML(t) : ""}
+  ${linkCharModalOpen ? linkCharModalHTML(t) : ""}
+  ${pendingUnlinkConfirm ? `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) cancelUnlink()">
+    <div class="modal-box">
+      <h3>${t.unlinkConfirmTitle}</h3>
+      <p>${t.unlinkConfirmMsg}</p>
+      <div class="modal-actions">
+        <button class="btn" onclick="cancelUnlink()">${t.printCancel}</button>
+        <button class="btn primary" onclick="doUnlink()">${t.unlinkBtn}</button>
+      </div>
+    </div>
+  </div>` : ""}
 
   ${featModalOpen ? (()=>{
     const isTrait = featModalListKey === "traits";

@@ -9,7 +9,10 @@ test.describe('multi-character persistence', () => {
     await page.waitForTimeout(500); // let the 400ms autosave debounce flush
     const idA = await page.evaluate(() => state.id);
 
-    await page.locator('select').first().selectOption('__new__');
+    await page.locator('select').first().selectOption('__create__');
+    await page.locator('.modal-actions button:has-text("New Character")').click();
+    // Not testing linking here — keep the two characters independent.
+    await page.selectOption('#modalNewLinkedTo', '');
     await page.locator('.modal-backdrop button:has-text("Done")').click();
     await page.evaluate(() => set('name', 'Character B'));
     await page.waitForTimeout(500);
@@ -28,7 +31,9 @@ test.describe('multi-character persistence', () => {
   test('deleting the active character falls back to a remaining one', async ({ page }) => {
     await dismissOnboarding(page);
 
-    await page.locator('select').first().selectOption('__new__');
+    await page.locator('select').first().selectOption('__create__');
+    await page.locator('.modal-actions button:has-text("New Character")').click();
+    await page.selectOption('#modalNewLinkedTo', '');
     await page.locator('.modal-backdrop button:has-text("Done")').click();
     await page.waitForTimeout(300);
     expect(await page.evaluate(() => charIndex.length)).toBe(2);

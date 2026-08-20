@@ -1,39 +1,36 @@
 const { test, expect } = require('@playwright/test');
 const { dismissOnboarding, deleteActiveCharacter } = require('./helpers');
 
-// The "Has Linked Character" checkbox lives inside Identity's Configuration
-// sub-section (only rendered once Identity is unlocked), and mirrors "Has
-// Spells": checking it is what reveals the standalone Linked Characters box
-// elsewhere on the sheet.
-async function enableLinkedChar(page) {
-  await page.click('button:has-text("Unlock to edit")');
-  await page.click('label:has-text("Has Linked Character")');
+// Creating a character now always goes through the dropdown's single
+// "Create new character…" entry, which opens a small chooser (Just Create
+// vs AI) before landing in the real creation modal. The creation modal
+// itself carries a "Link to (optional)" selector — pre-filled with the
+// currently active character when it's eligible to be an owner — so a
+// brand-new character can be born already linked (e.g. a Wild Shape form).
+async function openJustCreateModal(page) {
+  await page.selectOption('.char-select-group select', '__create__');
+  await page.locator('.modal-box h3:has-text("Create New Character")').waitFor({ state: 'visible' });
+  await page.locator('.modal-actions button:has-text("New Character")').click();
+  await page.locator('.modal-box h3:has-text("New Character")').waitFor({ state: 'visible' });
 }
 
 test.describe('Linked Characters', () => {
   test('create, switch, and cascade-delete a linked character', async ({ page }) => {
     await dismissOnboarding(page);
-    await enableLinkedChar(page);
-
-    // Owner: box visible, empty, with both create buttons.
-    await expect(page.locator('h2:has-text("Linked Characters")')).toBeVisible();
-    await expect(page.locator('button:has-text("➕ New Linked Character")')).toBeVisible();
-    await expect(page.locator('button:has-text("New Linked Character (AI)")')).toBeVisible();
-
     const ownerId = await page.evaluate(() => state.id);
 
-    // Create a linked character via the plain modal.
-    await page.click('button:has-text("➕ New Linked Character")');
-    await expect(page.locator('.modal-box')).toContainText('This character will be linked to New Adventurer.');
+    await openJustCreateModal(page);
+    // Defaults to linking under the active (owner) character.
+    await expect(page.locator('#modalNewLinkedTo')).toHaveValue(ownerId);
     await page.selectOption('#modalNewCharType', 'animal');
     await page.fill('#modalNewName', 'Bear Form');
     await page.locator('.modal-backdrop button:has-text("Done")').click();
     await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
 
-    const linked = await page.evaluate(() => ({ name: state.name, linkedTo: state.linkedTo, hasLinkedChar: state.hasLinkedChar, charType: state.charType }));
-    expect(linked).toEqual({ name: 'Bear Form', linkedTo: ownerId, hasLinkedChar: true, charType: 'animal' });
+    const linked = await page.evaluate(() => ({ name: state.name, linkedTo: state.linkedTo, charType: state.charType }));
+    expect(linked).toEqual({ name: 'Bear Form', linkedTo: ownerId, charType: 'animal' });
 
-    // Linked character's own box shows the reduced view automatically (hasLinkedChar was auto-enabled on creation, no manual toggle needed).
+    // Identity panel (not a standalone panel anymore) shows "Linked to: X" + Transform back.
     await expect(page.locator('text=Linked to: New Adventurer')).toBeVisible();
     const transformBack = page.locator('button:has-text("Transform back")');
     await expect(transformBack).toBeVisible();
@@ -49,10 +46,9 @@ test.describe('Linked Characters', () => {
     await transformBack.click();
     await page.waitForFunction((id) => state.id === id, ownerId);
 
-    // The owner's list has a clickable button (not just text) for the linked character.
-    const bearBtn = page.locator('button:has-text("Bear Form")');
-    await expect(bearBtn).toBeVisible();
-    await bearBtn.click();
+    // Switching to the linked character now goes through the dropdown directly.
+    const bearId = await page.evaluate(() => charIndex.find(c => c.name === 'Bear Form').id);
+    await page.selectOption('.char-select-group select', bearId);
     await page.waitForFunction(() => state.name === 'Bear Form');
 
     // Switch back to the owner before testing cascade delete.
@@ -66,11 +62,64 @@ test.describe('Linked Characters', () => {
     expect(await page.evaluate(() => state)).toBeNull();
   });
 
+  test('link an existing character to another, then unlink', async ({ page }) => {
+    await dismissOnboarding(page);
+    const firstId = await page.evaluate(() => state.id);
+
+    // Create a second, fully independent character (explicitly clear the
+    // pre-filled "Link to" selector so the two start out unlinked).
+    await openJustCreateModal(page);
+    await page.selectOption('#modalNewLinkedTo', '');
+    await page.fill('#modalNewName', 'Second Adventurer');
+    await page.locator('.modal-backdrop button:has-text("Done")').click();
+    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+    const secondId = await page.evaluate(() => state.id);
+    expect(await page.evaluate(() => state.linkedTo)).toBeNull();
+
+    // The active (unlinked, childless) character offers "Link to another character…".
+    await page.selectOption('.char-select-group select', '__link__');
+    await page.locator('.modal-box h3:has-text("Link to Another Character")').waitFor({ state: 'visible' });
+    await page.selectOption('#linkCharOwnerSelect', firstId);
+    await page.locator('.modal-backdrop button:has-text("Done")').click();
+    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+
+    expect(await page.evaluate(() => state.linkedTo)).toBe(firstId);
+    const idxAfterLink = await page.evaluate((id) => charIndex.find(c => c.id === id).linkedTo, secondId);
+    expect(idxAfterLink).toBe(firstId);
+
+    // Now the active (linked) character offers "Unlink" instead, guarded by a confirm popup.
+    await page.selectOption('.char-select-group select', '__unlink__');
+    await page.locator('.modal-box h3:has-text("Unlink this character?")').waitFor({ state: 'visible' });
+    await page.locator('.modal-backdrop button:has-text("Unlink")').click();
+    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+
+    expect(await page.evaluate(() => state.linkedTo)).toBeNull();
+    const idxAfterUnlink = await page.evaluate((id) => charIndex.find(c => c.id === id).linkedTo, secondId);
+    expect(idxAfterUnlink).toBeNull();
+  });
+
+  test('an owner with existing children cannot itself be linked (no chains)', async ({ page }) => {
+    await dismissOnboarding(page);
+
+    // Create a linked child under the first character, then switch back to it.
+    await openJustCreateModal(page);
+    await page.fill('#modalNewName', 'Child');
+    await page.locator('.modal-backdrop button:has-text("Done")').click();
+    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+    await page.locator('button:has-text("Transform back")').click();
+    await page.waitForFunction(() => !state.linkedTo);
+
+    // This character now owns a child, and is not itself linked — the
+    // dropdown should offer neither "Link" nor "Unlink".
+    const options = await page.evaluate(() => [...document.querySelectorAll('.char-select-group select option')].map(o => o.value));
+    expect(options).not.toContain('__link__');
+    expect(options).not.toContain('__unlink__');
+  });
+
   test('bundle export/import round-trip keeps owner and linked character linked, with fresh ids', async ({ page }) => {
     await dismissOnboarding(page);
-    await enableLinkedChar(page);
 
-    await page.click('button:has-text("➕ New Linked Character")');
+    await openJustCreateModal(page);
     await page.selectOption('#modalNewCharType', 'animal');
     await page.fill('#modalNewName', 'Bear Form');
     await page.locator('.modal-backdrop button:has-text("Done")').click();
@@ -109,7 +158,8 @@ test.describe('Linked Characters', () => {
     const firstId = await page.evaluate(() => state.id);
 
     // A second blank character defaults to the exact same name.
-    await page.selectOption('.char-select-group select', '__new__');
+    await openJustCreateModal(page);
+    await page.selectOption('#modalNewLinkedTo', '');
     await page.locator('.modal-backdrop button:has-text("Done")').click();
     await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
     const secondId = await page.evaluate(() => state.id);
@@ -126,8 +176,7 @@ test.describe('Linked Characters', () => {
 
   test('importing a single Linked Character elsewhere (its owner absent) clears the dangling link', async ({ page, browser }) => {
     await dismissOnboarding(page);
-    await enableLinkedChar(page);
-    await page.click('button:has-text("➕ New Linked Character")');
+    await openJustCreateModal(page);
     await page.selectOption('#modalNewCharType', 'animal');
     await page.fill('#modalNewName', 'Bear Form');
     await page.locator('.modal-backdrop button:has-text("Done")').click();
