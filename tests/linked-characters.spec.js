@@ -103,4 +103,24 @@ test.describe('Linked Characters', () => {
     expect(originalIds).not.toContain(result.child.id);
     expect(originalIds).not.toContain(result.ownerId);
   });
+
+  test('disambiguates characters that share a name in the switcher', async ({ page }) => {
+    await dismissOnboarding(page); // creates the first "New Adventurer"
+    const firstId = await page.evaluate(() => state.id);
+
+    // A second blank character defaults to the exact same name.
+    await page.selectOption('.char-select-group select', '__new__');
+    await page.locator('.modal-backdrop button:has-text("Done")').click();
+    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+    const secondId = await page.evaluate(() => state.id);
+    expect(secondId).not.toBe(firstId);
+
+    const options = await page.evaluate(() => [...document.querySelectorAll('.char-select-group select option')]
+      .map(o => ({ value: o.value, text: o.textContent, selected: o.selected })));
+    const named = options.filter(o => o.text.startsWith('New Adventurer'));
+    expect(named.map(o => o.text).sort()).toEqual(['New Adventurer (1)', 'New Adventurer (2)']);
+    // The currently-active one (the second, just-created character) is the one marked selected.
+    const selected = named.find(o => o.selected);
+    expect(selected.value).toBe(secondId);
+  });
 });

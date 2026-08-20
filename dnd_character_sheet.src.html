@@ -766,6 +766,8 @@ const T = {
     aiModalTitle:"Ask an AI about your character", aiCopyStepTitle:"1. Copy your character",
     aiCopyStepDesc:"Copy this, paste it into an AI chat (ChatGPT, Claude, Gemini, etc.), and ask your question — e.g. \"which feat should I take?\" or \"does anything look wrong here?\"",
     aiCopyBtn:"📋 Copy for AI", aiCopyCopied:"✓ Copied to clipboard.",
+    aiCopyLinkBtn:"🔗 Copy as link instead", aiCopyLinkCopied:"✓ Link copied to clipboard.",
+    aiCopyLinkHint:"Same content as above, as a data: link you can paste instead of pasting text directly. Only works with AI tools that actually fetch/read a given link's content — if yours doesn't, use \"Copy for AI\" above instead.",
     aiPasteStepTitle:"2. Paste the AI's reply", aiPasteStepDesc:"Paste the AI's full reply below. If it suggested adding anything (a feat, weapon, spell, resource, or item), it'll show up here for you to review one at a time.",
     aiPastePlaceholder:"Paste the AI's reply here…", aiParseBtn:"Parse reply", aiParseErrorVersion:"This suggestion was generated for a different version of this app's AI format and can't be imported automatically. Paste this back to the AI: \"The schema you used is out of date. Please regenerate your suggestion using AI_SCHEMA_VERSION __CURRENT__ (yours was __GIVEN__).\"",
     aiParseErrorNone:"Couldn't find any suggested additions in that text. Make sure you pasted the AI's full reply, including the fenced code block.",
@@ -968,6 +970,8 @@ const T = {
     aiModalTitle:"שאל AI על הדמות שלך", aiCopyStepTitle:"1. העתק את הדמות שלך",
     aiCopyStepDesc:"העתק את זה, הדבק אותו בצ'אט AI (ChatGPT, Claude, Gemini וכו') ושאל את שאלתך — למשל \"איזה feat כדאי לי לקחת?\" או \"יש משהו שנראה לא נכון כאן?\"",
     aiCopyBtn:"📋 העתק ל-AI", aiCopyCopied:"✓ הועתק ללוח.",
+    aiCopyLinkBtn:"🔗 העתק כקישור במקום", aiCopyLinkCopied:"✓ הקישור הועתק ללוח.",
+    aiCopyLinkHint:"אותו תוכן כמו למעלה, כקישור data: שאפשר להדביק במקום להדביק טקסט ישירות. עובד רק עם כלי AI שבאמת שולפים/קוראים את תוכן הקישור שניתן להם — אם הכלי שלך לא עושה זאת, השתמש ב\"העתק ל-AI\" למעלה.",
     aiPasteStepTitle:"2. הדבק את תשובת ה-AI", aiPasteStepDesc:"הדבק כאן את התשובה המלאה של ה-AI. אם הוא הציע להוסיף משהו (feat, נשק, כישוף, משאב או פריט), זה יופיע כאן לבדיקה אחד־אחד.",
     aiPastePlaceholder:"הדבק כאן את תשובת ה-AI…", aiParseBtn:"פענח תשובה", aiParseErrorVersion:"ההצעה הזו נוצרה עבור גרסה אחרת של פורמט ה-AI של האפליקציה ולא ניתן לייבא אותה אוטומטית. הדבק בחזרה ל-AI: \"The schema you used is out of date. Please regenerate your suggestion using AI_SCHEMA_VERSION __CURRENT__ (yours was __GIVEN__).\"",
     aiParseErrorNone:"לא נמצאו הצעות תוספת בטקסט הזה. ודא שהדבקת את התשובה המלאה של ה-AI, כולל בלוק הקוד.",
@@ -1433,7 +1437,7 @@ function saveFoldedPanels(){
 }
 function togglePanelFold(id){ foldedPanels[id] = !foldedPanels[id]; render(); saveFoldedPanels(); }
 function togglePanelLock(id){ panelLocks[id] = !panelLocks[id]; render(); saveFoldedPanels(); }
-const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","inventory","attacks","spells","featsTraits","resources","linkedChars","notes","turnFlow","atkFlow"];
+const ALL_PANEL_IDS = ["identity","abilities","combat","saves","skills","proficiencies","inventory","attacks","spells","featsTraits","resources","linkedChars","notes","turnFlow","atkFlow"];
 function setAllFolded(hide){
   ALL_PANEL_IDS.forEach(id => foldedPanels[id] = hide);
   diceFolded = hide;
@@ -3067,11 +3071,20 @@ let aiCopyDone = false;
 let aiParsedAdditions = [];
 let aiParseError = "";
 let aiPasteText = "";
-function openAIModal(){ aiModalOpen = true; aiCopyDone = false; aiParsedAdditions = []; aiParseError = ""; aiPasteText = ""; render(); }
+function openAIModal(){ aiModalOpen = true; aiCopyDone = false; aiLinkCopyDone = false; aiParsedAdditions = []; aiParseError = ""; aiPasteText = ""; render(); }
 function closeAIModal(){ aiModalOpen = false; render(); }
 async function copyAIExport(){
   const text = buildAIExport();
   try{ await navigator.clipboard.writeText(text); aiCopyDone = true; render(); }catch(err){}
+}
+// Same content as copyAIExport, but as a data: URL rather than clipboard
+// text — for handing to an AI agent that fetches a link rather than reading
+// pasted text. Fragments (#...) are never sent in a real HTTP request, so
+// unlike the shareable #char= link, the payload has to be in the URL itself.
+let aiLinkCopyDone = false;
+async function copyAILink(){
+  const url = "data:text/plain;charset=utf-8," + encodeURIComponent(buildAIExport());
+  try{ await navigator.clipboard.writeText(url); aiLinkCopyDone = true; render(); }catch(err){}
 }
 function parseAIPaste(){
   const t = T[lang];
@@ -4382,17 +4395,29 @@ function hitDiceDotsInteractive(){
 // Groups each owner (a character with no linkedTo, or an orphaned linkedTo
 // pointing at a character no longer in charIndex) together with its Linked
 // Characters via <optgroup>; anything else stays a flat top-level <option>.
+// Two characters can share a name (e.g. every blank "New Adventurer"), which
+// makes the switcher/panel ambiguous about which one is actually active or
+// being pointed at. Appends "(2)", "(3)", ... only when a collision actually
+// exists — order is charIndex's own (stable across renders, changes only on
+// create/delete), so the same character always gets the same suffix.
+function charDisambiguatedName(c){
+  const name = c.name || "—";
+  const sameName = charIndex.filter(x => (x.name||"—") === name);
+  if(sameName.length <= 1) return esc2(name);
+  const idx = sameName.findIndex(x => x.id === c.id) + 1;
+  return `${esc2(name)} (${idx})`;
+}
 function charSwitcherOptionsHTML(){
   const isOwner = c => !c.linkedTo || !charIndex.some(o=>o.id===c.linkedTo);
   const childrenOf = ownerId => charIndex.filter(c=>c.linkedTo===ownerId);
-  const opt = (c, isChild) => `<option value="${c.id}" ${c.id===state.id?"selected":""}>${isChild?"↳ ":""}${esc2(c.name)||"—"}</option>`;
+  const opt = (c, isChild) => `<option value="${c.id}" ${c.id===state.id?"selected":""}>${isChild?"↳ ":""}${charDisambiguatedName(c)}</option>`;
   return charIndex.filter(isOwner).map(c=>{
     const children = childrenOf(c.id);
     // The "↳ " prefix on children carries the relationship on its own, since
     // optgroup's own label duplicating the owner's name right above its own
     // option renders as confusing on some pickers (esp. mobile) — no visible
     // indentation, just the same name twice in a row.
-    return children.length ? `<optgroup label="${esc2(c.name)||"—"}">${opt(c,false)}${children.map(ch=>opt(ch,true)).join("")}</optgroup>` : opt(c,false);
+    return children.length ? `<optgroup label="${charDisambiguatedName(c)}">${opt(c,false)}${children.map(ch=>opt(ch,true)).join("")}</optgroup>` : opt(c,false);
   }).join("");
 }
 
@@ -4860,12 +4885,12 @@ function render(){
     ${state.linkedTo ? (() => {
       const owner = charIndex.find(c=>c.id===state.linkedTo);
       return `
-      <div class="formula-note" style="margin-bottom:10px">${t.linkedToLabel.replace('__NAME__', esc2(owner ? owner.name : "—"))}</div>
+      <div class="formula-note" style="margin-bottom:10px">${t.linkedToLabel.replace('__NAME__', owner ? charDisambiguatedName(owner) : "—")}</div>
       <button class="btn primary no-print" onclick="switchCharacter('${state.linkedTo}')">${t.transformBackBtn}</button>`;
     })() : (() => {
       const linked = charIndex.filter(c=>c.linkedTo===state.id);
       return `
-      ${linked.length ? `<div class="prof-checklist" style="margin-bottom:10px">${linked.map(c=>`<button class="btn no-print" onclick="switchCharacter('${c.id}')" title="${t.switchToBtn}">${esc2(c.name)||"—"}</button>`).join("")}</div>` : ""}
+      ${linked.length ? `<div class="prof-checklist" style="margin-bottom:10px">${linked.map(c=>`<button class="btn no-print" onclick="switchCharacter('${c.id}')" title="${t.switchToBtn}">${charDisambiguatedName(c)}</button>`).join("")}</div>` : ""}
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn primary no-print" onclick="openNewCharModal(state.id)">➕ ${t.newLinkedChar}</button>
         <button class="btn no-print" onclick="openCreateAIModal(state.id)">🤖 ${t.newLinkedCharAI}</button>
@@ -5181,6 +5206,8 @@ function render(){
         <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.aiCopyStepDesc}</div>
         <button class="btn primary" onclick="copyAIExport()">${t.aiCopyBtn}</button>
         ${aiCopyDone ? `<div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t.aiCopyCopied}</div>` : ""}
+        <button class="btn" style="margin-top:8px" onclick="copyAILink()">${t.aiCopyLinkBtn}</button>
+        ${aiLinkCopyDone ? `<div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t.aiCopyLinkCopied}</div>` : `<div class="formula-note" style="margin-top:6px">${t.aiCopyLinkHint}</div>`}
       </div>
 
       <div class="modal-row" style="margin-top:16px">
