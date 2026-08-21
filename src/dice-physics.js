@@ -416,11 +416,32 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
   let activeDice = [];
   const clock = new THREE.Clock();
   let rafHandle = null;
+  let rafRunning = false;
   let pendingResolve = null;
+
+  // The render/physics loop only needs to run while dice are actually
+  // tumbling. Once everything has settled it stops rescheduling itself
+  // (see the end of tick()) instead of rendering an unchanging idle scene
+  // at full frame rate forever — on a weak GPU that endless idle render
+  // loop was itself burning battery/CPU for the rest of the page's
+  // lifetime after just one roll. throwDice() calls this to resume it.
+  function startLoop() {
+    if (rafRunning) return;
+    rafRunning = true;
+    clock.getDelta(); // drop the idle gap so the next frame's dt isn't huge
+    rafHandle = requestAnimationFrame(tick);
+  }
 
   function clearDice() {
     for (const d of activeDice) {
       scene.remove(d.mesh);
+      // buildDieMesh() allocates a fresh geometry + per-face materials every
+      // throw (only the face textures are cache-shared) — without disposing
+      // them here, each roll leaks GPU buffers that never get freed, and
+      // enough throws in a session can exhaust a weak GPU and hang the tab.
+      d.mesh.geometry.dispose();
+      const mats = Array.isArray(d.mesh.material) ? d.mesh.material : [d.mesh.material];
+      mats.forEach((m) => m.dispose());
       world.removeBody(d.body);
       if (d.labelEl) d.labelEl.remove();
     }
@@ -484,6 +505,7 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
 
   function throwDice(specs) {
     clearDice();
+    startLoop();
     const spanX = (tableBounds.maxX - tableBounds.minX) * 0.15;
     const spanZ = (tableBounds.maxZ - tableBounds.minZ) * 0.15;
 
@@ -626,7 +648,6 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
     for (const die of activeDice) if (die.labelEl) positionLabel(die);
 
     renderer.render(scene, camera);
-    rafHandle = requestAnimationFrame(tick);
 
     if (allSettled && pendingResolve) {
       const results = activeDice.map((d) => ({ sides: d.sides, tag: d.tag, value: d.finalValue }));
@@ -634,8 +655,13 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
       pendingResolve = null;
       setTimeout(() => resolve(results), 350); // brief pause so the result is visible before the caller reacts
     }
+
+    // Nothing left to animate once every die has settled and its promise
+    // (if any) has already been handed off — stop rescheduling frames.
+    // throwDice()/startLoop() wakes the loop back up for the next roll.
+    if (allSettled && !pendingResolve) rafRunning = false;
+    else rafHandle = requestAnimationFrame(tick);
   }
-  rafHandle = requestAnimationFrame(tick);
 
   function roll(specs) {
     // specs: [{sides, count, tag}] -> one die per (sides,tag) occurrence
@@ -683,6 +709,7 @@ function initDicePhysics(canvasEl, labelsEl, userConfig) {
 
   function dispose() {
     cancelAnimationFrame(rafHandle);
+    rafRunning = false;
     window.removeEventListener("resize", resize);
     clearDice();
     clearResultBanners();

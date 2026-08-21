@@ -735,6 +735,7 @@ const T = {
     configTitle:"Configuration", hasSpellsLabel:"Has Spells", hasSpellsHint:"Shows/hides the Spells panel. Auto-guessed from Class, editable any time.",
     otherCustom:"Other / Custom", baseSpeedLabel:"Base Speed (ft)",
     themeLabel:"Theme", themeLeather:"Leather (default)", themeParchment:"Parchment (Light)", themeContrast:"High Contrast",
+    slowDeviceLabel:"Slow device mode", slowDeviceHint:"Skips the animated 3D dice throw and just shows the rolled number — helps on older/slower devices.",
     shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped", itemEquippedAbbr:"Eq.",
     proficiencies:"Proficiencies & Languages", profArmor:"Armor", profWeapons:"Weapons", profTools:"Tools", profLanguages:"Languages",
     inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
@@ -941,6 +942,7 @@ const T = {
     configTitle:"הגדרות", hasSpellsLabel:"בעל קסמים", hasSpellsHint:"מציג/מסתיר את פאנל הקסמים. מוערך אוטומטית לפי המחלקה, ניתן לשינוי בכל עת.",
     otherCustom:"אחר / מותאם אישית", baseSpeedLabel:"מהירות בסיס (רגל)",
     themeLabel:"ערכת נושא", themeLeather:"עור (ברירת מחדל)", themeParchment:"קלף (בהיר)", themeContrast:"ניגודיות גבוהה",
+    slowDeviceLabel:"מצב מכשיר איטי", slowDeviceHint:"מדלג על הטלת קוביות התלת-ממד המונפשת ומציג רק את המספר שהתקבל — עוזר במכשירים ישנים/איטיים.",
     shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש", itemEquippedAbbr:"חבוש",
     proficiencies:"מיומנויות ושפות", profArmor:"שריון", profWeapons:"נשקים", profTools:"כלים", profLanguages:"שפות",
     inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
@@ -1139,6 +1141,12 @@ function setTheme(v){
   theme = THEME_LIST.includes(v) ? v : "leather";
   document.documentElement.setAttribute("data-theme", theme);
   (async ()=>{ try{ await storageSet("dnd-theme", theme); }catch(e){} })();
+  render();
+}
+let slowDeviceMode = false;
+function setSlowDeviceMode(v){
+  slowDeviceMode = !!v;
+  (async ()=>{ try{ await storageSet("dnd-slow-dice", slowDeviceMode ? "1" : "0"); }catch(e){} })();
   render();
 }
 
@@ -1597,7 +1605,7 @@ async function rollSave(abil){
   const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
   const roll = results[0].value;
   const total = roll + bonus;
-  ensureDiceEngine().showResultBanner([{key:'save', title:label, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
+  showRollBanner([{key:'save', title:label, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
   saveRollFlash = {abil, roll, total};
   clearTimeout(saveRollFlashTimer);
   saveRollFlashTimer = setTimeout(()=>{ saveRollFlash = null; render(); }, 3000);
@@ -1610,7 +1618,7 @@ async function rollInitiative(){
   const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], T[lang].init);
   const roll = results[0].value;
   const total = roll + bonus;
-  ensureDiceEngine().showResultBanner([{key:'init', title:T[lang].init, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
+  showRollBanner([{key:'init', title:T[lang].init, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
   initRollFlash = {roll, total};
   clearTimeout(initRollFlashTimer);
   initRollFlashTimer = setTimeout(()=>{ initRollFlash = null; render(); }, 3000);
@@ -1629,7 +1637,7 @@ async function rollSkill(key){
   const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
   const roll = results[0].value;
   const total = roll + bonus;
-  ensureDiceEngine().showResultBanner([{key:'skill', title:label, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
+  showRollBanner([{key:'skill', title:label, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
   skillRollFlash = {key, roll, total};
   clearTimeout(skillRollFlashTimer);
   skillRollFlashTimer = setTimeout(()=>{ skillRollFlash = null; render(); }, 3000);
@@ -1644,7 +1652,7 @@ async function rollAbilityCheck(abil){
   const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
   const roll = results[0].value;
   const total = roll + bonus;
-  ensureDiceEngine().showResultBanner([{key:'ability', title:label, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
+  showRollBanner([{key:'ability', title:label, value:fmtCalcBanner(roll, bonus, total), y:0.42}]);
   abilityRollFlash = {abil, roll, total};
   clearTimeout(abilityRollFlashTimer);
   abilityRollFlashTimer = setTimeout(()=>{ abilityRollFlash = null; render(); }, 3000);
@@ -1674,7 +1682,7 @@ async function rollSpellDamage(i){
   const rolls = sumTag(results, 'dmg');
   const sum = rolls.reduce((a,b)=>a+b,0);
   const total = sum + (parsed.flat||0);
-  ensureDiceEngine().showResultBanner([{key:'dmg', title:T[lang].atkDmg, value:fmtCalcBanner(rolls.join("+"), parsed.flat||0, total), y:0.42}]);
+  showRollBanner([{key:'dmg', title:T[lang].atkDmg, value:fmtCalcBanner(rolls.join("+"), parsed.flat||0, total), y:0.42}]);
   spellRolls[i] = {rolls, total};
   if(!spellRollHistories[i]) spellRollHistories[i] = [];
   spellRollHistories[i].unshift({total});
@@ -1726,7 +1734,7 @@ async function rollAttack(i){
   const hitValueText = `${fmtCalcBanner(hitRoll, bonus, hitTotal)}${crit?' 🎯':fumble?' 💀':''}`;
   const banners = [{key:'hit', title:T[lang].atkHit, value:hitValueText, y:0.38}];
   if(parsed) banners.push({key:'dmg', title:T[lang].atkDmg, value:fmtCalcBanner(dmgRolls.join("+"), dmgBonus, dmgTotal), y:0.72});
-  ensureDiceEngine().showResultBanner(banners);
+  showRollBanner(banners);
   attackRolls[i] = {hitRoll, hitTotal, bonus, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal, crit, fumble, hasDmg: !!parsed};
   if(!attackRollHistories[i]) attackRollHistories[i] = [];
   attackRollHistories[i].unshift({hitTotal, dmgTotal: parsed ? dmgTotal : null, crit, fumble});
@@ -2648,13 +2656,50 @@ function dismissDiceOverlay(){
 // positioned lower on screen specifically to leave room for it).
 async function rollPhysicalDice(specs, hint, opts){
   const immediateHint = !opts || opts.immediateHint !== false;
-  const engine = ensureDiceEngine();
   showDiceOverlay(hint, immediateHint);
-  const results = await engine.roll(specs);
+  let results;
+  if(slowDeviceMode){
+    // Slow-device mode: skip creating the 3D physics engine entirely (its
+    // per-frame render/physics loop is what bogs down older tablets) and
+    // just decide the outcome directly — the overlay still appears so the
+    // roll-result banner (shown by the caller via showRollBanner) has
+    // somewhere to land, there's just no tumbling-dice animation first.
+    const flat = [];
+    for(const s of specs) for(let k=0; k<(s.count||1); k++) flat.push({sides:s.sides, tag:s.tag});
+    results = flat.map(d=>({sides:d.sides, tag:d.tag, value: 1 + Math.floor(Math.random()*d.sides)}));
+  } else {
+    const engine = ensureDiceEngine();
+    results = await engine.roll(specs);
+  }
   const hintEl = document.getElementById("dice-3d-hint");
   hintEl.textContent = hint || "";
   hintEl.classList.add("visible");
   return results;
+}
+// Shows the prominent result banner(s) after a roll — delegates to the 3D
+// engine's own banner (tied to wherever the physics dice landed) normally,
+// but in slow-device mode builds the same banner markup directly in the
+// overlay's plain DOM layer so the engine never has to be instantiated.
+function showRollBanner(items){
+  if(!slowDeviceMode){ ensureDiceEngine().showResultBanner(items); return; }
+  const labelsEl = document.getElementById("dice-3d-labels");
+  labelsEl.innerHTML = "";
+  const overlay = document.getElementById("dice-3d-overlay");
+  const w = overlay.clientWidth || window.innerWidth;
+  const h = overlay.clientHeight || window.innerHeight;
+  items.forEach(item=>{
+    const el = document.createElement("div");
+    el.className = "dice-3d-banner";
+    el.innerHTML = `<div class="dice-3d-banner-title">${item.title}</div><div class="dice-3d-banner-value">${item.value}</div>`;
+    el.style.left = `${w/2}px`;
+    el.style.top = `${item.y*h}px`;
+    el.style.transform = "translate(-50%, -50%) scale(1.5)";
+    labelsEl.appendChild(el);
+    requestAnimationFrame(()=>{
+      el.classList.add("visible");
+      setTimeout(()=>{ el.style.transform = "translate(-50%, -50%) scale(1)"; }, 550);
+    });
+  });
 }
 function sumTag(results, tag){ return results.filter(r=>r.tag===tag).map(r=>r.value); }
 // Formats the result banner as the calculation rather than just the final
@@ -2678,7 +2723,7 @@ async function rollDice(sides){
     ? ((results[0].value===10?0:results[0].value)*10 + (results[1].value===10?0:results[1].value)) || 100
     : results[0].value;
   diceState.lastRoll = roll;
-  ensureDiceEngine().showResultBanner([{key:'roll', title:`d${sides}`, value:roll, y:0.42}]);
+  showRollBanner([{key:'roll', title:`d${sides}`, value:roll, y:0.42}]);
   diceState.history.unshift({sides, roll});
   diceState.history = diceState.history.slice(0, 8);
   mainDiceJustRolled = true;
@@ -3007,7 +3052,7 @@ function buildCuratedCharacterForAI(){
     skillProficiencies: s.skillProf,
     skillExpertise: s.skillExpertise,
     proficiencies: s.proficiencies,
-    attacks: (s.attacks||[]).map(a=>({name:a.name, type:a.type, dmg:a.dmg, dmgType:a.dmgType, spellAbil:a.spellAbil, prof:a.prof, notes:a.notes})),
+    attacks: (s.attacks||[]).map(a=>({name:a.name, type:a.type, dmg:a.dmg, dmgType:a.dmgType, ability:abilForAttack(a), prof:a.prof, notes:a.notes})),
     spellcasting: { ability: s.spellcasting.abil, slots: s.spellcasting.slots },
     spells: (s.spells||[]).map(sp=>({name:sp.name, level:sp.level, prepared:sp.prepared, range:sp.range, castTime:sp.castTime, save:sp.save, dmg:sp.dmg, notes:sp.notes, category:sp.category})),
     feats: (s.feats||[]).map(f=>({name:f.name, level:f.level, notes:f.notes, mod:f.mod})),
@@ -3043,7 +3088,7 @@ Whenever 5e rules present the player with a choice (e.g. an Ability Score Improv
 
 Only include the dnd-sheet-additions block once something is actually settled and ready to add — after the user has answered your question, or when they explicitly ask you to output/apply a suggestion. Don't attach it speculatively to a reply that's still asking the player to choose between options, and don't re-send entries you already gave in an earlier reply unless the user asks you to.
 
-If you want to suggest concrete additions to the sheet (a new trait, feat, weapon/attack, spell, resource, or inventory item), also include ONE extra fenced code block labeled "dnd-sheet-additions" with YAML in exactly this shape (omit any category you're not suggesting, and omit the whole block if you have nothing to add). "traits" are granted by race/class (not chosen) — e.g. Darkvision, Fey Ancestry; "feats" are the player's own optional picks, usually instead of an Ability Score Improvement — both use the same shape:
+If you want to suggest concrete additions to the sheet (a new trait, feat, weapon/attack, spell, resource, or inventory item), also include ONE extra fenced code block labeled "dnd-sheet-additions" with YAML in exactly this shape (omit any category you're not suggesting, and omit the whole block if you have nothing to add). "traits" are granted by race/class (not chosen) — e.g. Darkvision, Fey Ancestry; "feats" are the player's own optional picks, usually instead of an Ability Score Improvement — both use the same shape. Each trait/feat's "mod" can only target a single stat, so a rules feature that changes several stats at once (e.g. a Ranger's Roving, which raises walking, climbing, AND swimming speed together) must be split into one separate trait/feat entry per stat it affects (one entry with mod.stat "speed", one with "climb", one with "swim") rather than invented as one combined entry:
 
 \`\`\`dnd-sheet-additions
 schemaVersion: ${AI_SCHEMA_VERSION}
@@ -3430,7 +3475,7 @@ Rules for that block: "class" must be EXACTLY one of: ${classList} (case-sensiti
 ${subraceLines}
 "background" and "subclass" are free text (subclass can be blank if not chosen yet). "level" is an integer 1-20. "abilities" must include all six of str/dex/con/int/wis/cha as integers — pick whatever generation method (standard array, point buy, or rolled) best fits the concept and level. Only include "spellSlots" if the class actually has spell slots at this level — a map from spell level (string key "1"-"9") to its total slot count; tell me in your plain-text reply to double-check it against the class table, since multiclass/Pact Magic rules are easy to get wrong. "proficiencies" is optional and only needs entries beyond what the class/race already grants automatically: "armorList" is a subset of [${armorProfIds}]; "weaponList" is a subset of [${weaponProfIds}] (whole categories like "simple"/"martial", individual weapon ids for one-off exotic proficiencies, or both); "languageList" is a subset of [${languageProfIds}]; anything that doesn't fit one of those exact ids (a specific tool proficiency, a homebrew armor/weapon/language) goes in the free-text "tools"/"armorOther"/"weaponOther"/"languageOther" strings instead of inventing a new id. Don't repeat race/class traits the app already grants automatically (like a Half-Orc's Darkvision) under "traits" — only list one there if it's unusual and not implied by the standard race.
 
-"feats", "traits", "attacks", "spells", "resources", and "items" each MUST be a list of full objects in exactly the shape shown above (never a bare list of name strings) and can each be omitted or empty. Keep these three straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with (melee or ranged) — every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". "items" is inventory — a weapon already listed under "attacks" should NOT also get a separate "items" entry, but its armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry or an "attacks"/"category" workaround; "acBase" for armor is the total AC while worn (not a bonus on top of 10). Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.
+"feats", "traits", "attacks", "spells", "resources", and "items" each MUST be a list of full objects in exactly the shape shown above (never a bare list of name strings) and can each be omitted or empty. Each trait/feat's "mod" can only target a single stat, so a rules feature that changes several stats at once (e.g. a Ranger's Roving, which raises walking, climbing, AND swimming speed together) must be split into one separate trait/feat entry per stat it affects (one entry with mod.stat "speed", one with "climb", one with "swim") rather than invented as one combined entry. Keep these three straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with (melee or ranged) — every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". "items" is inventory — a weapon already listed under "attacks" should NOT also get a separate "items" entry, but its armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry or an "attacks"/"category" workaround; "acBase" for armor is the total AC while worn (not a bonus on top of 10). Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.
 `;
 }
 function parseCreateAIPaste(){
@@ -4702,6 +4747,10 @@ function render(){
           </select>
         </div>
         <div class="field">
+          <label class="atk-prof-chip"><input type="checkbox" ${slowDeviceMode?"checked":""} onchange="setSlowDeviceMode(this.checked)">${t.slowDeviceLabel}</label>
+          <div class="formula-note">${t.slowDeviceHint}</div>
+        </div>
+        <div class="field">
           <label class="atk-prof-chip"><input type="checkbox" ${state.hpAutoCalc?"checked":""} onchange="set('hpAutoCalc', this.checked)">${t.hpAuto}</label>
         </div>
         <div class="field"><label>${t.baseSpeedLabel}</label><input type="number" min="0" style="width:70px" value="${state.speed}" onchange="set('speed', parseInt(this.value)||30)"></div>
@@ -5410,6 +5459,10 @@ window.addEventListener('resize', trimDiceHistories);
     try{
       const themeRes = await storageGet("dnd-theme");
       if(themeRes && THEME_LIST.includes(themeRes.value)) theme = themeRes.value;
+    }catch(e){}
+    try{
+      const slowDiceRes = await storageGet("dnd-slow-dice");
+      if(slowDiceRes && slowDiceRes.value) slowDeviceMode = slowDiceRes.value === "1";
     }catch(e){}
     try{
       const foldRes = await storageGet("dnd-folded-panels");
