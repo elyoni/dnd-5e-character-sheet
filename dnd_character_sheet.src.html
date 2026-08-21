@@ -107,14 +107,16 @@ select, .btn{
 }
 select{
   width:100%;min-width:0;box-sizing:border-box;
+  height:32px;font-size:15px;
   appearance:none;-webkit-appearance:none;-moz-appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpolygon points='6,8 12,0 0,0' fill='%23c9a227'/%3E%3C/svg%3E");
   background-repeat:no-repeat;
   background-position:right 10px center;
   background-size:10px 7px;
-  padding-right:28px;
+  padding:0 28px 0 12px;
 }
-[dir="rtl"] select{background-position:left 10px center;padding-right:12px;padding-left:28px;}
+select option{font-size:15px;}
+[dir="rtl"] select{background-position:left 10px center;padding:0 12px 0 28px;}
 .field{min-width:0;}
 .btn:hover{border-color:var(--gold);color:var(--gold-bright);}
 .btn.primary{border-color:var(--gold);color:var(--gold-bright);}
@@ -171,6 +173,9 @@ select{
 input[type=text], input[type=number], textarea{
   width:100%;background:var(--input-bg);border:1px solid var(--leather-line);
   color:var(--ink);border-radius:var(--radius);padding:8px 10px;font-family:'EB Garamond',serif;font-size:16.5px;
+}
+input[type=text], input[type=number]{
+  height:32px;line-height:30px;box-sizing:border-box;padding:0 10px;
 }
 input:focus, textarea:focus, select:focus{outline:1px solid var(--gold);outline-offset:1px;}
 input[type=checkbox]{
@@ -392,7 +397,7 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .shape-bg path{fill:var(--panel-2);stroke:var(--gold);stroke-width:3;}
 .shape-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;height:100%;padding-top:4px;}
 .ac-box .big{font-size:22px;}
-.ac-abil-select{font-size:11px;max-width:72px;flex:0 0 auto;}
+.ac-abil-select{font-size:15px;max-width:84px;flex:0 0 auto;}
 
 /* ---------- HP heart watermark ---------- */
 .hp-box{position:relative;overflow:hidden;}
@@ -426,13 +431,13 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .spell-meta-item{display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:12px;}
 .spell-meta-item .dim-label{margin-right:0;font-size:10px;}
 .spell-meta-item input{padding:4px 6px;font-size:12.5px;}
-.spell-meta-item select{width:auto;padding:4px 22px 4px 8px;font-size:12.5px;}
+.spell-meta-item select{width:auto;padding:4px 22px 4px 8px;font-size:15px;}
 .spell-meta-casttime{flex-wrap:wrap;}
 .spell-meta-casttime > div{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .fold-toggle{flex:0 0 auto;background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:12px;padding:2px 4px;line-height:1;}
 .fold-toggle:hover{color:var(--gold-bright);}
 .spell-category-icon{flex:0 0 auto;font-size:14px;}
-.spell-category-select{width:auto;flex:0 0 auto;min-width:100px;font-size:11px;padding:4px 22px 4px 8px;}
+.spell-category-select{width:auto;flex:0 0 auto;min-width:110px;font-size:15px;padding:4px 22px 4px 8px;}
 .spell-item.folded .spell-meta-row,
 .spell-item.folded .spell-dmg-row,
 .spell-item.folded .spell-notes-input,
@@ -464,12 +469,15 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .attack-name-input{flex:1 1 10ch;min-width:10ch;font-weight:600;}
 .atk-prof-chip{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-faint);white-space:nowrap;}
 .atk-prof-chip input{margin:0;}
+.attack-stat-val-row{display:flex;align-items:center;gap:10px;}
+.atk-magicbonus-chip{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink-faint);white-space:nowrap;}
+input.attack-magicbonus-input[type=number]{width:3.2em;padding:0 4px;text-align:center;}
 .attack-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:110px;flex:1;}
 .attack-stat-dmg{min-width:190px;}
 .attack-stat-val{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:var(--gold-bright);}
 input.attack-dmg-input{min-width:5ch;text-align:center;}
 .attack-dmg-row{display:flex;gap:5px;align-items:center;justify-content:center;}
-select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:92px;font-size:11px;padding:4px 22px 4px 8px;}
+select.attack-dmgtype-select{width:auto;flex:0 0 auto;min-width:110px;font-size:15px;padding:4px 22px 4px 8px;}
 .attack-dmgtype-hint{font-size:10.5px;color:var(--ink-faint);text-align:center;}
 .attack-notes-input{width:100%;margin-bottom:8px;min-height:32px;resize:vertical;}
 .attack-tohit-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;}
@@ -635,12 +643,13 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
     content:attr(data-label);display:block;font-size:9px;letter-spacing:1px;
     text-transform:uppercase;color:var(--gold);margin-bottom:1px;
   }
-  .responsive-table select, .responsive-table .item-static{font-size:12.5px;padding:5px 6px;height:32px;box-sizing:border-box;}
+  .responsive-table select{font-size:15px;padding:5px 22px 5px 6px;height:32px;box-sizing:border-box;min-width:76px;}
+  .responsive-table .item-static{font-size:12.5px;padding:5px 6px;height:32px;box-sizing:border-box;}
   .responsive-table .item-static-notes{height:auto;}
   .responsive-table input[type=text].item-name-input{font-size:16.5px;padding:5px 6px;min-width:0 !important;height:32px;box-sizing:border-box;}
   .responsive-table td.td-qty input[type=number]{width:48px !important;height:32px;box-sizing:border-box;padding:5px 6px;}
   .item-static{padding:5px 2px;font-size:12.5px;}
-  .responsive-table td.td-cat{flex:0 1 78px;}
+  .responsive-table td.td-cat{flex:1 1 100px;}
   .responsive-table td.td-name{flex:1 1 90px;}
   .responsive-table td.td-qty{flex:0 0 56px;}
   .currency-input-wrap input[type=number]{width:48px;padding:0 6px;padding-inline-end:18px;}
@@ -649,10 +658,10 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
   .responsive-table td.td-eq{order:2;flex:0 0 auto;padding-bottom:2px;}
   .responsive-table td.td-eq input{width:18px;height:18px;}
   .responsive-table td.td-delete{order:4;flex:0 0 auto;padding-bottom:2px;margin-inline-start:auto;}
-  .armor-table td.td-ac{order:2;}
+  .armor-table td.td-ac{order:2;flex:0 0 132px;}
   .armor-table td.td-ac > div{gap:2px !important;}
   .armor-table td.td-ac input[type=number]{width:34px !important;font-size:12px;padding:5px 2px;}
-  .armor-table td.td-ac select{width:40px !important;font-size:10px !important;padding:5px 12px 5px 2px !important;}
+  .armor-table td.td-ac select{width:92px !important;font-size:15px !important;padding:5px 16px 5px 2px !important;}
 }
 
 /* ============ 3D dice overlay ============ */
@@ -755,7 +764,7 @@ const T = {
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
     diceRoller:"Dice Roller", diceClear:"Clear", diceNoRolls:"No rolls yet",
     saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception", proficient:"Proficient", expertise:"Expertise",
-    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkDmgType:"Dmg Type", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"Attack",
+    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkDmgType:"Dmg Type", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", addRow:"Attack", atkMagicBonus:"Magic", atkMagicBonusAbbr:"magic", atkMagicBonusHint:"Flat bonus from a magic weapon (e.g. +1/+2/+3), added to both the attack roll and the damage roll.",
     melee:"Melee", ranged:"Ranged", finesse:"Finesse", natural:"Natural", spell:"Spell",
     dmgNone:"—", dmgBludgeoning:"Bludgeoning", dmgPiercing:"Piercing", dmgSlashing:"Slashing", dmgAcid:"Acid", dmgCold:"Cold", dmgFire:"Fire", dmgForce:"Force", dmgLightning:"Lightning", dmgNecrotic:"Necrotic", dmgPoison:"Poison", dmgPsychic:"Psychic", dmgRadiant:"Radiant", dmgThunder:"Thunder",
     dmgTypeHint_bludgeoning:"Blunt-force impact, like a hammer, fist, or falling.", dmgTypeHint_piercing:"Puncturing wounds, like from arrows, spears, or bites.", dmgTypeHint_slashing:"Cutting damage, like from swords or claws.", dmgTypeHint_acid:"Corrosive chemical damage that can dissolve materials.", dmgTypeHint_cold:"Freezing damage from ice or extreme cold.", dmgTypeHint_fire:"Burning damage from flame or heat.", dmgTypeHint_force:"Pure magical energy, unaffected by most resistances.", dmgTypeHint_lightning:"Electrical damage from a lightning bolt or shock.", dmgTypeHint_necrotic:"Withering, life-draining damage that decays what it touches.", dmgTypeHint_poison:"Toxins and venom, often causing sickness.", dmgTypeHint_psychic:"Mental damage that assaults the mind directly.", dmgTypeHint_radiant:"Divine, holy energy that sears the wicked.", dmgTypeHint_thunder:"A concussive burst of sound.",
@@ -962,7 +971,7 @@ const T = {
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
     diceRoller:"הטלת קוביות", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
     saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית", proficient:"מיומן", expertise:"מומחיות",
-    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkDmgType:"סוג נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"הוסף התקפה",
+    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkDmgType:"סוג נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", addRow:"הוסף התקפה", atkMagicBonus:"קסם", atkMagicBonusAbbr:"קסם", atkMagicBonusHint:"בונוס קבוע מנשק קסום (למשל +1/+2/+3), מתווסף גם לגלגול התקיפה וגם לגלגול הנזק.",
     melee:"קרב מגע", ranged:"טווח", finesse:"זריזות/כוח", natural:"טבעי", spell:"קסם",
     dmgNone:"—", dmgBludgeoning:"מוחץ", dmgPiercing:"חודר", dmgSlashing:"חותך", dmgAcid:"חומצה", dmgCold:"קור", dmgFire:"אש", dmgForce:"כוח", dmgLightning:"ברק", dmgNecrotic:"נמק", dmgPoison:"רעל", dmgPsychic:"נפשי", dmgRadiant:"קרינה", dmgThunder:"רעם",
     dmgTypeHint_bludgeoning:"מכה קהה, כמו פטיש, אגרוף או נפילה.", dmgTypeHint_piercing:"פצע חודר, כמו מחץ, חנית או נשיכה.", dmgTypeHint_slashing:"נזק חיתוך, כמו מחרב או טפרים.", dmgTypeHint_acid:"נזק כימי מאכל שמסוגל להמיס חומרים.", dmgTypeHint_cold:"נזק הקפאה מקור קיצוני או קרח.", dmgTypeHint_fire:"נזק שריפה מלהבה או חום.", dmgTypeHint_force:"אנרגיה קסומה טהורה, כמעט ואינה מושפעת מהתנגדויות.", dmgTypeHint_lightning:"נזק חשמלי מברק או הלם.", dmgTypeHint_necrotic:"נזק מכלה ושואב חיים שמרקיב את מה שהוא נוגע בו.", dmgTypeHint_poison:"רעלים וארס, גורמים לרוב למחלה.", dmgTypeHint_psychic:"נזק נפשי שתוקף את התודעה ישירות.", dmgTypeHint_radiant:"אנרגיה קדושה ואלוהית ששורפת את הרשעים.", dmgTypeHint_thunder:"פרץ קול מחץ.",
@@ -1267,7 +1276,7 @@ function defaultChar(id){
     skillProf:{}, skillExpertise:{},
     proficiencies:{armor:"", weapons:"", tools:"", languages:"", armorList:[], weaponList:[], languageList:[], armorOther:"", weaponOther:"", languageOther:""},
     inventory:{currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]},
-    attacks:[{name:"Shortsword", type:"finesse", dmg:"1d6", dmgType:"piercing", spellAbil:"cha", prof:true, notes:""}],
+    attacks:[{name:"Shortsword", type:"finesse", dmg:"1d6", dmgType:"piercing", spellAbil:"cha", prof:true, notes:"", magicBonus:0}],
     spellcasting:{abil:"int", slots:Array.from({length:9},()=>({total:0,used:0}))},
     spells:[],
     feats:[],
@@ -1346,7 +1355,7 @@ function hydrate(s){
     s.armor.migrated = true;
   }
   if(typeof s.level !== "number") s.level = 1;
-  if(s.attacks) s.attacks.forEach(a=>{ if(typeof a.prof !== "boolean") a.prof = true; if(typeof a.dmgType !== "string") a.dmgType = ""; if(typeof a.folded !== "boolean") a.folded = false; });
+  if(s.attacks) s.attacks.forEach(a=>{ if(typeof a.prof !== "boolean") a.prof = true; if(typeof a.dmgType !== "string") a.dmgType = ""; if(typeof a.folded !== "boolean") a.folded = false; if(typeof a.magicBonus !== "number") a.magicBonus = 0; });
   if(s.spells) s.spells.forEach(sp=>{
     if(typeof sp.conc !== "boolean") sp.conc = false;
     if(typeof sp.touch !== "boolean") sp.touch = false;
@@ -1698,7 +1707,7 @@ async function rollAttack(i){
   const abil = abilForAttack(a);
   const eff = getEffectiveAbilities(state);
   const prof = profByLevel(state.level);
-  const bonus = mod(eff[abil]) + (a.prof ? prof : 0) + getAttackFeatBonus(state, a.type);
+  const bonus = mod(eff[abil]) + (a.prof ? prof : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
   const parsed = parseDiceString(a.dmg);
 
   lastRolledAttackIndex = i;
@@ -1726,7 +1735,7 @@ async function rollAttack(i){
   const abilMod = (a.type !== "spell") ? mod(eff[abil]) : 0;
   const dmgFeatBonus = getDamageFeatBonus(state, a.type);
   const dmgFlat = parsed ? (parsed.flat||0) : 0;
-  const dmgBonus = dmgFlat + abilMod + dmgFeatBonus;
+  const dmgBonus = dmgFlat + abilMod + dmgFeatBonus + (a.magicBonus||0);
   const dmgTotal = dmgDiceSum + dmgBonus;
   // Fixed screen zones (not tied to wherever the physics dice landed) so
   // it's always unambiguous which number is which: hit up top, damage
@@ -2351,7 +2360,7 @@ function attackRow(a, i){
   const t = T[lang];
   const abil = abilForAttack(a);
   const abilMod = mod(state.abilities[abil]+getFeatBonus(state,abil));
-  const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type);
+  const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
   const spellAbilSelect = a.type==="spell" ? `
     <select class="attack-spellabil-select" onchange="set('attacks.${i}.spellAbil', this.value)">
       ${ABILS.filter(x=>["int","wis","cha"].includes(x)).map(x=>`<option value="${x}" ${a.spellAbil===x?"selected":""}>${t[x]}</option>`).join("")}
@@ -2371,8 +2380,11 @@ function attackRow(a, i){
       <div class="attack-tohit-group">
         <div class="attack-stat">
           <span class="dim-label">${t.atkBonus}</span>
-          <span class="attack-stat-val">${fm(bonus)}</span>
-          <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}${getCritThreshold(state)<20?`<br>🎯 ${t.critOnLabel} ${getCritThreshold(state)}–20`:""}</span>
+          <div class="attack-stat-val-row">
+            <span class="attack-stat-val">${fm(bonus)}</span>
+            <label class="atk-magicbonus-chip no-print" title="${t.atkMagicBonusHint}">${t.atkMagicBonus}<input type="number" class="attack-magicbonus-input" value="${a.magicBonus||0}" onchange="set('attacks.${i}.magicBonus', parseInt(this.value)||0)"></label>
+          </div>
+          <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}${a.magicBonus?`${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}${getCritThreshold(state)<20?`<br>🎯 ${t.critOnLabel} ${getCritThreshold(state)}–20`:""}</span>
         </div>
         <div class="attack-cube-row no-print">
           ${!attackRolls[i] ? `` : `
@@ -2401,7 +2413,7 @@ function attackRow(a, i){
           <select class="attack-dmgtype-select" title="${dmgTypeHint(a.dmgType,t)}" onchange="set('attacks.${i}.dmgType', this.value)">${dmgTypeOptions(a.dmgType)}</select>
         </div>
         ${a.dmgType ? `<div class="attack-dmgtype-hint">${dmgTypeHint(a.dmgType,t)}</div>` : ""}
-        <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}</span>
+        <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}${a.magicBonus?` ${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}</span>
       </div>
       <select class="attack-type-select" onchange="set('attacks.${i}.type', this.value)">
         <option value="melee" ${a.type==="melee"?"selected":""}>${t.melee}</option>
@@ -2418,7 +2430,7 @@ function attackRow(a, i){
   </div>`;
 }
 function addAttack(){
-  state.attacks.push({name:"", type:"melee", dmg:"1d6", dmgType:"", spellAbil:"cha", prof:true, notes:"", folded:false});
+  state.attacks.push({name:"", type:"melee", dmg:"1d6", dmgType:"", spellAbil:"cha", prof:true, notes:"", folded:false, magicBonus:0});
   render(); queueSave();
 }
 function removeAttack(i){
@@ -2441,7 +2453,7 @@ function confirmAddAttack(){
   const dmg = document.getElementById("modalAttackDmg").value.trim() || "1d6";
   const dmgType = document.getElementById("modalAttackDmgType").value;
   const notes = document.getElementById("modalAttackNotes").value;
-  state.attacks.push({name, type, dmg, dmgType, spellAbil, prof, notes});
+  state.attacks.push({name, type, dmg, dmgType, spellAbil, prof, notes, magicBonus:0});
   attackModalOpen = false;
   render();
   queueSave();
@@ -3027,7 +3039,7 @@ function parseYAML(text){
 const AI_ADDITION_SCHEMAS = {
   feats: { defaults: { name:"", level:1, notes:"", mod:{stat:"", amount:0, perLevel:false, matchSpeed:false, fixed:false} } },
   traits: { defaults: { name:"", level:1, notes:"", mod:{stat:"", amount:0, perLevel:false, matchSpeed:false, fixed:false} } },
-  attacks: { defaults: { name:"", type:"melee", dmg:"", dmgType:"", spellAbil:"str", prof:true, notes:"", folded:false } },
+  attacks: { defaults: { name:"", type:"melee", dmg:"", dmgType:"", spellAbil:"str", prof:true, notes:"", folded:false, magicBonus:0 } },
   spells: { defaults: { name:"", level:0, prepared:true, conc:false, touch:false, verbal:true, somatic:true, material:false, range:"", castTime:"Action", castTimeCustom:false, save:"", dmg:"", notes:"", category:"utility", folded:false } },
   resources: { defaults: { name:"", total:1, used:0, recharge:"long", notes:"" } },
   items: { defaults: { name:"", qty:1, notes:"", type:"gear", category:"other", equipped:false, acBase:10, acAbility:"dex", weightClass:"light", shieldBonus:2 } }
@@ -3052,7 +3064,7 @@ function buildCuratedCharacterForAI(){
     skillProficiencies: s.skillProf,
     skillExpertise: s.skillExpertise,
     proficiencies: s.proficiencies,
-    attacks: (s.attacks||[]).map(a=>({name:a.name, type:a.type, dmg:a.dmg, dmgType:a.dmgType, ability:abilForAttack(a), prof:a.prof, notes:a.notes})),
+    attacks: (s.attacks||[]).map(a=>({name:a.name, type:a.type, dmg:a.dmg, dmgType:a.dmgType, ability:abilForAttack(a), prof:a.prof, notes:a.notes, magicBonus:a.magicBonus||0})),
     spellcasting: { ability: s.spellcasting.abil, slots: s.spellcasting.slots },
     spells: (s.spells||[]).map(sp=>({name:sp.name, level:sp.level, prepared:sp.prepared, range:sp.range, castTime:sp.castTime, save:sp.save, dmg:sp.dmg, notes:sp.notes, category:sp.category})),
     feats: (s.feats||[]).map(f=>({name:f.name, level:f.level, notes:f.notes, mod:f.mod})),
@@ -3117,6 +3129,7 @@ attacks:
     dmgType: "slashing"
     prof: true
     notes: ""
+    magicBonus: 0
 spells:
   - name: "Example Spell"
     level: 1
@@ -3154,7 +3167,7 @@ items:
     shieldBonus: 2${modSchema}
 \`\`\`
 
-Rules for that block: each list ("traits"/"feats"/"attacks"/"spells"/"resources"/"items") MUST contain full objects in exactly the shape shown above, never bare name strings. Keep "attacks", "spells", and "items" straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with; every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". A weapon already listed under "attacks" should NOT also get a separate "items" entry, but armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry; "acBase" for armor is the total AC while worn (not a bonus on top of 10).${modRules} Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.`;
+Rules for that block: each list ("traits"/"feats"/"attacks"/"spells"/"resources"/"items") MUST contain full objects in exactly the shape shown above, never bare name strings. An attack's "magicBonus" is a flat number (e.g. 1, 2, 3) added automatically to both its attack roll and its damage roll — use it for magic weapons like a +1/+2/+3 weapon or a Sun Blade, instead of baking the bonus into the "dmg" string. Keep "attacks", "spells", and "items" straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with; every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". A weapon already listed under "attacks" should NOT also get a separate "items" entry, but armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry; "acBase" for armor is the total AC while worn (not a bonus on top of 10).${modRules} Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.`;
   return instructions + "\n\n```yaml\nschemaVersion: " + AI_SCHEMA_VERSION + "\ncharacter:\n" + yamlDump(character, 1) + "```\n";
 }
 function stripStrayFenceLines(s){
@@ -3332,7 +3345,7 @@ function aiItemLabel(entry){
   const catLabel = {traits:t.aiCatTrait, feats:t.aiCatFeat, attacks:t.aiCatAttack, spells:t.aiCatSpell, resources:t.aiCatResource, items:t.aiCatItem}[category];
   const parts = [`<b>${esc2(data.name||"")}</b>`, `<span class="dim-label">${catLabel}</span>`];
   if((category==='feats' || category==='traits') && data.level) parts.push(`Lv.${data.level}`);
-  if(category==='attacks') parts.push(esc2([data.dmg,data.dmgType].filter(Boolean).join(" ")));
+  if(category==='attacks') parts.push(esc2([data.magicBonus?fm(data.magicBonus):"",data.dmg,data.dmgType].filter(Boolean).join(" ")));
   if(category==='spells' && data.level!==undefined) parts.push(`Lv.${data.level}`);
   if(category==='resources' && data.total) parts.push(`×${data.total}`);
   if(category==='items' && data.qty) parts.push(`×${data.qty}`);
@@ -3434,6 +3447,7 @@ attacks:
     dmgType: "slashing"
     prof: true
     notes: ""
+    magicBonus: 0
 spells:
   - name: "Example Spell"
     level: 1
@@ -3475,7 +3489,7 @@ Rules for that block: "class" must be EXACTLY one of: ${classList} (case-sensiti
 ${subraceLines}
 "background" and "subclass" are free text (subclass can be blank if not chosen yet). "level" is an integer 1-20. "abilities" must include all six of str/dex/con/int/wis/cha as integers — pick whatever generation method (standard array, point buy, or rolled) best fits the concept and level. Only include "spellSlots" if the class actually has spell slots at this level — a map from spell level (string key "1"-"9") to its total slot count; tell me in your plain-text reply to double-check it against the class table, since multiclass/Pact Magic rules are easy to get wrong. "proficiencies" is optional and only needs entries beyond what the class/race already grants automatically: "armorList" is a subset of [${armorProfIds}]; "weaponList" is a subset of [${weaponProfIds}] (whole categories like "simple"/"martial", individual weapon ids for one-off exotic proficiencies, or both); "languageList" is a subset of [${languageProfIds}]; anything that doesn't fit one of those exact ids (a specific tool proficiency, a homebrew armor/weapon/language) goes in the free-text "tools"/"armorOther"/"weaponOther"/"languageOther" strings instead of inventing a new id. Don't repeat race/class traits the app already grants automatically (like a Half-Orc's Darkvision) under "traits" — only list one there if it's unusual and not implied by the standard race.
 
-"feats", "traits", "attacks", "spells", "resources", and "items" each MUST be a list of full objects in exactly the shape shown above (never a bare list of name strings) and can each be omitted or empty. Each trait/feat's "mod" can only target a single stat, so a rules feature that changes several stats at once (e.g. a Ranger's Roving, which raises walking, climbing, AND swimming speed together) must be split into one separate trait/feat entry per stat it affects (one entry with mod.stat "speed", one with "climb", one with "swim") rather than invented as one combined entry. Keep these three straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with (melee or ranged) — every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". "items" is inventory — a weapon already listed under "attacks" should NOT also get a separate "items" entry, but its armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry or an "attacks"/"category" workaround; "acBase" for armor is the total AC while worn (not a bonus on top of 10). Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.
+"feats", "traits", "attacks", "spells", "resources", and "items" each MUST be a list of full objects in exactly the shape shown above (never a bare list of name strings) and can each be omitted or empty. An attack's "magicBonus" is a flat number (e.g. 1, 2, 3) added automatically to both its attack roll and its damage roll — use it for magic weapons like a +1/+2/+3 weapon or a Sun Blade, instead of baking the bonus into the "dmg" string. Each trait/feat's "mod" can only target a single stat, so a rules feature that changes several stats at once (e.g. a Ranger's Roving, which raises walking, climbing, AND swimming speed together) must be split into one separate trait/feat entry per stat it affects (one entry with mod.stat "speed", one with "climb", one with "swim") rather than invented as one combined entry. Keep these three straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with (melee or ranged) — every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". "items" is inventory — a weapon already listed under "attacks" should NOT also get a separate "items" entry, but its armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry or an "attacks"/"category" workaround; "acBase" for armor is the total AC while worn (not a bonus on top of 10). Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.
 `;
 }
 function parseCreateAIPaste(){
@@ -3718,9 +3732,10 @@ function buildPrintHTML(opts){
   const blankAttackRow = `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
   const attackRows = state.attacks.map(a=>{
     const abil = abilForAttack(a);
-    const bonus = mod(effAbil[abil]) + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type);
+    const bonus = mod(effAbil[abil]) + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
     const typeLabel = a.type==="melee"?t.melee:a.type==="ranged"?t.ranged:a.type==="finesse"?t.finesse:a.type==="natural"?t.natural:t.spell;
-    return `<tr><td>${esc(a.name)}</td><td>${typeLabel}</td><td class="num">${a.prof?"●":"○"}</td><td class="num">${fm(bonus)}</td><td>${esc(a.dmg)}</td><td>${dmgTypeLabel(a.dmgType,t)}</td><td>${esc(a.notes)}</td></tr>`;
+    const dmgLabel = a.dmg + (a.magicBonus ? ` ${fm(a.magicBonus)}` : "");
+    return `<tr><td>${esc(a.name)}</td><td>${typeLabel}</td><td class="num">${a.prof?"●":"○"}</td><td class="num">${fm(bonus)}</td><td>${esc(dmgLabel)}</td><td>${dmgTypeLabel(a.dmgType,t)}</td><td>${esc(a.notes)}</td></tr>`;
   }).join("") + blankAttackRow.repeat(extraAttacks);
 
   const spellSaveDC = 8 + prof + mod(effAbil[state.spellcasting.abil]);
@@ -4340,7 +4355,7 @@ function armorRow(it, i){
     const classVal = armorItemClassValue(it);
     acCell = `<div style="display:inline-flex;gap:4px;align-items:center">
       <input type="number" min="0" style="width:56px;text-align:center;flex:none" value="${it.acBase}" onchange="set('inventory.items.${i}.acBase', parseInt(this.value)||0)">
-      <select style="width:60px;flex:none" title="${t.armorAbilHint}" onchange="setArmorItemClass(${i}, this.value)">
+      <select style="width:100px;flex:none" title="${t.armorAbilHint}" onchange="setArmorItemClass(${i}, this.value)">
         <option value="light" ${classVal==="light"?"selected":""}>${t.wcLight}</option>
         <option value="medium" ${classVal==="medium"?"selected":""}>${t.wcMedium}</option>
         <option value="heavy" ${classVal==="heavy"?"selected":""}>${t.wcHeavy}</option>
