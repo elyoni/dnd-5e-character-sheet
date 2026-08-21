@@ -20,7 +20,9 @@ test.describe('attack damage type and presets', () => {
   test('the damage type select in the attack card persists a change', async ({ page }) => {
     await dismissOnboarding(page);
 
-    // The default blank character already has one attack (Shortsword) rendered as a card.
+    // The default blank character already has one attack (Shortsword) rendered as a card,
+    // starting in View mode — enter Edit mode to reach the damage-type select.
+    await page.locator('.attack-card .edit-toggle-btn').first().click();
     await page.locator('.attack-card select.attack-dmgtype-select').first().selectOption('piercing');
     await expect(page.locator('#saveStatus')).toContainText('saved', { timeout: 2000 });
 

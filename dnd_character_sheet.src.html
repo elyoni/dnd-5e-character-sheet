@@ -443,11 +443,22 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .spell-item.folded .spell-notes-input,
 .spell-item.folded .ctv-group,
 .spell-item.folded .formula-note,
+.spell-item.folded .attack-notes-view,
 .spell-item.folded .fold-hidden-actions{display:none;}
 .attack-type-icon{flex:0 0 auto;font-size:14px;}
 .attack-card.folded .attack-card-row2,
 .attack-card.folded .dice-history,
 .attack-card.folded .attack-notes-input{display:none;}
+/* ---------- Attack/Spell View mode (read-only card, ADR 0006) ---------- */
+.attack-name-view, .spell-name-view{flex:1 1 10ch;min-width:10ch;font-weight:600;}
+.spell-view-prepared{flex:0 0 auto;font-size:12px;color:var(--ink-faint);white-space:nowrap;}
+.edit-toggle-btn{flex:0 0 auto;background:none;border:1px solid var(--leather-line);border-radius:4px;color:var(--ink-faint);cursor:pointer;font-size:11px;padding:3px 8px;}
+.edit-toggle-btn:hover{color:var(--gold-bright);border-color:var(--gold);}
+.attack-view-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;}
+.attack-view-type{font-size:11px;color:var(--ink-faint);font-weight:400;}
+.attack-view-prof{font-size:11px;color:var(--ink-faint);white-space:nowrap;align-self:center;}
+.attack-notes-view{width:100%;margin-top:6px;font-size:13.5px;color:var(--ink-dim);white-space:pre-wrap;}
+.ctv-chip-view{font-size:9px;letter-spacing:0.5px;color:var(--ink-faint);text-transform:uppercase;border:1px solid var(--leather-line);border-radius:3px;padding:1px 4px;}
 .view-toggle-group{display:flex;gap:4px;}
 .view-toggle-group .btn{padding:3px 9px;font-size:11px;}
 .spell-actions-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
@@ -730,7 +741,7 @@ input.item-name-input, .item-notes-input{font-size:13.5px;line-height:1.4;}
 const T = {
   en:{
     title:"Character Scroll", sub:"an editable, self-explaining sheet",
-    newChar:"New Character", del:"Delete", edit:"Edit", saved:"saved", saving:"saving…", sessionOnly:"not saved (session only)",
+    newChar:"New Character", del:"Delete", edit:"Edit", done:"Done", saved:"saved", saving:"saving…", sessionOnly:"not saved (session only)",
     confirmRemoveTitle:"Remove this?", confirmRemoveMsg:"This can't be undone.",
     hideAll:"Hide All", showAll:"Show All",
     identity:"Identity", identityConfigTitle:"Identity / Configuration", name:"Name", cls:"Class", subclass:"Subclass", level:"Level", race:"Race", subrace:"Subrace", bg:"Background", size:"Size",
@@ -940,7 +951,7 @@ const T = {
   },
   he:{
     title:"מגילת הדמות", sub:"גיליון עריך עם הסברים מובנים",
-    newChar:"דמות חדשה", del:"מחק", edit:"עריכה", saved:"נשמר", saving:"שומר…", sessionOnly:"לא נשמר (הפעלה זו בלבד)",
+    newChar:"דמות חדשה", del:"מחק", edit:"עריכה", done:"סיום", saved:"נשמר", saving:"שומר…", sessionOnly:"לא נשמר (הפעלה זו בלבד)",
     confirmRemoveTitle:"למחוק?", confirmRemoveMsg:"לא ניתן לבטל פעולה זו.",
     hideAll:"הסתר הכל", showAll:"הצג הכל",
     identity:"זהות", identityConfigTitle:"זהות / הגדרות", name:"שם", cls:"מחלקה", subclass:"תת-מחלקה", level:"רמה", race:"גזע", subrace:"תת-גזע", bg:"רקע", size:"גודל",
@@ -1705,6 +1716,20 @@ let lastRolledAttackIndex = null;
 let lastRolledAttackTimer = null;
 let spellRolls = {}; // per-spell: spellRolls[i] = {rolls, total}
 let spellRollHistories = {};
+// Per-card View/Edit toggle for Attacks/Spells: transient UI state, never persisted —
+// every reload/character-switch shows View mode again.
+let attackEditing = {};
+let spellEditing = {};
+function toggleAttackEdit(i){
+  attackEditing[i] = !attackEditing[i];
+  if(attackEditing[i] && state.attacks[i].folded){ state.attacks[i].folded = false; queueSave(); }
+  render();
+}
+function toggleSpellEdit(i){
+  spellEditing[i] = !spellEditing[i];
+  if(spellEditing[i] && state.spells[i].folded){ state.spells[i].folded = false; queueSave(); }
+  render();
+}
 function parseDiceString(str){
   const m = /(\d+)\s*d\s*(\d+)\s*([+\-]\s*\d+)?/i.exec(String(str||""));
   if(!m) return null;
@@ -2426,8 +2451,85 @@ function setSpellCastTimeCustom(i, custom){
   render();
   queueSave();
 }
+// Shared read-only rendering for one Attack, used both by the live app's View mode
+// (wrapped with live-only magic-bonus chip / roll cube passed via opts) and by
+// buildPrintHTML (called with no opts) — see ADR 0006.
+function attackViewCard(a, i, opts){
+  opts = opts || {};
+  const t = T[lang];
+  const abil = abilForAttack(a);
+  const abilMod = mod(state.abilities[abil]+getFeatBonus(state,abil));
+  const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
+  const typeLabel = attackTypeLabel(a.type, t);
+  const spellAbilLabel = a.type==="spell" ? ` · ${t[a.spellAbil]}` : "";
+  return `
+    ${opts.showName===false ? "" : `<div class="attack-view-name-row"><span class="attack-type-icon" title="${typeLabel}">${attackTypeIcon(a.type)}</span><span class="attack-name-view">${esc2(a.name)||t.atkName}</span><span class="attack-view-type">${typeLabel}${spellAbilLabel}</span></div>`}
+    <div class="attack-tohit-group">
+      <div class="attack-stat">
+        <span class="dim-label">${t.atkBonus}</span>
+        <div class="attack-stat-val-row">
+          <span class="attack-stat-val">${fm(bonus)}</span>
+          ${opts.magicBonusChip||""}
+        </div>
+        <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}${a.magicBonus?`${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}${getCritThreshold(state)<20?`<br>🎯 ${t.critOnLabel} ${getCritThreshold(state)}–20`:""}</span>
+      </div>
+      ${opts.rollCube||""}
+    </div>
+    <div class="attack-stat attack-stat-dmg">
+      <span class="dim-label">${t.atkDmg}</span>
+      <span class="attack-stat-val">${esc2(a.dmg)||"—"}${a.dmgType?` · ${dmgTypeLabel(a.dmgType,t)}`:""}</span>
+      ${a.dmgType ? `<div class="attack-dmgtype-hint">${dmgTypeHint(a.dmgType,t)}</div>` : ""}
+      <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}${a.magicBonus?` ${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}</span>
+    </div>
+    <div class="attack-view-prof">${a.prof?"●":"○"} ${t.atkProf}</div>
+    ${a.notes ? `<div class="attack-notes-view" dir="auto">${esc2(a.notes).replace(/\n/g,"<br>")}</div>` : ""}
+  `;
+}
 function attackRow(a, i){
   const t = T[lang];
+  const folded = !!a.folded;
+  const editing = !!attackEditing[i];
+
+  const rollCube = !attackRolls[i] ? `` : `
+    <div class="attack-cube-row no-print">
+      <div class="atk-cube-col">
+        <span class="dim-label">${t.atkHit}</span>
+        <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(20, attackRolls[i].hitRoll)}</div>
+        <span class="cube-bonus">${fm(attackRolls[i].bonus)}</span>
+      </div>
+      ${attackRolls[i].hasDmg ? `
+      <div class="atk-cube-col">
+        <span class="dim-label">${t.atkDmg}</span>
+        <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(a.dmg ? parseDiceString(a.dmg).die : 6, attackRolls[i].dmgDiceSum)}</div>
+        <span class="cube-bonus">${fm(attackRolls[i].dmgBonus)}</span>
+      </div>` : ""}
+      <div class="atk-roll-result">
+        <div>${t.atkHit}: <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}</div>
+        ${attackRolls[i].hasDmg ? `<div>${t.atkDmg}: <b>${attackRolls[i].dmgTotal}</b></div>` : ""}
+      </div>
+    </div>`;
+  const magicBonusChip = `<label class="atk-magicbonus-chip no-print" title="${t.atkMagicBonusHint}">${t.atkMagicBonus}<input type="number" class="attack-magicbonus-input" value="${a.magicBonus||0}" onchange="set('attacks.${i}.magicBonus', parseInt(this.value)||0)"></label>`;
+  const diceHistoryHTML = (attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print">${attackRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${t.atkHitAbbr}:${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}${h.dmgTotal!==null?`/${t.atkDmgAbbr}:${h.dmgTotal}`:""}</span>`).join("")}</div>` : "";
+
+  if(!editing){
+    return `<div class="attack-card ${folded ? "folded" : ""}">
+      <div class="attack-card-top">
+        <button class="fold-toggle no-print" onclick="toggleAttackFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
+        <span class="attack-name-view attack-name-view-top">${esc2(a.name)||t.atkName}</span>
+        <span class="attack-type-icon" title="${attackTypeLabel(a.type,t)}">${attackTypeIcon(a.type)}</span>
+        <button class="atk-roll-btn-mini no-print" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
+        <button class="edit-toggle-btn no-print" onclick="toggleAttackEdit(${i})" title="${t.edit}">✏️ ${t.edit}</button>
+      </div>
+      <div class="attack-card-row2">
+        <div class="fold-hidden-actions">
+          <button class="remove-row no-print" onclick="confirmRemove(()=>removeAttack(${i}))" title="${t.del}">🗑️</button>
+        </div>
+        ${attackViewCard(a, i, {showName:false, rollCube})}
+      </div>
+      ${diceHistoryHTML}
+    </div>`;
+  }
+
   const abil = abilForAttack(a);
   const abilMod = mod(state.abilities[abil]+getFeatBonus(state,abil));
   const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
@@ -2435,13 +2537,13 @@ function attackRow(a, i){
     <select class="attack-spellabil-select" onchange="set('attacks.${i}.spellAbil', this.value)">
       ${ABILS.filter(x=>["int","wis","cha"].includes(x)).map(x=>`<option value="${x}" ${a.spellAbil===x?"selected":""}>${t[x]}</option>`).join("")}
     </select>` : "";
-  const folded = !!a.folded;
   return `<div class="attack-card ${folded ? "folded" : ""}">
     <div class="attack-card-top">
       <button class="fold-toggle no-print" onclick="toggleAttackFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
       <input type="text" value="${a.name}" class="attack-name-input" placeholder="${t.atkName}" onchange="set('attacks.${i}.name', this.value)">
       <span class="attack-type-icon" title="${attackTypeLabel(a.type,t)}">${attackTypeIcon(a.type)}</span>
       <button class="atk-roll-btn-mini no-print" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
+      <button class="edit-toggle-btn no-print" onclick="toggleAttackEdit(${i})" title="${t.done}">✓ ${t.done}</button>
     </div>
     <div class="attack-card-row2">
       <div class="fold-hidden-actions">
@@ -2452,29 +2554,11 @@ function attackRow(a, i){
           <span class="dim-label">${t.atkBonus}</span>
           <div class="attack-stat-val-row">
             <span class="attack-stat-val">${fm(bonus)}</span>
-            <label class="atk-magicbonus-chip no-print" title="${t.atkMagicBonusHint}">${t.atkMagicBonus}<input type="number" class="attack-magicbonus-input" value="${a.magicBonus||0}" onchange="set('attacks.${i}.magicBonus', parseInt(this.value)||0)"></label>
+            ${magicBonusChip}
           </div>
           <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}${a.magicBonus?`${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}${getCritThreshold(state)<20?`<br>🎯 ${t.critOnLabel} ${getCritThreshold(state)}–20`:""}</span>
         </div>
-        <div class="attack-cube-row no-print">
-          ${!attackRolls[i] ? `` : `
-          <div class="atk-cube-col">
-            <span class="dim-label">${t.atkHit}</span>
-            <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(20, attackRolls[i].hitRoll)}</div>
-            <span class="cube-bonus">${fm(attackRolls[i].bonus)}</span>
-          </div>
-          ${attackRolls[i].hasDmg ? `
-          <div class="atk-cube-col">
-            <span class="dim-label">${t.atkDmg}</span>
-            <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(a.dmg ? parseDiceString(a.dmg).die : 6, attackRolls[i].dmgDiceSum)}</div>
-            <span class="cube-bonus">${fm(attackRolls[i].dmgBonus)}</span>
-          </div>` : ""}
-          <div class="atk-roll-result">
-            <div>${t.atkHit}: <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}</div>
-            ${attackRolls[i].hasDmg ? `<div>${t.atkDmg}: <b>${attackRolls[i].dmgTotal}</b></div>` : ""}
-          </div>
-          `}
-        </div>
+        ${rollCube}
       </div>
       <div class="attack-stat attack-stat-dmg">
         <span class="dim-label">${t.atkDmg}</span>
@@ -2495,12 +2579,13 @@ function attackRow(a, i){
       ${spellAbilSelect}
       <label class="atk-prof-chip"><input type="checkbox" ${a.prof?"checked":""} onchange="set('attacks.${i}.prof', this.checked)">${t.atkProf}</label>
     </div>
-    ${(attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print">${attackRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${t.atkHitAbbr}:${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}${h.dmgTotal!==null?`/${t.atkDmgAbbr}:${h.dmgTotal}`:""}</span>`).join("")}</div>` : ""}
+    ${diceHistoryHTML}
     <textarea rows="${estimateTextRows(a.notes)}" class="attack-notes-input" dir="auto" placeholder="${t.atkNotes}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';" onchange="set('attacks.${i}.notes', this.value)">${a.notes}</textarea>
   </div>`;
 }
 function addAttack(){
   state.attacks.push({name:"", type:"melee", dmg:"1d6", dmgType:"", spellAbil:"cha", prof:true, notes:"", folded:false, magicBonus:0});
+  attackEditing[state.attacks.length-1] = true;
   render(); queueSave();
 }
 function removeAttack(i){
@@ -2524,6 +2609,7 @@ function confirmAddAttack(){
   const dmgType = document.getElementById("modalAttackDmgType").value;
   const notes = document.getElementById("modalAttackNotes").value;
   state.attacks.push({name, type, dmg, dmgType, spellAbil, prof, notes, magicBonus:0});
+  attackEditing[state.attacks.length-1] = true;
   attackModalOpen = false;
   render();
   queueSave();
@@ -3801,20 +3887,16 @@ function buildPrintHTML(opts){
     return `<div class="list-row skill-row"><span class="mark">${p?"●":"○"}</span><span class="mark">${e?"★":""}</span><span>${ABIL_ICON[abil]} ${lang==='he'?he:en} <span class="ability-tag">(${t[abil]})</span></span><span class="val">${fm(val)}</span></div>`;
   }).join("");
 
-  const blankAttackRow = `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
-  const attackRows = state.attacks.map(a=>{
-    const abil = abilForAttack(a);
-    const bonus = mod(effAbil[abil]) + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
-    const typeLabel = a.type==="melee"?t.melee:a.type==="ranged"?t.ranged:a.type==="finesse"?t.finesse:a.type==="natural"?t.natural:t.spell;
-    const dmgLabel = a.dmg + (a.magicBonus ? ` ${fm(a.magicBonus)}` : "");
-    return `<tr><td>${esc(a.name)}</td><td>${typeLabel}</td><td class="num">${a.prof?"●":"○"}</td><td class="num">${fm(bonus)}</td><td>${esc(dmgLabel)}</td><td>${dmgTypeLabel(a.dmgType,t)}</td><td>${esc(a.notes)}</td></tr>`;
-  }).join("") + blankAttackRow.repeat(extraAttacks);
+  // Attack/Spell rows reuse the live app's View-mode card renderer (attackViewCard/
+  // spellViewCard) instead of maintaining separate print-only markup — see ADR 0006.
+  const blankAttackCard = `<div class="print-attack-card print-blank-card">&nbsp;</div>`;
+  const attackCards = state.attacks.map((a,i)=>`<div class="print-attack-card">${attackViewCard(a, i)}</div>`).join("") + blankAttackCard.repeat(extraAttacks);
 
   const spellSaveDC = 8 + prof + mod(effAbil[state.spellcasting.abil]);
   const spellAtk = fm(prof + mod(effAbil[state.spellcasting.abil]));
   const slotRows = state.spellcasting.slots.map((sl,i)=> sl.total>0 ? `<div class="slot-box"><div class="lv">${t.slotLevel} ${i+1}</div><div class="dots-row">${slotDotsStatic(sl)}</div></div>` : "").join("");
-  const blankSpellRow = `<tr>${"<td>&nbsp;</td>".repeat(12)}</tr>`;
-  const spellRows = state.spells.map(sp=>`<tr><td class="num">${sp.level}</td><td class="num">${sp.prepared?"✓":""}</td><td>${esc(sp.name)}</td><td class="num">${spellCategoryIcon(sp.category)}</td><td>${esc(sp.range)}</td><td>${esc(sp.castTime)}</td><td>${sp.save?t[sp.save]:""}</td><td class="num">${sp.verbal?"●":""}</td><td class="num">${sp.somatic?"●":""}</td><td class="num">${sp.material?"●":""}</td><td>${esc(sp.dmg)}</td><td style="white-space:pre-wrap">${esc(sp.notes)}</td></tr>`).join("") + blankSpellRow.repeat(extraSpells);
+  const blankSpellCard = `<div class="print-attack-card print-blank-card">&nbsp;</div>`;
+  const spellCards = state.spells.map((sp,i)=>`<div class="print-attack-card">${spellViewCard(sp, i, {showNameRow:true})}</div>`).join("") + blankSpellCard.repeat(extraSpells);
   const featModLabel = stat => {
     if(stat==='speed') return t.speed;
     if(stat==='climb') return t.climbSpeed;
@@ -3927,6 +4009,31 @@ function buildPrintHTML(opts){
     dt{font-weight:700;margin-top:6px;color:var(--ink);}
     dd{margin:0 0 3px;color:var(--ink-dim);}
     .notes-box{white-space:pre-wrap;font-size:12.5px;min-height:30px;}
+    /* Attack/Spell cards below reuse the same class names as the live app's View
+       mode (attackViewCard/spellViewCard, see ADR 0006) — styled here for print. */
+    .print-card-list{display:flex;flex-direction:column;gap:6px;}
+    .print-attack-card{border:1px solid var(--line);background:var(--panel-2);border-radius:6px;padding:6px 10px;break-inside:avoid;}
+    .print-blank-card{min-height:46px;border-style:dashed;}
+    .attack-view-name-row, .spell-item-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;margin-bottom:3px;}
+    .attack-name-view, .spell-name-view{font-weight:700;}
+    .attack-view-type{font-size:10.5px;color:var(--ink-faint);font-weight:400;}
+    .attack-tohit-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:3px;}
+    .attack-stat{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-size:11.5px;min-width:90px;}
+    .attack-stat-dmg{min-width:130px;}
+    .dim-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
+    .attack-stat-val{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ink);}
+    .attack-stat-val-row{display:flex;align-items:center;gap:6px;}
+    .formula-note{font-size:9.5px;color:var(--ink-faint);}
+    .attack-dmgtype-hint{font-size:9px;color:var(--ink-faint);}
+    .attack-view-prof{font-size:10.5px;color:var(--ink-dim);}
+    .attack-notes-view{margin-top:4px;font-size:11px;color:var(--ink-dim);white-space:pre-wrap;}
+    .spell-view-prepared{font-weight:700;}
+    .spell-category-icon{font-size:12px;}
+    .spell-meta-row{display:flex;gap:12px;flex-wrap:wrap;margin:3px 0;}
+    .spell-meta-item{display:flex;flex-direction:column;font-size:10.5px;gap:1px;}
+    .spell-dmg-row{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:11px;}
+    .ctv-group{display:flex;gap:4px;}
+    .ctv-chip-view{font-size:9.5px;border:1px solid var(--line);border-radius:3px;padding:0 4px;color:var(--ink-faint);}
     @media print{ body{margin:0;padding:10px;} .panel{break-inside:avoid;} }
     @page{ margin:11mm; }
   </style></head><body>
@@ -3996,8 +4103,7 @@ function buildPrintHTML(opts){
     </div>
 
     <div class="panel"><h2>${t.attacks}</h2>
-      <div class="table-scroll"><table><thead><tr><th>${t.atkName}</th><th>${t.atkType}</th><th>${t.atkProf}</th><th>${t.atkBonus}</th><th>${t.atkDmg}</th><th>${t.atkDmgType}</th><th>${t.atkNotes}</th></tr></thead>
-      <tbody>${attackRows}</tbody></table></div>
+      <div class="print-card-list">${attackCards}</div>
     </div>
 
     <div class="panel"><h2>${t.spells}</h2>
@@ -4007,7 +4113,7 @@ function buildPrintHTML(opts){
         <div class="combat-box"><span class="label">${t.spellAtk}</span><span class="big">${spellAtk}</span></div>
       </div>
       ${slotRows ? `<div class="slots-grid">${slotRows}</div>` : ""}
-      ${(state.spells.length || extraSpells) ? `<div class="pdim" style="margin-bottom:6px">${t.spLegend}</div><div class="table-scroll"><table><thead><tr><th>${t.spLevel}</th><th>${t.spPrepared}</th><th>${t.spName}</th><th>${t.spCategory}</th><th>${t.spRange}</th><th>${t.spCastTime}</th><th>${t.spSave}</th><th>${t.spVerbal}</th><th>${t.spSomatic}</th><th>${t.spMaterial}</th><th>${t.spDmg}</th><th>${t.spNotes}</th></tr></thead><tbody>${spellRows}</tbody></table></div>` : ""}
+      ${(state.spells.length || extraSpells) ? `<div class="print-card-list">${spellCards}</div>` : ""}
     </div>
 
     ${state.traits.length ? `<div class="panel"><h2>${t.traits}</h2><div class="table-scroll"><table><thead><tr><th>${t.featLvlAbbr}</th><th>${t.traitName}</th><th>${t.featNotes}</th></tr></thead><tbody>${traitRows}</tbody></table></div></div>` : ""}
@@ -4098,15 +4204,83 @@ function applySpellPreset(idx){
   if(categoryEl){ categoryEl.value = p.category || ""; categoryEl.dispatchEvent(new Event("change")); }
 }
 
-function spellRow(sp, i){
+// Shared read-only rendering for one Spell, used both by the live app's View mode
+// (wrapped with a live prepared-checkbox / roll cube passed via opts) and by
+// buildPrintHTML (called with no opts) — see ADR 0006.
+function spellViewCard(sp, i, opts){
+  opts = opts || {};
   const t = T[lang];
   const saveLabel = sp.save ? t[sp.save] : "";
   const spellDC = 8 + profByLevel(state.level) + mod(getEffectiveAbilities(state)[state.spellcasting.abil]);
+  const catLabel = spellCategoryLabel(sp.category, t);
+  const ctvChipsView = [
+    sp.verbal ? `<span class="ctv-chip-view" title="${t.spVerbalFull}">${t.spVerbal}</span>` : "",
+    sp.somatic ? `<span class="ctv-chip-view" title="${t.spSomaticFull}">${t.spSomatic}</span>` : "",
+    sp.material ? `<span class="ctv-chip-view" title="${t.spMaterialFull}">${t.spMaterial}</span>` : ""
+  ].join("");
+  return `
+    ${opts.showNameRow===false ? "" : `<div class="spell-item-top">
+      ${opts.preparedCheckbox || `<span class="spell-view-prepared">${sp.prepared?"✓":"○"} ${t.spPrepared}</span>`}
+      <span class="spell-name-view">${esc2(sp.name)||t.spName}</span>
+      <span class="spell-category-icon" title="${catLabel}">${spellCategoryIcon(sp.category)}</span>
+      ${ctvChipsView ? `<div class="ctv-group">${ctvChipsView}</div>` : ""}
+    </div>`}
+    <div class="spell-meta-row">
+      <span class="spell-meta-item"><span class="dim-label">${t.spCategory}</span><span>${spellCategoryIcon(sp.category)} ${catLabel}</span></span>
+      <span class="spell-meta-item"><span class="dim-label">${t.spRange}</span><span>${esc2(sp.range)||"—"}</span></span>
+      <span class="spell-meta-item"><span class="dim-label">${t.spCastTime}</span><span>${esc2(sp.castTime)||"—"}</span></span>
+      <span class="spell-meta-item"><span class="dim-label">${t.spSave}</span><span>${saveLabel||"—"}</span></span>
+      ${opts.showNameRow===false && ctvChipsView ? `<span class="spell-meta-item"><div class="ctv-group">${ctvChipsView}</div></span>` : ""}
+    </div>
+    ${sp.save ? `<div class="formula-note">${t.spSaveLabel} d20+${saveLabel} ≥ ${spellDC} (8+prof+${t[state.spellcasting.abil]})</div>` : ""}
+    ${(sp.category === "" || sp.category === "attack") ? `
+    <div class="spell-dmg-row">
+      <span class="dim-label">${t.spDmg}</span>
+      <span class="attack-stat-val">${esc2(sp.dmg)||"—"}</span>
+      ${opts.rollCube||""}
+    </div>` : ""}
+    ${sp.notes ? `<div class="attack-notes-view" dir="auto">${esc2(sp.notes).replace(/\n/g,"<br>")}</div>` : ""}
+  `;
+}
+function spellRow(sp, i){
+  const t = T[lang];
   const folded = !!sp.folded;
+  const editing = !!spellEditing[i];
+
+  const rollBtnMini = sp.dmg ? `<button class="atk-roll-btn-mini no-print" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>` : "";
+  const rollCube = sp.dmg ? `
+    <button class="atk-roll-btn no-print" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
+    <div class="atk-cube-col">
+      ${spellRolls[i] ? dieRollBadgeSVG(parseDiceString(sp.dmg).die, spellRolls[i].rolls.reduce((a,b)=>a+b,0)) : ""}
+      <span class="cube-bonus">${spellRolls[i] ? spellRolls[i].total : ""}</span>
+    </div>
+    ${(spellRollHistories[i]||[]).length ? `<div class="dice-history compact no-print" style="margin:0">${spellRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${h.total}</span>`).join("")}</div>` : ""}
+  ` : "";
+  const preparedCheckbox = `<input type="checkbox" ${sp.prepared?"checked":""} title="${t.spPrepared}" onchange="set('spells.${i}.prepared', this.checked)">`;
+
+  if(!editing){
+    return `<div class="spell-item ${folded ? "folded" : ""}">
+      <div class="spell-item-top">
+        <button class="fold-toggle no-print" onclick="toggleSpellFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
+        ${preparedCheckbox}
+        <span class="spell-name-view">${esc2(sp.name)||t.spName}</span>
+        <span class="spell-category-icon" title="${spellCategoryLabel(sp.category,t)}">${spellCategoryIcon(sp.category)}</span>
+        ${rollBtnMini}
+        <button class="edit-toggle-btn no-print" onclick="toggleSpellEdit(${i})" title="${t.edit}">✏️ ${t.edit}</button>
+      </div>
+      ${spellViewCard(sp, i, {showNameRow:false, rollCube})}
+      <div class="fold-hidden-actions">
+        <button class="remove-row no-print" onclick="confirmRemove(()=>removeSpell(${i}))" title="${t.del}">🗑️</button>
+      </div>
+    </div>`;
+  }
+
+  const saveLabel = sp.save ? t[sp.save] : "";
+  const spellDC = 8 + profByLevel(state.level) + mod(getEffectiveAbilities(state)[state.spellcasting.abil]);
   return `<div class="spell-item ${folded ? "folded" : ""}">
     <div class="spell-item-top">
       <button class="fold-toggle no-print" onclick="toggleSpellFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
-      <input type="checkbox" ${sp.prepared?"checked":""} title="${t.spPrepared}" onchange="set('spells.${i}.prepared', this.checked)">
+      ${preparedCheckbox}
       <input type="text" value="${sp.name}" class="spell-name-input" placeholder="${t.spName}" onchange="set('spells.${i}.name', this.value)">
       ${folded
         ? (sp.category ? `<span class="spell-category-icon" title="${spellCategoryLabel(sp.category,t)}">${spellCategoryIcon(sp.category)}</span>` : "")
@@ -4117,7 +4291,8 @@ function spellRow(sp, i){
         <label class="ctv-chip"><input type="checkbox" ${sp.somatic?"checked":""} title="${t.spSomaticFull}" onchange="set('spells.${i}.somatic', this.checked)">${t.spSomatic}</label>
         <label class="ctv-chip"><input type="checkbox" ${sp.material?"checked":""} title="${t.spMaterialFull}" onchange="set('spells.${i}.material', this.checked)">${t.spMaterial}</label>
       </div>
-      ${sp.dmg ? `<button class="atk-roll-btn-mini no-print" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>` : ""}
+      ${rollBtnMini}
+      <button class="edit-toggle-btn no-print" onclick="toggleSpellEdit(${i})" title="${t.done}">✓ ${t.done}</button>
     </div>
     <div class="spell-meta-row">
       <span class="spell-meta-item"><span class="dim-label">${t.spRange}</span><input type="text" value="${sp.range}" placeholder="60 ft" style="width:${dmgInputWidthCh(sp.range)}ch" oninput="autoWidthInput(this)" onchange="set('spells.${i}.range', this.value)"></span>
@@ -4134,14 +4309,7 @@ function spellRow(sp, i){
     <div class="spell-dmg-row no-print">
       <span class="dim-label">${t.spDmg}</span>
       <input type="text" value="${sp.dmg}" class="attack-dmg-input" style="width:${dmgInputWidthCh(sp.dmg || "4d6")}ch" oninput="autoWidthInput(this)" placeholder="4d6" onchange="set('spells.${i}.dmg', this.value)">
-      ${sp.dmg ? `
-      <button class="atk-roll-btn" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
-      <div class="atk-cube-col">
-        ${spellRolls[i] ? dieRollBadgeSVG(parseDiceString(sp.dmg).die, spellRolls[i].rolls.reduce((a,b)=>a+b,0)) : ""}
-        <span class="cube-bonus">${spellRolls[i] ? spellRolls[i].total : ""}</span>
-      </div>
-      ${(spellRollHistories[i]||[]).length ? `<div class="dice-history compact" style="margin:0">${spellRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${h.total}</span>`).join("")}</div>` : ""}
-      ` : ""}
+      ${sp.dmg ? rollCube : ""}
     </div>` : ""}
     <div class="fold-hidden-actions">
       <button class="remove-row no-print" onclick="confirmRemove(()=>removeSpell(${i}))" title="${t.del}">🗑️</button>
@@ -4172,6 +4340,7 @@ function confirmAddSpell(){
   const categoryEl = document.getElementById("modalSpellCategory");
   const category = categoryEl ? categoryEl.value : "";
   state.spells.push({name, level:lvl, prepared:true, conc:false, touch:false, verbal, somatic, material, range, castTime, castTimeCustom, save, dmg, notes, category, folded:false});
+  spellEditing[state.spells.length-1] = true;
   spellModalOpen = false;
   render();
   queueSave();

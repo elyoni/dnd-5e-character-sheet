@@ -133,6 +133,23 @@ _Avoid_: Manual mode (doesn't convey the "no safety net" framing), Physical
 dice mode (accurate but loses the name's connection to the app's other
 dice-mode options)
 
+**View mode** (Attack/Spell card):
+The default, read-only display of an unfolded Attack or Spell card — every
+field shown as static text/icons, except the spell's Prepared checkbox and
+the roll button/history, which stay live. Clicking Edit on a folded card
+unfolds it and enters Edit in the same action. Reached by unfolding a
+card; a card returns here on Done, and always starts here again after a
+reload (View/Edit state is never persisted).
+_Avoid_: display mode, read-only mode
+
+**Edit mode** (Attack/Spell card):
+The input-form state of an Attack or Spell card — every field becomes an
+editable input, same as today's cards and as Feats/Resources/Inventory
+still work everywhere. Entered via the card's Edit button, exited via
+Done back to View mode. A card created via the Add modal starts here
+instead of in View mode.
+_Avoid_: edit form (names the markup, not the state)
+
 **Starting Suggestions**:
 The itemized Feats/Traits/Attacks/Spells/Resources/Items proposed
 alongside a Character Draft, reviewed and applied one at a time exactly

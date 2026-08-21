@@ -67,6 +67,9 @@ test.describe('spell row label style and notes field', () => {
       render();
     });
 
+    // A pushed-in spell starts in View mode — enter Edit mode to reach the notes textarea.
+    const spellItemView = page.locator('.spell-item').filter({ has: page.locator('.spell-name-view:text("Notes Spell")') });
+    await spellItemView.locator('.edit-toggle-btn').click();
     const spellItem = page.locator('.spell-item').filter({ has: page.locator('input.spell-name-input[value="Notes Spell"]') });
     const textarea = spellItem.locator('.spell-notes-input');
     await expect(textarea).toHaveAttribute('dir', 'auto');

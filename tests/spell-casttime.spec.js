@@ -59,6 +59,9 @@ test.describe('spell casting time dropdown', () => {
       render();
     });
 
+    // A pushed-in spell starts in View mode — enter Edit mode to reach the castTime field.
+    const spellItemView = page.locator('.spell-item').filter({ has: page.locator('.spell-name-view:text("Legacy Spell")') });
+    await spellItemView.locator('.edit-toggle-btn').click();
     const spellItem = page.locator('.spell-item').filter({ has: page.locator('input.spell-name-input[value="Legacy Spell"]') });
     await expect(spellItem.locator('.spell-meta-casttime input[type=text]')).toHaveValue('Some old free text');
   });
