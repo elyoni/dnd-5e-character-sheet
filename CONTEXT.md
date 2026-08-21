@@ -121,6 +121,18 @@ _Avoid_: Party (this app has no multi-character "party" concept — a
 Bundle is strictly one owner + its own Linked Characters), group export
 (doesn't name the specific owner+links relationship being exported)
 
+**Hardcore Mode**:
+A dice-mode preference (alongside 3D Dice and Slow Device Mode, all one
+global `diceMode` setting) for players who roll physical dice themselves.
+Instead of generating a result, the app shows the formula to add up (e.g.
+`d20 +3 (INT) +2 (feat)`) and stops there — it never learns the actual
+rolled number, so no total, hit/crit outcome, or roll history is ever
+recorded in this mode. The standalone Dice Roller panel is hidden
+entirely, since it has nothing to add in this mode.
+_Avoid_: Manual mode (doesn't convey the "no safety net" framing), Physical
+dice mode (accurate but loses the name's connection to the app's other
+dice-mode options)
+
 **Starting Suggestions**:
 The itemized Feats/Traits/Attacks/Spells/Resources/Items proposed
 alongside a Character Draft, reviewed and applied one at a time exactly

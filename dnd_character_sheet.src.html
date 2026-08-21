@@ -745,6 +745,9 @@ const T = {
     otherCustom:"Other / Custom", baseSpeedLabel:"Base Speed (ft)",
     themeLabel:"Theme", themeLeather:"Leather (default)", themeParchment:"Parchment (Light)", themeContrast:"High Contrast",
     slowDeviceLabel:"Slow device mode", slowDeviceHint:"Skips the animated 3D dice throw and just shows the rolled number — helps on older/slower devices.",
+    diceModeLabel:"Dice Mode", diceMode3d:"3D Dice", diceModeSlow:"Slow Device (numbers only)", diceModeHardcore:"Hardcore (roll your own)",
+    hardcoreHint:"You roll the physical dice yourself — the app just shows the formula to add up. The Dice Roller panel is hidden in this mode.",
+    hcProf:"prof", hcFeat:"feat", hcFlatBonus:"bonus", hcCritNote:"Natural {RANGE}: also roll the damage dice again",
     shieldName:"Shield", shieldBonus:"Bonus", shieldOn:"Equipped", itemEquippedAbbr:"Eq.",
     proficiencies:"Proficiencies & Languages", profArmor:"Armor", profWeapons:"Weapons", profTools:"Tools", profLanguages:"Languages",
     inventory:"Inventory", currency:"Currency", itemName:"Item", itemQty:"Qty", itemNotes:"Notes", addItem:"Item",
@@ -952,6 +955,9 @@ const T = {
     otherCustom:"אחר / מותאם אישית", baseSpeedLabel:"מהירות בסיס (רגל)",
     themeLabel:"ערכת נושא", themeLeather:"עור (ברירת מחדל)", themeParchment:"קלף (בהיר)", themeContrast:"ניגודיות גבוהה",
     slowDeviceLabel:"מצב מכשיר איטי", slowDeviceHint:"מדלג על הטלת קוביות התלת-ממד המונפשת ומציג רק את המספר שהתקבל — עוזר במכשירים ישנים/איטיים.",
+    diceModeLabel:"מצב קוביות", diceMode3d:"קוביות תלת-ממד", diceModeSlow:"מכשיר איטי (מספרים בלבד)", diceModeHardcore:"הארדקור (הטל בעצמך)",
+    hardcoreHint:"אתה מטיל את הקוביות הפיזיות בעצמך — האפליקציה רק מציגה את הנוסחה לחישוב. פאנל הטלת הקוביות מוסתר במצב זה.",
+    hcProf:"מיומן", hcFeat:"תכונה", hcFlatBonus:"בונוס", hcCritNote:"טבעי {RANGE}: הטל גם את קוביות הנזק שוב",
     shieldName:"מגן", shieldBonus:"בונוס", shieldOn:"חבוש", itemEquippedAbbr:"חבוש",
     proficiencies:"מיומנויות ושפות", profArmor:"שריון", profWeapons:"נשקים", profTools:"כלים", profLanguages:"שפות",
     inventory:"ציוד", currency:"מטבעות", itemName:"פריט", itemQty:"כמות", itemNotes:"הערות", addItem:"הוסף פריט",
@@ -1152,10 +1158,13 @@ function setTheme(v){
   (async ()=>{ try{ await storageSet("dnd-theme", theme); }catch(e){} })();
   render();
 }
-let slowDeviceMode = false;
-function setSlowDeviceMode(v){
-  slowDeviceMode = !!v;
-  (async ()=>{ try{ await storageSet("dnd-slow-dice", slowDeviceMode ? "1" : "0"); }catch(e){} })();
+// "3d" = animated physics throw, "slow" = instant number (no animation, for
+// slow devices), "hardcore" = the app never rolls at all — see Hardcore Mode
+// in CONTEXT.md.
+let diceMode = "3d";
+function setDiceMode(v){
+  diceMode = (v==="slow"||v==="hardcore") ? v : "3d";
+  (async ()=>{ try{ await storageSet("dnd-dice-mode", diceMode); }catch(e){} })();
   render();
 }
 
@@ -1611,6 +1620,11 @@ async function rollSave(abil){
   const prof = profByLevel(state.level);
   const bonus = mod(eff[abil]) + (p?prof:0);
   const label = T[lang][abil] || abil;
+  if(diceMode==="hardcore"){
+    const formula = `d20${hcTerm(mod(eff[abil]), label)}${hcTerm(p?prof:0, T[lang].hcProf)}`;
+    showHardcoreRoll(label, [{key:'save', title:label, value:formula, y:0.42}]);
+    return;
+  }
   const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
   const roll = results[0].value;
   const total = roll + bonus;
@@ -1624,6 +1638,13 @@ let initRollFlash = null;
 let initRollFlashTimer = null;
 async function rollInitiative(){
   const bonus = getEffectiveInitiative(state);
+  if(diceMode==="hardcore"){
+    const dexMod = mod(getEffectiveAbilities(state).dex);
+    const featBonus = getFeatBonus(state, "init");
+    const formula = `d20${hcTerm(dexMod, T[lang].dex)}${hcTerm(featBonus, T[lang].hcFeat)}`;
+    showHardcoreRoll(T[lang].init, [{key:'init', title:T[lang].init, value:formula, y:0.42}]);
+    return;
+  }
   const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], T[lang].init);
   const roll = results[0].value;
   const total = roll + bonus;
@@ -1643,6 +1664,12 @@ async function rollSkill(key){
   const prof = profByLevel(state.level);
   const bonus = mod(eff[abil]) + (p?prof*(e?2:1):0);
   const label = lang==='he'?he:en;
+  if(diceMode==="hardcore"){
+    const profTerm = p ? prof*(e?2:1) : 0;
+    const formula = `d20${hcTerm(mod(eff[abil]), T[lang][abil])}${hcTerm(profTerm, T[lang].hcProf)}`;
+    showHardcoreRoll(label, [{key:'skill', title:label, value:formula, y:0.42}]);
+    return;
+  }
   const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
   const roll = results[0].value;
   const total = roll + bonus;
@@ -1658,6 +1685,11 @@ async function rollAbilityCheck(abil){
   const eff = getEffectiveAbilities(state);
   const bonus = mod(eff[abil]);
   const label = T[lang][abil] || abil;
+  if(diceMode==="hardcore"){
+    const formula = `d20${hcTerm(bonus, label)}`;
+    showHardcoreRoll(label, [{key:'ability', title:label, value:formula, y:0.42}]);
+    return;
+  }
   const results = await rollPhysicalDice([{sides:20, count:1, tag:'roll'}], label);
   const roll = results[0].value;
   const total = roll + bonus;
@@ -1684,6 +1716,12 @@ async function rollSpellDamage(i){
   const sp = state.spells[i];
   const parsed = parseDiceString(sp.dmg);
   if(!parsed) return;
+  if(diceMode==="hardcore"){
+    const rollPart = `${parsed.count}d${parsed.die}`;
+    const formula = `${rollPart}${hcTerm(parsed.flat||0, T[lang].hcFlatBonus)}`;
+    showHardcoreRoll(sp.name||'', [{key:'dmg', title:T[lang].atkDmg, value:formula, y:0.42}]);
+    return;
+  }
   lastRolledSpellIndex = i;
   clearTimeout(lastRolledSpellTimer);
   lastRolledSpellTimer = setTimeout(()=>{ lastRolledSpellIndex = null; render(); }, 600);
@@ -1707,8 +1745,29 @@ async function rollAttack(i){
   const abil = abilForAttack(a);
   const eff = getEffectiveAbilities(state);
   const prof = profByLevel(state.level);
-  const bonus = mod(eff[abil]) + (a.prof ? prof : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
+  const hitAbilMod = mod(eff[abil]);
+  const profBonus = a.prof ? prof : 0;
+  const featBonus = getAttackFeatBonus(state, a.type);
+  const magicBonus = a.magicBonus||0;
+  const bonus = hitAbilMod + profBonus + featBonus + magicBonus;
   const parsed = parseDiceString(a.dmg);
+
+  if(diceMode==="hardcore"){
+    const hitFormula = `d20${hcTerm(hitAbilMod, T[lang][abil])}${hcTerm(profBonus, T[lang].hcProf)}${hcTerm(featBonus, T[lang].hcFeat)}${hcTerm(magicBonus, T[lang].atkMagicBonusAbbr)}`;
+    const hcBanners = [{key:'hit', title:T[lang].atkHit, value:hitFormula, y:0.34}];
+    if(parsed){
+      const dmgAbilMod = (a.type !== "spell") ? hitAbilMod : 0;
+      const dmgFeatBonus = getDamageFeatBonus(state, a.type);
+      const rollPart = `${parsed.count}d${parsed.die}`;
+      const dmgFormula = `${rollPart}${hcTerm(parsed.flat||0, T[lang].hcFlatBonus)}${hcTerm(dmgAbilMod, T[lang][abil])}${hcTerm(dmgFeatBonus, T[lang].hcFeat)}${hcTerm(magicBonus, T[lang].atkMagicBonusAbbr)}`;
+      hcBanners.push({key:'dmg', title:T[lang].atkDmg, value:dmgFormula, y:0.56});
+      const critThreshold = getCritThreshold(state);
+      const critRange = critThreshold<20 ? `${critThreshold}–20` : "20";
+      hcBanners.push({key:'crit', title:'', value:`🎯 ${T[lang].hcCritNote.replace("{RANGE}", critRange)}`, y:0.78});
+    }
+    showHardcoreRoll(a.name || '', hcBanners);
+    return;
+  }
 
   lastRolledAttackIndex = i;
   clearTimeout(lastRolledAttackTimer);
@@ -1815,6 +1874,17 @@ async function storageDelete(key){
 
 const mod = s => Math.floor((s-10)/2);
 const fm = n => (n>=0?"+":"")+n;
+// Hardcore Mode: one labeled term in a formula readout, e.g. " +3 (INT)" —
+// omits zero-value terms entirely rather than cluttering the formula.
+const hcTerm = (value, label) => value ? ` ${fm(value)} (${label})` : "";
+// Hardcore Mode: shows a formula readout in the dice overlay instead of
+// rolling — reuses the same overlay/banner plumbing as the other dice
+// modes (showDiceOverlay/showRollBanner) so it's one consistent "you
+// triggered a roll" ritual either way.
+function showHardcoreRoll(hint, items){
+  showDiceOverlay(hint, true);
+  showRollBanner(items);
+}
 const profByLevel = lvl => Math.floor((Math.max(1,Math.min(20,lvl))-1)/4)+2;
 // Traits and Feats are mechanically identical (same mod shape) — only an
 // organizational/display split — so every numeric-effect helper reads both
@@ -2670,7 +2740,7 @@ async function rollPhysicalDice(specs, hint, opts){
   const immediateHint = !opts || opts.immediateHint !== false;
   showDiceOverlay(hint, immediateHint);
   let results;
-  if(slowDeviceMode){
+  if(diceMode==="slow"){
     // Slow-device mode: skip creating the 3D physics engine entirely (its
     // per-frame render/physics loop is what bogs down older tablets) and
     // just decide the outcome directly — the overlay still appears so the
@@ -2690,10 +2760,12 @@ async function rollPhysicalDice(specs, hint, opts){
 }
 // Shows the prominent result banner(s) after a roll — delegates to the 3D
 // engine's own banner (tied to wherever the physics dice landed) normally,
-// but in slow-device mode builds the same banner markup directly in the
-// overlay's plain DOM layer so the engine never has to be instantiated.
+// but in slow-device/Hardcore mode builds the same banner markup directly in
+// the overlay's plain DOM layer so the engine never has to be instantiated.
+// Hardcore Mode also reuses this to display formula text in place of a
+// rolled value — see showHardcoreRoll.
 function showRollBanner(items){
-  if(!slowDeviceMode){ ensureDiceEngine().showResultBanner(items); return; }
+  if(diceMode==="3d"){ ensureDiceEngine().showResultBanner(items); return; }
   const labelsEl = document.getElementById("dice-3d-labels");
   labelsEl.innerHTML = "";
   const overlay = document.getElementById("dice-3d-overlay");
@@ -4762,8 +4834,14 @@ function render(){
           </select>
         </div>
         <div class="field">
-          <label class="atk-prof-chip"><input type="checkbox" ${slowDeviceMode?"checked":""} onchange="setSlowDeviceMode(this.checked)">${t.slowDeviceLabel}</label>
-          <div class="formula-note">${t.slowDeviceHint}</div>
+          <label>${t.diceModeLabel}</label>
+          <select onchange="setDiceMode(this.value)">
+            <option value="3d" ${diceMode==='3d'?"selected":""}>${t.diceMode3d}</option>
+            <option value="slow" ${diceMode==='slow'?"selected":""}>${t.diceModeSlow}</option>
+            <option value="hardcore" ${diceMode==='hardcore'?"selected":""}>${t.diceModeHardcore}</option>
+          </select>
+          ${diceMode==='slow' ? `<div class="formula-note">${t.slowDeviceHint}</div>` : ""}
+          ${diceMode==='hardcore' ? `<div class="formula-note">${t.hardcoreHint}</div>` : ""}
         </div>
         <div class="field">
           <label class="atk-prof-chip"><input type="checkbox" ${state.hpAutoCalc?"checked":""} onchange="set('hpAutoCalc', this.checked)">${t.hpAuto}</label>
@@ -4799,6 +4877,7 @@ function render(){
     `}
   </div>
 
+  ${diceMode==='hardcore' ? "" : `
   <div class="panel no-print">
     <h2 class="ref-toggle" onclick="toggleDiceFold()">🎲 ${t.diceRoller} <span style="float:${dir==='rtl'?'left':'right'};font-size:11px;color:var(--ink-faint)">${diceFolded ? t.refShow : t.refHide}</span></h2>
     ${diceFolded ? "" : `
@@ -4811,6 +4890,7 @@ function render(){
     </div>
     `}
   </div>
+  `}
 
   <div class="panel ${foldedPanels['abilities'] ? 'folded' : ''}">
     <h2 class="ref-toggle" onclick="togglePanelFold('abilities')">📊 ${t.abilities} 💪🏹🛡️🧠👁️✨ ${foldIcon('abilities')}</h2>
@@ -5476,8 +5556,15 @@ window.addEventListener('resize', trimDiceHistories);
       if(themeRes && THEME_LIST.includes(themeRes.value)) theme = themeRes.value;
     }catch(e){}
     try{
-      const slowDiceRes = await storageGet("dnd-slow-dice");
-      if(slowDiceRes && slowDiceRes.value) slowDeviceMode = slowDiceRes.value === "1";
+      const diceModeRes = await storageGet("dnd-dice-mode");
+      if(diceModeRes && (diceModeRes.value==="3d"||diceModeRes.value==="slow"||diceModeRes.value==="hardcore")){
+        diceMode = diceModeRes.value;
+      } else {
+        // Migrate the old boolean setting for installs that toggled it
+        // before Hardcore Mode existed.
+        const slowDiceRes = await storageGet("dnd-slow-dice");
+        if(slowDiceRes && slowDiceRes.value === "1") diceMode = "slow";
+      }
     }catch(e){}
     try{
       const foldRes = await storageGet("dnd-folded-panels");
