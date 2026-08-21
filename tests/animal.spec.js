@@ -71,6 +71,22 @@ test.describe('animal character type', () => {
     expect(abil).toBe('wis');
   });
 
+  test('the New Character modal\'s Source Link carries through to state.sourceLink, for either character type', async ({ page }) => {
+    await page.goto('/dnd_character_sheet.html');
+    await page.locator('.modal-backdrop button:has-text("OK")').click();
+    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+    await page.locator('button:has-text("Create New Character")').click();
+    await page.selectOption('#modalNewCharType', 'animal');
+    await page.fill('#modalNewName', 'Guardian');
+    await page.fill('#modalNewSpecies', 'Shield Guardian');
+    await page.fill('#modalNewSourceLink', 'https://www.dndbeyond.com/monsters/17012-shield-guardian');
+    await page.locator('.modal-backdrop button:has-text("Done")').click();
+    await page.locator('.modal-backdrop').waitFor({ state: 'detached' });
+
+    const sourceLink = await page.evaluate(() => state.sourceLink);
+    expect(sourceLink).toBe('https://www.dndbeyond.com/monsters/17012-shield-guardian');
+  });
+
   test('a normal PC character is unaffected: AC still uses DEX', async ({ page }) => {
     await page.goto('/dnd_character_sheet.html');
     await page.locator('.modal-backdrop button:has-text("OK")').click();

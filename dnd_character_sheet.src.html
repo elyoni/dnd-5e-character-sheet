@@ -831,7 +831,8 @@ const T = {
     spPresetLabel:"Premade spell (optional)", spPresetNone:"-- Pick a preset to fill the fields below --",
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
-    charTypeLabel:"Type", charTypePc:"Player Character", charTypeAnimal:"Animal", species:"Species",
+    charTypeLabel:"Type", charTypePc:"Player Character", charTypeAnimal:"Beast / Companion", species:"Species",
+    sourceLinkLabel:"Source Link (optional)", sourceLinkHint:"A URL to the full stat block (D&D Beyond, a wiki, a PDF...) — handy for beasts/companions/monsters you're not building out by hand.", sourceLinkOpen:"🔗 Open source",
     newCharLinkedToLabel:"Link to (optional)", linkedToLabel:"Linked to: __NAME__", transformBackBtn:"↩ Transform back",
     createCharOption:"Create new character…", createChooserModalTitle:"Create New Character",
     linkCharOption:"Link to another character…", unlinkOption:"Unlink",
@@ -1041,7 +1042,8 @@ const T = {
     spPresetLabel:"קסם מוכן מראש (אופציונלי)", spPresetNone:"-- בחר קסם מוכן כדי למלא את השדות למטה --",
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
-    charTypeLabel:"סוג", charTypePc:"דמות שחקן", charTypeAnimal:"חיה", species:"מין",
+    charTypeLabel:"סוג", charTypePc:"דמות שחקן", charTypeAnimal:"חיה / בן-לוויה", species:"מין",
+    sourceLinkLabel:"קישור למקור (אופציונלי)", sourceLinkHint:"קישור לגיליון הנתונים המלא (D&D Beyond, ויקי, PDF...) — שימושי לחיות/בני-לוויה/מפלצות שאתם לא בונים ידנית.", sourceLinkOpen:"🔗 פתח מקור",
     newCharLinkedToLabel:"קשר אל (אופציונלי)", linkedToLabel:"מקושרת אל: __NAME__", transformBackBtn:"↩ הפוך בחזרה",
     createCharOption:"צור דמות חדשה…", createChooserModalTitle:"יצירת דמות חדשה",
     linkCharOption:"קשר לדמות אחרת…", unlinkOption:"בטל קישור",
@@ -1193,7 +1195,7 @@ const SKILLS = [
 const ABILS = ["str","dex","con","int","wis","cha"];
 const ABIL_ICON = {str:"💪", dex:"🏹", con:"🛡️", int:"🧠", wis:"👁️", cha:"✨"};
 const GEAR_CATEGORIES = ["food","potion","poison","ammunition","tool","focus","magic","container","other"];
-const AI_SCHEMA_VERSION = 1;
+const AI_SCHEMA_VERSION = 2;
 const CLASS_LIST = ["Barbarian","Bard","Cleric","Druid","Fighter","Monk","Paladin","Ranger","Rogue","Sorcerer","Warlock","Wizard","Artificer"];
 const RACE_LIST = ["Human","Dwarf","Elf","Halfling","Dragonborn","Gnome","Half-Elf","Half-Orc","Tiefling","Orc","Aasimar","Fairy","Minotaur"];
 const CLASS_LIST_HE = {Barbarian:"ברברי", Bard:"בארד", Cleric:"כומר", Druid:"דרואיד", Fighter:"לוחם", Monk:"נזיר", Paladin:"פלדין", Ranger:"סייר", Rogue:"נוכל", Sorcerer:"קוסם מלידה", Warlock:"מכשף", Wizard:"קוסם", Artificer:"ממציא"};
@@ -1286,7 +1288,7 @@ const SUBRACE_MAP = {
 
 function defaultChar(id){
   return {
-    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false, linkedTo:null,
+    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false, linkedTo:null, sourceLink:"",
     abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
     level:1, size:"Medium",
     armor:{acAbility:"dex", migrated:true},
@@ -1326,6 +1328,7 @@ function hydrate(s){
   if(!s.concentration) s.concentration = {active:false, spell:"", dmg:0};
   if(!s.charType) s.charType = "pc";
   if(s.linkedTo === undefined) s.linkedTo = null;
+  if(s.sourceLink === undefined) s.sourceLink = "";
   if(!s.armor) s.armor = {acAbility: s.charType==="animal" ? "wis" : "dex"};
   if(!s.armor.acAbility) s.armor.acAbility = s.charType==="animal" ? "wis" : "dex";
   if(!s.proficiencies) s.proficiencies = {armor:"", weapons:"", tools:"", languages:""};
@@ -2206,6 +2209,11 @@ function newCharModalHTML(t){
         <label>${t.level}</label>
         <input type="number" id="modalNewLevel" min="1" max="20" value="1" style="width:60px">
       </div>
+      <div class="modal-row">
+        <label>${t.sourceLinkLabel}</label>
+        <input type="url" id="modalNewSourceLink" placeholder="https://www.dndbeyond.com/monsters/...">
+        <div class="formula-note">${t.sourceLinkHint}</div>
+      </div>
       <div class="formula-note">${t.newCharHint}</div>
       <div class="modal-actions">
         <button class="btn" onclick="closeNewCharModal()">${t.printCancel}</button>
@@ -2320,6 +2328,7 @@ async function confirmNewChar(){
   const name = document.getElementById("modalNewName").value.trim() || (charType==="animal" ? "New Animal" : "New Adventurer");
   const level = Math.max(1, Math.min(20, parseInt(document.getElementById("modalNewLevel").value)||1));
   const linkedTo = document.getElementById("modalNewLinkedTo").value || null;
+  const sourceLink = document.getElementById("modalNewSourceLink").value.trim();
 
   const id = "c"+Date.now();
   charIndex.push({id, name, linkedTo});
@@ -2331,6 +2340,7 @@ async function confirmNewChar(){
     state.name = name;
     state.level = level;
     state.linkedTo = linkedTo;
+    state.sourceLink = sourceLink;
     if(species){ state.race = species; state.raceCustom = true; }
     newCharModalOpen = false;
     try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
@@ -2350,6 +2360,7 @@ async function confirmNewChar(){
   state.name = name;
   state.level = level;
   state.linkedTo = linkedTo;
+  state.sourceLink = sourceLink;
   if(cls){ state.cls = cls; state.clsCustom = !CLASS_LIST.includes(cls); }
   if(race){ state.race = race; state.raceCustom = !RACE_LIST.includes(race); }
   if(subrace){ state.subrace = subrace; state.subraceCustom = !(SUBRACE_MAP[race]||[]).includes(subrace); }
@@ -3551,10 +3562,13 @@ function buildCreateAIExport(){
 
 ${concept}${languageLine}
 
+If my concept describes a beast, companion, mount, familiar, or other reference-monster creature — NOT a player character built from a class and race — do not try to reverse-engineer it into a class/subclass/race combination that merely resembles it. Instead set "charType" to "animal", leave "class"/"subclass"/"race"/"subrace"/"background" blank (put the creature's actual species/type, e.g. "Shield Guardian", in "race" — that field is reused as a plain species label for this type), and translate its real stat block (ability scores, AC-driving stats, speed, attacks) directly into the fields below. If I gave you a link to its stat block (D&D Beyond, a wiki, etc.), or you know a canonical published source for it, put that URL in "sourceLink". Otherwise (an ordinary player character), proceed as normal below.
+
 Whenever 5e rules present a choice you can't make on my behalf (e.g. which skills to pick for Expertise, which spells to learn, a fighting style), ask me directly and wait for my answer rather than inventing a placeholder. Once you're ready to propose the character, reply with ONE fenced code block labeled "dnd-sheet-newcharacter" containing YAML in exactly this shape:
 
 \`\`\`dnd-sheet-newcharacter
 schemaVersion: ${AI_SCHEMA_VERSION}
+charType: "pc"
 name: "Thok Ironbrow"
 class: "Barbarian"
 subclass: ""
@@ -3563,6 +3577,7 @@ subrace: ""
 background: "Sailor"
 level: 3
 size: "Medium"
+sourceLink: ""
 abilities:
   str: 16
   dex: 13
@@ -3643,7 +3658,7 @@ items:
     shieldBonus: 2
 \`\`\`
 
-Rules for that block: "class" must be EXACTLY one of: ${classList} (case-sensitive), or an empty string if genuinely undecided. "race" must be EXACTLY one of: ${raceList}, or an empty string. If "race" is one of the races below, "subrace" must be EXACTLY one of that race's listed options, or an empty string for no subrace:
+Rules for that block: "charType" must be exactly "pc" or "animal" — use "animal" for a beast/companion/mount/familiar/monster as described above, "pc" otherwise. "sourceLink" is an optional URL string (empty if none). When "charType" is "animal", "class"/"subclass"/"race"/"subrace"/"background" as described above still get parsed the same way — "race" just holds free-text species instead of one of the listed races, so it does NOT need to match the race list below. When "charType" is "pc": "class" must be EXACTLY one of: ${classList} (case-sensitive), or an empty string if genuinely undecided. "race" must be EXACTLY one of: ${raceList}, or an empty string. If "race" is one of the races below, "subrace" must be EXACTLY one of that race's listed options, or an empty string for no subrace:
 ${subraceLines}
 "background" and "subclass" are free text (subclass can be blank if not chosen yet). "level" is an integer 1-20. "abilities" must include all six of str/dex/con/int/wis/cha as integers — pick whatever generation method (standard array, point buy, or rolled) best fits the concept and level. Only include "spellSlots" if the class actually has spell slots at this level — a map from spell level (string key "1"-"9") to its total slot count; tell me in your plain-text reply to double-check it against the class table, since multiclass/Pact Magic rules are easy to get wrong. "proficiencies" is optional and only needs entries beyond what the class/race already grants automatically: "armorList" is a subset of [${armorProfIds}]; "weaponList" is a subset of [${weaponProfIds}] (whole categories like "simple"/"martial", individual weapon ids for one-off exotic proficiencies, or both); "languageList" is a subset of [${languageProfIds}]; anything that doesn't fit one of those exact ids (a specific tool proficiency, a homebrew armor/weapon/language) goes in the free-text "tools"/"armorOther"/"weaponOther"/"languageOther" strings instead of inventing a new id. Don't repeat race/class traits the app already grants automatically (like a Half-Orc's Darkvision) under "traits" — only list one there if it's unusual and not implied by the standard race.
 
@@ -3664,18 +3679,19 @@ function parseCreateAIPaste(){
     createAIParseError = t.aiParseErrorVersion.replace('__CURRENT__', AI_SCHEMA_VERSION).replace('__GIVEN__', parsed.schemaVersion===undefined?'none':parsed.schemaVersion);
     render(); return;
   }
+  const charType = parsed.charType === "animal" ? "animal" : "pc";
   const cls = typeof parsed.class === 'string' ? parsed.class.trim() : "";
-  if(cls && !CLASS_LIST.includes(cls)){
+  if(charType === "pc" && cls && !CLASS_LIST.includes(cls)){
     createAIParseError = t.createAIParseErrorClass.replace('__VALUE__', cls);
     render(); return;
   }
   const race = typeof parsed.race === 'string' ? parsed.race.trim() : "";
-  if(race && !RACE_LIST.includes(race)){
+  if(charType === "pc" && race && !RACE_LIST.includes(race)){
     createAIParseError = t.createAIParseErrorRace.replace('__VALUE__', race);
     render(); return;
   }
   const subrace = typeof parsed.subrace === 'string' ? parsed.subrace.trim() : "";
-  if(subrace && !(SUBRACE_MAP[race]||[]).includes(subrace)){
+  if(charType === "pc" && subrace && !(SUBRACE_MAP[race]||[]).includes(subrace)){
     createAIParseError = t.createAIParseErrorSubrace.replace('__VALUE__', subrace);
     render(); return;
   }
@@ -3688,8 +3704,9 @@ function parseCreateAIPaste(){
   const subclass = typeof parsed.subclass === 'string' ? parsed.subclass.trim() : "";
   const bg = typeof parsed.background === 'string' ? parsed.background.trim() : "";
   const spellSlots = isPlainObject(parsed.spellSlots) ? parsed.spellSlots : {};
+  const sourceLink = typeof parsed.sourceLink === 'string' ? parsed.sourceLink.trim() : "";
 
-  createAIDraft = { parsed, identity:{name, cls, subclass, race, subrace, bg, level, size, abilities, spellSlots} };
+  createAIDraft = { parsed, identity:{charType, name, cls, subclass, race, subrace, bg, level, size, abilities, spellSlots, sourceLink} };
   createAIStep = "preview";
   render();
 }
@@ -3701,21 +3718,27 @@ async function confirmCreateAIDraft(){
   charIndex.push({id, name: identity.name, linkedTo});
   await saveIndex();
 
-  state = defaultChar(id);
+  state = identity.charType === "animal" ? animalChar(id) : defaultChar(id);
   state.name = identity.name;
   state.level = identity.level;
   state.size = identity.size;
   state.linkedTo = linkedTo;
   state.abilities = identity.abilities;
-  state.subclass = identity.subclass;
-  state.bg = identity.bg;
-  if(identity.cls){ state.cls = identity.cls; }
-  if(identity.race){ state.race = identity.race; }
-  state.subrace = identity.subrace;
+  state.sourceLink = identity.sourceLink;
 
-  if(identity.cls && CLASS_LIST.includes(identity.cls)) applyTemplate(identity.cls);
-  if(identity.race) applyRaceTemplate(raceToKind(identity.race));
-  if(identity.subrace) applySubraceTemplate(identity.race, identity.subrace);
+  if(identity.charType === "animal"){
+    if(identity.race){ state.race = identity.race; state.raceCustom = true; }
+  } else {
+    state.subclass = identity.subclass;
+    state.bg = identity.bg;
+    if(identity.cls){ state.cls = identity.cls; }
+    if(identity.race){ state.race = identity.race; }
+    state.subrace = identity.subrace;
+
+    if(identity.cls && CLASS_LIST.includes(identity.cls)) applyTemplate(identity.cls);
+    if(identity.race) applyRaceTemplate(raceToKind(identity.race));
+    if(identity.subrace) applySubraceTemplate(identity.race, identity.subrace);
+  }
 
   Object.entries(identity.spellSlots).forEach(([lvlStr, total]) => {
     const idx = parseInt(lvlStr,10) - 1;
@@ -3772,8 +3795,13 @@ function createAIModalHTML(t){
         <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${t.createAIPreviewTitle}</div>
         <div style="font-size:14px;line-height:1.7">
           <div><b>${esc2(identity.name)}</b></div>
+          ${identity.charType === "animal" ? `
+          <div class="dim-label">${t.charTypeAnimal}${identity.race?` · ${esc2(identity.race)}`:""} · ${t.level} ${identity.level}</div>
+          ` : `
           <div class="dim-label">${esc2(identity.cls ? clsLabel(identity.cls,lang) : "—")}${identity.subclass?` (${esc2(identity.subclass)})`:""} · ${esc2(identity.race ? raceLabel(identity.race,lang) : "—")}${identity.subrace?` (${esc2(identity.subrace)})`:""} · ${t.level} ${identity.level}</div>
           <div class="dim-label">${t.bg}: ${esc2(identity.bg)||"—"}</div>
+          `}
+          ${identity.sourceLink ? `<div class="dim-label">${t.sourceLinkLabel}: <a href="${esc2(identity.sourceLink)}" target="_blank" rel="noopener noreferrer">${esc2(identity.sourceLink)}</a></div>` : ""}
           <div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap">
             ${ABILS.map(a=>`<span>${a.toUpperCase()} ${identity.abilities[a]} (${fm(mod(identity.abilities[a]))})</span>`).join("")}
           </div>
@@ -4964,6 +4992,10 @@ function render(){
         `) : `<span class="feat-name-display id-box">${esc2(state.subrace)||"—"}</span>`}
       </div>
       <div class="field"><label>${t.bg}</label><input type="text" value="${state.bg}" style="width:${dmgInputWidthCh(state.bg)}ch" oninput="autoWidthInput(this)" onchange="set('bg', this.value)"></div>
+      <div class="field"><label>${t.sourceLinkLabel}</label>
+        ${identityUnlocked ? `<input type="url" value="${esc2(state.sourceLink||"")}" placeholder="https://..." style="width:${dmgInputWidthCh(state.sourceLink||"", 14)}ch" oninput="autoWidthInput(this, 14)" onchange="set('sourceLink', this.value.trim())">`
+          : (state.sourceLink ? `<a href="${esc2(state.sourceLink)}" target="_blank" rel="noopener noreferrer" class="feat-name-display id-box">${t.sourceLinkOpen}</a>` : `<span class="feat-name-display id-box">—</span>`)}
+      </div>
       <div class="field"><label>${t.size}</label>
         ${identityUnlocked ? `
           <select onchange="set('size', this.value)">
