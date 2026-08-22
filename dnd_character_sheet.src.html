@@ -3557,6 +3557,7 @@ function buildCreateAIExport(){
   const armorProfIds = ARMOR_PROF_LIST.join(", ");
   const weaponProfIds = [...WEAPON_PROF_CATEGORIES, ...WEAPON_PROF_ITEMS.simple, ...WEAPON_PROF_ITEMS.martial].join(", ");
   const languageProfIds = LANGUAGE_LIST.join(", ");
+  const skillIds = SKILLS.map(s=>s[0]).join(", ");
 
   return `I want you to help me create a brand-new D&D 5e character for a character-sheet web app. Here's my concept:
 
@@ -3578,6 +3579,15 @@ background: "Sailor"
 level: 3
 size: "Medium"
 sourceLink: ""
+hp:
+  max: 42
+  current: 42
+  hitDice: "5d10+10"
+speed:
+  walk: 30
+  climb: 0
+  swim: 0
+  fly: 0
 abilities:
   str: 16
   dex: 13
@@ -3585,6 +3595,8 @@ abilities:
   int: 8
   wis: 10
   cha: 12
+savingThrows: ["str", "con"]
+skillProficiencies: ["athletics", "intimidation"]
 spellSlots:
   "1": 4
 proficiencies:
@@ -3660,7 +3672,7 @@ items:
 
 Rules for that block: "charType" must be exactly "pc" or "animal" — use "animal" for a beast/companion/mount/familiar/monster as described above, "pc" otherwise. "sourceLink" is an optional URL string (empty if none). When "charType" is "animal", "class"/"subclass"/"race"/"subrace"/"background" as described above still get parsed the same way — "race" just holds free-text species instead of one of the listed races, so it does NOT need to match the race list below. When "charType" is "pc": "class" must be EXACTLY one of: ${classList} (case-sensitive), or an empty string if genuinely undecided. "race" must be EXACTLY one of: ${raceList}, or an empty string. If "race" is one of the races below, "subrace" must be EXACTLY one of that race's listed options, or an empty string for no subrace:
 ${subraceLines}
-"background" and "subclass" are free text (subclass can be blank if not chosen yet). "level" is an integer 1-20. "abilities" must include all six of str/dex/con/int/wis/cha as integers — pick whatever generation method (standard array, point buy, or rolled) best fits the concept and level. Only include "spellSlots" if the class actually has spell slots at this level — a map from spell level (string key "1"-"9") to its total slot count; tell me in your plain-text reply to double-check it against the class table, since multiclass/Pact Magic rules are easy to get wrong. "proficiencies" is optional and only needs entries beyond what the class/race already grants automatically: "armorList" is a subset of [${armorProfIds}]; "weaponList" is a subset of [${weaponProfIds}] (whole categories like "simple"/"martial", individual weapon ids for one-off exotic proficiencies, or both); "languageList" is a subset of [${languageProfIds}]; anything that doesn't fit one of those exact ids (a specific tool proficiency, a homebrew armor/weapon/language) goes in the free-text "tools"/"armorOther"/"weaponOther"/"languageOther" strings instead of inventing a new id. Don't repeat race/class traits the app already grants automatically (like a Half-Orc's Darkvision) under "traits" — only list one there if it's unusual and not implied by the standard race.
+"hp" is optional: omit it entirely for a "pc" to let the app auto-calculate max HP from class hit die + CON + level (the standard, accurate method) — only include it for a PC if you're giving specific already-rolled hit-point totals instead. For an "animal", ALWAYS include "hp" with the real stat block's hit points: the app has no monster hit-die table to fall back on, so without this field the beast gets a generic placeholder HP that is very likely wrong. "hp.max" and "hp.current" are integers (current defaults to max if omitted); "hp.hitDice" is a free-text string like "5d10+10" for flavor/reference, not parsed for math. "speed" is optional (walking speed defaults to 30 ft, climb/swim/fly default to 0 ft if omitted) — for an "animal" or any creature with unusual movement, set it explicitly from the stat block rather than leaving the human-default 30 ft walk speed; only set "fly" above 0 if the creature can actually fly (a nonzero fly speed with no way to fly, e.g. no wings/levitation, would be wrong). "savingThrows" is an optional list of ability keys (subset of str/dex/con/int/wis/cha) the character/creature is proficient in — for a "pc" this is normally already covered by the class (only add ones beyond what the class grants); for an "animal" it's the only way to convey the stat block's "Saving Throws" line, so include it whenever the stat block lists one. "skillProficiencies" is an optional list of skill keys (subset of ${skillIds}) the character/creature is proficient in — same logic: usually redundant for a "pc" (background/class already suggest skills), but for an "animal" it's the only way to convey the stat block's "Skills" line (e.g. a wolf's Perception, Stealth). "background" and "subclass" are free text (subclass can be blank if not chosen yet). "level" is an integer 1-20. "abilities" must include all six of str/dex/con/int/wis/cha as integers — pick whatever generation method (standard array, point buy, or rolled) best fits the concept and level. Only include "spellSlots" if the class actually has spell slots at this level — a map from spell level (string key "1"-"9") to its total slot count; tell me in your plain-text reply to double-check it against the class table, since multiclass/Pact Magic rules are easy to get wrong. "proficiencies" is where you must list ALL of the character's armor/weapon/language proficiencies and known languages — unlike traits/saves, the app does NOT automatically grant any armor/weapon proficiency from class or any language from race/background, so "already covered by class/race" is never a reason to omit one here; always include the full real 5e list (e.g. a Fighter's "all armor, shields, simple and martial weapons"; a Half-Orc or Elf's racial language plus Common). "armorList" is a subset of [${armorProfIds}]; "weaponList" is a subset of [${weaponProfIds}] (whole categories like "simple"/"martial", individual weapon ids for one-off exotic proficiencies, or both); "languageList" is a subset of [${languageProfIds}] and should include "common" plus every other language the concept/race/background implies; anything that doesn't fit one of those exact ids (a specific tool proficiency, a homebrew armor/weapon/language) goes in the free-text "tools"/"armorOther"/"weaponOther"/"languageOther" strings instead of inventing a new id. Traits work the opposite way: the app DOES auto-grant race traits like a Half-Orc's Darkvision when "race" is set, so don't repeat those under "traits" — only list one there if it's unusual and not implied by the standard race.
 
 "feats", "traits", "attacks", "spells", "resources", and "items" each MUST be a list of full objects in exactly the shape shown above (never a bare list of name strings) and can each be omitted or empty. An attack's "magicBonus" is a flat number (e.g. 1, 2, 3) added automatically to both its attack roll and its damage roll — use it for magic weapons like a +1/+2/+3 weapon or a Sun Blade, instead of baking the bonus into the "dmg" string. Each trait/feat's "mod" can only target a single stat, so a rules feature that changes several stats at once (e.g. a Ranger's Roving, which raises walking, climbing, AND swimming speed together) must be split into one separate trait/feat entry per stat it affects (one entry with mod.stat "speed", one with "climb", one with "swim") rather than invented as one combined entry. Keep these three straight — they are not interchangeable: "attacks" is for any weapon or unarmed strike the character can roll to hit with (melee or ranged) — every spell that requires an attack roll or deals damage (Sacred Flame, Guiding Bolt, etc.) still belongs ONLY in "spells", never duplicated into "attacks". "items" is inventory — a weapon already listed under "attacks" should NOT also get a separate "items" entry, but its armor and shields DO belong under "items" using "type": "armor" or "type": "shield" (with the fields shown above) rather than a generic gear entry or an "attacks"/"category" workaround; "acBase" for armor is the total AC while worn (not a bonus on top of 10). Always include "schemaVersion: ${AI_SCHEMA_VERSION}" exactly as shown, and don't invent fields beyond what's shown above.
 `;
@@ -3739,6 +3751,33 @@ async function confirmCreateAIDraft(){
     if(identity.race) applyRaceTemplate(raceToKind(identity.race));
     if(identity.subrace) applySubraceTemplate(identity.race, identity.subrace);
   }
+
+  const hpIn = isPlainObject(parsed.hp) ? parsed.hp : null;
+  if(hpIn){
+    const maxV = parseInt(hpIn.max);
+    if(Number.isFinite(maxV) && maxV > 0){
+      state.hpMax = maxV;
+      state.hpAutoCalc = false;
+      const curV = parseInt(hpIn.current);
+      state.hpCur = Number.isFinite(curV) ? Math.max(0, Math.min(maxV, curV)) : maxV;
+      if(typeof hpIn.hitDice === 'string' && hpIn.hitDice.trim()) state.hitDice = hpIn.hitDice.trim();
+    }
+  }
+
+  const speedIn = isPlainObject(parsed.speed) ? parsed.speed : null;
+  if(speedIn){
+    const walkV = parseInt(speedIn.walk);
+    if(Number.isFinite(walkV) && walkV >= 0) state.speed = walkV;
+    const climbV = parseInt(speedIn.climb);
+    if(Number.isFinite(climbV) && climbV >= 0) state.climbSpeed = climbV;
+    const swimV = parseInt(speedIn.swim);
+    if(Number.isFinite(swimV) && swimV >= 0) state.swimSpeed = swimV;
+    const flyV = parseInt(speedIn.fly);
+    if(Number.isFinite(flyV) && flyV > 0){ state.flySpeed = flyV; state.hasFlySpeed = true; }
+  }
+
+  if(Array.isArray(parsed.savingThrows)) parsed.savingThrows.forEach(a => { if(ABILS.includes(a)) state.saveProf[a] = true; });
+  if(Array.isArray(parsed.skillProficiencies)) parsed.skillProficiencies.forEach(sk => { if(SKILLS.some(s=>s[0]===sk)) state.skillProf[sk] = true; });
 
   Object.entries(identity.spellSlots).forEach(([lvlStr, total]) => {
     const idx = parseInt(lvlStr,10) - 1;
