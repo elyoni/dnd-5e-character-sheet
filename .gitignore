@@ -4,3 +4,5 @@ playwright-report/
 blob-report/
 playwright/.cache/
 dnd_character_sheet.html
+field-guide.html
+src/data/races-classes.js

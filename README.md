@@ -75,6 +75,19 @@ As with race, a custom class name can be typed in instead (`clsCustom`) — Hit 
 
 A Druid's Wild Shape resource (added above) is just a uses tracker; the beast forms themselves are built as [Linked Characters](#linked-characters).
 
+## Backgrounds
+
+Following the 2024 rules, Background is an independent third choice alongside Race and Class — it has no interaction with Race at all, and only a loose (non-mechanical) suggested fit with Class. Picking one auto-applies its two skill proficiencies, its tool proficiency, and its Origin feat — additive only, same as Race/Class. **Ability score increases are deliberately not auto-applied** — which two of the background's three suggested abilities to raise, and how to split the points, is left for you to enter directly in Abilities, the same way Human's "Skillful" trait leaves its bonus skill for you to pick in the Skills panel. Starting equipment is likewise left as descriptive text, not auto-added to Inventory.
+
+| Background | Skill Proficiencies | Tool Proficiency | Origin Feat |
+|---|---|---|---|
+| **Acolyte** | Insight, Religion | Calligrapher's Supplies | Magic Initiate (Cleric) |
+| **Criminal** | Sleight of Hand, Stealth | Thieves' Tools | Alert |
+| **Sage** | Arcana, History | — | Magic Initiate (Wizard) |
+| **Soldier** | Athletics, Intimidation | Gaming Set (choice) | Savage Attacker |
+
+Only these four are built in, picked as a simple, well-known starting set for new players — the 2024 rules define sixteen in total. A custom background name can be typed in instead (`bgCustom`), same as Race/Class. The [Field Guide](#other-features)'s Background step pairs each of these four with a class (not a race, since Background and Race don't interact) to suggest a less-expected combo, e.g. a Soldier Wizard instead of the default Soldier Fighter.
+
 ## Traits vs. Feats
 
 **Traits** are things your race or class *gives* you — Darkvision, Fey Ancestry, Dwarven Toughness — never a player choice. **Feats** are the player's own *optional* picks, usually taken instead of an Ability Score Improvement (e.g. Alert, Tough). The sheet keeps them in two separate lists (Traits, then Feats) within one shared "Feats & Traits" panel so a glance at either tells you where it came from, but mechanically they're identical: both use the exact same modifier system below, and every derived-stat calculation reads both lists together — a numeric effect works the same whichever list it sits in.
@@ -133,6 +146,7 @@ Besides Name/Class/Race/Level/Size, the Identity panel has a **Configuration** s
 - **Import / export** — download/upload a character as JSON, or share one via a self-contained link (character data is base64-encoded into the URL hash). Newer app versions always stay able to import files exported by older versions.
 - **Ask AI** — copies a curated YAML snapshot of the character (plus instructions) to the clipboard for pasting into any AI chat, so you can ask things like "which feat should I take?" or "does anything look wrong here?" "🔗 Copy as link instead" copies the exact same content as a `data:` URL instead, for AI tools that fetch/read a link rather than pasted text — since the payload has to be the URL itself (there's no server to host it at a real address), this only works with AI tools that actually retrieve a given link's content; if yours doesn't, use the plain copy button instead. If the AI suggests concrete additions (a trait, feat, weapon, spell, resource, or item) in the expected format, paste its reply back in and each suggestion appears as its own card to accept or discard individually. It can also set level, subclass, skill Expertise, or spell slot totals directly, but never HP or ability scores — an ability score change must be a feat addition instead — and a schema-version mismatch is rejected with a message the user can hand back to the AI to self-correct. Suggestions matching something already on the sheet by name are silently skipped, so re-pasting the same or an updated reply doesn't offer duplicates. The instructions also tell the AI to ask the player rather than decide for them (or invent a placeholder entry) whenever 5e rules present a choice, such as an Ability Score Improvement or a subclass feature, and to only include the additions block once something is actually settled rather than attaching it speculatively to every reply.
 - **Create with AI** — a separate flow (from the "no characters yet" screen, or "➕ Create with AI" in the character switcher) that builds a brand-new character from a short free-text concept instead of editing an existing one. Copy the generated prompt into any AI chat, paste its reply back in, and review a preview of the proposed identity and ability scores before confirming — nothing is created until you do. Class and race must exactly match this app's own lists (a mismatch is rejected with a message you can hand back to the AI); the app then fills in class/race mechanics itself (saves, skills, racial traits) the same way the manual "New Character" form does, rather than trusting the AI's guess. If the reply also includes starting armor/weapon/language proficiencies, they're applied directly (additively, on top of whatever the class/race template already granted). Any other suggested extras (starting weapons, spells, feats, gear, etc.) show up afterward as the same kind of individual accept/discard cards as Ask AI. If your concept describes a beast/companion/mount/monster rather than a player character, the prompt tells the AI to create it as a Beast/Companion (skipping class/race entirely, and reusing the "race" field as a free-text species) instead of reverse-engineering a class/subclass combo that merely resembles it, and to carry over a stat-block link you give it (or a canonical source it knows of) into Source Link.
+- **Field Guide** — a second, more explorable page (`field-guide.html`), styled as a little illustrated book, for browsing races, classes, and [backgrounds](#backgrounds) — aimed partly at kids and newer players. A flip-card roster for each of the three; flipping a card (or opening its "spotlight" page) reveals a counter-stereotype pairing with a class (races pair with classes, backgrounds pair with classes, since Background and Race don't interact), and the spotlight's filmstrip lets you page through every suggested pairing. A kids/grown-ups toggle switches the whole page's theme (fonts, colors, corner radius) along with each entry's blurb, between a simpler and a more detailed description. Reachable from the New Character form ("Not sure yet? Browse the Field Guide"); each spotlight page's "Open in Character Sheet" button hands back the currently-shown pairing as a prefilled New Character selection, via the same shareable-link mechanism Export uses.
 - **Print view** — a separate, print-optimized layout independent of the on-screen sheet.
 - **Help & Rules** — a "❓ Help" button in the top bar opens a modal explaining each panel's controls alongside the underlying 5e rule it implements (ability modifiers, AC/armor weight-class math, attack/damage rolls, spell save DC, etc.), in the current UI language.
 - **First-run onboarding** — a lightweight language-picker flow for brand-new installs only; existing users never see it.
@@ -143,12 +157,13 @@ Besides Name/Class/Race/Level/Size, the Identity panel has a **Configuration** s
 
 ## Development
 
-`dnd_character_sheet.html` — the file that actually ships — is a **generated build artifact** and is not committed to this repo. To build and run it locally:
+`dnd_character_sheet.html` and `field-guide.html` — the files that actually ship — are **generated build artifacts** and are not committed to this repo. To build and run them locally:
 
 ```bash
-node build.js                     # generates dnd_character_sheet.html from source
+node build.js                     # generates dnd_character_sheet.html and field-guide.html from source
 python3 -m http.server 8000
 # then open http://localhost:8000/dnd_character_sheet.html
+#  or   http://localhost:8000/field-guide.html
 ```
 
 Re-run `node build.js` after editing `dnd_character_sheet.src.html` or `src/dice-physics.js`. CI (`.github/workflows/deploy.yml`) runs the same build step before publishing to GitHub Pages, so nothing needs to be built or committed by hand before pushing.

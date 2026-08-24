@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Adventurer's Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Nunito:wght@400;700;800&family=Rubik:wght@400;600&family=Source+Serif+4:wght@400;600&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- reset ---------- */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  img{max-width:100%;display:block}
+  button{font:inherit;cursor:pointer;background:none;border:none;color:inherit}
+  a{color:inherit}
+
+  /* ---------- theme tokens ---------- */
+  [data-theme="kids"]{
+    --bg-page:#F3E9D2; --bg-panel:#FFF8EA; --bg-panel-2:#EDE0BE;
+    --ink:#2B2417; --ink-soft:#6B5C3E; --ink-faint:#9C8C68;
+    --accent-gold:#D9A441; --accent-gold-ink:#4A3510;
+    --accent-green:#3F6E44; --accent-green-ink:#FFFFFF;
+    --accent-plum:#6B4E71;
+    --line:rgba(43,36,23,0.16); --line-strong:rgba(43,36,23,0.32);
+    --radius-card:22px; --radius-chip:999px; --radius-plate:50%;
+    --border-w:2px;
+    --font-display:'Fraunces', serif; --font-display-wght:600;
+    --font-body:'Nunito', sans-serif;
+    --font-he:'Rubik', sans-serif;
+  }
+  [data-theme="adult"]{
+    --bg-page:#1C1712; --bg-panel:#241C15; --bg-panel-2:#2E241A;
+    --ink:#EDE0C8; --ink-soft:#B9A98A; --ink-faint:#7C6E56;
+    --accent-gold:#C9A227; --accent-gold-ink:#1C1712;
+    --accent-green:#6E9A74; --accent-green-ink:#12190F;
+    --accent-plum:#9C7CA6;
+    --line:rgba(237,224,200,0.14); --line-strong:rgba(237,224,200,0.28);
+    --radius-card:8px; --radius-chip:6px; --radius-plate:6px;
+    --border-w:1px;
+    --font-display:'Fraunces', serif; --font-display-wght:500;
+    --font-body:'Source Serif 4', serif;
+    --font-he:'Frank Ruhl Libre', serif;
+  }
+
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg-page); color:var(--ink);
+    font-family:var(--font-body);
+    font-size:17px;
+    line-height:1.45;
+    min-height:100vh;
+    transition:background .5s ease, color .5s ease;
+    padding-bottom:88px;
+  }
+  h1,h2,h3{font-family:var(--font-display); font-weight:var(--font-display-wght); line-height:1.15}
+  .he{font-family:var(--font-he); direction:rtl; unicode-bidi:isolate}
+  .muted{color:var(--ink-soft)}
+  .faint{color:var(--ink-faint)}
+
+  /* ---------- layout shell ---------- */
+  .wrap{max-width:920px; margin:0 auto; padding:0 20px}
+
+  header.chrome{
+    position:sticky; top:0; z-index:20;
+    background:var(--bg-page); border-bottom:var(--border-w) solid var(--line);
+    transition:background .5s ease, border-color .5s ease;
+  }
+  header.chrome .wrap{display:flex; align-items:center; justify-content:space-between; padding-top:14px; padding-bottom:14px; gap:12px}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-size:18px; font-weight:600}
+  .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--accent-gold)}
+
+  .header-right{display:flex; align-items:center; gap:14px}
+  .sheet-link{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--ink-soft); text-decoration:none; white-space:nowrap}
+  .sheet-link:hover{color:var(--ink)}
+
+  .mode-toggle{display:flex; border:var(--border-w) solid var(--line-strong); border-radius:var(--radius-chip); padding:3px; gap:2px}
+  .mode-toggle button{
+    padding:6px 14px; font-size:13px; font-weight:600; border-radius:calc(var(--radius-chip) - 3px);
+    color:var(--ink-soft); transition:background .25s ease, color .25s ease;
+  }
+  .mode-toggle button.active{background:var(--accent-gold); color:var(--accent-gold-ink)}
+
+  footer.chrome{
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:var(--bg-panel); border-top:var(--border-w) solid var(--line);
+    transition:background .5s ease, border-color .5s ease;
+  }
+  footer.chrome .wrap{display:flex; align-items:center; justify-content:space-between; padding-top:12px; padding-bottom:12px; gap:12px}
+  .back-btn{display:flex; align-items:center; gap:6px; font-size:14px; font-weight:600; color:var(--ink-soft); flex-shrink:0}
+  .back-btn:hover{color:var(--ink)}
+  .back-btn svg{width:16px; height:16px}
+
+  /* ---------- pages ---------- */
+  main#pages{padding-top:40px}
+  .page{display:none}
+  .page.active{display:block; animation:pageIn .5s ease}
+  @keyframes pageIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)}}
+  @media (prefers-reduced-motion:reduce){
+    .page.active{animation:none}
+    *{transition-duration:0.01ms !important}
+  }
+
+  /* ---------- cover ---------- */
+  .cover{text-align:center; padding:20px 0 60px}
+  .cover-scene{width:100%; max-width:520px; margin:0 auto 8px}
+  .cover h1{font-size:clamp(2.1rem,5vw,3.2rem); margin-bottom:10px}
+  .cover .he{display:block; font-size:clamp(1.1rem,3vw,1.5rem); margin-bottom:18px; color:var(--ink-soft)}
+  .cover p.lede{max-width:480px; margin:0 auto 30px; color:var(--ink-soft); font-size:16px; line-height:1.7}
+  .open-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--accent-gold); color:var(--accent-gold-ink);
+    padding:14px 30px; border-radius:var(--radius-chip); font-weight:700; font-size:15px;
+    border:var(--border-w) solid transparent; text-decoration:none;
+  }
+  .open-btn:hover{opacity:.9}
+
+  /* ---------- wizard progress ---------- */
+  .wiz-progress{display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px; flex-wrap:wrap}
+  .wiz-step{
+    font-size:13px; font-weight:700; padding:8px 16px; border-radius:var(--radius-chip);
+    border:var(--border-w) solid var(--line-strong); color:var(--ink-soft); background:var(--bg-panel);
+  }
+  .wiz-step.active{border-color:var(--accent-gold); color:var(--accent-gold)}
+  .wiz-step.done{color:var(--accent-green); border-color:var(--accent-green)}
+  .wiz-step-sep{color:var(--ink-faint)}
+
+  .wiz-name-field{max-width:340px; margin:0 auto 22px; text-align:center}
+  .wiz-name-field label{display:block; font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:6px}
+  .wiz-name-field input{
+    width:100%; font-family:inherit; font-size:15px; padding:10px 14px; text-align:center;
+    border-radius:var(--radius-chip); border:var(--border-w) solid var(--line-strong);
+    background:var(--bg-panel); color:var(--ink);
+  }
+  .wiz-name-field input:focus{outline:none; border-color:var(--accent-gold)}
+
+  .wiz-step-head{text-align:center; margin:22px 0 26px}
+  .wiz-step-head h2{font-size:26px}
+  .wiz-step-head .he{display:block; color:var(--ink-soft); margin-top:4px}
+
+  /* ---------- wizard cards ---------- */
+  .wiz-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:16px; margin-bottom:26px}
+  .wiz-card{
+    background:var(--bg-panel); border:2px solid var(--line); border-radius:var(--radius-card);
+    padding:18px 20px; display:flex; flex-direction:column; gap:12px; transition:border-color .2s ease;
+  }
+  .wiz-card.chosen{border-color:var(--accent-gold)}
+  .wiz-card-head{display:flex; align-items:center; gap:12px}
+  .plate{
+    width:52px; height:52px; border-radius:var(--radius-plate); background:var(--bg-panel-2); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; color:var(--ink-faint); overflow:hidden;
+    border:var(--border-w) dashed var(--line-strong);
+  }
+  .plate svg{width:24px; height:24px}
+  .plate img{width:100%; height:100%; object-fit:cover; object-position:center 12%}
+  .wiz-card-name{font-family:var(--font-display); font-size:18px; font-weight:600}
+  .wiz-card-name .he{display:block; font-size:12px; font-weight:400; color:var(--ink-soft); margin-top:2px}
+  .wiz-card-blurb{font-size:13.5px; color:var(--ink-soft); line-height:1.55}
+  .wiz-card-combo{font-size:12.5px; color:var(--ink-soft); font-style:italic}
+  .wiz-card-mech{display:flex; flex-direction:column; gap:8px}
+  .choose-btn{
+    margin-top:auto; align-self:stretch; font-size:13px; font-weight:700; text-align:center;
+    padding:10px; border-radius:var(--radius-chip); border:var(--border-w) solid var(--line-strong);
+    background:var(--bg-panel-2); color:var(--ink);
+  }
+  .choose-btn:hover{border-color:var(--accent-gold); color:var(--accent-gold)}
+  .wiz-card.chosen .choose-btn{background:var(--accent-gold); border-color:var(--accent-gold); color:var(--accent-gold-ink)}
+
+  .wiz-skip{display:block; text-align:center; margin:-10px 0 26px; font-size:13px; color:var(--ink-faint); text-decoration:underline}
+  .wiz-skip:hover{color:var(--ink)}
+
+  /* ---------- "so far" + mechanics ---------- */
+  .sofar-label{font-family:var(--font-display); font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin-bottom:12px; text-align:center}
+  .mech-panel{display:grid; gap:14px; margin-bottom:10px}
+  .mech-block{
+    background:var(--bg-panel); border:var(--border-w) solid var(--line); border-left-width:4px; border-radius:var(--radius-card);
+    padding:16px 20px; text-align:left;
+  }
+  .mech-block h4{font-family:var(--font-display); font-size:13px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:12px}
+  .mech-row{display:flex; align-items:flex-start; gap:10px; margin-bottom:10px}
+  .mech-row:last-child{margin-bottom:0}
+  .mech-icon{
+    width:30px; height:30px; border-radius:50%; flex-shrink:0; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    border:var(--border-w) solid var(--line-strong);
+  }
+  .mech-icon img{width:100%; height:100%; object-fit:cover; object-position:center 12%}
+  .mech-row-text{min-width:0}
+  .mech-row b{color:var(--ink); font-size:13.5px}
+  .mech-row .mech-note{color:var(--ink-soft); font-size:12.5px; margin-top:1px}
+
+  /* ---------- continue modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:60;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-box{
+    background:var(--bg-panel); border:var(--border-w) solid var(--line-strong); border-radius:var(--radius-card);
+    padding:26px 24px; max-width:420px; width:100%; text-align:center;
+  }
+  .modal-box h3{font-size:20px; margin-bottom:12px}
+  .modal-box p{color:var(--ink-soft); font-size:14px; line-height:1.6; margin-bottom:22px}
+  .modal-actions{display:flex; flex-direction:column; gap:10px}
+  .modal-actions .open-btn{justify-content:center}
+  .open-btn.secondary{background:var(--bg-panel-2); color:var(--ink); border-color:var(--line-strong)}
+
+  /* ---------- lightbox (full character art) ---------- */
+  .plate.clickable, .mech-icon.clickable{cursor:zoom-in}
+  .lightbox{
+    position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:70;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:40px 20px;
+    cursor:zoom-out;
+  }
+  .lightbox img{max-width:min(90vw, 480px); max-height:75vh; object-fit:contain; border-radius:var(--radius-card); cursor:default}
+  .lightbox-caption{color:#fff; font-family:var(--font-display); font-size:16px; cursor:default}
+  .lightbox-close{
+    position:absolute; top:16px; right:20px; font-size:32px; line-height:1; color:#fff;
+    width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+  .lightbox-close:hover{background:rgba(255,255,255,.15)}
+
+  /* ---------- misc ---------- */
+  @media (max-width:600px){
+    .cover{padding-top:6px}
+    header.chrome .wrap{padding-top:10px; padding-bottom:10px}
+    .brand{font-size:15px}
+  }
+</style>
+</head>
+<body data-theme="kids">
+
+<header class="chrome">
+  <div class="wrap">
+    <div class="brand" id="home-link" role="button" tabindex="0">
+      <span class="dot"></span>
+      <span>The Adventurer's Field Guide</span>
+    </div>
+    <div class="header-right">
+      <a class="sheet-link" href="dnd_character_sheet.html">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l-6-6 6-6"/></svg>
+        Character Sheet
+      </a>
+      <div class="mode-toggle" id="mode-toggle">
+        <button type="button" data-mode="kids" class="active">kids</button>
+        <button type="button" data-mode="adult">grown-ups</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="pages">
+  <div class="wrap">
+
+    <!-- COVER -->
+    <section class="page active" id="page-cover">
+      <div class="cover">
+        <svg class="cover-scene" viewBox="0 0 400 160" aria-hidden="true">
+          <circle cx="200" cy="70" r="52" fill="var(--accent-gold)" opacity="0.55"/>
+          <ellipse cx="70" cy="150" rx="90" ry="26" fill="var(--accent-green)" opacity="0.35"/>
+          <ellipse cx="330" cy="152" rx="100" ry="24" fill="var(--accent-green)" opacity="0.28"/>
+          <path d="M40 150 Q40 90 70 60 Q100 90 100 150 Z" fill="var(--accent-green)" opacity="0.6"/>
+          <path d="M300 152 Q300 100 335 72 Q370 100 370 152 Z" fill="var(--accent-green)" opacity="0.5"/>
+          <rect x="66" y="120" width="8" height="34" fill="var(--ink-faint)" opacity="0.4"/>
+          <rect x="331" y="122" width="8" height="32" fill="var(--ink-faint)" opacity="0.4"/>
+        </svg>
+        <h1>The Adventurer's Field Guide</h1>
+        <span class="he">מדריך השדה של ההרפתקן</span>
+        <p class="lede">Build a character three steps at a time — class, then race, then background — and see exactly what each choice grants before you pick it. Every race can be every class; every background fits every calling. Nobody's stuck with just one story.</p>
+        <button class="open-btn" id="open-book-btn" type="button">
+          Start building
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- WIZARD -->
+    <section class="page" id="page-wizard">
+      <div class="wiz-progress" id="wizard-progress"></div>
+      <div class="wiz-name-field">
+        <label for="wizard-name-input">Character Name <span class="faint">(optional)</span></label>
+        <input type="text" id="wizard-name-input" placeholder="New Adventurer" oninput="state.pick.name=this.value">
+      </div>
+      <div class="wiz-step-head">
+        <h2 id="wizard-step-title"></h2>
+        <span class="he" id="wizard-step-title-he"></span>
+      </div>
+      <div class="wiz-grid" id="wizard-grid"></div>
+      <a class="wiz-skip" id="wizard-skip" href="#" onclick="skipStep(); return false;">Skip this step for now</a>
+      <div id="wizard-sofar"></div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="chrome" id="wizard-footer" style="visibility:hidden">
+  <div class="wrap">
+    <button class="back-btn" id="back-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      <span id="back-label">back</span>
+    </button>
+    <button class="open-btn" id="wizard-cta" type="button" onclick="openContinueModal()" style="display:none">
+      Done
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+    </button>
+  </div>
+</footer>
+
+<div class="modal-backdrop" id="continue-modal" style="display:none" onclick="if(event.target===this) closeContinueModal()">
+  <div class="modal-box">
+    <h3>How would you like to continue?</h3>
+    <p>Race/class/background are set — everything else (abilities, HP, proficiencies, armor, weapons...) is still blank. You can get an AI's help filling the rest in, or do it yourself on the sheet.</p>
+    <div class="modal-actions">
+      <a class="open-btn" id="continue-ai-link" href="#" target="_blank" onclick="closeContinueModal()">
+        🤖 Continue with AI
+      </a>
+      <a class="open-btn secondary" id="continue-manual-link" href="#" target="_blank" onclick="closeContinueModal()">
+        ✏️ Fill it in myself
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" style="display:none" onclick="closeLightbox()">
+  <button class="lightbox-close" type="button" aria-label="Close" onclick="closeLightbox()">&times;</button>
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<script>
+<!-- BUILD:MODULE src/data/races-classes.js -->
+</script>
+<script>
+<!-- BUILD:MODULE src/share-link.js -->
+</script>
+<script>
+/*
+  ART PLACEHOLDER NOTE
+  ---------------------------------------------------------------
+  Every race, class, background and combo entry below can take an
+  optional `img` field, e.g. img: 'assets/races/elf.png'. When
+  present it renders instead of the placeholder icon — see
+  plateHTML() and mechRow(). None of RACES/CLASSES/BACKGROUNDS
+  (compiled from the content vault's markdown files) set this yet; it's here so art
+  can be added later without touching this file.
+*/
+
+// RACES/CLASSES/BACKGROUNDS (injected above from src/data/races-classes.js)
+// use {label:{en,he}, kidsBlurb, adultBlurb, combos:[...]} — already the
+// shape this page's rendering code expects, so this is a reshape into a
+// flat {id, en, he, kidsBlurb, adultBlurb, combos} list, not a content rewrite.
+function buildData(table){
+  return Object.keys(table).map(id => {
+    const d = table[id];
+    return {
+      id,
+      en: (d.label && d.label.en) || id,
+      he: (d.label && d.label.he) || '',
+      kidsBlurb: d.kidsBlurb || d.adultBlurb || '',
+      adultBlurb: d.adultBlurb || d.kidsBlurb || '',
+      combos: d.combos || [],
+      img: d.img || '',
+    };
+  });
+}
+const DATA = { races: buildData(RACES), classes: buildData(CLASSES), backgrounds: buildData(BACKGROUNDS) };
+
+const byId = (list, id) => list.find(x => x.id === id);
+const genericIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-5 5-7 8-7s6.5 2 8 7"/></svg>';
+
+function plateHTML(entry){
+  if (entry && entry.img) return '<img src="' + entry.img + '" alt="">';
+  return genericIcon;
+}
+
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function totalLabel(total){ return total==="level" ? "= level" : total==="prof" ? "= proficiency bonus" : total; }
+
+/* ---------- mechanics ("the technical why") ---------- */
+// Pulled straight from RACES/CLASSES/BACKGROUNDS (the raw compiled data, not
+// the flattened DATA reshape above, which drops these fields on purpose —
+// they're only needed here). Same fields applyRaceTemplate()/applyTemplate()/
+// applyBackgroundTemplate() actually grant in dnd_character_sheet.src.html —
+// this is a read-only rendering of the same source of truth, not a second
+// copy of the rules.
+//
+// Color identity ties each mech-block to whichever of Class/Race/Background
+// it's about — KIND_COLOR is the single place that mapping lives.
+const KIND_COLOR = { race:'var(--accent-green)', cls:'var(--accent-gold)', bg:'var(--accent-plum)' };
+// One emoji per field type — a lightweight stand-in for real art. Any
+// trait/resource/feat entry can carry an optional `img` (see the ART
+// PLACEHOLDER NOTE above) which takes over this same 30px circle the moment
+// content/**/*.md sets one; nothing else about the row needs to change.
+const FIELD_ICON = {
+  hitdie:'🎲', saves:'🛡️', skills:'🎯', caster:'✨',
+  resource:'⚡', trait:'🧬', tool:'🛠️', feat:'🌟',
+};
+function mechRow(name, note, fieldKind, color, img){
+  const icon = img ? '<img src="' + esc(img) + '" alt="">' : esc(FIELD_ICON[fieldKind] || '•');
+  const clickAttr = img ? ' onclick="' + esc('openLightbox(' + JSON.stringify(img) + ',' + JSON.stringify(name) + ')') + '"' : '';
+  return '<div class="mech-row">'
+    + '<span class="mech-icon' + (img ? ' clickable' : '') + '" style="border-color:' + color + '; background:color-mix(in srgb, ' + color + ' 16%, transparent)"' + clickAttr + '>' + icon + '</span>'
+    + '<div class="mech-row-text"><b>' + esc(name) + '</b>' + (note ? '<div class="mech-note">' + esc(note) + '</div>' : '') + '</div>'
+    + '</div>';
+}
+function raceMechHTML(id, color){
+  const d = RACES[id];
+  if (!d) return '';
+  const traits = (d.traits||[]).map(t => mechRow(t.name, t.notes, 'trait', color, t.img)).join('');
+  const resources = (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest', 'resource', color, r.img)).join('');
+  const skills = (d.skillProficiencies||[]).length ? mechRow('Skill proficiency', d.skillProficiencies.join(', '), 'skills', color) : '';
+  return traits + resources + skills;
+}
+function classMechHTML(id, color){
+  const d = CLASSES[id];
+  if (!d) return '';
+  let out = '';
+  if (d.hitDie) out += mechRow('Hit Die', 'd' + d.hitDie, 'hitdie', color);
+  if ((d.saves||[]).length) out += mechRow('Saving Throws', d.saves.map(a=>a.toUpperCase()).join(', '), 'saves', color);
+  if ((d.skillSuggest||[]).length) out += mechRow('Suggested Skills', d.skillSuggest.join(', '), 'skills', color);
+  if (d.casterAbility) out += mechRow('Spellcasting', d.casterAbility.toUpperCase(), 'caster', color);
+  out += (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest', 'resource', color, r.img)).join('');
+  return out;
+}
+function bgMechHTML(id, color){
+  const d = BACKGROUNDS[id];
+  if (!d) return '';
+  let out = '';
+  if ((d.skillProficiencies||[]).length) out += mechRow('Skill Proficiencies', d.skillProficiencies.join(', '), 'skills', color);
+  if (d.toolProficiency) out += mechRow('Tool Proficiency', d.toolProficiency, 'tool', color);
+  if (d.feat) out += mechRow(d.feat.name, d.feat.notes, 'feat', color, d.feat.img);
+  return out;
+}
+function mechBlock(title, html, color){
+  if (!html) return '';
+  return '<div class="mech-block" style="border-left-color:' + color + '"><h4 style="color:' + color + '">' + esc(title) + '</h4>' + html + '</div>';
+}
+function wizMechHTML(kind, id, color){
+  if (kind === 'cls') return classMechHTML(id, color);
+  if (kind === 'race') return raceMechHTML(id, color);
+  return bgMechHTML(id, color);
+}
+function wizDataList(kind){
+  if (kind === 'cls') return DATA.classes;
+  if (kind === 'race') return DATA.races;
+  return DATA.backgrounds;
+}
+
+/* ---------- wizard state ---------- */
+const STEP_ORDER = ['cls', 'race', 'bg'];
+const STEP_META = {
+  cls: { title:'Choose your class', he:'בחרו מחלקה', short:'Class' },
+  race: { title:'Choose your race', he:'בחרו גזע', short:'Race' },
+  bg: { title:'Choose your background', he:'בחרו רקע', short:'Background' },
+};
+const state = { theme:'kids', view:'cover', step:'cls', pick:{ cls:null, race:null, bg:null, name:'' } };
+
+function setTheme(mode){
+  state.theme = mode;
+  document.body.dataset.theme = mode;
+  document.querySelectorAll('#mode-toggle button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  if (state.view === 'wizard') renderWizard();
+}
+document.getElementById('mode-toggle').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-mode]');
+  if (btn) setTheme(btn.dataset.mode);
+});
+
+function blurbFor(entry){ return state.theme === 'kids' ? (entry.kidsBlurb || entry.adultBlurb || '') : (entry.adultBlurb || entry.kidsBlurb || ''); }
+
+function showView(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  state.view = name;
+  document.getElementById('wizard-footer').style.visibility = name === 'wizard' ? 'visible' : 'hidden';
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+}
+
+document.getElementById('open-book-btn').addEventListener('click', ()=>{ state.step = 'cls'; renderWizard(); showView('wizard'); });
+document.getElementById('home-link').addEventListener('click', ()=> showView('cover'));
+document.getElementById('home-link').addEventListener('keydown', e=>{ if(e.key==='Enter') showView('cover'); });
+document.getElementById('back-btn').addEventListener('click', ()=>{
+  const idx = STEP_ORDER.indexOf(state.step);
+  if (idx > 0){ state.step = STEP_ORDER[idx-1]; renderWizard(); }
+  else showView('cover');
+});
+
+function goToStep(k){ state.step = k; renderWizard(); }
+function choosePick(kind, id){
+  state.pick[kind] = id;
+  const idx = STEP_ORDER.indexOf(kind);
+  const next = STEP_ORDER[idx+1];
+  if (next) state.step = next;
+  renderWizard();
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+}
+function skipStep(){
+  const idx = STEP_ORDER.indexOf(state.step);
+  const next = STEP_ORDER[idx+1];
+  if (next){ state.step = next; renderWizard(); }
+}
+
+function progressHTML(){
+  return STEP_ORDER.map((k,i) => {
+    const done = !!state.pick[k];
+    const active = state.step === k;
+    return '<button type="button" class="wiz-step' + (active?' active':'') + (done?' done':'') + '" onclick="goToStep(\'' + k + '\')">'
+      + (i+1) + '. ' + esc(STEP_META[k].short) + (done ? ' ✓' : '') + '</button>';
+  }).join('<span class="wiz-step-sep">→</span>');
+}
+
+// A race/background card shows its combo tag with the class already chosen
+// (combos in this data always pair with a class — see
+// docs/adr/0008-field-guide-shares-data-with-sheet.md) once one exists, as a
+// bonus "here's a less-expected reason these two go together" hint.
+function comboTagHTML(kind, entry){
+  if (kind === 'cls' || !state.pick.cls) return '';
+  const combo = (entry.combos||[]).find(c => c.cls === state.pick.cls);
+  if (!combo) return '';
+  const cls = byId(DATA.classes, state.pick.cls);
+  return '<div class="wiz-card-combo">"' + esc(combo.tag) + '" with your ' + esc(cls.en) + '</div>';
+}
+
+function makeWizardCard(entry, kind){
+  const color = KIND_COLOR[kind];
+  const blurb = blurbFor(entry);
+  const chosen = state.pick[kind] === entry.id;
+  const wrap = document.createElement('div');
+  wrap.className = 'wiz-card' + (chosen ? ' chosen' : '');
+  wrap.innerHTML =
+    '<div class="wiz-card-head">'
+      + '<div class="plate' + (entry.img ? ' clickable' : '') + '">' + plateHTML(entry) + '</div>'
+      + '<div class="wiz-card-name">' + esc(entry.en) + (entry.he ? '<span class="he">' + esc(entry.he) + '</span>' : '') + '</div>'
+    + '</div>'
+    + '<p class="wiz-card-blurb">' + esc(blurb) + '</p>'
+    + comboTagHTML(kind, entry)
+    + '<div class="wiz-card-mech">' + wizMechHTML(kind, entry.id, color) + '</div>'
+    + '<button class="choose-btn" type="button">' + (chosen ? '✓ Chosen' : 'Choose ' + esc(entry.en)) + '</button>';
+  wrap.querySelector('.choose-btn').addEventListener('click', ()=> choosePick(kind, entry.id));
+  if (entry.img){
+    wrap.querySelector('.plate').addEventListener('click', (e)=>{ e.stopPropagation(); openLightbox(entry.img, entry.en); });
+  }
+  return wrap;
+}
+
+function renderWizard(){
+  document.getElementById('wizard-progress').innerHTML = progressHTML();
+  const meta = STEP_META[state.step];
+  document.getElementById('wizard-step-title').textContent = meta.title;
+  document.getElementById('wizard-step-title-he').textContent = meta.he;
+
+  const grid = document.getElementById('wizard-grid');
+  grid.innerHTML = '';
+  wizDataList(state.step).forEach(entry => grid.appendChild(makeWizardCard(entry, state.step)));
+
+  document.getElementById('wizard-skip').style.display = state.step === 'cls' ? 'none' : '';
+
+  renderSoFar();
+  renderCTA();
+}
+
+function renderSoFar(){
+  const el = document.getElementById('wizard-sofar');
+  const blocks = [];
+  if (state.pick.cls){ const c = byId(DATA.classes, state.pick.cls); blocks.push(mechBlock(c.en, classMechHTML(c.id, KIND_COLOR.cls), KIND_COLOR.cls)); }
+  if (state.pick.race){ const r = byId(DATA.races, state.pick.race); blocks.push(mechBlock(r.en, raceMechHTML(r.id, KIND_COLOR.race), KIND_COLOR.race)); }
+  if (state.pick.bg){ const b = byId(DATA.backgrounds, state.pick.bg); blocks.push(mechBlock(b.en, bgMechHTML(b.id, KIND_COLOR.bg), KIND_COLOR.bg)); }
+  el.innerHTML = blocks.length ? '<div class="sofar-label">Your character so far</div><div class="mech-panel">' + blocks.join('') + '</div>' : '';
+}
+
+/* ---------- share-link handoff ---------- */
+// Builds a full character shape (same fields as the sheet's defaultChar())
+// with race/class/background pre-applied — traits, resources, save/skill
+// proficiencies, hit die, spellcasting ability, the background's Origin
+// feat — the same effects applyRaceTemplate()/applyTemplate()/
+// applyBackgroundTemplate() would produce, computed here from the same
+// RACES/CLASSES/BACKGROUNDS data so no per-entry logic is duplicated, only
+// the generic mapping. Ability score increases from a background are
+// deliberately NOT applied here either, for the same reason the sheet's own
+// applyBackgroundTemplate() skips them — see its comment.
+function buildPickedCharacterState(raceKind, clsId, bgId, name){
+  const raceData = raceKind ? RACES[raceKind] : null;
+  const clsData = clsId ? CLASSES[clsId] : null;
+  const bgData = bgId ? BACKGROUNDS[bgId] : null;
+  const level = 1;
+  const prof = 2; // proficiency bonus at level 1
+
+  const charState = {
+    id:"", name: name || "", charType:"pc",
+    cls: clsId || "", subclass:"", race: raceData && raceData.label ? raceData.label.en : "", bg: bgId || "",
+    clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false, bgCustom:false, linkedTo:null, sourceLink:"",
+    abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
+    level, size: (raceData && raceData.sizeOverride) || "Medium",
+    armor:{acAbility:"dex", migrated:true},
+    speed:30, climbSpeed:0, swimSpeed:0, flySpeed:0, hasFlySpeed:false, hpCur:10, hpMax:10,
+    hitDice: clsData && clsData.hitDie ? `1d${clsData.hitDie}` : "1d8", hpAutoCalc:true,
+    hitDiceUsed:0, hasSpells: !!(clsData && clsData.casterAbility),
+    saveProf:{str:false,dex:false,con:false,int:false,wis:false,cha:false},
+    skillProf:{}, skillExpertise:{},
+    proficiencies:{armor:"", weapons:"", tools:"", languages:"", armorList:[], weaponList:[], languageList:[], armorOther:"", weaponOther:"", languageOther:""},
+    inventory:{currency:{cp:0,sp:0,ep:0,gp:0,pp:0}, items:[]},
+    attacks:[{name:"Shortsword", type:"finesse", dmg:"1d6", dmgType:"piercing", spellAbil:"cha", prof:true, notes:"", magicBonus:0}],
+    spellcasting:{abil: (clsData && clsData.casterAbility) || "int", slots:Array.from({length:9},()=>({total:0,used:0}))},
+    spells:[], feats:[], traits:[], resources:[],
+    concentration:{active:false, spell:"", dmg:0}, notes:""
+  };
+
+  if (clsData){
+    (clsData.saves||[]).forEach(a => charState.saveProf[a] = true);
+    (clsData.skillSuggest||[]).forEach(sk => charState.skillProf[sk] = true);
+  }
+  if (raceData){
+    (raceData.traits||[]).forEach(tr => charState.traits.push({name:tr.name, notes:tr.notes, mod: tr.mod || {stat:"", amount:0, perLevel:false}}));
+    (raceData.skillProficiencies||[]).forEach(sk => charState.skillProf[sk] = true);
+    if (raceData.proficiencies && raceData.proficiencies.tools) charState.proficiencies.tools = raceData.proficiencies.tools;
+  }
+  if (bgData){
+    (bgData.skillProficiencies||[]).forEach(sk => charState.skillProf[sk] = true);
+    if (bgData.toolProficiency && !charState.proficiencies.tools) charState.proficiencies.tools = bgData.toolProficiency;
+    if (bgData.feat) charState.feats.push({name:bgData.feat.name, notes:bgData.feat.notes, mod:{stat:"", amount:0, perLevel:false}});
+  }
+  [raceData, clsData].filter(Boolean).forEach(data => {
+    (data.resources||[]).forEach(r => {
+      const total = r.total==="prof" ? prof : (r.total==="level" ? Math.max(1, level) : r.total);
+      charState.resources.push({name:r.name, total, used:0, recharge:r.recharge, notes:""});
+    });
+  });
+  return charState;
+}
+
+// The "source" flag (harmless extra key from the sheet's own wrapped-import
+// shape's point of view) tells the sheet's checkURLImport() this character
+// is a bare starting point, not a finished export — it opens Ask AI
+// immediately instead of landing on the plain sheet. Only set when the user
+// explicitly chose "Continue with AI" in the continue-modal below, so the
+// AI view isn't forced on someone who'd rather fill the sheet in by hand.
+function sheetLinkForPick(raceKind, clsId, bgId, name, openAI){
+  const picked = buildPickedCharacterState(raceKind, clsId, bgId, name);
+  const wrapped = { lang:"en", state:picked };
+  if (openAI) wrapped.source = "field-guide";
+  return "dnd_character_sheet.html#char=" + encodeURIComponent(encodeStateToBase64(wrapped));
+}
+
+function renderCTA(){
+  const cta = document.getElementById('wizard-cta');
+  cta.style.display = state.pick.cls ? '' : 'none';
+}
+
+function openContinueModal(){
+  if (!state.pick.cls) return;
+  const aiLink = document.getElementById('continue-ai-link');
+  const manualLink = document.getElementById('continue-manual-link');
+  aiLink.href = sheetLinkForPick(state.pick.race, state.pick.cls, state.pick.bg, state.pick.name, true);
+  manualLink.href = sheetLinkForPick(state.pick.race, state.pick.cls, state.pick.bg, state.pick.name, false);
+  document.getElementById('continue-modal').style.display = 'flex';
+}
+function closeContinueModal(){
+  document.getElementById('continue-modal').style.display = 'none';
+}
+
+// Same image feeds both the small circular icon (cropped to the face via
+// CSS object-position on that circle) and this full-size, uncropped view —
+// one asset per entry, not two — see the ART PLACEHOLDER NOTE above.
+function openLightbox(img, caption){
+  document.getElementById('lightbox-img').src = img;
+  document.getElementById('lightbox-caption').textContent = caption || '';
+  document.getElementById('lightbox').style.display = 'flex';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').style.display = 'none';
+}
+
+/* ---------- init ---------- */
+showView('cover');
+</script>
+</body>
+</html>

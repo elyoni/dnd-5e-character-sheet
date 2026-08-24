@@ -105,6 +105,7 @@ select, .btn{
   border-radius:var(--radius);padding:7px 12px;font-size:13px;letter-spacing:1px;
   cursor:pointer;
 }
+a.btn{display:inline-block;text-decoration:none;}
 select{
   width:100%;min-width:0;box-sizing:border-box;
   height:32px;font-size:15px;
@@ -785,7 +786,7 @@ const T = {
     atkPreset:"Preset (optional)", atkPresetNone:"— pick a preset —",
     spellAbility:"Casting stat",
     notes:"Notes & Equipment",
-    printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import", aiBtn:"🤖 Ask AI", helpBtn:"❓ Help",
+    printBtn:"🖨 Print", exportBtn:"⬇ Export", importBtn:"⬆ Import", aiBtn:"🤖 Ask AI", fieldGuideBtn:"📖 Field Guide", helpBtn:"❓ Help",
     exportModalTitle:"Export Character", exportAsFileBtn:"Download JSON file", exportAsLinkBtn:"🔗 Copy shareable link", copyLinkBtn:"Copy link",
     bundleHint:"This character is linked to others — share all __COUNT__ together as a bundle:", exportAsBundleFileBtn:"Download JSON bundle", exportAsBundleLinkBtn:"🔗 Copy shareable bundle link",
     linkReadyHint:"Link copied to clipboard — you can also copy it manually below.", linkCopied:"✓ Copied to clipboard.",
@@ -794,6 +795,7 @@ const T = {
     aiCopyBtn:"📋 Copy for AI", aiCopyCopied:"✓ Copied to clipboard.",
     aiCopyLinkBtn:"🔗 Copy as link instead", aiCopyLinkCopied:"✓ Link copied to clipboard.",
     aiCopyLinkHint:"Same content as above, as a data: link you can paste instead of pasting text directly. Only works with AI tools that actually fetch/read a given link's content — if yours doesn't, use \"Copy for AI\" above instead.",
+    aiCopyManualHint:"Couldn't copy automatically (this can happen over a plain http:// connection). Tap the box below to select it, then copy manually.", aiCopyManualBtn:"Select all",
     aiPasteStepTitle:"2. Paste the AI's reply", aiPasteStepDesc:"Paste the AI's full reply below. If it suggested adding anything (a feat, weapon, spell, resource, or item), it'll show up here for you to review one at a time.",
     aiPastePlaceholder:"Paste the AI's reply here…", aiParseBtn:"Parse reply", aiParseErrorVersion:"This suggestion was generated for a different version of this app's AI format and can't be imported automatically. Paste this back to the AI: \"The schema you used is out of date. Please regenerate your suggestion using AI_SCHEMA_VERSION __CURRENT__ (yours was __GIVEN__).\"",
     aiParseErrorNone:"Couldn't find any suggested additions in that text. Make sure you pasted the AI's full reply, including the fenced code block.",
@@ -803,7 +805,7 @@ const T = {
     aiCatTrait:"Trait", aiCatFeat:"Feat", aiCatAttack:"Attack / Weapon", aiCatSpell:"Spell", aiCatResource:"Resource", aiCatItem:"Item",
     aiCatLevel:"Level", aiCatSubclass:"Subclass", aiCatExpertise:"Expertise", aiCatSpellSlot:"Spell slots — level",
     aiSpellSlotWarning:"⚠ Spell slot progression depends on class/multiclass rules the AI may have gotten wrong — double-check this against your own table before relying on it.",
-    onboardCreateAI:"🤖 Create with AI", newCharAI:"Create with AI…",
+    onboardCreateAI:"🤖 Create with AI", newCharAI:"Create with AI…", newCharFieldGuide:"Browse the Field Guide…",
     createAIModalTitle:"Create a character with AI", createAIDefaultName:"New Adventurer",
     createAIConceptStepTitle:"1. Describe your character", createAIConceptStepDesc:"A sentence or two is enough — concept, personality, backstory, whatever you have in mind.",
     createAIConceptPlaceholder:"e.g. a half-orc barbarian, former sailor, gruff but loyal…",
@@ -831,6 +833,7 @@ const T = {
     spPresetLabel:"Premade spell (optional)", spPresetNone:"-- Pick a preset to fill the fields below --",
     spSaveLabel:"Target's saving throw — they resist if",
     newCharModalTitle:"New Character", newCharHint:"Only these get set now. Everything else (abilities, HP, skills, gear...) starts blank and is filled in on the sheet afterward — so nothing gets bumped by accident.",
+    fieldGuideLinkHint:"Not sure yet? 📖 Browse the Field Guide", fieldGuideLinkTitle:"Browse races and classes in a new tab",
     charTypeLabel:"Type", charTypePc:"Player Character", charTypeAnimal:"Beast / Companion", species:"Species",
     sourceLinkLabel:"Source Link (optional)", sourceLinkHint:"A URL to the full stat block (D&D Beyond, a wiki, a PDF...) — handy for beasts/companions/monsters you're not building out by hand.", sourceLinkOpen:"🔗 Open source",
     newCharLinkedToLabel:"Link to (optional)", linkedToLabel:"Linked to: __NAME__", transformBackBtn:"↩ Transform back",
@@ -996,12 +999,13 @@ const T = {
     atkPreset:"תבנית מוכנה (רשות)", atkPresetNone:"— בחר תבנית —",
     spellAbility:"תכונת כישוף",
     notes:"הערות וציוד",
-    printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא", aiBtn:"🤖 שאל AI", helpBtn:"❓ עזרה",
+    printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא", aiBtn:"🤖 שאל AI", fieldGuideBtn:"📖 מדריך שדה", helpBtn:"❓ עזרה",
     exportModalTitle:"ייצוא דמות", exportAsFileBtn:"הורדת קובץ JSON", exportAsLinkBtn:"🔗 העתקת קישור לשיתוף", copyLinkBtn:"העתק קישור",
     bundleHint:"דמות זו מקושרת לאחרות — שתף את כל ה-__COUNT__ יחד כחבילה:", exportAsBundleFileBtn:"הורדת קובץ JSON כחבילה", exportAsBundleLinkBtn:"🔗 העתקת קישור לשיתוף החבילה",
     aiModalTitle:"שאל AI על הדמות שלך", aiCopyStepTitle:"1. העתק את הדמות שלך",
     aiCopyStepDesc:"העתק את זה, הדבק אותו בצ'אט AI (ChatGPT, Claude, Gemini וכו') ושאל את שאלתך — למשל \"איזה feat כדאי לי לקחת?\" או \"יש משהו שנראה לא נכון כאן?\"",
     aiCopyBtn:"📋 העתק ל-AI", aiCopyCopied:"✓ הועתק ללוח.",
+    aiCopyManualHint:"ההעתקה האוטומטית לא הצליחה (זה קורה לפעמים בחיבור http:// רגיל). הקישו על התיבה למטה כדי לסמן הכל, ואז העתיקו ידנית.", aiCopyManualBtn:"סמן הכל",
     aiCopyLinkBtn:"🔗 העתק כקישור במקום", aiCopyLinkCopied:"✓ הקישור הועתק ללוח.",
     aiCopyLinkHint:"אותו תוכן כמו למעלה, כקישור data: שאפשר להדביק במקום להדביק טקסט ישירות. עובד רק עם כלי AI שבאמת שולפים/קוראים את תוכן הקישור שניתן להם — אם הכלי שלך לא עושה זאת, השתמש ב\"העתק ל-AI\" למעלה.",
     aiPasteStepTitle:"2. הדבק את תשובת ה-AI", aiPasteStepDesc:"הדבק כאן את התשובה המלאה של ה-AI. אם הוא הציע להוסיף משהו (feat, נשק, כישוף, משאב או פריט), זה יופיע כאן לבדיקה אחד־אחד.",
@@ -1013,7 +1017,7 @@ const T = {
     aiCatTrait:"תכונה", aiCatFeat:"כשר", aiCatAttack:"נשק / התקפה", aiCatSpell:"כישוף", aiCatResource:"משאב", aiCatItem:"פריט",
     aiCatLevel:"רמה", aiCatSubclass:"תת-מחלקה", aiCatExpertise:"מומחיות", aiCatSpellSlot:"משבצות כישוף — רמה",
     aiSpellSlotWarning:"⚠ התקדמות משבצות הכישוף תלויה בכללי מחלקה/מחלקה כפולה שה-AI אולי טעה בהם — בדוק זאת מול הטבלה שלך לפני שאתה סומך על זה.",
-    onboardCreateAI:"🤖 צור עם AI", newCharAI:"צור עם AI…",
+    onboardCreateAI:"🤖 צור עם AI", newCharAI:"צור עם AI…", newCharFieldGuide:"עיינו במדריך השדה…",
     createAIModalTitle:"יצירת דמות עם AI", createAIDefaultName:"הרפתקן חדש",
     createAIConceptStepTitle:"1. תאר את הדמות שלך", createAIConceptStepDesc:"משפט או שניים מספיקים — קונספט, אישיות, רקע, מה שיש לך בראש.",
     createAIConceptPlaceholder:"למשל: ברברי חצי-אורק, מלח לשעבר, גס אך נאמן…",
@@ -1042,6 +1046,7 @@ const T = {
     spPresetLabel:"קסם מוכן מראש (אופציונלי)", spPresetNone:"-- בחר קסם מוכן כדי למלא את השדות למטה --",
     spSaveLabel:"הצלת היעד — הוא מתנגד אם",
     newCharModalTitle:"דמות חדשה", newCharHint:"רק אלה נקבעים עכשיו. כל השאר (תכונות, נק\"ח, כישורים, ציוד...) מתחיל ריק וממולא בגיליון אחר כך — כך שכלום לא משתנה בטעות.",
+    fieldGuideLinkHint:"עוד לא בטוחים? 📖 עיינו במדריך השדה", fieldGuideLinkTitle:"עיינו בגזעים ומחלקות בכרטיסייה חדשה",
     charTypeLabel:"סוג", charTypePc:"דמות שחקן", charTypeAnimal:"חיה / בן-לוויה", species:"מין",
     sourceLinkLabel:"קישור למקור (אופציונלי)", sourceLinkHint:"קישור לגיליון הנתונים המלא (D&D Beyond, ויקי, PDF...) — שימושי לחיות/בני-לוויה/מפלצות שאתם לא בונים ידנית.", sourceLinkOpen:"🔗 פתח מקור",
     newCharLinkedToLabel:"קשר אל (אופציונלי)", linkedToLabel:"מקושרת אל: __NAME__", transformBackBtn:"↩ הפוך בחזרה",
@@ -1286,9 +1291,18 @@ const SUBRACE_MAP = {
   "Human": ["Variant Human"]
 };
 
+<!-- BUILD:MODULE src/data/races-classes.js -->
+
+// BACKGROUND_LIST is derived from BACKGROUNDS (compiled from
+// content/backgrounds/*.md) rather than hardcoded like CLASS_LIST/RACE_LIST
+// — those predate the content vault; Background is new, so there's no
+// backward-compat reason to duplicate the list by hand here too.
+const BACKGROUND_LIST = Object.keys(BACKGROUNDS);
+function bgLabel(id, lang){ const b = BACKGROUNDS[id]; if(!b || !b.label) return id; return lang==='he' ? (b.label.he || b.label.en || id) : (b.label.en || id); }
+
 function defaultChar(id){
   return {
-    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false, linkedTo:null, sourceLink:"",
+    id, name:"New Adventurer", charType:"pc", cls:"", subclass:"", race:"", bg:"", bgCustom:false, clsCustom:false, raceCustom:false, subrace:"", subraceCustom:false, linkedTo:null, sourceLink:"",
     abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
     level:1, size:"Medium",
     armor:{acAbility:"dex", migrated:true},
@@ -1405,6 +1419,7 @@ function hydrate(s){
   if(!s.skillExpertise) s.skillExpertise = {};
   if(typeof s.clsCustom !== "boolean") s.clsCustom = !!(s.cls && !CLASS_LIST.includes(s.cls));
   if(typeof s.raceCustom !== "boolean") s.raceCustom = !!(s.race && !RACE_LIST.includes(s.race));
+  if(typeof s.bgCustom !== "boolean") s.bgCustom = !!(s.bg && !BACKGROUND_LIST.includes(s.bg));
   if(typeof s.subrace !== "string") s.subrace = "";
   if(typeof s.subraceCustom !== "boolean") s.subraceCustom = false;
   if(typeof s.subclass !== "string") s.subclass = "";
@@ -2201,6 +2216,16 @@ function newCharModalHTML(t){
         </select>
         <input type="text" id="modalNewSubraceCustom" placeholder="${t.subrace}" style="display:none;margin-top:6px">
       </div>
+      <div class="modal-row" id="modalNewBgRow">
+        <label>${t.bg}</label>
+        <select id="modalNewBg" onchange="modalBgChanged()">
+          <option value="">${t.selectPlaceholder}</option>
+          ${BACKGROUND_LIST.map(b=>`<option value="${b}">${bgLabel(b,lang)}</option>`).join("")}
+          <option value="__custom__">${t.customOption}</option>
+        </select>
+        <input type="text" id="modalNewBgCustom" placeholder="${t.bg}" style="display:none;margin-top:6px">
+      </div>
+      <div class="formula-note"><a href="field-guide.html" target="_blank" title="${t.fieldGuideLinkTitle}">${t.fieldGuideLinkHint}</a></div>
       <div class="modal-row" id="modalNewSpeciesRow" style="display:none">
         <label>${t.species}</label>
         <input type="text" id="modalNewSpecies" placeholder="Wolf">
@@ -2238,6 +2263,7 @@ function createChooserModalHTML(t){
       <div class="modal-actions">
         <button class="btn" onclick="closeCreateChooserModal()">${t.printCancel}</button>
         <button class="btn" onclick="chooseJustCreate()">➕ ${t.newChar}</button>
+        <a class="btn" href="field-guide.html" target="_blank">📖 ${t.newCharFieldGuide}</a>
         <button class="btn primary" onclick="chooseCreateWithAI()">🤖 ${t.newCharAI}</button>
       </div>
     </div>
@@ -2316,11 +2342,16 @@ function modalClassChanged(){
   const val = document.getElementById("modalNewClass").value;
   document.getElementById("modalNewClassCustom").style.display = val==='__custom__' ? "block" : "none";
 }
+function modalBgChanged(){
+  const val = document.getElementById("modalNewBg").value;
+  document.getElementById("modalNewBgCustom").style.display = val==='__custom__' ? "block" : "none";
+}
 function modalCharTypeChanged(){
   const isAnimal = document.getElementById("modalNewCharType").value === "animal";
   document.getElementById("modalNewClassRow").style.display = isAnimal ? "none" : "";
   document.getElementById("modalNewRaceRow").style.display = isAnimal ? "none" : "";
   document.getElementById("modalNewSubraceRow").style.display = isAnimal ? "none" : "";
+  document.getElementById("modalNewBgRow").style.display = isAnimal ? "none" : "";
   document.getElementById("modalNewSpeciesRow").style.display = isAnimal ? "" : "none";
 }
 async function confirmNewChar(){
@@ -2355,6 +2386,8 @@ async function confirmNewChar(){
   const race = raceSel==='__custom__' ? document.getElementById("modalNewRaceCustom").value.trim() : raceSel;
   const subraceSel = document.getElementById("modalNewSubrace").value;
   const subrace = subraceSel==='__custom__' ? document.getElementById("modalNewSubraceCustom").value.trim() : subraceSel;
+  const bgSel = document.getElementById("modalNewBg").value;
+  const bg = bgSel==='__custom__' ? document.getElementById("modalNewBgCustom").value.trim() : bgSel;
 
   state = defaultChar(id);
   state.name = name;
@@ -2364,13 +2397,15 @@ async function confirmNewChar(){
   if(cls){ state.cls = cls; state.clsCustom = !CLASS_LIST.includes(cls); }
   if(race){ state.race = race; state.raceCustom = !RACE_LIST.includes(race); }
   if(subrace){ state.subrace = subrace; state.subraceCustom = !(SUBRACE_MAP[race]||[]).includes(subrace); }
+  if(bg){ state.bg = bg; state.bgCustom = !BACKGROUND_LIST.includes(bg); }
   newCharModalOpen = false;
   try{ await storageSet("dnd-char:"+id, JSON.stringify(state)); }catch(e){}
   await setLastUsedId(id);
   if(cls && CLASS_LIST.includes(cls)){ applyTemplate(cls); }
   if(race){ applyRaceTemplate(raceToKind(race)); }
   if(subrace){ applySubraceTemplate(race, subrace); }
-  if(!(cls && CLASS_LIST.includes(cls)) && !race && !subrace){ render(); queueSave(); }
+  if(bg && BACKGROUND_LIST.includes(bg)){ applyBackgroundTemplate(bg); }
+  if(!(cls && CLASS_LIST.includes(cls)) && !race && !subrace && !(bg && BACKGROUND_LIST.includes(bg))){ render(); queueSave(); }
 }
 async function newCharacter(){
   const id = "c"+Date.now();
@@ -2759,6 +2794,7 @@ function noCharactersHTML(t){
     <div style="display:flex;flex-direction:column;gap:10px;max-width:280px;margin:0 auto">
       <button class="btn primary" onclick="openNewCharModal()">${t.onboardNewChar}</button>
       <button class="btn" onclick="openCreateAIModal()">${t.onboardCreateAI}</button>
+      <a class="btn" href="field-guide.html" target="_blank">📖 ${t.newCharFieldGuide}</a>
       <button class="btn" onclick="loadDemoCharacter()">${t.onboardDemoChar}</button>
     </div>
   </div>`;
@@ -3020,12 +3056,7 @@ function handleImportFile(input){
   reader.readAsText(file);
   input.value = "";
 }
-function encodeStateToBase64(obj){
-  return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
-}
-function decodeBase64ToState(b64){
-  return JSON.parse(decodeURIComponent(escape(atob(b64))));
-}
+<!-- BUILD:MODULE src/share-link.js -->
 function buildShareURL(){
   const base = location.href.split('#')[0].split('?')[0];
   return base + "#char=" + encodeURIComponent(encodeStateToBase64({lang, state}));
@@ -3056,6 +3087,12 @@ async function checkURLImport(){
     const parsed = isWrapped ? decoded.state : decoded;
     if(isWrapped && (decoded.lang === 'en' || decoded.lang === 'he')) await switchLang(decoded.lang);
     await importParsedCharacter(parsed);
+    // A pick handed over from field-guide.html only sets race/class/background
+    // mechanics — proficiency choices, armor, weapons, spells etc. are still
+    // blank. Land straight in Ask AI (pre-filled with this exact starting
+    // point via buildAIExport()) instead of the plain sheet, so continuing
+    // with an AI's help is the obvious next step, not something to discover.
+    if(isWrapped && decoded.source === 'field-guide') openAIModal();
     history.replaceState(null, "", location.pathname + location.search);
     return true;
   }catch(err){
@@ -3145,6 +3182,29 @@ function normalizeYamlLines(lines){
   return out;
 }
 function indentOf(line){ return line.match(/^ */)[0].length; }
+// Splits a flow-style YAML sequence's inner text ("a", "b", c) on top-level
+// commas, respecting quoted strings so a comma inside a quoted value doesn't
+// split it.
+function splitFlowItems(inner){
+  const items = [];
+  let cur = '';
+  let quote = null;
+  for(let i=0;i<inner.length;i++){
+    const ch = inner[i];
+    if(quote){
+      cur += ch;
+      if(ch === quote && inner[i-1] !== '\\') quote = null;
+    } else if(ch === '"' || ch === "'"){
+      quote = ch; cur += ch;
+    } else if(ch === ','){
+      items.push(cur); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  items.push(cur);
+  return items.map(x=>x.trim()).filter(x=>x!=='');
+}
 function parseYamlScalar(s){
   if(s === 'true') return true;
   if(s === 'false') return false;
@@ -3152,6 +3212,9 @@ function parseYamlScalar(s){
   if(/^-?\d+(\.\d+)?$/.test(s)) return Number(s);
   if(s === '[]') return [];
   if(s === '{}') return {};
+  // Tolerate an AI reply using flow-style "[a, b, c]" for a list field instead
+  // of the documented block "- a\n- b" style — both are valid YAML.
+  if(s.startsWith('[') && s.endsWith(']')) return splitFlowItems(s.slice(1,-1)).map(parseYamlScalar);
   if(s.startsWith('"')){ try{ return JSON.parse(s); }catch(e){ return s.slice(1,-1); } }
   if(s.startsWith("'") && s.endsWith("'")) return s.slice(1,-1).replace(/''/g,"'");
   return s;
@@ -3407,23 +3470,52 @@ function collectAIAdditionEntries(parsed, dedupeState){
 
 let aiModalOpen = false;
 let aiCopyDone = false;
+let aiExportText = "";
 let aiParsedAdditions = [];
 let aiParseError = "";
 let aiPasteText = "";
-function openAIModal(){ aiModalOpen = true; aiCopyDone = false; aiLinkCopyDone = false; aiParsedAdditions = []; aiParseError = ""; aiPasteText = ""; render(); }
+function openAIModal(){ aiModalOpen = true; aiCopyDone = false; aiExportText = ""; aiLinkCopyDone = false; aiLinkValue = ""; aiParsedAdditions = []; aiParseError = ""; aiPasteText = ""; render(); }
 function closeAIModal(){ aiModalOpen = false; render(); }
+// navigator.clipboard silently throws (or is entirely undefined) on a
+// non-secure origin — e.g. testing over plain http:// on a LAN IP rather
+// than https:// or localhost, which mobile browsers in particular lock
+// down. Rather than the copy button doing nothing with no feedback, the
+// exact text always gets shown in a selectable box (aiExportText) the user
+// can copy by hand, whether or not the automatic clipboard write worked —
+// same fallback pattern as the Export modal's copyShareLinkManually().
 async function copyAIExport(){
-  const text = buildAIExport();
-  try{ await navigator.clipboard.writeText(text); aiCopyDone = true; render(); }catch(err){}
+  aiExportText = buildAIExport();
+  aiCopyDone = false;
+  render();
+  try{ await navigator.clipboard.writeText(aiExportText); aiCopyDone = true; }catch(err){}
+  render();
+}
+function copyAIExportManually(){
+  const ta = document.getElementById("aiExportOutput");
+  if(!ta) return;
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  try{ document.execCommand("copy"); aiCopyDone = true; render(); }catch(err){}
 }
 // Same content as copyAIExport, but as a data: URL rather than clipboard
 // text — for handing to an AI agent that fetches a link rather than reading
 // pasted text. Fragments (#...) are never sent in a real HTTP request, so
 // unlike the shareable #char= link, the payload has to be in the URL itself.
 let aiLinkCopyDone = false;
+let aiLinkValue = "";
 async function copyAILink(){
-  const url = "data:text/plain;charset=utf-8," + encodeURIComponent(buildAIExport());
-  try{ await navigator.clipboard.writeText(url); aiLinkCopyDone = true; render(); }catch(err){}
+  aiLinkValue = "data:text/plain;charset=utf-8," + encodeURIComponent(buildAIExport());
+  aiLinkCopyDone = false;
+  render();
+  try{ await navigator.clipboard.writeText(aiLinkValue); aiLinkCopyDone = true; }catch(err){}
+  render();
+}
+function copyAILinkManually(){
+  const input = document.getElementById("aiLinkOutput");
+  if(!input) return;
+  input.select();
+  input.setSelectionRange(0, 99999);
+  try{ document.execCommand("copy"); aiLinkCopyDone = true; render(); }catch(err){}
 }
 function parseAIPaste(){
   const t = T[lang];
@@ -3533,21 +3625,35 @@ let createAIModalOpen = false;
 let createAIStep = "concept"; // "concept" | "preview" | "extras"
 let createAIConceptText = "";
 let createAICopyDone = false;
+let createAIExportText = "";
 let createAIPasteText = "";
 let createAIParseError = "";
 let createAIDraft = null; // {parsed, identity:{name,cls,subclass,race,subrace,bg,level,size,abilities,spellSlots}}
 let createAILinkedTo = "";
 function openCreateAIModal(){
   createAIModalOpen = true; createAIStep = "concept"; createAIConceptText = "";
-  createAICopyDone = false; createAIPasteText = ""; createAIParseError = ""; createAIDraft = null;
+  createAICopyDone = false; createAIExportText = ""; createAIPasteText = ""; createAIParseError = ""; createAIDraft = null;
   createAILinkedTo = (state && !state.linkedTo) ? state.id : "";
   render();
 }
 function closeCreateAIModal(){ createAIModalOpen = false; render(); }
 function backCreateAIDraft(){ createAIStep = "concept"; createAIDraft = null; createAIParseError = ""; render(); }
+// See copyAIExport()'s comment: navigator.clipboard can silently fail (or be
+// undefined) on a non-secure origin, so the text is always shown in a
+// selectable fallback box too, not just attempted via the clipboard API.
 async function copyCreateAIExport(){
-  const text = buildCreateAIExport();
-  try{ await navigator.clipboard.writeText(text); createAICopyDone = true; render(); }catch(err){}
+  createAIExportText = buildCreateAIExport();
+  createAICopyDone = false;
+  render();
+  try{ await navigator.clipboard.writeText(createAIExportText); createAICopyDone = true; }catch(err){}
+  render();
+}
+function copyCreateAIExportManually(){
+  const ta = document.getElementById("createAIExportOutput");
+  if(!ta) return;
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  try{ document.execCommand("copy"); createAICopyDone = true; render(); }catch(err){}
 }
 function buildCreateAIExport(){
   const languageDirective = lang === 'he' ? "IMPORTANT: Write your entire conversational reply — explanations, questions to me, everything outside the YAML block — in Hebrew, since I'm a Hebrew speaker. Keep the YAML block's field names/keys in English exactly as specified below; only free-text VALUES inside it (like a feat's notes) should be in Hebrew.\n\n" : "";
@@ -3869,6 +3975,11 @@ function createAIModalHTML(t){
         <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.createAICopyStepDesc}</div>
         <button class="btn primary" onclick="copyCreateAIExport()">${t.aiCopyBtn}</button>
         ${createAICopyDone ? `<div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t.aiCopyCopied}</div>` : ""}
+        ${createAIExportText && !createAICopyDone ? `
+          <textarea id="createAIExportOutput" readonly style="width:100%;box-sizing:border-box;min-height:90px;font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:8px" onclick="this.select()">${esc2(createAIExportText)}</textarea>
+          <button class="btn" style="margin-top:6px" onclick="copyCreateAIExportManually()">${t.aiCopyManualBtn}</button>
+          <div class="formula-note" style="margin-top:4px">${t.aiCopyManualHint}</div>
+        ` : ""}
       </div>
       <div class="modal-row" style="margin-top:16px">
         <div style="font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${t.aiPasteStepTitle}</div>
@@ -4702,61 +4813,37 @@ function addArmorShield(){ state.inventory.items.push({name:"", qty:1, notes:"",
 function removeItem(i){ state.inventory.items.splice(i,1); render(); queueSave(); }
 
 /* Quick-start templates: add a class's signature resources/attacks without
-   touching anything the person has already filled in (skips duplicates by name). */
-const CLASS_SAVES = {
-  Barbarian:["str","con"], Bard:["dex","cha"], Cleric:["wis","cha"], Druid:["int","wis"],
-  Fighter:["str","con"], Monk:["str","dex"], Paladin:["wis","cha"], Ranger:["str","dex"],
-  Rogue:["dex","int"], Sorcerer:["con","cha"], Warlock:["wis","cha"], Wizard:["int","wis"], Artificer:["con","int"]
-};
-const CLASS_SKILL_SUGGEST = {
-  Barbarian:["athletics","perception"], Bard:["performance","persuasion"], Cleric:["religion","insight"],
-  Druid:["nature","survival"], Fighter:["athletics","perception"], Monk:["acrobatics","stealth"],
-  Paladin:["religion","persuasion"], Ranger:["survival","stealth"], Rogue:["stealth","sleight"],
-  Sorcerer:["arcana","persuasion"], Warlock:["arcana","deception"], Wizard:["arcana","investigation"], Artificer:["investigation","arcana"]
-};
+   touching anything the person has already filled in (skips duplicates by name).
+   Driven by the CLASSES table (compiled from content/classes/*.md — see
+   scripts/compile-content.js); a class with no CLASSES entry is a no-op. */
 function applyTemplate(cls){
   const hasRes = name => state.resources.some(r => r.name.toLowerCase()===name.toLowerCase());
   const addRes = (name, total, recharge) => { if(!hasRes(name)) state.resources.push({name, total, used:0, recharge, notes:""}); };
   const attacksAreDefault = state.attacks.length===1 && state.attacks[0].name==="Shortsword";
+  const prof = profByLevel(state.level);
+  const data = CLASSES[cls];
+  if(!data){ render(); queueSave(); return; }
 
-  (CLASS_SAVES[cls]||[]).forEach(a => state.saveProf[a] = true);
-  (CLASS_SKILL_SUGGEST[cls]||[]).forEach(sk => state.skillProf[sk] = true);
+  (data.saves||[]).forEach(a => state.saveProf[a] = true);
+  (data.skillSuggest||[]).forEach(sk => state.skillProf[sk] = true);
 
-  state.hasSpells = CASTER_CLASSES.includes(cls);
-  if(CLASS_HIT_DIE[cls]){
+  state.hasSpells = !!data.casterAbility;
+  if(data.hitDie){
     const m = /^\s*(\d+)/.exec(state.hitDice || "");
     const count = m ? Math.max(1, parseInt(m[1])) : Math.max(1, state.level);
-    state.hitDice = `${count}d${CLASS_HIT_DIE[cls]}`;
+    state.hitDice = `${count}d${data.hitDie}`;
   }
+  if(data.casterAbility) state.spellcasting.abil = data.casterAbility;
 
-  if(cls==="Fighter"){
-    addRes("Second Wind", 1, "short");
-    addRes("Action Surge", 1, "short");
-  } else if(cls==="Cleric"){
-    addRes("Channel Divinity", 1, "short");
-    state.spellcasting.abil = "wis";
-  } else if(cls==="Monk"){
-    addRes("Ki Points", Math.max(1, state.level), "short");
-    if(attacksAreDefault) state.attacks = [{name:"Unarmed Strike", type:"finesse", dmg:"1d4", spellAbil:"cha", notes:"Martial Arts"}];
-  } else if(cls==="Barbarian"){
-    addRes("Rage", 2, "long");
-  } else if(cls==="Bard"){
-    addRes("Bardic Inspiration", 1, "long");
-    state.spellcasting.abil = "cha";
-  } else if(cls==="Druid"){
-    addRes("Wild Shape", 2, "short");
-    state.spellcasting.abil = "wis";
-  } else if(cls==="Sorcerer"){
-    addRes("Sorcery Points", Math.max(1, state.level), "long");
-    state.spellcasting.abil = "cha";
-  } else if(cls==="Warlock"){
-    state.spellcasting.abil = "cha";
-  } else if(cls==="Wizard"){
-    state.spellcasting.abil = "int";
-  } else if(cls==="Paladin"){
-    state.spellcasting.abil = "cha";
-  } else if(cls==="Ranger"){
-    state.spellcasting.abil = "wis";
+  (data.resources||[]).forEach(r => {
+    const total = r.total==="prof" ? prof : (r.total==="level" ? Math.max(1, state.level) : r.total);
+    addRes(r.name, total, r.recharge);
+  });
+
+  // Monk's starting attack swap isn't part of the data schema (attacks aren't
+  // a race/class-template field) — kept as the one special case.
+  if(cls==="Monk" && attacksAreDefault){
+    state.attacks = [{name:"Unarmed Strike", type:"finesse", dmg:"1d4", spellAbil:"cha", notes:"Martial Arts"}];
   }
   render(); queueSave();
 }
@@ -4765,6 +4852,9 @@ function selectClass(value){
   applyTemplate(value);
 }
 
+// Driven by the RACES table (compiled from content/races/*.md — see
+// scripts/compile-content.js); a kind with no RACES entry is a no-op (e.g.
+// Orc/Aasimar, which have no vault entry yet).
 function applyRaceTemplate(kind){
   const hasRes = name => state.resources.some(r => r.name.toLowerCase()===name.toLowerCase());
   const addRes = (name, total, recharge) => { if(!hasRes(name)) state.resources.push({name, total, used:0, recharge, notes:""}); };
@@ -4773,51 +4863,18 @@ function applyRaceTemplate(kind){
   const hasFeat = name => state.traits.some(f => f.name.toLowerCase()===name.toLowerCase());
   const addFeat = (name, notes, mod) => { if(!hasFeat(name)) state.traits.push({name, notes, mod: mod || {stat:"", amount:0, perLevel:false}}); };
   const prof = profByLevel(state.level);
+  const data = RACES[kind];
+  if(!data){ render(); queueSave(); return; }
 
-  if(kind==="human"){
-    addFeat("Resourceful", "You gain Heroic Inspiration whenever you finish a Long Rest.");
-    addFeat("Skillful", "You gain proficiency in one skill of your choice (pick it in the Skills panel).");
-  } else if(kind==="dwarf"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
-    addFeat("Dwarven Resilience", "Advantage on saves vs being Poisoned; resistance to Poison damage.");
-    addFeat("Dwarven Toughness", "Max HP increases by 1, and again every level.", {stat:"hp", amount:1, perLevel:true});
-    addRes("Stonecunning (Tremorsense)", prof, "long");
-    if(!state.proficiencies.tools) state.proficiencies.tools = "Smith's tools, Brewer's supplies, or Mason's tools (choose one)";
-  } else if(kind==="elf"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
-    addFeat("Fey Ancestry", "Advantage on saves vs being Charmed; magic can't put you to sleep.");
-    addFeat("Trance", "4 hours of light meditation instead of 8 hours of sleep.");
-    state.skillProf.perception = true;
-  } else if(kind==="halfling"){
-    addFeat("Lucky", "When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll it.");
-    addFeat("Brave", "Advantage on saves vs being Frightened.");
-    addFeat("Halfling Nimbleness", "You can move through the space of any creature Medium or larger.");
-  } else if(kind==="dragonborn"){
-    addFeat("Draconic Ancestry", "Pick a damage type (acid/cold/fire/lightning/poison) — sets your Breath Weapon and resistance.");
-    addFeat("Damage Resistance", "Resistance to the damage type of your Draconic Ancestry.");
-    addRes("Breath Weapon", 1, "short");
-  } else if(kind==="gnome"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
-    addFeat("Gnomish Cunning", "Advantage on INT, WIS, and CHA saving throws vs magic.");
-  } else if(kind==="half_orc"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
-    addFeat("Relentless Endurance", "When reduced to 0 HP but not killed outright, drop to 1 HP instead. Once per Long Rest.");
-    addFeat("Savage Attacks", "When you score a critical hit with a melee weapon, roll one extra damage die.");
-    addRes("Relentless Endurance", 1, "long");
-  } else if(kind==="tiefling"){
-    addFeat("Darkvision", "60 ft — see in dim light as bright, and darkness as dim (no color, just shades of gray).", {stat:"darkvision", amount:60, perLevel:false});
-    addFeat("Otherworldly Presence", "You know the Thaumaturgy cantrip.");
-    addFeat("Fiendish Resilience", "Resistance to one damage type tied to your Fiendish Legacy (commonly Fire).");
-  } else if(kind==="fairy"){
-    addFeat("Fairy Magic", "You know the Druidcraft cantrip. At 3rd level, cast Faerie Fire once per Long Rest (or with a spell slot). At 5th level, also cast Enlarge/Reduce the same way. Spellcasting ability: Int, Wis, or Cha (your choice).");
-    addFeat("Flight", "You have a flying speed equal to your walking speed. You can't use it while wearing medium or heavy armor.", {stat:"fly", amount:0, perLevel:false, matchSpeed:true});
-    if(state.size === "Medium") state.size = "Small";
-  } else if(kind==="minotaur"){
-    addFeat("Horns", "Natural melee weapon: 1d6 + Strength modifier piercing damage.");
-    addFeat("Goring Rush", "Immediately after you use the Dash action and move at least 20 feet, you can make one attack with your Horns as a Bonus Action.");
-    addFeat("Hammering Horns", "Immediately after you hit a creature with a melee attack on your turn, you can use a Bonus Action to attempt to shove that creature (Strength save DC 8 + proficiency + STR mod) up to 10 feet away.");
-    addFeat("Labyrinthine Recall", "You can perfectly recall any path you've traveled and always know which way is north. Advantage on Survival checks to avoid getting lost.");
-  }
+  (data.traits||[]).forEach(tr => addFeat(tr.name, tr.notes, tr.mod));
+  (data.resources||[]).forEach(r => {
+    const total = r.total==="prof" ? prof : (r.total==="level" ? Math.max(1, state.level) : r.total);
+    addRes(r.name, total, r.recharge);
+  });
+  (data.skillProficiencies||[]).forEach(sk => state.skillProf[sk] = true);
+  if(data.proficiencies && data.proficiencies.tools && !state.proficiencies.tools) state.proficiencies.tools = data.proficiencies.tools;
+  if(data.sizeOverride && state.size === "Medium") state.size = data.sizeOverride;
+
   render(); queueSave();
 }
 function raceToKind(race){ return (race||"").toLowerCase().replace(/[^a-z]+/g,"_").replace(/^_+|_+$/g,""); }
@@ -4836,6 +4893,32 @@ function applySubraceTemplate(race, subrace){
 function selectSubrace(value){
   state.subrace = value;
   applySubraceTemplate(state.race, value);
+}
+
+// Driven by the BACKGROUNDS table (compiled from content/backgrounds/*.md —
+// see scripts/compile-content.js). Ability score increases and starting
+// equipment are deliberately NOT auto-applied here: which two of the three
+// suggested abilities to boost, and how to split the +2/+1 (or +1/+1/+1),
+// is a player choice this app doesn't make on someone's behalf — same
+// reasoning as Human's "Skillful" trait leaving its bonus skill unpicked.
+// Only the always-additive grants (skills, one tool, the Origin feat) apply
+// automatically, same as applyRaceTemplate()/applyTemplate().
+function applyBackgroundTemplate(bg){
+  const data = BACKGROUNDS[bg];
+  if(!data){ render(); queueSave(); return; }
+
+  (data.skillProficiencies||[]).forEach(sk => state.skillProf[sk] = true);
+  if(data.toolProficiency && !state.proficiencies.tools) state.proficiencies.tools = data.toolProficiency;
+  if(data.feat){
+    const hasFeat = state.feats.some(f => f.name.toLowerCase()===data.feat.name.toLowerCase());
+    if(!hasFeat) state.feats.push({name:data.feat.name, notes:data.feat.notes, mod:{stat:"", amount:0, perLevel:false}});
+  }
+
+  render(); queueSave();
+}
+function selectBackground(value){
+  state.bg = value;
+  applyBackgroundTemplate(value);
 }
 
 function setSlot(i, field, value){
@@ -4981,6 +5064,7 @@ function render(){
       <button class="btn" onclick="openExportModal()">${t.exportBtn}</button>
       <button class="btn" onclick="triggerImport()">${t.importBtn}</button>
       <button class="btn" onclick="openAIModal()">${t.aiBtn}</button>
+      <a class="btn" href="field-guide.html" target="_blank" title="${t.fieldGuideLinkTitle}">${t.fieldGuideBtn}</a>
       <button class="btn" onclick="openHelpModal()">${t.helpBtn}</button>
       <input type="file" id="importFileInput" accept="application/json,.json" style="display:none" onchange="handleImportFile(this)">
       <span class="save-status" id="saveStatus">✓ ${t.saved}</span>
@@ -5032,7 +5116,18 @@ function render(){
           </select>
         `) : `<span class="feat-name-display id-box">${esc2(state.subrace)||"—"}</span>`}
       </div>
-      <div class="field"><label>${t.bg}</label><input type="text" value="${state.bg}" style="width:${dmgInputWidthCh(state.bg)}ch" oninput="autoWidthInput(this)" onchange="set('bg', this.value)"></div>
+      <div class="field"><label>${t.bg}</label>
+        ${identityUnlocked ? (state.bgCustom ? `
+          <input type="text" value="${state.bg}" style="width:${dmgInputWidthCh(state.bg)}ch" oninput="autoWidthInput(this)" onchange="set('bg', this.value)">
+          <button class="btn no-print" style="margin-top:4px;padding:3px 8px;font-size:11px" onclick="set('bgCustom', false)">${t.backToList}</button>
+        ` : `
+          <select onchange="if(this.value==='__custom__'){set('bgCustom', true);} else {selectBackground(this.value)}">
+            <option value="" ${state.bg===''?"selected":""}>${t.selectPlaceholder}</option>
+            ${BACKGROUND_LIST.map(b=>`<option value="${b}" ${state.bg===b?"selected":""}>${bgLabel(b,lang)}</option>`).join("")}
+            <option value="__custom__">${t.customOption}</option>
+          </select>
+        `) : `<span class="feat-name-display id-box">${esc2(state.bg)||"—"}</span>`}
+      </div>
       <div class="field"><label>${t.sourceLinkLabel}</label>
         ${identityUnlocked ? `<input type="url" value="${esc2(state.sourceLink||"")}" placeholder="https://..." style="width:${dmgInputWidthCh(state.sourceLink||"", 14)}ch" oninput="autoWidthInput(this, 14)" onchange="set('sourceLink', this.value.trim())">`
           : (state.sourceLink ? `<a href="${esc2(state.sourceLink)}" target="_blank" rel="noopener noreferrer" class="feat-name-display id-box">${t.sourceLinkOpen}</a>` : `<span class="feat-name-display id-box">—</span>`)}
@@ -5705,8 +5800,17 @@ function render(){
         <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">${t.aiCopyStepDesc}</div>
         <button class="btn primary" onclick="copyAIExport()">${t.aiCopyBtn}</button>
         ${aiCopyDone ? `<div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t.aiCopyCopied}</div>` : ""}
+        ${aiExportText && !aiCopyDone ? `
+          <textarea id="aiExportOutput" readonly style="width:100%;box-sizing:border-box;min-height:90px;font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:8px" onclick="this.select()">${esc2(aiExportText)}</textarea>
+          <button class="btn" style="margin-top:6px" onclick="copyAIExportManually()">${t.aiCopyManualBtn}</button>
+          <div class="formula-note" style="margin-top:4px">${t.aiCopyManualHint}</div>
+        ` : ""}
         <button class="btn" style="margin-top:8px" onclick="copyAILink()">${t.aiCopyLinkBtn}</button>
         ${aiLinkCopyDone ? `<div style="font-size:11px;color:var(--ink-faint);margin-top:6px">${t.aiCopyLinkCopied}</div>` : `<div class="formula-note" style="margin-top:6px">${t.aiCopyLinkHint}</div>`}
+        ${aiLinkValue && !aiLinkCopyDone ? `
+          <input type="text" id="aiLinkOutput" readonly value="${esc2(aiLinkValue)}" onclick="this.select()" style="width:100%;box-sizing:border-box;margin-top:6px">
+          <button class="btn" style="margin-top:6px" onclick="copyAILinkManually()">${t.aiCopyManualBtn}</button>
+        ` : ""}
       </div>
 
       <div class="modal-row" style="margin-top:16px">

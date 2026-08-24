@@ -22,10 +22,15 @@
 
 const fs = require("fs");
 const path = require("path");
+const { compileContent } = require("./scripts/compile-content.js");
 
 const ROOT = __dirname;
 const SRC_HTML = path.join(ROOT, "dnd_character_sheet.src.html");
 const OUT_HTML = path.join(ROOT, "dnd_character_sheet.html");
+const FIELD_GUIDE_SRC_HTML = path.join(ROOT, "field-guide.src.html");
+const FIELD_GUIDE_OUT_HTML = path.join(ROOT, "field-guide.html");
+const RACES_CLASSES_JS = path.join(ROOT, "src", "data", "races-classes.js");
+const SHARE_LINK_JS = path.join(ROOT, "src", "share-link.js");
 
 function wrapVendorModuleAsIIFE(code, constName) {
   // Strip a trailing sourcemap comment, if any, so the export{...} statement
@@ -81,11 +86,15 @@ function build() {
   const threeIIFE = wrapVendorModuleAsIIFE(readVendor("three.module.min.js"), "THREE");
   const cannonIIFE = wrapVendorModuleAsIIFE(readVendor("cannon-es.min.js"), "CANNON");
   const diceModule = wrapDiceModule(fs.readFileSync(path.join(ROOT, "src", "dice-physics.js"), "utf8"));
+  const racesClassesModule = fs.readFileSync(RACES_CLASSES_JS, "utf8");
+  const shareLinkModule = fs.readFileSync(SHARE_LINK_JS, "utf8");
 
   const injections = {
     "<!-- BUILD:VENDOR three.module.min.js -->": threeIIFE,
     "<!-- BUILD:VENDOR cannon-es.min.js -->": cannonIIFE,
     "<!-- BUILD:MODULE src/dice-physics.js -->": diceModule,
+    "<!-- BUILD:MODULE src/data/races-classes.js -->": racesClassesModule,
+    "<!-- BUILD:MODULE src/share-link.js -->": shareLinkModule,
   };
 
   let missing = [];
@@ -104,4 +113,38 @@ function build() {
   console.log(`Built ${path.relative(ROOT, OUT_HTML)} (${(html.length / 1024).toFixed(0)} KB) from ${path.basename(SRC_HTML)} + vendor + src/dice-physics.js`);
 }
 
-build();
+function buildFieldGuide() {
+  if (!fs.existsSync(FIELD_GUIDE_SRC_HTML)) {
+    throw new Error(`${FIELD_GUIDE_SRC_HTML} not found — this build reads the .src.html template, not field-guide.html directly.`);
+  }
+  let html = fs.readFileSync(FIELD_GUIDE_SRC_HTML, "utf8");
+  const racesClassesModule = fs.readFileSync(RACES_CLASSES_JS, "utf8");
+  const shareLinkModule = fs.readFileSync(SHARE_LINK_JS, "utf8");
+
+  const injections = {
+    "<!-- BUILD:MODULE src/data/races-classes.js -->": racesClassesModule,
+    "<!-- BUILD:MODULE src/share-link.js -->": shareLinkModule,
+  };
+  let missing = [];
+  for (const [marker, content] of Object.entries(injections)) {
+    if (!html.includes(marker)) { missing.push(marker); continue; }
+    html = html.replace(marker, () => content);
+  }
+  if (missing.length) {
+    throw new Error(`Missing marker(s) in ${path.basename(FIELD_GUIDE_SRC_HTML)}: ${missing.join(", ")}`);
+  }
+
+  const banner = `<!-- GENERATED FILE — do not edit directly. Edit field-guide.src.html, then run \`node build.js\`. -->\n`;
+  html = banner + html;
+
+  fs.writeFileSync(FIELD_GUIDE_OUT_HTML, html);
+  console.log(`Built ${path.relative(ROOT, FIELD_GUIDE_OUT_HTML)} (${(html.length / 1024).toFixed(0)} KB) from ${path.basename(FIELD_GUIDE_SRC_HTML)} + src/data/races-classes.js + src/share-link.js`);
+}
+
+function main() {
+  compileContent();
+  build();
+  buildFieldGuide();
+}
+
+main();
