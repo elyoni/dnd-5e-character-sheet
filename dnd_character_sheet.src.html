@@ -2514,24 +2514,16 @@ function attackViewCard(a, i, opts){
   const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
   const typeLabel = attackTypeLabel(a.type, t);
   const spellAbilLabel = a.type==="spell" ? ` · ${t[a.spellAbil]}` : "";
+  const hitFormula = `d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?` ${fm(getAttackFeatBonus(state,a.type))} feat`:""}${a.magicBonus?` ${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}${getCritThreshold(state)<20?` · 🎯${getCritThreshold(state)}–20`:""}`;
+  const dmgFormula = `${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}${a.magicBonus?` ${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}`;
   return `
     ${opts.showName===false ? "" : `<div class="attack-view-name-row"><span class="attack-type-icon" title="${typeLabel}">${attackTypeIcon(a.type)}</span><span class="attack-name-view">${esc2(a.name)||t.atkName}</span><span class="attack-view-type">${typeLabel}${spellAbilLabel}</span><span class="attack-view-prof-inline">${a.prof?"●":"○"} ${t.atkProf}</span></div>`}
-    <div class="attack-tohit-group">
-      <div class="attack-stat">
-        <span class="dim-label">${t.atkBonus}</span>
-        <div class="attack-stat-val-row">
-          <span class="attack-stat-val">${fm(bonus)}</span>
-          ${opts.magicBonusChip||""}
-        </div>
-        <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}${a.magicBonus?`${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}${getCritThreshold(state)<20?` · 🎯${getCritThreshold(state)}–20`:""}</span>
-      </div>
+    <div class="spell-meta-row">
+      <span class="spell-meta-item"><span class="dim-label">${t.atkBonus}</span><span class="attack-stat-val-row"><span class="attack-stat-val">${fm(bonus)}</span>${opts.magicBonusChip||""}</span></span>
+      <span class="spell-meta-item"><span class="dim-label">${t.atkDmg}</span><span class="attack-stat-val">${esc2(a.dmg)||"—"}${a.dmgType?` · ${dmgTypeLabel(a.dmgType,t)}`:""}</span></span>
       ${opts.rollCube||""}
     </div>
-    <div class="attack-stat attack-stat-dmg">
-      <span class="dim-label">${t.atkDmg}</span>
-      <span class="attack-stat-val">${esc2(a.dmg)||"—"}${a.dmgType?` · ${dmgTypeLabel(a.dmgType,t)}`:""}</span>
-      <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}${a.magicBonus?` ${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}</span>
-    </div>
+    <div class="formula-note">${hitFormula}${a.dmg?` · ${t.atkDmg}: ${dmgFormula}`:""}</div>
     ${opts.showName===false ? `<div class="attack-view-prof">${a.prof?"●":"○"} ${t.atkProf}</div>` : ""}
     ${a.notes ? `<div class="attack-notes-view" dir="auto">${esc2(a.notes).replace(/\n/g,"<br>")}</div>` : ""}
   `;
