@@ -2515,7 +2515,7 @@ function attackViewCard(a, i, opts){
   const typeLabel = attackTypeLabel(a.type, t);
   const spellAbilLabel = a.type==="spell" ? ` · ${t[a.spellAbil]}` : "";
   return `
-    ${opts.showName===false ? "" : `<div class="attack-view-name-row"><span class="attack-type-icon" title="${typeLabel}">${attackTypeIcon(a.type)}</span><span class="attack-name-view">${esc2(a.name)||t.atkName}</span><span class="attack-view-type">${typeLabel}${spellAbilLabel}</span></div>`}
+    ${opts.showName===false ? "" : `<div class="attack-view-name-row"><span class="attack-type-icon" title="${typeLabel}">${attackTypeIcon(a.type)}</span><span class="attack-name-view">${esc2(a.name)||t.atkName}</span><span class="attack-view-type">${typeLabel}${spellAbilLabel}</span><span class="attack-view-prof-inline">${a.prof?"●":"○"} ${t.atkProf}</span></div>`}
     <div class="attack-tohit-group">
       <div class="attack-stat">
         <span class="dim-label">${t.atkBonus}</span>
@@ -2523,17 +2523,16 @@ function attackViewCard(a, i, opts){
           <span class="attack-stat-val">${fm(bonus)}</span>
           ${opts.magicBonusChip||""}
         </div>
-        <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}${a.magicBonus?`${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}${getCritThreshold(state)<20?`<br>🎯 ${t.critOnLabel} ${getCritThreshold(state)}–20`:""}</span>
+        <span class="formula-note">d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?`${fm(getAttackFeatBonus(state,a.type))} feat`:""}${a.magicBonus?`${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}${getCritThreshold(state)<20?` · 🎯${getCritThreshold(state)}–20`:""}</span>
       </div>
       ${opts.rollCube||""}
     </div>
     <div class="attack-stat attack-stat-dmg">
       <span class="dim-label">${t.atkDmg}</span>
       <span class="attack-stat-val">${esc2(a.dmg)||"—"}${a.dmgType?` · ${dmgTypeLabel(a.dmgType,t)}`:""}</span>
-      ${a.dmgType ? `<div class="attack-dmgtype-hint">${dmgTypeHint(a.dmgType,t)}</div>` : ""}
       <span class="formula-note">${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}${a.magicBonus?` ${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}</span>
     </div>
-    <div class="attack-view-prof">${a.prof?"●":"○"} ${t.atkProf}</div>
+    ${opts.showName===false ? `<div class="attack-view-prof">${a.prof?"●":"○"} ${t.atkProf}</div>` : ""}
     ${a.notes ? `<div class="attack-notes-view" dir="auto">${esc2(a.notes).replace(/\n/g,"<br>")}</div>` : ""}
   `;
 }
@@ -4203,13 +4202,14 @@ function buildPrintHTML(opts){
     /* Attack/Spell cards below reuse the same class names as the live app's View
        mode (attackViewCard/spellViewCard, see ADR 0006) — styled here for print. */
     .print-card-list{display:flex;flex-direction:column;gap:6px;}
-    .print-attack-card{display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px 14px;border:1px solid var(--line);background:var(--panel-2);border-radius:6px;padding:6px 10px;break-inside:avoid;}
-    .print-blank-card{min-height:46px;border-style:dashed;}
-    .attack-view-name-row, .spell-item-top{flex-basis:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;margin-bottom:3px;}
+    .print-attack-card{display:flex;flex-wrap:wrap;align-items:flex-start;gap:2px 14px;border:1px solid var(--line);background:var(--panel-2);border-radius:6px;padding:5px 10px;break-inside:avoid;}
+    .print-blank-card{min-height:40px;border-style:dashed;}
+    .attack-view-name-row, .spell-item-top{flex-basis:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;margin-bottom:2px;}
     .attack-name-view, .spell-name-view{font-weight:700;}
     .attack-view-type{font-size:10.5px;color:var(--ink-faint);font-weight:400;}
+    .attack-view-prof-inline{margin-inline-start:auto;font-size:10.5px;font-weight:400;color:var(--ink-dim);white-space:nowrap;}
     .attack-tohit-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;flex:1 1 200px;}
-    .attack-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;font-size:11.5px;min-width:90px;flex:1;}
+    .attack-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px;font-size:11.5px;min-width:90px;flex:1;}
     .attack-stat-dmg{flex:1 1 200px;min-width:130px;}
     .attack-view-prof, .attack-notes-view{flex-basis:100%;}
     .dim-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
@@ -4218,10 +4218,10 @@ function buildPrintHTML(opts){
     .formula-note{font-size:9.5px;color:var(--ink-faint);}
     .attack-dmgtype-hint{font-size:9px;color:var(--ink-faint);}
     .attack-view-prof{font-size:10.5px;color:var(--ink-dim);}
-    .attack-notes-view{margin-top:4px;font-size:11px;color:var(--ink-dim);white-space:pre-wrap;}
+    .attack-notes-view{margin-top:2px;font-size:11px;color:var(--ink-dim);white-space:pre-wrap;}
     .spell-view-prepared{font-weight:700;}
     .spell-category-icon{font-size:12px;}
-    .spell-meta-row{display:flex;gap:12px;flex-wrap:wrap;margin:3px 0;}
+    .spell-meta-row{display:flex;gap:12px 26px;flex-wrap:wrap;margin:3px 0;}
     .spell-meta-item{display:flex;flex-direction:column;font-size:10.5px;gap:1px;}
     .spell-dmg-row{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:11px;}
     .ctv-group{display:flex;gap:4px;}
@@ -4277,7 +4277,8 @@ function buildPrintHTML(opts){
     </div>
 
     <div class="panel"><h2>${t.inventory}</h2>
-      <div style="font-size:13px;margin-bottom:8px"><b>${t.currency}:</b> ${["cp","sp","ep","gp","pp"].map(c=>`${state.inventory.currency[c]} ${c.toUpperCase()}`).join(" · ")}</div>
+      <div style="font-size:13px;margin-bottom:6px"><b>${t.currency}</b></div>
+      <div class="combat-strip" style="margin-bottom:8px">${["cp","sp","ep","gp","pp"].map(c=>`<div class="combat-box"><span class="label">${c.toUpperCase()}</span><span class="big" style="font-size:15px">${state.inventory.currency[c]}</span><div class="hp-write-space"></div></div>`).join("")}</div>
       ${(() => {
         const gearItems = state.inventory.items.filter(it=>it.type==="gear");
         const armorItems = state.inventory.items.filter(it=>it.type==="armor"||it.type==="shield");
