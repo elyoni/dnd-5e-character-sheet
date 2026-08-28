@@ -2,6 +2,7 @@
 label:
   en: Fighter
   he: לוחם
+img: content/images/classes/fighter.jpg
 hitDie: 10
 saves:
   - str

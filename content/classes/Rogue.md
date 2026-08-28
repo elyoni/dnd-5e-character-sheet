@@ -2,6 +2,7 @@
 label:
   en: Rogue
   he: נוכל
+img: content/images/classes/rogue.jpg
 hitDie: 8
 saves:
   - dex

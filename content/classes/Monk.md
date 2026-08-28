@@ -2,6 +2,7 @@
 label:
   en: Monk
   he: נזיר
+img: content/images/classes/monk.jpg
 hitDie: 8
 saves:
   - str

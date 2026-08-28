@@ -2,6 +2,7 @@
 label:
   en: Ranger
   he: סייר
+img: content/images/classes/ranger.jpg
 hitDie: 10
 saves:
   - str

@@ -2,6 +2,7 @@
 label:
   en: Sorcerer
   he: קוסם מלידה
+img: content/images/classes/sorcerer.jpg
 hitDie: 6
 saves:
   - con

@@ -2,6 +2,7 @@
 label:
   en: Druid
   he: דרואיד
+img: content/images/classes/druid.jpg
 hitDie: 8
 saves:
   - int

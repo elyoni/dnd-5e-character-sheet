@@ -2,6 +2,7 @@
 label:
   en: Paladin
   he: פלדין
+img: content/images/classes/paladin.jpg
 hitDie: 10
 saves:
   - wis
