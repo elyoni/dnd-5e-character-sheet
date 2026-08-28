@@ -4052,10 +4052,11 @@ function buildPrintHTML(opts){
   const effAbil = getEffectiveAbilities(state);
   const effSpeed = getEffectiveSpeed(state);
   const darkvisionRange = getEffectiveDarkvision(state);
-  const secondarySpeedParts = [["climb","🕷️"],["swim","🏊"],["fly","🦅"]]
+  const secondarySpeedPartsArr = [["climb","🕷️"],["swim","🏊"],["fly","🦅"]]
     .map(([k,icon])=>{ const v = getEffectiveSecondarySpeed(state,k); return v>0 ? `${icon} ${t[SECONDARY_SPEED_LABEL_KEY[k]]}: ${v} ft` : null; })
     .concat([darkvisionRange>0 ? `👁️ ${t.featDarkvision}: ${darkvisionRange} ft` : null])
-    .filter(Boolean).join(" · ");
+    .filter(Boolean);
+  const secondarySpeedParts = secondarySpeedPartsArr.map(p=>`<div>${p}</div>`).join("");
   const effInit = getEffectiveInitiative(state);
   const dexMod = mod(effAbil.dex), conMod = mod(effAbil.con);
 
@@ -4069,13 +4070,13 @@ function buildPrintHTML(opts){
   const saveRows = ABILS.map(a=>{
     const p = state.saveProf[a];
     const val = mod(effAbil[a]) + (p?prof:0);
-    return `<div class="list-row"><span class="mark">${p?"●":"○"}</span><span>${ABIL_ICON[a]} ${t[a]}</span><span class="val">${fm(val)}</span></div>`;
+    return `<div class="list-row"><span class="mark">${p?"●":"○"}</span><span><span class="row-icon">${ABIL_ICON[a]}</span>${t[a]}</span><span class="val">${fm(val)}</span></div>`;
   }).join("");
   const skillRows = SKILLS.map(([key,abil,en,he])=>{
     const p = !!state.skillProf[key];
     const e = !!state.skillExpertise[key];
     const val = mod(effAbil[abil]) + (p?prof*(e?2:1):0);
-    return `<div class="list-row skill-row"><span class="mark">${p?"●":"○"}</span><span class="mark">${e?"★":""}</span><span>${ABIL_ICON[abil]} ${lang==='he'?he:en} <span class="ability-tag">(${t[abil]})</span></span><span class="val">${fm(val)}</span></div>`;
+    return `<div class="list-row skill-row"><span class="mark">${p?"●":"○"}</span><span class="mark">${e?"★":"☆"}</span><span><span class="row-icon">${ABIL_ICON[abil]}</span>${lang==='he'?he:en} <span class="ability-tag">(${t[abil]})</span></span><span class="val">${fm(val)}</span></div>`;
   }).join("");
 
   // Attack/Spell rows reuse the live app's View-mode card renderer (attackViewCard/
@@ -4157,22 +4158,21 @@ function buildPrintHTML(opts){
     .shape-bg{position:absolute;inset:0;width:100%;height:100%;}
     .shape-bg path{fill:var(--panel-2);stroke:var(--gold);stroke-width:3;}
     .shape-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;height:100%;padding-top:4px;}
-    .hp-box{position:relative;overflow:hidden;}
-    .hp-heart-bg{position:absolute;top:28px;left:0;right:0;margin:0 auto;width:82px;height:82px;opacity:0.08;pointer-events:none;}
-    .hp-heart-bg path{fill:var(--blood);stroke:none;}
-    .hp-box > *:not(.hp-heart-bg){position:relative;z-index:1;}
+    .hp-box{position:relative;}
+    .hp-write-space{border-top:1px dashed var(--line);margin-top:6px;height:16px;}
     .conc-row{margin-top:7px;padding-top:7px;border-top:1px solid var(--line);font-size:12px;display:flex;gap:14px;flex-wrap:wrap;}
     .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .two-col-13{display:grid;grid-template-columns:1fr 2fr;gap:10px;}
     @media(max-width:640px){.two-col-13{grid-template-columns:1fr;}}
-    .list-row{display:grid;grid-template-columns:18px 1fr 36px;gap:5px;padding:2.5px 2px;border-bottom:1px solid #e6dcc0;font-size:12.5px;align-items:center;}
-    [dir="rtl"] .list-row{grid-template-columns:36px 1fr 18px;}
-    .list-row.skill-row{grid-template-columns:18px 18px 1fr 36px;}
-    [dir="rtl"] .list-row.skill-row{grid-template-columns:36px 36px 1fr 18px;}
-    .list-row .mark{color:var(--gold-bright);text-align:center;}
+    .list-row{display:grid;grid-template-columns:20px 1fr 36px;gap:6px;padding:2.5px 2px;border-bottom:1px solid #e6dcc0;font-size:12.5px;align-items:center;}
+    [dir="rtl"] .list-row{grid-template-columns:36px 1fr 20px;}
+    .list-row.skill-row{grid-template-columns:20px 20px 1fr 36px;}
+    [dir="rtl"] .list-row.skill-row{grid-template-columns:36px 36px 1fr 20px;}
+    .list-row .mark{color:var(--gold-bright);text-align:center;font-size:13px;}
+    .list-row .row-icon{display:inline-block;margin-${dir==='rtl'?'left':'right'}:5px;}
     .list-row .val{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:center;color:var(--gold);}
     .ability-tag{font-size:9.5px;color:var(--ink-faint);}
-    .skills-grid{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:repeat(9,auto);column-gap:16px;}
+    .skills-grid{display:flex;flex-direction:column;}
     .table-scroll{width:100%;overflow-x:auto;}
     table{width:100%;border-collapse:collapse;font-size:12.5px;}
     th{text-align:${dir==='rtl'?'right':'left'};font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);border-bottom:1px solid var(--line);padding:3px 5px;}
@@ -4203,14 +4203,15 @@ function buildPrintHTML(opts){
     /* Attack/Spell cards below reuse the same class names as the live app's View
        mode (attackViewCard/spellViewCard, see ADR 0006) — styled here for print. */
     .print-card-list{display:flex;flex-direction:column;gap:6px;}
-    .print-attack-card{border:1px solid var(--line);background:var(--panel-2);border-radius:6px;padding:6px 10px;break-inside:avoid;}
+    .print-attack-card{display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px 14px;border:1px solid var(--line);background:var(--panel-2);border-radius:6px;padding:6px 10px;break-inside:avoid;}
     .print-blank-card{min-height:46px;border-style:dashed;}
-    .attack-view-name-row, .spell-item-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;margin-bottom:3px;}
+    .attack-view-name-row, .spell-item-top{flex-basis:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;margin-bottom:3px;}
     .attack-name-view, .spell-name-view{font-weight:700;}
     .attack-view-type{font-size:10.5px;color:var(--ink-faint);font-weight:400;}
-    .attack-tohit-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:3px;}
-    .attack-stat{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-size:11.5px;min-width:90px;}
-    .attack-stat-dmg{min-width:130px;}
+    .attack-tohit-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;flex:1 1 200px;}
+    .attack-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;font-size:11.5px;min-width:90px;flex:1;}
+    .attack-stat-dmg{flex:1 1 200px;min-width:130px;}
+    .attack-view-prof, .attack-notes-view{flex-basis:100%;}
     .dim-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
     .attack-stat-val{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ink);}
     .attack-stat-val-row{display:flex;align-items:center;gap:6px;}
@@ -4243,7 +4244,7 @@ function buildPrintHTML(opts){
         <div class="combat-box"><span class="label">🐇 ${t.speed}</span><span class="big">${effSpeed} <span style="font-size:11px">(${Math.floor(effSpeed/5)} sq)</span></span>${secondarySpeedParts ? `<div class="formula-note">${secondarySpeedParts}</div>` : ""}</div>
         <div class="combat-box"><span class="label">${t.hitdice}</span><span class="big" style="font-size:15px">${esc(computeHitDice(state))}</span></div>
         <div class="combat-box"><span class="label">${t.prof}</span><span class="big">${fm(prof)}</span></div>
-        <div class="combat-box hp-box"><svg class="hp-heart-bg" viewBox="0 0 100 100"><path d="M50 90 C18 66 2 46 2 25 C2 8 15 2 27 2 C38 2 46 8 50 19 C54 8 62 2 73 2 C85 2 98 8 98 25 C98 46 82 66 50 90 Z"/></svg><span class="label">❤️ ${t.hp}${state.hpAutoCalc?" (auto)":""}</span><span class="big">${state.hpCur} / ${state.hpMax + getFeatBonus(state,"hp")}</span></div>
+        <div class="combat-box hp-box"><span class="label">❤️ ${t.hp}${state.hpAutoCalc?" (auto)":""}</span><span class="big">${state.hpCur} / ${state.hpMax + getFeatBonus(state,"hp")}</span><div class="hp-write-space"></div></div>
       </div>
       <div class="conc-row">
         <span><b>${t.acBreakdown}:</b> ${acFormulaNote(state, t)}</span>
@@ -4260,7 +4261,7 @@ function buildPrintHTML(opts){
         ${saveRows}
       </div>
       <div class="panel"><h2>${t.skills}</h2>
-        <div class="pdim" style="margin-bottom:6px;line-height:1.4">${lang==='en' ? 'd20 + ability mod (in parens) + prof (● only)' : 'd20 + מודיפייר תכונה (בסוגריים) + מיומנות (● בלבד)'}</div>
+        <div class="pdim" style="margin-bottom:6px;line-height:1.4">${lang==='en' ? 'd20 + ability mod (in parens) + prof (● proficient, ★ expertise)' : 'd20 + מודיפייר תכונה (בסוגריים) + מיומנות (● מיומן, ★ מומחיות)'}</div>
         <div class="skills-grid">${skillRows}</div>
         <div class="conc-row" style="margin-top:8px;padding-top:8px">
           <span><b>${t.passivePerception}:</b> ${computePassivePerception(state)} <span class="pdim">(10 + WIS ${fm(mod(effAbil.wis))}${state.skillProf.perception?` + prof ${fm(prof*(state.skillExpertise.perception?2:1))}`:""})</span></span>
