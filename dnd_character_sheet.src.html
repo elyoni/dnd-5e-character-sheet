@@ -449,7 +449,8 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .attack-type-icon{flex:0 0 auto;font-size:14px;}
 .attack-card.folded .attack-card-row2,
 .attack-card.folded .dice-history,
-.attack-card.folded .attack-notes-input{display:none;}
+.attack-card.folded .attack-notes-input,
+.attack-card.folded .attack-card-top .edit-toggle-btn{display:none;}
 .attack-fold-summary{display:none;margin:0 6px;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;table-layout:fixed;}
 .attack-card.folded .attack-fold-summary{display:table;flex:1 1 40px;min-width:0;width:auto;}
 .attack-card.folded .attack-name-view-top{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -462,9 +463,20 @@ td input, td select{padding:6px 7px;font-size:15px;}
 .edit-toggle-btn{flex:0 0 auto;background:none;border:1px solid var(--leather-line);border-radius:4px;color:var(--ink-faint);cursor:pointer;font-size:11px;padding:3px 8px;}
 .edit-toggle-btn:hover{color:var(--gold-bright);border-color:var(--gold);}
 .attack-view-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;}
-.attack-view-type{font-size:11px;color:var(--ink-faint);font-weight:400;}
-.attack-view-prof{font-size:11px;color:var(--ink-faint);white-space:nowrap;align-self:center;}
 .attack-notes-view{width:100%;margin-top:6px;font-size:13.5px;color:var(--ink-dim);white-space:pre-wrap;}
+.attack-box-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;align-items:stretch;}
+.attack-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:1 1 130px;min-width:110px;border:1px solid var(--leather-line);border-radius:8px;padding:8px 10px;background:var(--panel);text-align:center;}
+.attack-box-val-row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;}
+.attack-box-val{display:flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;color:var(--gold-bright);}
+.attack-box-die{display:flex;align-items:center;justify-content:center;width:26px;height:26px;flex:0 0 auto;border-radius:50%;border:1px solid var(--leather-line);background:transparent;color:var(--gold-bright);cursor:pointer;padding:0;}
+.attack-box-die:hover{border-color:var(--gold);color:var(--gold);}
+.attack-box-die svg{width:15px;height:15px;}
+.attack-box-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint);}
+.attack-box-formula{font-size:10px;color:var(--ink-faint);margin-top:1px;}
+.attack-roll-panel{width:100%;border:1px solid var(--leather-line);border-radius:8px;padding:6px 10px;background:var(--panel);display:flex;flex-direction:column;align-items:center;gap:4px;}
+.attack-roll-divider{width:100%;text-align:center;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint);border-top:1px solid var(--leather-line);padding-top:4px;margin-top:2px;}
+.attack-tag-row{width:100%;text-align:center;font-size:11px;color:var(--ink-dim);border:1px solid var(--leather-line);border-radius:8px;padding:5px 10px;background:var(--panel);}
+.attack-tag-row .attack-notes-view{text-align:center;margin-top:5px;}
 .ctv-chip-view{font-size:9px;letter-spacing:0.5px;color:var(--ink-faint);text-transform:uppercase;border:1px solid var(--leather-line);border-radius:3px;padding:1px 4px;}
 .view-toggle-group{display:flex;gap:4px;}
 .view-toggle-group .btn{padding:3px 9px;font-size:11px;}
@@ -785,7 +797,7 @@ const T = {
     hpAuto:"Auto-calc from Hit Die + CON", hpAutoNote:"level 1: full die + CON · after: avg die + CON per level",
     diceRoller:"Dice Roller", diceClear:"Clear", diceNoRolls:"No rolls yet",
     saves:"Saving Throws", skills:"Skills", passivePerception:"Passive Perception", proficient:"Proficient", expertise:"Expertise",
-    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkDmgType:"Dmg Type", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", atkFoldAtk:"atk", atkFoldDmg:"dmg", addRow:"Attack", atkMagicBonus:"Magic", atkMagicBonusAbbr:"magic", atkMagicBonusHint:"Flat bonus from a magic weapon (e.g. +1/+2/+3), added to both the attack roll and the damage roll.",
+    attacks:"Attacks", atkName:"Name", atkType:"Type", atkProf:"Prof.", atkBonus:"To Attack", atkDmg:"Damage", atkDmgType:"Dmg Type", atkNotes:"Notes", atkRoll:"Roll", atkHit:"Hit", atkHitAbbr:"H", atkDmgAbbr:"D", atkFoldAtk:"atk", atkFoldDmg:"dmg", addRow:"Attack", atkMagicBonus:"Magic", atkMagicBonusAbbr:"magic", atkMagicBonusHint:"Flat bonus from a magic weapon (e.g. +1/+2/+3), added to both the attack roll and the damage roll.", atkOnHit:"on hit", diceHistoryLabel:"Dice history",
     melee:"Melee", ranged:"Ranged", finesse:"Finesse", natural:"Natural", spell:"Spell",
     dmgNone:"—", dmgBludgeoning:"Bludgeoning", dmgPiercing:"Piercing", dmgSlashing:"Slashing", dmgAcid:"Acid", dmgCold:"Cold", dmgFire:"Fire", dmgForce:"Force", dmgLightning:"Lightning", dmgNecrotic:"Necrotic", dmgPoison:"Poison", dmgPsychic:"Psychic", dmgRadiant:"Radiant", dmgThunder:"Thunder",
     dmgTypeHint_bludgeoning:"Blunt-force impact, like a hammer, fist, or falling.", dmgTypeHint_piercing:"Puncturing wounds, like from arrows, spears, or bites.", dmgTypeHint_slashing:"Cutting damage, like from swords or claws.", dmgTypeHint_acid:"Corrosive chemical damage that can dissolve materials.", dmgTypeHint_cold:"Freezing damage from ice or extreme cold.", dmgTypeHint_fire:"Burning damage from flame or heat.", dmgTypeHint_force:"Pure magical energy, unaffected by most resistances.", dmgTypeHint_lightning:"Electrical damage from a lightning bolt or shock.", dmgTypeHint_necrotic:"Withering, life-draining damage that decays what it touches.", dmgTypeHint_poison:"Toxins and venom, often causing sickness.", dmgTypeHint_psychic:"Mental damage that assaults the mind directly.", dmgTypeHint_radiant:"Divine, holy energy that sears the wicked.", dmgTypeHint_thunder:"A concussive burst of sound.",
@@ -998,7 +1010,7 @@ const T = {
     hpAuto:"חישוב אוטומטי מקוביית חיים + חוסן", hpAutoNote:"רמה 1: קוביה מלאה + חוסן · אחר כך: ממוצע קוביה + חוסן לכל רמה",
     diceRoller:"הטלת קוביות", diceClear:"נקה", diceNoRolls:"עוד לא הוטלה קוביה",
     saves:"הצלות", skills:"כישורים", passivePerception:"תפיסה פסיבית", proficient:"מיומן", expertise:"מומחיות",
-    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkDmgType:"סוג נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", atkFoldAtk:"תקיפה", atkFoldDmg:"נזק", addRow:"הוסף התקפה", atkMagicBonus:"קסם", atkMagicBonusAbbr:"קסם", atkMagicBonusHint:"בונוס קבוע מנשק קסום (למשל +1/+2/+3), מתווסף גם לגלגול התקיפה וגם לגלגול הנזק.",
+    attacks:"התקפות", atkName:"שם", atkType:"סוג", atkProf:"מיומן", atkBonus:"לתקיפה", atkDmg:"נזק", atkDmgType:"סוג נזק", atkNotes:"הערות", atkRoll:"הטל", atkHit:"פגיעה", atkHitAbbr:"פ", atkDmgAbbr:"נ", atkFoldAtk:"תקיפה", atkFoldDmg:"נזק", addRow:"הוסף התקפה", atkMagicBonus:"קסם", atkMagicBonusAbbr:"קסם", atkMagicBonusHint:"בונוס קבוע מנשק קסום (למשל +1/+2/+3), מתווסף גם לגלגול התקיפה וגם לגלגול הנזק.", atkOnHit:"בפגיעה", diceHistoryLabel:"היסטוריית הטלות",
     melee:"קרב מגע", ranged:"טווח", finesse:"זריזות/כוח", natural:"טבעי", spell:"קסם",
     dmgNone:"—", dmgBludgeoning:"מוחץ", dmgPiercing:"חודר", dmgSlashing:"חותך", dmgAcid:"חומצה", dmgCold:"קור", dmgFire:"אש", dmgForce:"כוח", dmgLightning:"ברק", dmgNecrotic:"נמק", dmgPoison:"רעל", dmgPsychic:"נפשי", dmgRadiant:"קרינה", dmgThunder:"רעם",
     dmgTypeHint_bludgeoning:"מכה קהה, כמו פטיש, אגרוף או נפילה.", dmgTypeHint_piercing:"פצע חודר, כמו מחץ, חנית או נשיכה.", dmgTypeHint_slashing:"נזק חיתוך, כמו מחרב או טפרים.", dmgTypeHint_acid:"נזק כימי מאכל שמסוגל להמיס חומרים.", dmgTypeHint_cold:"נזק הקפאה מקור קיצוני או קרח.", dmgTypeHint_fire:"נזק שריפה מלהבה או חום.", dmgTypeHint_force:"אנרגיה קסומה טהורה, כמעט ואינה מושפעת מהתנגדויות.", dmgTypeHint_lightning:"נזק חשמלי מברק או הלם.", dmgTypeHint_necrotic:"נזק מכלה ושואב חיים שמרקיב את מה שהוא נוגע בו.", dmgTypeHint_poison:"רעלים וארס, גורמים לרוב למחלה.", dmgTypeHint_psychic:"נזק נפשי שתוקף את התודעה ישירות.", dmgTypeHint_radiant:"אנרגיה קדושה ואלוהית ששורפת את הרשעים.", dmgTypeHint_thunder:"פרץ קול מחץ.",
@@ -1852,9 +1864,80 @@ async function rollAttack(i){
   const banners = [{key:'hit', title:T[lang].atkHit, value:hitValueText, y:0.38}];
   if(parsed) banners.push({key:'dmg', title:T[lang].atkDmg, value:fmtCalcBanner(dmgRolls.join("+"), dmgBonus, dmgTotal), y:0.72});
   showRollBanner(banners);
-  attackRolls[i] = {hitRoll, hitTotal, bonus, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal, crit, fumble, hasDmg: !!parsed};
+  attackRolls[i] = {hasHit:true, hitRoll, hitTotal, bonus, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal, crit, fumble, hasDmg: !!parsed};
   if(!attackRollHistories[i]) attackRollHistories[i] = [];
   attackRollHistories[i].unshift({hitTotal, dmgTotal: parsed ? dmgTotal : null, crit, fumble});
+  attackRollHistories[i] = attackRollHistories[i].slice(0, 10);
+  render();
+}
+// Dedicated per-box rolls (attack card's To-Hit / Damage boxes): unlike rollAttack
+// (which throws both at once and handles the crit-doubles-damage-dice rule), these
+// throw only the one die the player clicked — no crit-damage follow-up roll, since
+// a damage-only throw has no hit result to decide whether it crit.
+async function rollAttackToHit(i){
+  const a = state.attacks[i];
+  const abil = abilForAttack(a);
+  const eff = getEffectiveAbilities(state);
+  const profBonus = a.prof ? profByLevel(state.level) : 0;
+  const featBonus = getAttackFeatBonus(state, a.type);
+  const magicBonus = a.magicBonus||0;
+  const hitAbilMod = mod(eff[abil]);
+  const bonus = hitAbilMod + profBonus + featBonus + magicBonus;
+
+  if(diceMode==="hardcore"){
+    const hitFormula = `d20${hcTerm(hitAbilMod, T[lang][abil])}${hcTerm(profBonus, T[lang].hcProf)}${hcTerm(featBonus, T[lang].hcFeat)}${hcTerm(magicBonus, T[lang].atkMagicBonusAbbr)}`;
+    showHardcoreRoll(a.name || '', [{key:'hit', title:T[lang].atkHit, value:hitFormula, y:0.42}]);
+    return;
+  }
+
+  lastRolledAttackIndex = i;
+  clearTimeout(lastRolledAttackTimer);
+  lastRolledAttackTimer = setTimeout(()=>{ lastRolledAttackIndex = null; render(); }, 600);
+
+  const results = await rollPhysicalDice([{sides:20, count:1, tag:'hit'}], a.name || '', { immediateHint: false });
+  const hitRoll = results[0].value;
+  const hitTotal = hitRoll + bonus;
+  const crit = hitRoll >= getCritThreshold(state);
+  const fumble = hitRoll===1;
+  const hitValueText = `${fmtCalcBanner(hitRoll, bonus, hitTotal)}${crit?' 🎯':fumble?' 💀':''}`;
+  showRollBanner([{key:'hit', title:T[lang].atkHit, value:hitValueText, y:0.42}]);
+  attackRolls[i] = {hasHit:true, hitRoll, hitTotal, bonus, crit, fumble, hasDmg:false};
+  if(!attackRollHistories[i]) attackRollHistories[i] = [];
+  attackRollHistories[i].unshift({hitTotal, dmgTotal: null, crit, fumble});
+  attackRollHistories[i] = attackRollHistories[i].slice(0, 10);
+  render();
+}
+async function rollAttackDamageOnly(i){
+  const a = state.attacks[i];
+  const parsed = parseDiceString(a.dmg);
+  if(!parsed) return;
+  const abil = abilForAttack(a);
+  const eff = getEffectiveAbilities(state);
+  const abilMod = (a.type !== "spell") ? mod(eff[abil]) : 0;
+  const dmgFeatBonus = getDamageFeatBonus(state, a.type);
+  const dmgFlat = parsed.flat||0;
+  const magicBonus = a.magicBonus||0;
+  const dmgBonus = dmgFlat + abilMod + dmgFeatBonus + magicBonus;
+
+  if(diceMode==="hardcore"){
+    const rollPart = `${parsed.count}d${parsed.die}`;
+    const dmgFormula = `${rollPart}${hcTerm(dmgFlat, T[lang].hcFlatBonus)}${hcTerm(abilMod, T[lang][abil])}${hcTerm(dmgFeatBonus, T[lang].hcFeat)}${hcTerm(magicBonus, T[lang].atkMagicBonusAbbr)}`;
+    showHardcoreRoll(a.name || '', [{key:'dmg', title:T[lang].atkDmg, value:dmgFormula, y:0.42}]);
+    return;
+  }
+
+  lastRolledAttackIndex = i;
+  clearTimeout(lastRolledAttackTimer);
+  lastRolledAttackTimer = setTimeout(()=>{ lastRolledAttackIndex = null; render(); }, 600);
+
+  const results = await rollPhysicalDice([{sides:parsed.die, count:parsed.count, tag:'dmg'}], a.name || '', { immediateHint: false });
+  const dmgRolls = sumTag(results, 'dmg');
+  const dmgDiceSum = dmgRolls.reduce((x,y)=>x+y,0);
+  const dmgTotal = dmgDiceSum + dmgBonus;
+  showRollBanner([{key:'dmg', title:T[lang].atkDmg, value:fmtCalcBanner(dmgRolls.join("+"), dmgBonus, dmgTotal), y:0.42}]);
+  attackRolls[i] = {hasHit:false, hasDmg:true, dmgRolls, dmgDiceSum, abilMod, dmgFeatBonus, dmgFlat, dmgBonus, dmgTotal};
+  if(!attackRollHistories[i]) attackRollHistories[i] = [];
+  attackRollHistories[i].unshift({hitTotal: null, dmgTotal, crit:false, fumble:false});
   attackRollHistories[i] = attackRollHistories[i].slice(0, 10);
   render();
 }
@@ -2511,21 +2594,58 @@ function attackViewCard(a, i, opts){
   const t = T[lang];
   const abil = abilForAttack(a);
   const abilMod = mod(state.abilities[abil]+getFeatBonus(state,abil));
-  const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
+  const profBonus = a.prof ? profByLevel(state.level) : 0;
+  const featBonus = getAttackFeatBonus(state, a.type);
+  const magicBonus = a.magicBonus||0;
+  const bonus = abilMod + profBonus + featBonus + magicBonus;
   const typeLabel = attackTypeLabel(a.type, t);
   const spellAbilLabel = a.type==="spell" ? ` · ${t[a.spellAbil]}` : "";
-  const hitFormula = `d20+${t[abil]}(${fm(abilMod)})${a.prof?"+prof":""}${getAttackFeatBonus(state,a.type)?` ${fm(getAttackFeatBonus(state,a.type))} feat`:""}${a.magicBonus?` ${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}${getCritThreshold(state)<20?` · 🎯${getCritThreshold(state)}–20`:""}`;
-  const dmgFormula = `${a.type!=="spell"?`+${t[abil]}(${fm(abilMod)})`:(lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')}${getDamageFeatBonus(state,a.type)?` ${fm(getDamageFeatBonus(state,a.type))} feat`:""}${a.magicBonus?` ${fm(a.magicBonus)} ${t.atkMagicBonusAbbr}`:""}`;
-  return `
-    ${opts.showName===false ? "" : `<div class="attack-view-name-row"><span class="attack-type-icon" title="${typeLabel}">${attackTypeIcon(a.type)}</span><span class="attack-name-view">${esc2(a.name)||t.atkName}</span><span class="attack-view-type">${typeLabel}${spellAbilLabel}</span><span class="attack-view-prof-inline">${a.prof?"●":"○"} ${t.atkProf}</span></div>`}
-    <div class="spell-meta-row">
-      <span class="spell-meta-item"><span class="dim-label">${t.atkBonus}</span><span class="attack-stat-val-row"><span class="attack-stat-val">${fm(bonus)}</span>${opts.magicBonusChip||""}</span></span>
-      <span class="spell-meta-item"><span class="dim-label">${t.atkDmg}</span><span class="attack-stat-val">${esc2(a.dmg)||"—"}${a.dmgType?` · ${dmgTypeLabel(a.dmgType,t)}`:""}</span></span>
+
+  const hitTerms = [`${t[abil]}(${fm(abilMod)})`];
+  if(profBonus) hitTerms.push(`${t.hcProf}(${fm(profBonus)})`);
+  if(featBonus) hitTerms.push(`${t.hcFeat}(${fm(featBonus)})`);
+  if(magicBonus) hitTerms.push(`${t.atkMagicBonusAbbr}(${fm(magicBonus)})`);
+  const critNote = getCritThreshold(state)<20 ? ` · 🎯${getCritThreshold(state)}–20` : "";
+  const hitFormula = `d20 + ${hitTerms.join(" + ")}${critNote}`;
+
+  const dmgFeatBonus = getDamageFeatBonus(state, a.type);
+  const dmgTerms = [a.type!=="spell" ? `${t[abil]}(${fm(abilMod)})` : (lang==='en'?'no ability mod (spell)':'בלי מודיפייר (קסם)')];
+  if(dmgFeatBonus) dmgTerms.push(`${t.hcFeat}(${fm(dmgFeatBonus)})`);
+  if(magicBonus) dmgTerms.push(`${t.atkMagicBonusAbbr}(${fm(magicBonus)})`);
+  const dmgFormula = a.dmg ? `${dmgTerms.join(" + ")} ${t.atkOnHit}` : "";
+
+  const tagParts = [`${attackTypeIcon(a.type)} ${typeLabel}${spellAbilLabel}`, a.magicBonus ? `✨ ${t.atkMagicBonus}` : "", a.prof ? t.atkProf : ""].filter(Boolean);
+  const rollPanel = (opts.rollCube || opts.diceHistoryHTML) ? `
+    <div class="attack-roll-panel no-print">
       ${opts.rollCube||""}
+      ${opts.diceHistoryHTML ? `<div class="attack-roll-divider">${t.diceHistoryLabel}</div>${opts.diceHistoryHTML}` : ""}
+    </div>` : "";
+  return `
+    ${opts.showName===false ? "" : `<div class="attack-view-name-row"><span class="attack-type-icon" title="${typeLabel}">${attackTypeIcon(a.type)}</span><span class="attack-name-view">${esc2(a.name)||t.atkName}</span></div>`}
+    <div class="attack-box-row">
+      <div class="attack-box attack-box-hit">
+        <span class="attack-box-label">🎯 ${t.atkBonus}</span>
+        <div class="attack-box-val-row">
+          <span class="attack-box-val">${fm(bonus)}</span>
+          <button type="button" class="attack-box-die" onclick="rollAttackToHit(${i})" title="${t.atkRoll}">${d6DrawSVG()}</button>
+        </div>
+        <span class="attack-box-formula">${hitFormula}</span>
+        ${opts.magicBonusChip||""}
+      </div>
+      <div class="attack-box attack-box-dmg">
+        <span class="attack-box-label">💥 ${a.dmgType ? dmgTypeLabel(a.dmgType,t) : t.atkDmg}</span>
+        <div class="attack-box-val-row">
+          <span class="attack-box-val">${esc2(a.dmg)||"—"}</span>
+          ${a.dmg ? `<button type="button" class="attack-box-die" onclick="rollAttackDamageOnly(${i})" title="${t.atkRoll}">${d6DrawSVG()}</button>` : ""}
+        </div>
+        ${a.dmg ? `<span class="attack-box-formula">${dmgFormula}</span>` : ""}
+      </div>
     </div>
-    <div class="formula-note">${hitFormula}${a.dmg?` · ${t.atkDmg}: ${dmgFormula}`:""}</div>
-    ${opts.showName===false ? `<div class="attack-view-prof">${a.prof?"●":"○"} ${t.atkProf}</div>` : ""}
-    ${a.notes ? `<div class="attack-notes-view" dir="auto">${esc2(a.notes).replace(/\n/g,"<br>")}</div>` : ""}
+    ${rollPanel}
+    ${tagParts.length || a.notes ? `<div class="attack-tag-row">
+      ${tagParts.length ? `<div>${tagParts.join(" • ")}</div>` : ""}
+      ${a.notes ? `<div class="attack-notes-view" dir="auto">${esc2(a.notes).replace(/\n/g,"<br>")}</div>` : ""}
+    </div>` : ""}
   `;
 }
 function attackRow(a, i){
@@ -2535,46 +2655,50 @@ function attackRow(a, i){
 
   const rollCube = !attackRolls[i] ? `` : `
     <div class="attack-cube-row no-print">
+      ${attackRolls[i].hasHit!==false ? `
       <div class="atk-cube-col">
         <span class="dim-label">${t.atkHit}</span>
-        <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(20, attackRolls[i].hitRoll)}</div>
+        <div class="atk-die-btn" onclick="rollAttackToHit(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(20, attackRolls[i].hitRoll)}</div>
         <span class="cube-bonus">${fm(attackRolls[i].bonus)}</span>
-      </div>
+      </div>` : ""}
       ${attackRolls[i].hasDmg ? `
       <div class="atk-cube-col">
         <span class="dim-label">${t.atkDmg}</span>
-        <div class="atk-die-btn" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(a.dmg ? parseDiceString(a.dmg).die : 6, attackRolls[i].dmgDiceSum)}</div>
+        <div class="atk-die-btn" onclick="rollAttackDamageOnly(${i})" title="${t.atkRoll}">${dieRollBadgeSVG(a.dmg ? parseDiceString(a.dmg).die : 6, attackRolls[i].dmgDiceSum)}</div>
         <span class="cube-bonus">${fm(attackRolls[i].dmgBonus)}</span>
       </div>` : ""}
       <div class="atk-roll-result">
-        <div>${t.atkHit}: <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}</div>
+        ${attackRolls[i].hasHit!==false ? `<div>${t.atkHit}: <b class="${attackRolls[i].crit?'crit':''}">${attackRolls[i].hitTotal}</b>${attackRolls[i].crit?" 🎯":attackRolls[i].fumble?" 💀":""}</div>` : ""}
         ${attackRolls[i].hasDmg ? `<div>${t.atkDmg}: <b>${attackRolls[i].dmgTotal}</b></div>` : ""}
       </div>
     </div>`;
   const magicBonusChip = `<label class="atk-magicbonus-chip no-print" title="${t.atkMagicBonusHint}">${t.atkMagicBonus}<input type="number" class="attack-magicbonus-input" value="${a.magicBonus||0}" onchange="set('attacks.${i}.magicBonus', parseInt(this.value)||0)"></label>`;
-  const diceHistoryHTML = (attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print">${attackRollHistories[i].map((h,hi)=>`<span class="${hi===0?'latest':''}">${t.atkHitAbbr}:${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}${h.dmgTotal!==null?`/${t.atkDmgAbbr}:${h.dmgTotal}`:""}</span>`).join("")}</div>` : "";
+  const diceHistoryHTML = (attackRollHistories[i]||[]).length ? `<div class="dice-history compact no-print">${attackRollHistories[i].map((h,hi)=>{
+    const hitPart = (h.hitTotal!==null && h.hitTotal!==undefined) ? `${t.atkHitAbbr}:${h.hitTotal}${h.crit?" 🎯":h.fumble?" 💀":""}` : "";
+    const dmgPart = (h.dmgTotal!==null && h.dmgTotal!==undefined) ? `${t.atkDmgAbbr}:${h.dmgTotal}` : "";
+    return `<span class="${hi===0?'latest':''}">${hitPart}${hitPart&&dmgPart?"/":""}${dmgPart}</span>`;
+  }).join("")}</div>` : "";
 
   if(!editing){
     const abil = abilForAttack(a);
     const abilMod = mod(state.abilities[abil]+getFeatBonus(state,abil));
     const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
-    const foldSummary = `<table class="attack-fold-summary no-print"><tr><th>${t.atkFoldAtk}</th><th>${t.atkFoldDmg}</th></tr><tr><td>${fm(bonus)}</td><td>${esc2(a.dmg)||"—"}</td></tr></table>`;
+    const foldSummary = `<table class="attack-fold-summary no-print"><tr><th>🎯 ${t.atkFoldAtk}</th><th>💥 ${t.atkFoldDmg}</th></tr><tr><td>${fm(bonus)}</td><td>${esc2(a.dmg)||"—"}</td></tr></table>`;
     return `<div class="attack-card ${folded ? "folded" : ""}">
       <div class="attack-card-top">
         <button class="fold-toggle no-print" onclick="toggleAttackFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
         <span class="attack-name-view attack-name-view-top">${esc2(a.name)||t.atkName}</span>
         ${foldSummary}
         <span class="attack-type-icon" title="${attackTypeLabel(a.type,t)}">${attackTypeIcon(a.type)}</span>
-        <button class="atk-roll-btn-mini no-print" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
+        <button class="atk-roll-btn-mini no-print" onclick="rollAttack(${i})" title="${t.atkRoll}">${d6DrawSVG()}</button>
         <button class="edit-toggle-btn no-print" onclick="toggleAttackEdit(${i})" title="${t.edit}">✏️</button>
       </div>
       <div class="attack-card-row2">
         <div class="fold-hidden-actions">
           <button class="remove-row no-print" onclick="confirmRemove(()=>removeAttack(${i}))" title="${t.del}">🗑️</button>
         </div>
-        ${attackViewCard(a, i, {showName:false, rollCube})}
+        ${attackViewCard(a, i, {showName:false, rollCube, diceHistoryHTML})}
       </div>
-      ${diceHistoryHTML}
     </div>`;
   }
 
@@ -2590,7 +2714,7 @@ function attackRow(a, i){
       <button class="fold-toggle no-print" onclick="toggleAttackFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
       <input type="text" value="${a.name}" class="attack-name-input" placeholder="${t.atkName}" onchange="set('attacks.${i}.name', this.value)">
       <span class="attack-type-icon" title="${attackTypeLabel(a.type,t)}">${attackTypeIcon(a.type)}</span>
-      <button class="atk-roll-btn-mini no-print" onclick="rollAttack(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
+      <button class="atk-roll-btn-mini no-print" onclick="rollAttack(${i})" title="${t.atkRoll}">${d6DrawSVG()}</button>
       <button class="edit-toggle-btn no-print" onclick="toggleAttackEdit(${i})" title="${t.done}">✓ ${t.done}</button>
     </div>
     <div class="attack-card-row2">
@@ -2818,6 +2942,21 @@ const DIE_SHAPES = {
 function dieIconSVG(n){
   const extra = (n===100) ? '<text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none">%</text>' : "";
   return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">${DIE_SHAPES[n]||DIE_SHAPES[20]}${extra}</svg>`;
+}
+// A literal drawn six-sided die face (rounded square + pips), used for the roll
+// triggers on the attack card's To-Hit/Damage boxes — deliberately not the
+// abstract per-side-count polygon from dieIconSVG, since those buttons represent
+// "roll this" rather than "this is a d20/d8/etc".
+function d6DrawSVG(){
+  return `<svg viewBox="0 0 24 24" width="24" height="24">
+    <rect x="2" y="2" width="20" height="20" rx="5" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.4"/>
+    <circle cx="7.5" cy="7.5" r="1.7" fill="currentColor"/>
+    <circle cx="16.5" cy="7.5" r="1.7" fill="currentColor"/>
+    <circle cx="7.5" cy="12" r="1.7" fill="currentColor"/>
+    <circle cx="16.5" cy="12" r="1.7" fill="currentColor"/>
+    <circle cx="7.5" cy="16.5" r="1.7" fill="currentColor"/>
+    <circle cx="16.5" cy="16.5" r="1.7" fill="currentColor"/>
+  </svg>`;
 }
 // The static (non-animated) die-shaped badge shown after a physics roll has
 // already settled — the roll itself is animated live in the 3D overlay, so
@@ -4198,19 +4337,26 @@ function buildPrintHTML(opts){
     .print-blank-card{min-height:40px;border-style:dashed;}
     .attack-view-name-row, .spell-item-top{flex-basis:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;margin-bottom:2px;}
     .attack-name-view, .spell-name-view{font-weight:700;}
-    .attack-view-type{font-size:10.5px;color:var(--ink-faint);font-weight:400;}
-    .attack-view-prof-inline{margin-inline-start:auto;font-size:10.5px;font-weight:400;color:var(--ink-dim);white-space:nowrap;}
     .attack-tohit-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;flex:1 1 200px;}
     .attack-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px;font-size:11.5px;min-width:90px;flex:1;}
     .attack-stat-dmg{flex:1 1 200px;min-width:130px;}
-    .attack-view-prof, .attack-notes-view{flex-basis:100%;}
+    .attack-notes-view{flex-basis:100%;}
     .dim-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
     .attack-stat-val{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ink);}
     .attack-stat-val-row{display:flex;align-items:center;gap:6px;}
     .formula-note{font-size:9.5px;color:var(--ink-faint);}
     .attack-dmgtype-hint{font-size:9px;color:var(--ink-faint);}
-    .attack-view-prof{font-size:10.5px;color:var(--ink-dim);}
     .attack-notes-view{margin-top:2px;font-size:11px;color:var(--ink-dim);white-space:pre-wrap;}
+    .attack-box-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;flex-basis:100%;margin:2px 0;}
+    .attack-box{display:flex;flex-direction:column;align-items:center;gap:1px;flex:1 1 110px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;text-align:center;}
+    .attack-box-val-row{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;}
+    .attack-box-val{display:flex;align-items:center;gap:3px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;color:var(--ink);}
+    .attack-box-die{display:flex;align-items:center;justify-content:center;width:16px;height:16px;flex:0 0 auto;color:var(--ink-dim);background:none;border:none;padding:0;appearance:none;-webkit-appearance:none;}
+    .attack-box-die svg{width:13px;height:13px;}
+    .attack-box-label{font-size:8.5px;letter-spacing:0.5px;text-transform:uppercase;color:var(--gold);}
+    .attack-box-formula{font-size:8px;color:var(--ink-faint);margin-top:1px;}
+    .attack-tag-row{flex-basis:100%;text-align:center;font-size:9.5px;color:var(--ink-faint);border:1px solid var(--line);border-radius:6px;padding:3px 8px;margin-top:2px;}
+    .attack-tag-row .attack-notes-view{text-align:start;margin-top:3px;}
     .spell-view-prepared{font-weight:700;}
     .spell-category-icon{font-size:12px;}
     .spell-meta-row{display:flex;gap:12px 26px;flex-wrap:wrap;margin:3px 0;}
@@ -4432,9 +4578,9 @@ function spellRow(sp, i){
   const folded = !!sp.folded;
   const editing = !!spellEditing[i];
 
-  const rollBtnMini = sp.dmg ? `<button class="atk-roll-btn-mini no-print" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>` : "";
+  const rollBtnMini = sp.dmg ? `<button class="atk-roll-btn-mini no-print" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${d6DrawSVG()}</button>` : "";
   const rollCube = sp.dmg ? `
-    <button class="atk-roll-btn no-print" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${dieIconSVG(20)}</button>
+    <button class="atk-roll-btn no-print" onclick="rollSpellDamage(${i})" title="${t.atkRoll}">${d6DrawSVG()}</button>
     <div class="atk-cube-col">
       ${spellRolls[i] ? dieRollBadgeSVG(parseDiceString(sp.dmg).die, spellRolls[i].rolls.reduce((a,b)=>a+b,0)) : ""}
       <span class="cube-bonus">${spellRolls[i] ? spellRolls[i].total : ""}</span>
