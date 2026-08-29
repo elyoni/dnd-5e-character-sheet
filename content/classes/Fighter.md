@@ -13,20 +13,34 @@ skillSuggest:
 casterAbility: null
 resources:
   - name: Second Wind
+    nameHe: נשימה שנייה
     total: 1
     recharge: short
   - name: Action Surge
+    nameHe: זינוק פעולה
     total: 1
     recharge: short
-kidsBlurb: Fighters master weapons and tactics through pure hard work — anyone willing to train can excel.
-adultBlurb: Fighter is the most universally accessible class — trained skill, not innate gift.
+kidsBlurb:
+  en: Fighters master weapons and tactics through pure hard work — anyone willing to train can excel.
+  he: לוחמים שולטים בנשק ובטקטיקה דרך עבודה קשה טהורה — כל מי שמוכן להתאמן יכול להצטיין.
+adultBlurb:
+  en: Fighter is the most universally accessible class — trained skill, not innate gift.
+  he: לוחם היא המחלקה הנגישה ביותר לכולם — מיומנות מאומנת, לא כישרון מולד.
 combos:
   - race: gnome
-    tag: small blade, stubborn resolve
+    tag:
+      en: small blade, stubborn resolve
+      he: להב קטן, נחישות עיקשת
   - race: elf
-    tag: grace with any weapon in hand
+    tag:
+      en: grace with any weapon in hand
+      he: חן עם כל נשק ביד
   - race: halfling
-    tag: braver than their size suggests
+    tag:
+      en: braver than their size suggests
+      he: אמיצים יותר ממה שגודלם מרמז
   - race: dwarf
-    tag: still the classic, still solid
+    tag:
+      en: still the classic, still solid
+      he: עדיין הקלאסיקה, עדיין איתן
 ---

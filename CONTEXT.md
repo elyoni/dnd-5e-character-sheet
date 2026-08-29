@@ -150,6 +150,16 @@ Done back to View mode. A card created via the Add modal starts here
 instead of in View mode.
 _Avoid_: edit form (names the markup, not the state)
 
+**Class reference photo size** (`content/images/classes/*.jpg`):
+Every class portrait must be resized/cropped to exactly **900×1612px** (a
+~0.558 width/height ratio) before being committed, so all class cards render
+at the same height regardless of the source image's original aspect ratio.
+Crop to that ratio first (centered), then resize — don't just squash the
+source image to those dimensions. Save as JPEG quality ~85 (matches the
+~220–370KB size of the existing class photos).
+_Avoid_: leaving a raw AI-generated export (e.g. 1536×2752) uncropped/
+unresized in this folder — it breaks the uniform card height.
+
 **Starting Suggestions**:
 The itemized Feats/Traits/Attacks/Spells/Resources/Items proposed
 alongside a Character Draft, reviewed and applied one at a time exactly

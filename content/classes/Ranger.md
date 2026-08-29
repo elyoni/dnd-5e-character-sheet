@@ -12,15 +12,27 @@ skillSuggest:
   - stealth
 casterAbility: wis
 resources: []
-kidsBlurb: Rangers protect the wild and track anything that moves — the forest does not play favorites.
-adultBlurb: Wilderness mastery is earned, not inherited by race.
+kidsBlurb:
+  en: Rangers protect the wild and track anything that moves — the forest does not play favorites.
+  he: סיירים מגנים על הטבע ומתחקים אחר כל דבר שזז — היער לא מפלה בין תושביו.
+adultBlurb:
+  en: Wilderness mastery is earned, not inherited by race.
+  he: שליטה בטבע נרכשת, לא עוברת בירושה לפי גזע.
 combos:
   - race: tiefling
-    tag: quiet, watchful, easy to misjudge
+    tag:
+      en: quiet, watchful, easy to misjudge
+      he: שקטים, ערניים, קל לשפוט אותם לא נכון
   - race: dwarf
-    tag: tracks foes through the deepest tunnels
+    tag:
+      en: tracks foes through the deepest tunnels
+      he: מתחקה אחר אויבים במנהרות העמוקות ביותר
   - race: gnome
-    tag: knows every shortcut in the forest
+    tag:
+      en: knows every shortcut in the forest
+      he: מכיר כל קיצור דרך ביער
   - race: human
-    tag: at home in any wilderness
+    tag:
+      en: at home in any wilderness
+      he: בבית בכל שממה
 ---

@@ -155,7 +155,9 @@
   .wiz-card-name{font-family:var(--font-display); font-size:18px; font-weight:600}
   .wiz-card-name .he{display:block; font-size:12px; font-weight:400; color:var(--ink-soft); margin-top:2px}
   .wiz-card-blurb{font-size:13.5px; color:var(--ink-soft); line-height:1.55}
+  .wiz-card-blurb .he{display:block; margin-top:4px; font-style:normal}
   .wiz-card-combo{font-size:12.5px; color:var(--ink-soft); font-style:italic}
+  .wiz-card-combo .he{display:block; margin-top:2px}
   .wiz-card-mech{display:flex; flex-direction:column; gap:8px}
   .choose-btn{
     margin-top:auto; align-self:stretch; font-size:13px; font-weight:700; text-align:center;
@@ -186,7 +188,9 @@
   .mech-icon img{width:100%; height:100%; object-fit:cover; object-position:center 12%}
   .mech-row-text{min-width:0}
   .mech-row b{color:var(--ink); font-size:13.5px}
+  .mech-row b .he{display:inline; font-size:12px; margin-inline-start:6px}
   .mech-row .mech-note{color:var(--ink-soft); font-size:12.5px; margin-top:1px}
+  .mech-row .mech-note .he{display:block; margin-top:1px}
 
   /* ---------- continue modal ---------- */
   .modal-backdrop{
@@ -344,18 +348,24 @@
 */
 
 // RACES/CLASSES/BACKGROUNDS (injected above from src/data/races-classes.js)
-// use {label:{en,he}, kidsBlurb, adultBlurb, combos:[...]} — already the
-// shape this page's rendering code expects, so this is a reshape into a
-// flat {id, en, he, kidsBlurb, adultBlurb, combos} list, not a content rewrite.
+// use {label:{en,he}, kidsBlurb:{en,he}, adultBlurb:{en,he}, combos:[...]} —
+// already the shape this page's rendering code expects, so this is a
+// reshape into a flat {id, en, he, kidsBlurb, adultBlurb, combos} list, not
+// a content rewrite. kidsBlurb/adultBlurb are bilingual objects; the
+// kids<->adult fallback happens per-language (e.g. if adultBlurb.he is
+// missing but kidsBlurb.he exists, adult mode still shows Hebrew).
+const emptyBlurb = {en:'', he:''};
 function buildData(table){
   return Object.keys(table).map(id => {
     const d = table[id];
+    const kids = d.kidsBlurb || emptyBlurb;
+    const adult = d.adultBlurb || emptyBlurb;
     return {
       id,
       en: (d.label && d.label.en) || id,
       he: (d.label && d.label.he) || '',
-      kidsBlurb: d.kidsBlurb || d.adultBlurb || '',
-      adultBlurb: d.adultBlurb || d.kidsBlurb || '',
+      kidsBlurb: { en: kids.en || adult.en || '', he: kids.he || adult.he || '' },
+      adultBlurb: { en: adult.en || kids.en || '', he: adult.he || kids.he || '' },
       combos: d.combos || [],
       img: d.img || '',
     };
@@ -393,19 +403,25 @@ const FIELD_ICON = {
   hitdie:'🎲', saves:'🛡️', skills:'🎯', caster:'✨',
   resource:'⚡', trait:'🧬', tool:'🛠️', feat:'🌟',
 };
-function mechRow(name, note, fieldKind, color, img){
+// nameHe/notesHe are optional Hebrew siblings of the mechanical name/notes
+// text (see content/**/*.md and scripts/compile-content.js) — rendered
+// alongside the English the same way entry.he sits under entry.en elsewhere
+// on this page. Absent for a given row, it just doesn't show.
+function mechRow(name, note, fieldKind, color, img, nameHe, notesHe){
   const icon = img ? '<img src="' + esc(img) + '" alt="">' : esc(FIELD_ICON[fieldKind] || '•');
   const clickAttr = img ? ' onclick="' + esc('openLightbox(' + JSON.stringify(img) + ',' + JSON.stringify(name) + ')') + '"' : '';
+  const nameHtml = esc(name) + (nameHe ? '<span class="he">' + esc(nameHe) + '</span>' : '');
+  const noteHtml = note ? '<div class="mech-note">' + esc(note) + (notesHe ? '<span class="he">' + esc(notesHe) + '</span>' : '') + '</div>' : '';
   return '<div class="mech-row">'
     + '<span class="mech-icon' + (img ? ' clickable' : '') + '" style="border-color:' + color + '; background:color-mix(in srgb, ' + color + ' 16%, transparent)"' + clickAttr + '>' + icon + '</span>'
-    + '<div class="mech-row-text"><b>' + esc(name) + '</b>' + (note ? '<div class="mech-note">' + esc(note) + '</div>' : '') + '</div>'
+    + '<div class="mech-row-text"><b>' + nameHtml + '</b>' + noteHtml + '</div>'
     + '</div>';
 }
 function raceMechHTML(id, color){
   const d = RACES[id];
   if (!d) return '';
-  const traits = (d.traits||[]).map(t => mechRow(t.name, t.notes, 'trait', color, t.img)).join('');
-  const resources = (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest', 'resource', color, r.img)).join('');
+  const traits = (d.traits||[]).map(t => mechRow(t.name, t.notes, 'trait', color, t.img, t.nameHe, t.notesHe)).join('');
+  const resources = (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest', 'resource', color, r.img, r.nameHe)).join('');
   const skills = (d.skillProficiencies||[]).length ? mechRow('Skill proficiency', d.skillProficiencies.join(', '), 'skills', color) : '';
   return traits + resources + skills;
 }
@@ -417,7 +433,7 @@ function classMechHTML(id, color){
   if ((d.saves||[]).length) out += mechRow('Saving Throws', d.saves.map(a=>a.toUpperCase()).join(', '), 'saves', color);
   if ((d.skillSuggest||[]).length) out += mechRow('Suggested Skills', d.skillSuggest.join(', '), 'skills', color);
   if (d.casterAbility) out += mechRow('Spellcasting', d.casterAbility.toUpperCase(), 'caster', color);
-  out += (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest', 'resource', color, r.img)).join('');
+  out += (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest', 'resource', color, r.img, r.nameHe)).join('');
   return out;
 }
 function bgMechHTML(id, color){
@@ -426,7 +442,7 @@ function bgMechHTML(id, color){
   let out = '';
   if ((d.skillProficiencies||[]).length) out += mechRow('Skill Proficiencies', d.skillProficiencies.join(', '), 'skills', color);
   if (d.toolProficiency) out += mechRow('Tool Proficiency', d.toolProficiency, 'tool', color);
-  if (d.feat) out += mechRow(d.feat.name, d.feat.notes, 'feat', color, d.feat.img);
+  if (d.feat) out += mechRow(d.feat.name, d.feat.notes, 'feat', color, d.feat.img, d.feat.nameHe, d.feat.notesHe);
   return out;
 }
 function mechBlock(title, html, color){
@@ -466,7 +482,9 @@ document.getElementById('mode-toggle').addEventListener('click', e=>{
   if (btn) setTheme(btn.dataset.mode);
 });
 
-function blurbFor(entry){ return state.theme === 'kids' ? (entry.kidsBlurb || entry.adultBlurb || '') : (entry.adultBlurb || entry.kidsBlurb || ''); }
+// Returns {en, he} — the kids<->adult fallback already happened per-language
+// in buildData(), so this just picks which blurb object to use.
+function blurbFor(entry){ return state.theme === 'kids' ? entry.kidsBlurb : entry.adultBlurb; }
 
 function showView(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -518,7 +536,9 @@ function comboTagHTML(kind, entry){
   const combo = (entry.combos||[]).find(c => c.cls === state.pick.cls);
   if (!combo) return '';
   const cls = byId(DATA.classes, state.pick.cls);
-  return '<div class="wiz-card-combo">"' + esc(combo.tag) + '" with your ' + esc(cls.en) + '</div>';
+  const tag = combo.tag || {};
+  const heLine = tag.he ? '<span class="he">"' + esc(tag.he) + '"</span>' : '';
+  return '<div class="wiz-card-combo">"' + esc(tag.en || '') + '" with your ' + esc(cls.en) + heLine + '</div>';
 }
 
 function makeWizardCard(entry, kind){
@@ -532,7 +552,7 @@ function makeWizardCard(entry, kind){
       + '<div class="plate' + (entry.img ? ' clickable' : '') + '">' + plateHTML(entry) + '</div>'
       + '<div class="wiz-card-name">' + esc(entry.en) + (entry.he ? '<span class="he">' + esc(entry.he) + '</span>' : '') + '</div>'
     + '</div>'
-    + '<p class="wiz-card-blurb">' + esc(blurb) + '</p>'
+    + '<p class="wiz-card-blurb">' + esc(blurb.en) + (blurb.he ? '<span class="he">' + esc(blurb.he) + '</span>' : '') + '</p>'
     + comboTagHTML(kind, entry)
     + '<div class="wiz-card-mech">' + wizMechHTML(kind, entry.id, color) + '</div>'
     + '<button class="choose-btn" type="button">' + (chosen ? '✓ Chosen' : 'Choose ' + esc(entry.en)) + '</button>';

@@ -12,15 +12,27 @@ skillSuggest:
   - persuasion
 casterAbility: cha
 resources: []
-kidsBlurb: Paladins swear a sacred oath and fight for it — the oath matters more than who is swearing it.
-adultBlurb: An oath doesn't care about ancestry, only conviction.
+kidsBlurb:
+  en: Paladins swear a sacred oath and fight for it — the oath matters more than who is swearing it.
+  he: פלדינים נשבעים שבועה קדושה ונלחמים למענה — השבועה חשובה יותר ממי שנשבע אותה.
+adultBlurb:
+  en: An oath doesn't care about ancestry, only conviction.
+  he: לשבועה לא אכפת ממוצא, רק מנחישות.
 combos:
   - race: halfling
-    tag: small stature, unshakeable oath
+    tag:
+      en: small stature, unshakeable oath
+      he: קומה קטנה, שבועה בלתי מעורערת
   - race: gnome
-    tag: a tiny knight, fully convinced
+    tag:
+      en: a tiny knight, fully convinced
+      he: אביר זעיר, בטוח בעצמו לגמרי
   - race: tiefling
-    tag: an oath sworn despite the stares
+    tag:
+      en: an oath sworn despite the stares
+      he: שבועה שנשבעה למרות המבטים
   - race: dragonborn
-    tag: noble by nature, sworn by choice
+    tag:
+      en: noble by nature, sworn by choice
+      he: אצילים בטבעם, נשבעים מבחירה
 ---

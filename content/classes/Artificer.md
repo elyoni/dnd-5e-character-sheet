@@ -11,15 +11,27 @@ skillSuggest:
   - arcana
 casterAbility: null
 resources: []
-kidsBlurb: Artificers build magical gadgets and gizmos — invention runs on curiosity, not bloodline.
-adultBlurb: Artifice is an engineering discipline, open to any race with the patience to tinker.
+kidsBlurb:
+  en: Artificers build magical gadgets and gizmos — invention runs on curiosity, not bloodline.
+  he: ממציאים בונים גאדג'טים וכלים קסומים — המצאה מונעת מסקרנות, לא משושלת דם.
+adultBlurb:
+  en: Artifice is an engineering discipline, open to any race with the patience to tinker.
+  he: תחכום הוא תחום הנדסי, פתוח לכל גזע עם הסבלנות להתעסק ולנסות.
 combos:
   - race: half_orc
-    tag: builds what the world doubted they could
+    tag:
+      en: builds what the world doubted they could
+      he: בונה את מה שהעולם פקפק שיוכל
   - race: elf
-    tag: elegance meets invention
+    tag:
+      en: elegance meets invention
+      he: אלגנטיות פוגשת המצאה
   - race: dragonborn
-    tag: tinkering with a dragon's patience
+    tag:
+      en: tinkering with a dragon's patience
+      he: מתעסקים בסבלנות של דרקון
   - race: gnome
-    tag: still the classic, still brilliant
+    tag:
+      en: still the classic, still brilliant
+      he: עדיין הקלאסיקה, עדיין מבריק
 ---

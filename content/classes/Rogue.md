@@ -12,15 +12,27 @@ skillSuggest:
   - sleight
 casterAbility: null
 resources: []
-kidsBlurb: Rogues are quick, clever, and hard to catch — cleverness is not limited to one kind of person.
-adultBlurb: Rogue is a skillset — stealth and cunning are learnable, not lineage.
+kidsBlurb:
+  en: Rogues are quick, clever, and hard to catch — cleverness is not limited to one kind of person.
+  he: נוכלים מהירים, פיקחים, וקשה לתפוס אותם — פיקחות לא מוגבלת לסוג אחד של אדם.
+adultBlurb:
+  en: Rogue is a skillset — stealth and cunning are learnable, not lineage.
+  he: נוכל הוא מערך מיומנויות — חמקנות וערמומיות ניתנות ללמידה, לא לירושה.
 combos:
   - race: dragonborn
-    tag: quieter than a dragon has any right to be
+    tag:
+      en: quieter than a dragon has any right to be
+      he: שקטים יותר ממה שדרקון אמור להיות
   - race: half_elf
-    tag: belongs everywhere, ties to nowhere
+    tag:
+      en: belongs everywhere, ties to nowhere
+      he: שייכים בכל מקום, קשורים לשום מקום
   - race: human
-    tag: quick hands, quicker wit
+    tag:
+      en: quick hands, quicker wit
+      he: ידיים מהירות, תושייה מהירה עוד יותר
   - race: halfling
-    tag: still the classic, still deadly
+    tag:
+      en: still the classic, still deadly
+      he: עדיין הקלאסיקה, עדיין קטלני
 ---

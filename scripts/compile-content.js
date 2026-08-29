@@ -47,12 +47,26 @@ function validate(RACES, CLASSES, BACKGROUNDS) {
   const errors = [];
   const err = (file, msg) => errors.push(`content/${file}: ${msg}`);
 
+  // Optional Hebrew sibling of a mechanical string field (traits[].name/.notes,
+  // resources[].name, feat.name/.notes) — these stay plain English strings
+  // because dnd_character_sheet.src.html's applyRaceTemplate()/applyTemplate()/
+  // applyBackgroundTemplate() copy them verbatim into a player's (single-
+  // language, free-text) character data. `xHe` is Field-Guide-display-only,
+  // so it's optional — not every entry needs a translation.
+  function checkOptionalHe(file, obj, field, label) {
+    const v = obj[field];
+    if (v === undefined) return;
+    if (typeof v !== "string" || !v.trim()) err(file, `${label} "${field}" is present but empty`);
+  }
+
   function checkTraits(file, traits) {
     if (traits === undefined) return;
     if (!Array.isArray(traits)) return err(file, `"traits" must be a list`);
     traits.forEach((t, i) => {
       if (!t.name) err(file, `traits[${i}] is missing "name"`);
       if (!t.notes) err(file, `traits[${i}] ("${t.name || "?"}") is missing "notes"`);
+      checkOptionalHe(file, t, "nameHe", `traits[${i}] ("${t.name || "?"}")`);
+      checkOptionalHe(file, t, "notesHe", `traits[${i}] ("${t.name || "?"}")`);
     });
   }
 
@@ -68,15 +82,32 @@ function validate(RACES, CLASSES, BACKGROUNDS) {
       if (r.recharge && !RECHARGES.includes(r.recharge)) {
         err(file, `resources[${i}] ("${r.name}") has recharge "${r.recharge}" — must be one of: ${RECHARGES.join(", ")}`);
       }
+      checkOptionalHe(file, r, "nameHe", `resources[${i}] ("${r.name || "?"}")`);
     });
   }
 
-  function checkBlurbs(file, data) {
-    for (const field of ["kidsBlurb", "adultBlurb"]) {
-      if (field in data && (typeof data[field] !== "string" || !data[field].trim())) {
-        err(file, `"${field}" is present but empty`);
-      }
+  // kidsBlurb/adultBlurb/combos[].tag are Field-Guide-only narrative text
+  // (never read by the main sheet), so — unlike the mechanical fields above
+  // — they're fully bilingual: {en, he}, both required, matching the
+  // label:{en,he} shape. `requireField`=true also errors when the field is
+  // absent entirely (used for combos[].tag, which is mandatory); false skips
+  // silently when absent (used for the optional kidsBlurb/adultBlurb).
+  function checkBilingual(file, obj, field, requireField, whatMsg) {
+    if (!(field in obj)) {
+      if (requireField) err(file, `${whatMsg} is missing "${field}"`);
+      return;
     }
+    const v = obj[field];
+    if (typeof v !== "object" || v === null || Array.isArray(v)) {
+      return err(file, `${whatMsg ? whatMsg + " " : ""}"${field}" must be an object with "en" and "he"`);
+    }
+    for (const lang of ["en", "he"]) {
+      if (typeof v[lang] !== "string" || !v[lang].trim()) err(file, `${whatMsg ? whatMsg + " " : ""}"${field}.${lang}" is missing or empty`);
+    }
+  }
+
+  function checkBlurbs(file, data) {
+    for (const field of ["kidsBlurb", "adultBlurb"]) checkBilingual(file, data, field, false);
   }
 
   const raceIds = Object.keys(RACES);
@@ -94,7 +125,7 @@ function validate(RACES, CLASSES, BACKGROUNDS) {
         else if (!classIds.includes(c.cls)) {
           err(file, `combos[${i}].cls "${c.cls}" is not a known class. Known classes: ${classIds.join(", ")}`);
         }
-        if (!c.tag) err(file, `combos[${i}] (cls "${c.cls || "?"}") is missing "tag"`);
+        checkBilingual(file, c, "tag", true, `combos[${i}] (cls "${c.cls || "?"}")`);
       });
     }
   }
@@ -120,7 +151,7 @@ function validate(RACES, CLASSES, BACKGROUNDS) {
         else if (!raceIds.includes(c.race)) {
           err(file, `combos[${i}].race "${c.race}" is not a known race. Known races: ${raceIds.join(", ")}`);
         }
-        if (!c.tag) err(file, `combos[${i}] (race "${c.race || "?"}") is missing "tag"`);
+        checkBilingual(file, c, "tag", true, `combos[${i}] (race "${c.race || "?"}")`);
       });
     }
   }
@@ -143,6 +174,8 @@ function validate(RACES, CLASSES, BACKGROUNDS) {
     if (data.feat !== undefined) {
       if (!data.feat.name) err(file, `"feat" is missing "name"`);
       if (!data.feat.notes) err(file, `"feat" ("${data.feat.name || "?"}") is missing "notes"`);
+      checkOptionalHe(file, data.feat, "nameHe", `"feat" ("${data.feat.name || "?"}")`);
+      checkOptionalHe(file, data.feat, "notesHe", `"feat" ("${data.feat.name || "?"}")`);
     }
     checkBlurbs(file, data);
     if (data.combos !== undefined) {
@@ -152,7 +185,7 @@ function validate(RACES, CLASSES, BACKGROUNDS) {
         else if (!classIds.includes(c.cls)) {
           err(file, `combos[${i}].cls "${c.cls}" is not a known class. Known classes: ${classIds.join(", ")}`);
         }
-        if (!c.tag) err(file, `combos[${i}] (cls "${c.cls || "?"}") is missing "tag"`);
+        checkBilingual(file, c, "tag", true, `combos[${i}] (cls "${c.cls || "?"}")`);
       });
     }
   }

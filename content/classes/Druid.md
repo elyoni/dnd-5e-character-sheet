@@ -13,17 +13,30 @@ skillSuggest:
 casterAbility: wis
 resources:
   - name: Wild Shape
+    nameHe: שינוי צורה פרא
     total: 2
     recharge: short
-kidsBlurb: Druids speak for nature and shapeshift into animals — the wild welcomes all kinds of allies.
-adultBlurb: Druidic power is granted by nature's balance, indifferent to species.
+kidsBlurb:
+  en: Druids speak for nature and shapeshift into animals — the wild welcomes all kinds of allies.
+  he: דרואידים מדברים בשם הטבע ומשנים צורה לבעלי חיים — הטבע מקבל בברכה כל סוג של בעל ברית.
+adultBlurb:
+  en: Druidic power is granted by nature's balance, indifferent to species.
+  he: כוח דרואידי ניתן על ידי האיזון של הטבע, ללא הבדל בין גזעים.
 combos:
   - race: dragonborn
-    tag: kin to the wild, scales and all
+    tag:
+      en: kin to the wild, scales and all
+      he: קרובי משפחה של הפרא, קשקשים ועוד
   - race: tiefling
-    tag: closer to roots than to flame
+    tag:
+      en: closer to roots than to flame
+      he: קרובים יותר לשורשים מאשר ללהבה
   - race: gnome
-    tag: knows every root and burrow
+    tag:
+      en: knows every root and burrow
+      he: מכיר כל שורש וכל מחילה
   - race: halfling
-    tag: tends the hedgerow like family
+    tag:
+      en: tends the hedgerow like family
+      he: מטפחים את שיח הגדר כמו בני משפחה
 ---
