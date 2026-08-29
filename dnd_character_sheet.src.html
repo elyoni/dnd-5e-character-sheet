@@ -2764,7 +2764,7 @@ function removeAttack(i){
   state.attacks.splice(i,1);
   render(); queueSave();
 }
-function toggleAttackFold(i){ state.attacks[i].folded = !state.attacks[i].folded; render(); queueSave(); }
+function toggleAttackFold(i){ state.attacks[i].folded = !state.attacks[i].folded; if(state.attacks[i].folded && attackEditing[i]){ attackEditing[i] = false; } render(); queueSave(); }
 function setAllAttacksFolded(folded){ state.attacks.forEach(a=>a.folded=folded); render(); queueSave(); }
 let attackModalOpen = false;
 function openAttackModal(){ attackModalOpen = true; render(); }
