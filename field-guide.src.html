@@ -654,11 +654,11 @@ function buildPickedCharacterState(raceKind, clsId, bgId, name){
 // immediately instead of landing on the plain sheet. Only set when the user
 // explicitly chose "Continue with AI" in the continue-modal below, so the
 // AI view isn't forced on someone who'd rather fill the sheet in by hand.
-function sheetLinkForPick(raceKind, clsId, bgId, name, openAI){
+async function sheetLinkForPick(raceKind, clsId, bgId, name, openAI){
   const picked = buildPickedCharacterState(raceKind, clsId, bgId, name);
   const wrapped = { lang:"en", state:picked };
   if (openAI) wrapped.source = "field-guide";
-  return "dnd_character_sheet.html#char=" + encodeURIComponent(encodeStateToBase64(wrapped));
+  return "dnd_character_sheet.html#char=" + encodeURIComponent(await encodeStateToBase64(wrapped));
 }
 
 function renderCTA(){
@@ -666,12 +666,12 @@ function renderCTA(){
   cta.style.display = state.pick.cls ? '' : 'none';
 }
 
-function openContinueModal(){
+async function openContinueModal(){
   if (!state.pick.cls) return;
   const aiLink = document.getElementById('continue-ai-link');
   const manualLink = document.getElementById('continue-manual-link');
-  aiLink.href = sheetLinkForPick(state.pick.race, state.pick.cls, state.pick.bg, state.pick.name, true);
-  manualLink.href = sheetLinkForPick(state.pick.race, state.pick.cls, state.pick.bg, state.pick.name, false);
+  aiLink.href = await sheetLinkForPick(state.pick.race, state.pick.cls, state.pick.bg, state.pick.name, true);
+  manualLink.href = await sheetLinkForPick(state.pick.race, state.pick.cls, state.pick.bg, state.pick.name, false);
   document.getElementById('continue-modal').style.display = 'flex';
 }
 function closeContinueModal(){

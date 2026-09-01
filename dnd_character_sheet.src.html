@@ -808,6 +808,7 @@ const T = {
     exportModalTitle:"Export Character", exportAsFileBtn:"Download JSON file", exportAsLinkBtn:"🔗 Copy shareable link", copyLinkBtn:"Copy link",
     bundleHint:"This character is linked to others — share all __COUNT__ together as a bundle:", exportAsBundleFileBtn:"Download JSON bundle", exportAsBundleLinkBtn:"🔗 Copy shareable bundle link",
     linkReadyHint:"Link copied to clipboard — you can also copy it manually below.", linkCopied:"✓ Copied to clipboard.",
+    importModalTitle:"Import Character", importAsFileBtn:"⬆ Upload JSON file", importLinkLabel:"Or paste a shared link", importLinkPlaceholder:"Paste a share link here...", importLinkBtn:"Load", importLinkInvalid:"That doesn't look like a character share link.",
     aiModalTitle:"Ask an AI about your character", aiCopyStepTitle:"1. Copy your character",
     aiCopyStepDesc:"Copy this, paste it into an AI chat (ChatGPT, Claude, Gemini, etc.), and ask your question — e.g. \"which feat should I take?\" or \"does anything look wrong here?\"",
     aiCopyBtn:"📋 Copy for AI", aiCopyCopied:"✓ Copied to clipboard.",
@@ -886,7 +887,7 @@ const T = {
     helpSecDice:"Rolling Dice",
     helpSecDiceBody:"Every roll button — attacks, damage, saves, skills, or the standalone dice roller — throws real physics-simulated 3D dice; the face they land on is the actual result, not a number chosen first and animated after. Recent rolls for each row are kept in a small history strip.",
     helpSecShare:"Import, Export & Sharing",
-    helpSecShareBody:"Export downloads your character as a JSON file or generates a shareable link that encodes the whole character; Import loads either back in. \"Ask AI\" lets you copy a text summary of your character to paste into an AI assistant, then paste its suggestions back in for review before anything is added to your sheet.",
+    helpSecShareBody:"Export downloads your character as a JSON file or generates a shareable link that encodes the whole character; Import loads a character back in from either a JSON file or a pasted share link. \"Ask AI\" lets you copy a text summary of your character to paste into an AI assistant, then paste its suggestions back in for review before anything is added to your sheet.",
     whatsNewItem1:"🎲 Real physics-based 3D dice — every roll (attacks, saves, skills, spell damage, the plain dice roller) now throws an actual die that settles for real, instead of an instant number.",
     whatsNewItem2:"🤖 Ask AI — export a curated snapshot of your character to paste into any AI chat, and bring its suggested feats/attacks/spells/resources/items back as one-by-one accept/discard cards.",
     whatsNewItem3:"A free-text Subclass field now sits next to Class.",
@@ -1020,6 +1021,7 @@ const T = {
     printBtn:"🖨 הדפסה", exportBtn:"⬇ ייצוא", importBtn:"⬆ ייבוא", aiBtn:"🤖 שאל AI", fieldGuideBtn:"📖 מדריך שדה", helpBtn:"❓ עזרה",
     exportModalTitle:"ייצוא דמות", exportAsFileBtn:"הורדת קובץ JSON", exportAsLinkBtn:"🔗 העתקת קישור לשיתוף", copyLinkBtn:"העתק קישור",
     bundleHint:"דמות זו מקושרת לאחרות — שתף את כל ה-__COUNT__ יחד כחבילה:", exportAsBundleFileBtn:"הורדת קובץ JSON כחבילה", exportAsBundleLinkBtn:"🔗 העתקת קישור לשיתוף החבילה",
+    importModalTitle:"ייבוא דמות", importAsFileBtn:"⬆ העלאת קובץ JSON", importLinkLabel:"או הדבק קישור ששיתפו איתך", importLinkPlaceholder:"הדבק כאן קישור לשיתוף...", importLinkBtn:"טען", importLinkInvalid:"זה לא נראה כמו קישור שיתוף של דמות.",
     aiModalTitle:"שאל AI על הדמות שלך", aiCopyStepTitle:"1. העתק את הדמות שלך",
     aiCopyStepDesc:"העתק את זה, הדבק אותו בצ'אט AI (ChatGPT, Claude, Gemini וכו') ושאל את שאלתך — למשל \"איזה feat כדאי לי לקחת?\" או \"יש משהו שנראה לא נכון כאן?\"",
     aiCopyBtn:"📋 העתק ל-AI", aiCopyCopied:"✓ הועתק ללוח.",
@@ -1099,7 +1101,7 @@ const T = {
     helpSecDice:"הטלת קוביות",
     helpSecDiceBody:"כל כפתור הטלה — התקפות, נזק, הצלות, מיומנויות, או מטיל הקוביות העצמאי — מטיל קוביות תלת-ממדיות עם סימולציית פיזיקה אמיתית; הצד שעליו הן נוחתות הוא התוצאה בפועל, לא מספר שנבחר מראש והוצג באנימציה. הטלות אחרונות של כל שורה נשמרות ברצועת היסטוריה קטנה.",
     helpSecShare:"ייבוא, ייצוא ושיתוף",
-    helpSecShareBody:"ייצוא מוריד את הדמות שלכם כקובץ JSON או יוצר קישור לשיתוף שמקודד את כל הדמות; ייבוא טוען את אחד מהם בחזרה. \"שאל AI\" מאפשר להעתיק סיכום טקסטואלי של הדמות שלכם להדבקה בעוזר AI, ואז להדביק את ההצעות שלו בחזרה לבדיקה לפני שמשהו נוסף לגיליון שלכם.",
+    helpSecShareBody:"ייצוא מוריד את הדמות שלכם כקובץ JSON או יוצר קישור לשיתוף שמקודד את כל הדמות; ייבוא טוען דמות בחזרה מקובץ JSON או מקישור שיתוף שמודבק ישירות. \"שאל AI\" מאפשר להעתיק סיכום טקסטואלי של הדמות שלכם להדבקה בעוזר AI, ואז להדביק את ההצעות שלו בחזרה לבדיקה לפני שמשהו נוסף לגיליון שלכם.",
     whatsNewItem1:"🎲 קוביות תלת-ממד עם פיזיקה אמיתית — כל הטלה (התקפות, הצלות, כישורים, נזק קסם, מטיל הקוביות הרגיל) מטילה עכשיו קובייה אמיתית שמתיישבת בפועל, במקום מספר מיידי.",
     whatsNewItem2:"🤖 שאל AI — מייצא תמונת מצב אוצרת של הדמות להדבקה בכל צ'אט AI, ומחזיר את ההצעות שלו (כישורים/התקפות/קסמים/משאבים/פריטים) ככרטיסים נפרדים לאישור או דחייה.",
     whatsNewItem3:"שדה טקסט חופשי לתת-מחלקה נוסף עכשיו ליד המחלקה.",
@@ -2922,10 +2924,36 @@ function noCharactersHTML(t){
       <button class="btn" onclick="openCreateAIModal()">${t.onboardCreateAI}</button>
       <a class="btn" href="field-guide.html" target="_blank">📖 ${t.newCharFieldGuide}</a>
       <button class="btn" onclick="loadDemoCharacter()">${t.onboardDemoChar}</button>
+      <button class="btn" onclick="openImportModal()">${t.importBtn}</button>
     </div>
   </div>`;
 }
 
+// Reachable both from the normal sheet's toolbar and from the zero-character
+// screen (noCharactersHTML) — same pattern as newCharModalHTML/
+// onboardingModalHTML, for the same reason: it needs to render from both
+// branches of render()'s top-level `if(!state)` split.
+function importModalHTML(t){
+  return `
+  <div class="modal-backdrop no-print" onclick="if(event.target===this) closeImportModal()">
+    <div class="modal-box">
+      <h3>${t.importModalTitle}</h3>
+      <div class="modal-row">
+        <button class="btn primary" onclick="triggerImport()">${t.importAsFileBtn}</button>
+        <input type="file" id="importFileInput" accept="application/json,.json" style="display:none" onchange="handleImportFile(this)">
+      </div>
+      <div class="modal-row" style="margin-top:12px">
+        <label>${t.importLinkLabel}</label>
+        <textarea id="importLinkInput" placeholder="${t.importLinkPlaceholder}" style="width:100%;box-sizing:border-box;min-height:70px;font-family:'IBM Plex Mono',monospace;font-size:11px"></textarea>
+        <button class="btn" style="margin-top:8px" onclick="importFromPastedLink()">${t.importLinkBtn}</button>
+        ${importLinkError ? `<div style="font-size:11px;color:var(--danger,#c0392b);margin-top:6px">${esc2(importLinkError)}</div>` : ""}
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeImportModal()">${t.printCancel}</button>
+      </div>
+    </div>
+  </div>`;
+}
 function doPrint(){ printModalOpen = true; render(); }
 function cancelPrint(){ printModalOpen = false; render(); }
 function setPrintOpt(key, value){ printOpts[key] = value; render(); }
@@ -3118,8 +3146,44 @@ async function exportBundleAsFile(){
   URL.revokeObjectURL(url);
   closeExportModal();
 }
+let importModalOpen = false;
+let importLinkError = "";
+function openImportModal(){ importModalOpen = true; importLinkError = ""; render(); }
+function closeImportModal(){ importModalOpen = false; render(); }
 function triggerImport(){
   document.getElementById("importFileInput").click();
+}
+// Second way in for a shared character, alongside the file upload and the
+// clickable #char=/#charbundle= link itself: lets someone paste that same
+// link's text into a box instead of clicking it (e.g. it arrived as plain
+// text rather than a tappable link). Deliberately reuses the exact link
+// format checkURLImport() already parses — not a new export shape.
+async function importFromPastedLink(){
+  const raw = (document.getElementById("importLinkInput").value || "").trim();
+  importLinkError = "";
+  if(!raw){ render(); return; }
+  const hashPart = raw.includes("#") ? raw.slice(raw.indexOf("#")) : ("#" + raw);
+  try{
+    const mBundle = /(?:^|[#&])charbundle=([^&]+)/.exec(hashPart);
+    if(mBundle){
+      const decoded = await decodeBase64ToState(decodeURIComponent(mBundle[1]));
+      if(decoded && (decoded.lang === 'en' || decoded.lang === 'he')) await switchLang(decoded.lang);
+      await importParsedBundle(decoded && decoded.characters);
+      closeImportModal();
+      return;
+    }
+    const m = /(?:^|[#&])char=([^&]+)/.exec(hashPart);
+    if(!m) throw new Error("not a share link");
+    const decoded = await decodeBase64ToState(decodeURIComponent(m[1]));
+    const isWrapped = decoded && typeof decoded === "object" && decoded.state && typeof decoded.lang === "string";
+    const parsed = isWrapped ? decoded.state : decoded;
+    if(isWrapped && (decoded.lang === 'en' || decoded.lang === 'he')) await switchLang(decoded.lang);
+    await importParsedCharacter(parsed);
+    closeImportModal();
+  }catch(err){
+    importLinkError = T[lang].importLinkInvalid;
+    render();
+  }
 }
 async function importParsedCharacter(parsed){
   const id = "c"+Date.now();
@@ -3189,6 +3253,7 @@ function handleImportFile(input){
       } else {
         await importParsedCharacter(parsed);
       }
+      importModalOpen = false;
       render();
     }catch(err){
       alert(lang==='he' ? "לא הצלחתי לקרוא את הקובץ הזה. ודא שזה קובץ JSON שיוצא מהגיליון הזה." : "Couldn't read that file. Make sure it's a JSON file exported from this sheet.");
@@ -3198,20 +3263,20 @@ function handleImportFile(input){
   input.value = "";
 }
 <!-- BUILD:MODULE src/share-link.js -->
-function buildShareURL(){
+async function buildShareURL(){
   const base = location.href.split('#')[0].split('?')[0];
-  return base + "#char=" + encodeURIComponent(encodeStateToBase64({lang, state}));
+  return base + "#char=" + encodeURIComponent(await encodeStateToBase64({lang, state}));
 }
 async function buildShareBundleURL(){
   const characters = await collectBundleStates();
   const base = location.href.split('#')[0].split('?')[0];
-  return base + "#charbundle=" + encodeURIComponent(encodeStateToBase64({lang, characters}));
+  return base + "#charbundle=" + encodeURIComponent(await encodeStateToBase64({lang, characters}));
 }
 async function checkURLImport(){
   const mBundle = /(?:^|[#&])charbundle=([^&]+)/.exec(location.hash);
   if(mBundle){
     try{
-      const decoded = decodeBase64ToState(decodeURIComponent(mBundle[1]));
+      const decoded = await decodeBase64ToState(decodeURIComponent(mBundle[1]));
       if(decoded && (decoded.lang === 'en' || decoded.lang === 'he')) await switchLang(decoded.lang);
       await importParsedBundle(decoded && decoded.characters);
       history.replaceState(null, "", location.pathname + location.search);
@@ -3223,7 +3288,7 @@ async function checkURLImport(){
   const m = /(?:^|[#&])char=([^&]+)/.exec(location.hash);
   if(!m) return false;
   try{
-    const decoded = decodeBase64ToState(decodeURIComponent(m[1]));
+    const decoded = await decodeBase64ToState(decodeURIComponent(m[1]));
     const isWrapped = decoded && typeof decoded === "object" && decoded.state && typeof decoded.lang === "string";
     const parsed = isWrapped ? decoded.state : decoded;
     if(isWrapped && (decoded.lang === 'en' || decoded.lang === 'he')) await switchLang(decoded.lang);
@@ -3247,7 +3312,7 @@ function openExportModal(){ exportModalOpen = true; exportLinkValue = ""; export
 function closeExportModal(){ exportModalOpen = false; render(); }
 function exportAsFile(){ exportCharacter(); closeExportModal(); }
 async function generateShareLink(){
-  exportLinkValue = buildShareURL();
+  exportLinkValue = await buildShareURL();
   exportLinkCopied = false;
   render();
   try{
@@ -5170,6 +5235,7 @@ function render(){
     ${onboardingModalOpen ? onboardingModalHTML(t) : ""}
     ${newCharModalOpen ? newCharModalHTML(t) : ""}
     ${createAIModalOpen ? createAIModalHTML(t) : ""}
+    ${importModalOpen ? importModalHTML(t) : ""}
     `;
     document.documentElement.dir = lang==='he' ? 'rtl' : 'ltr';
     restoreScroll();
@@ -5213,11 +5279,10 @@ function render(){
       <button class="btn" onclick="setAllFolded(false)">${t.showAll}</button>
       <button class="btn primary" onclick="doPrint()">${t.printBtn}</button>
       <button class="btn" onclick="openExportModal()">${t.exportBtn}</button>
-      <button class="btn" onclick="triggerImport()">${t.importBtn}</button>
+      <button class="btn" onclick="openImportModal()">${t.importBtn}</button>
       <button class="btn" onclick="openAIModal()">${t.aiBtn}</button>
       <a class="btn" href="field-guide.html" target="_blank" title="${t.fieldGuideLinkTitle}">${t.fieldGuideBtn}</a>
       <button class="btn" onclick="openHelpModal()">${t.helpBtn}</button>
-      <input type="file" id="importFileInput" accept="application/json,.json" style="display:none" onchange="handleImportFile(this)">
       <span class="save-status" id="saveStatus">✓ ${t.saved}</span>
     </div>
 
@@ -5940,6 +6005,8 @@ function render(){
       </div>
     </div>
   </div>` : ""}
+
+  ${importModalOpen ? importModalHTML(t) : ""}
 
   ${aiModalOpen ? `
   <div class="modal-backdrop no-print" onclick="if(event.target===this) closeAIModal()">
