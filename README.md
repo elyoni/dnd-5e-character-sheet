@@ -100,6 +100,7 @@ Racial traits are added to the **Traits** list automatically by the race templat
 - **Equal to Speed** / **Set base value** — Climb/Swim/Fly Speed only: instead of a flat bonus, it can instead *replace* the base value — either matching it to walking speed (e.g. a Fairy's Flight trait) or to a fixed number you choose (optionally scaling per level too). Other entries' flat bonuses still stack on top of whichever base a replacing entry establishes.
 - **Crit Range** — lowers the natural-roll threshold that counts as a critical hit (e.g. amount 1 = crit on 19–20, matching the Champion Fighter's Improved Critical). Every attack roll checks against this lowered threshold, and a "Crit on X–20" badge shows on the card.
 - **Darkvision Range** — the character's vision-in-darkness range in feet; shows up as a row in the Combat panel's Speed box once nonzero. Multiple Darkvision sources (e.g. a racial trait plus Superior Darkvision) don't stack additively — the character has whichever single range is highest.
+- **AC (while wearing armor)** — a flat AC bonus that only applies while an armor item is equipped (e.g. the Defense Fighting Style's +1 AC), matching the "while wearing armor" wording those feats use in the rules. It has no effect unarmored, and shows up in the AC box's formula note alongside the armor/ability/shield breakdown.
 
 Notes on a trait/feat card are edit-locked in the card itself (read-only display) — change them via the ✏️ edit button, which opens the same modal used to add one; that's also the field the Ask AI import writes into.
 

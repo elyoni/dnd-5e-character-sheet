@@ -902,7 +902,7 @@ const T = {
     traits:"Traits", traitName:"Trait", addTrait:"Trait", featsTraits:"Feats & Traits",
     traitLevelHint:"\"Level\" here means your character's current level (set in Identity) — a trait with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. Dwarven Toughness: +1 Max HP at level 1, +5 at level 5).",
     featAtkGroup:"Attack rolls", featAtkAll:"All attacks", featAtkMelee:"Melee attacks", featAtkRanged:"Ranged attacks", featAtkFinesse:"Finesse attacks", featAtkSpell:"Spell attacks",
-    featHP:"Max HP", featCritRange:"Crit Range (lower threshold)", featDarkvision:"Darkvision Range", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed", featFixedValue:"Set base value", critOnLabel:"Crit on",
+    featHP:"Max HP", featCritRange:"Crit Range (lower threshold)", featDarkvision:"Darkvision Range", featACArmored:"AC (while wearing armor)", featPerLevel:"/ level", featMatchSpeed:"Equal to Speed", featFixedValue:"Set base value", critOnLabel:"Crit on",
     featLevelHint:"\"Level\" here means your character's current level (set in Identity) — a feat with Amount 1 and \"/ level\" checked scales as 1 × your level, recalculating automatically every time you level up (e.g. the Tough feat: +2 Max HP at level 1, +10 at level 5).",
     featDmgGroup:"Damage rolls", featDmgAll:"All damage", featDmgMelee:"Melee damage", featDmgRanged:"Ranged damage", featDmgFinesse:"Finesse damage", featDmgSpell:"Spell damage",
     resources:"Class Resources", resName:"Resource", resUses:"Uses", resRecharge:"Recharges", resNotes:"What it does", addResource:"Resource",
@@ -1116,7 +1116,7 @@ const T = {
     traits:"תכונות (Traits)", traitName:"תכונה", addTrait:"תכונה", featsTraits:"כשרים ותכונות",
     traitLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — תכונה עם כמות 1 ו-\"/ רמה\" מסומן מתעצמת פי 1 × הרמה שלך, ומתעדכנת אוטומטית בכל פעם שאתה עולה רמה (למשל Dwarven Toughness: +1 לנק״ח מקס ברמה 1, +5 ברמה 5).",
     featAtkGroup:"התקפות", featAtkAll:"כל ההתקפות", featAtkMelee:"התקפות קרב מגע", featAtkRanged:"התקפות טווח", featAtkFinesse:"התקפות זריזות", featAtkSpell:"התקפות קסם",
-    featHP:"נק״ח מקס", featCritRange:"טווח קריטי (הורדת סף)", featDarkvision:"טווח ראיית לילה", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות", featFixedValue:"קביעת ערך בסיס", critOnLabel:"קריטי על",
+    featHP:"נק״ח מקס", featCritRange:"טווח קריטי (הורדת סף)", featDarkvision:"טווח ראיית לילה", featACArmored:"דרגת שריון (בזמן לבישת שריון)", featPerLevel:"/ רמה", featMatchSpeed:"שווה למהירות", featFixedValue:"קביעת ערך בסיס", critOnLabel:"קריטי על",
     featLevelHint:"\"רמה\" כאן היא הרמה הנוכחית של הדמות שלך (מוגדרת בזהות) — כשר עם כמות 1 ו-\"/ רמה\" מסומן מתעצם פי 1 × הרמה שלך, ומתעדכן אוטומטית בכל פעם שאתה עולה רמה (למשל הכשר Tough: +2 לנק״ח מקס ברמה 1, +10 ברמה 5).",
     featDmgGroup:"הטלות נזק", featDmgAll:"כל הנזק", featDmgMelee:"נזק קרב מגע", featDmgRanged:"נזק טווח", featDmgFinesse:"נזק זריזות", featDmgSpell:"נזק קסם",
     resources:"משאבי מחלקה", resName:"משאב", resUses:"שימושים", resRecharge:"מתאפס ב", resNotes:"מה זה עושה", addResource:"הוסף משאב",
@@ -2139,7 +2139,8 @@ function computeAC(s){
   const base = armorItem ? (parseInt(armorItem.acBase)||10) : 10;
   const eff = getEffectiveAbilities(s);
   const abilMod = armorItem ? armorItemAbilMod(armorItem, eff) : ((s.armor.acAbility && s.armor.acAbility!=="none") ? mod(eff[s.armor.acAbility]) : 0);
-  return base + abilMod + getEquippedShieldBonus(s);
+  const armoredFeatBonus = armorItem ? getFeatBonus(s, "ac_armored") : 0;
+  return base + abilMod + getEquippedShieldBonus(s) + armoredFeatBonus;
 }
 function acFormulaNote(s, t){
   const armorItem = getEquippedArmor(s);
@@ -2150,7 +2151,9 @@ function acFormulaNote(s, t){
   const abilMod = armorItem ? armorItemAbilMod(armorItem, eff) : ((abil && abil!=="none") ? mod(eff[abil]) : 0);
   const abilPart = (abil && abil!=="none") ? `+${t[abil]}(${fm(abilMod)})` : "";
   const shieldPart = getEquippedShieldBonus(s) ? `+${t.shieldName}(${getEquippedShieldBonus(s)})` : "";
-  return `${base}(${baseLabel})${abilPart}${shieldPart}`;
+  const armoredFeatBonus = armorItem ? getFeatBonus(s, "ac_armored") : 0;
+  const featPart = armoredFeatBonus ? `+${t.feats}(${fm(armoredFeatBonus)})` : "";
+  return `${base}(${baseLabel})${abilPart}${shieldPart}${featPart}`;
 }
 
 function abilForAttack(a){
@@ -4292,6 +4295,7 @@ function buildPrintHTML(opts){
     if(stat==='hp') return t.featHP;
     if(stat==='critRange') return t.featCritRange;
     if(stat==='darkvision') return t.featDarkvision;
+    if(stat==='ac_armored') return t.featACArmored;
     if(stat==='atk_all') return t.featAtkAll;
     if(stat==='atk_melee') return t.featAtkMelee;
     if(stat==='atk_ranged') return t.featAtkRanged;
@@ -4792,6 +4796,7 @@ function featModLabelForRow(t, stat){
   if(stat==='hp') return t.featHP;
   if(stat==='critRange') return t.featCritRange;
   if(stat==='darkvision') return t.featDarkvision;
+  if(stat==='ac_armored') return t.featACArmored;
   if(stat==='atk_all') return t.featAtkAll;
   if(stat==='atk_melee') return t.featAtkMelee;
   if(stat==='atk_ranged') return t.featAtkRanged;
@@ -5927,6 +5932,7 @@ function render(){
             <option value="hp" ${selOpt("hp")}>${t.featHP}</option>
             <option value="critRange" ${selOpt("critRange")}>${t.featCritRange}</option>
             <option value="darkvision" ${selOpt("darkvision")}>${t.featDarkvision}</option>
+            <option value="ac_armored" ${selOpt("ac_armored")}>${t.featACArmored}</option>
             ${ABILS.map(a=>`<option value="${a}" ${selOpt(a)}>${t[a]}</option>`).join("")}
             <optgroup label="${t.featAtkGroup}">
               <option value="atk_all" ${selOpt("atk_all")}>${t.featAtkAll}</option>
