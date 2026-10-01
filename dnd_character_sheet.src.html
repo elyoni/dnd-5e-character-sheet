@@ -2008,6 +2008,20 @@ async function storageDelete(key){
 
 const mod = s => Math.floor((s-10)/2);
 const fm = n => (n>=0?"+":"")+n;
+// Full dice expression as you'd say it at the table: diceExpr(1,20,9) → "1d20+9",
+// diceExpr(2,6,0) → "2d6". Shown on attack/spell cards so the player sees both
+// what to roll and what to add, not just the bonus or just the dice.
+const diceExpr = (count, die, bonus) => `${count}d${die}${bonus ? fm(bonus) : ""}`;
+// Total flat amount added to an attack's damage roll — mirrors the dmgBonus
+// computed in rollAttack()/rollAttackDamageOnly().
+function attackDmgBonus(a, parsed){
+  const abilMod = a.type !== "spell" ? mod(getEffectiveAbilities(state)[abilForAttack(a)]) : 0;
+  return (parsed ? parsed.flat||0 : 0) + abilMod + getDamageFeatBonus(state, a.type) + (a.magicBonus||0);
+}
+function attackDmgExpr(a){
+  const parsed = parseDiceString(a.dmg);
+  return parsed ? diceExpr(parsed.count, parsed.die, attackDmgBonus(a, parsed)) : (a.dmg||"");
+}
 // Hardcore Mode: one labeled term in a formula readout, e.g. " +3 (INT)" —
 // omits zero-value terms entirely rather than cluttering the formula.
 const hcTerm = (value, label) => value ? ` ${fm(value)} (${label})` : "";
@@ -2631,7 +2645,7 @@ function attackViewCard(a, i, opts){
       <div class="attack-box attack-box-hit">
         <span class="attack-box-label">🎯 ${t.atkBonus}</span>
         <div class="attack-box-val-row">
-          <span class="attack-box-val">${fm(bonus)}</span>
+          <span class="attack-box-val">${diceExpr(1,20,bonus)}</span>
           <button type="button" class="attack-box-die" onclick="rollAttackToHit(${i})" title="${t.atkRoll}">${d6DrawSVG()}</button>
         </div>
         <span class="attack-box-formula">${hitFormula}</span>
@@ -2640,7 +2654,7 @@ function attackViewCard(a, i, opts){
       <div class="attack-box attack-box-dmg">
         <span class="attack-box-label">💥 ${a.dmgType ? dmgTypeLabel(a.dmgType,t) : t.atkDmg}</span>
         <div class="attack-box-val-row">
-          <span class="attack-box-val">${esc2(a.dmg)||"—"}</span>
+          <span class="attack-box-val">${esc2(attackDmgExpr(a))||"—"}</span>
           ${a.dmg ? `<button type="button" class="attack-box-die" onclick="rollAttackDamageOnly(${i})" title="${t.atkRoll}">${d6DrawSVG()}</button>` : ""}
         </div>
         ${a.dmg ? `<span class="attack-box-formula">${dmgFormula}</span>` : ""}
@@ -2688,7 +2702,7 @@ function attackRow(a, i){
     const abil = abilForAttack(a);
     const abilMod = mod(state.abilities[abil]+getFeatBonus(state,abil));
     const bonus = abilMod + (a.prof ? profByLevel(state.level) : 0) + getAttackFeatBonus(state, a.type) + (a.magicBonus||0);
-    const foldSummary = `<table class="attack-fold-summary no-print"><tr><th>🎯 ${t.atkFoldAtk}</th><th>💥 ${t.atkFoldDmg}</th></tr><tr><td>${fm(bonus)}</td><td>${esc2(a.dmg)||"—"}</td></tr></table>`;
+    const foldSummary = `<table class="attack-fold-summary no-print"><tr><th>🎯 ${t.atkFoldAtk}</th><th>💥 ${t.atkFoldDmg}</th></tr><tr><td>${diceExpr(1,20,bonus)}</td><td>${esc2(attackDmgExpr(a))||"—"}</td></tr></table>`;
     return `<div class="attack-card ${folded ? "folded" : ""}">
       <div class="attack-card-top">
         <button class="fold-toggle no-print" onclick="toggleAttackFold(${i})" title="${folded ? t.refShow : t.refHide}">${folded ? "▸" : "▾"}</button>
@@ -3015,9 +3029,21 @@ function ensureDiceEngine(){
   );
   return diceEngine;
 }
+// Removes every result banner from the previous roll, whichever mode drew it:
+// the 3D engine only tracks (and clears) its own banners, while slow/Hardcore
+// banners are plain DOM nodes it doesn't know about — so switching dice modes
+// between rolls used to leave the old roll's banners stacked under the new one.
+function clearRollBanners(){
+  if(diceEngine) diceEngine.clearResultBanners();
+  document.querySelectorAll("#dice-3d-labels .dice-3d-banner").forEach(el=>el.remove());
+}
 function showDiceOverlay(hint, immediate){
   const overlay = document.getElementById("dice-3d-overlay");
   const hintEl = document.getElementById("dice-3d-hint");
+  clearRollBanners();
+  // Settled dice from an earlier 3D roll stay drawn on the canvas until the
+  // next 3D throw — hide it in slow/Hardcore mode so they don't show through.
+  document.getElementById("dice-3d-canvas").style.visibility = diceMode==="3d" ? "" : "hidden";
   overlay.classList.add("visible");
   hintEl.textContent = hint || "";
   if(immediate && hint) hintEl.classList.add("visible");
@@ -3070,6 +3096,7 @@ async function rollPhysicalDice(specs, hint, opts){
 // Hardcore Mode also reuses this to display formula text in place of a
 // rolled value — see showHardcoreRoll.
 function showRollBanner(items){
+  clearRollBanners();
   if(diceMode==="3d"){ ensureDiceEngine().showResultBanner(items); return; }
   const labelsEl = document.getElementById("dice-3d-labels");
   labelsEl.innerHTML = "";
@@ -4633,10 +4660,15 @@ function spellViewCard(sp, i, opts){
       ${opts.showNameRow===false && ctvChipsView ? `<span class="spell-meta-item"><div class="ctv-group">${ctvChipsView}</div></span>` : ""}
     </div>
     ${sp.save ? `<div class="formula-note">${t.spSaveLabel} d20+${saveLabel} ≥ ${spellDC} (8+prof+${t[state.spellcasting.abil]})</div>` : ""}
+    ${sp.category === "attack" ? `
+    <div class="spell-dmg-row">
+      <span class="dim-label">${t.atkBonus}</span>
+      <span class="attack-stat-val">${diceExpr(1,20,profByLevel(state.level) + mod(getEffectiveAbilities(state)[state.spellcasting.abil]))}</span>
+    </div>` : ""}
     ${(sp.category === "" || sp.category === "attack") ? `
     <div class="spell-dmg-row">
       <span class="dim-label">${t.spDmg}</span>
-      <span class="attack-stat-val">${esc2(sp.dmg)||"—"}</span>
+      <span class="attack-stat-val">${(()=>{ const p = parseDiceString(sp.dmg); return p ? diceExpr(p.count, p.die, p.flat) : (esc2(sp.dmg)||"—"); })()}</span>
       ${opts.rollCube||""}
     </div>` : ""}
     ${sp.notes ? `<div class="attack-notes-view" dir="auto">${esc2(sp.notes).replace(/\n/g,"<br>")}</div>` : ""}

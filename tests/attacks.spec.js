@@ -96,3 +96,29 @@ test.describe('attack damage type and presets', () => {
     expect(dmgType).toBe('');
   });
 });
+
+test.describe('dice expressions on attack/spell cards', () => {
+  test('attack card shows To Attack as 1d20+bonus and damage as dice+total bonus', async ({ page }) => {
+    await dismissOnboarding(page);
+    await page.evaluate(() => {
+      state.abilities.str = 16; // +3
+      state.level = 1;          // prof +2
+      state.attacks = [{name:'Longsword', type:'melee', dmg:'1d8', dmgType:'slashing', spellAbil:'cha', prof:true, notes:'', folded:false, magicBonus:1}];
+      render();
+    });
+    const vals = await page.locator('.attack-card .attack-box-val').allTextContents();
+    expect(vals.map(v => v.trim())).toEqual(['1d20+6', '1d8+4']);
+  });
+
+  test('attack spell shows its to-hit roll and spell damage dice', async ({ page }) => {
+    await dismissOnboarding(page);
+    await page.evaluate(() => {
+      state.level = 1; state.spellcasting.abil = 'cha'; state.abilities.cha = 16;
+      state.spells = [{name:'Fire Bolt', level:0, prepared:true, verbal:true, somatic:true, material:false, range:'120 ft', castTime:'', save:'', dmg:'1d10', notes:'', category:'attack', folded:false}];
+      render();
+    });
+    const text = await page.locator('.spell-item .spell-dmg-row').allTextContents();
+    expect(text.join(' ')).toContain('1d20+5');
+    expect(text.join(' ')).toContain('1d10');
+  });
+});

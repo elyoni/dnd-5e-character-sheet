@@ -55,4 +55,23 @@ test.describe('Hardcore Mode (diceMode = "hardcore")', () => {
 
     expect(await page.evaluate(() => diceMode)).toBe('slow');
   });
+
+  test('switching from Hardcore to 3D does not leave the old Hardcore banners stacked under the new roll', async ({ page }) => {
+    await dismissOnboarding(page);
+    await page.evaluate(() => setDiceMode('hardcore'));
+    await page.locator('.atk-roll-btn-mini').first().click();
+    await expect(page.locator('#dice-3d-labels .dice-3d-banner')).toHaveCount(3);
+    await page.evaluate(() => { dismissDiceOverlay(); setDiceMode('3d'); });
+
+    await page.evaluate(() => rollAttackDamageOnly(0));
+    await expect(page.locator('#dice-3d-labels .dice-3d-banner')).toHaveCount(1);
+    expect(await page.locator('#dice-3d-canvas').evaluate(el => el.style.visibility)).toBe('');
+  });
+
+  test('a Hardcore roll hides dice left on the canvas by an earlier 3D roll', async ({ page }) => {
+    await dismissOnboarding(page);
+    await page.evaluate(() => setDiceMode('hardcore'));
+    await page.locator('.atk-roll-btn-mini').first().click();
+    expect(await page.locator('#dice-3d-canvas').evaluate(el => el.style.visibility)).toBe('hidden');
+  });
 });
