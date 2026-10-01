@@ -401,7 +401,7 @@ const KIND_COLOR = { race:'var(--accent-green)', cls:'var(--accent-gold)', bg:'v
 // content/**/*.md sets one; nothing else about the row needs to change.
 const FIELD_ICON = {
   hitdie:'🎲', saves:'🛡️', skills:'🎯', caster:'✨',
-  resource:'⚡', trait:'🧬', tool:'🛠️', feat:'🌟',
+  resource:'⚡', trait:'🧬', tool:'🛠️', feat:'🌟', subclass:'🧭',
 };
 // nameHe/notesHe are optional Hebrew siblings of the mechanical name/notes
 // text (see content/**/*.md and scripts/compile-content.js) — rendered
@@ -421,7 +421,7 @@ function raceMechHTML(id, color){
   const d = RACES[id];
   if (!d) return '';
   const traits = (d.traits||[]).map(t => mechRow(t.name, t.notes, 'trait', color, t.img, t.nameHe, t.notesHe)).join('');
-  const resources = (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest', 'resource', color, r.img, r.nameHe)).join('');
+  const resources = (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest' + (r.notes ? ' — ' + r.notes : ''), 'resource', color, r.img, r.nameHe, r.notesHe)).join('');
   const skills = (d.skillProficiencies||[]).length ? mechRow('Skill proficiency', d.skillProficiencies.join(', '), 'skills', color) : '';
   return traits + resources + skills;
 }
@@ -433,7 +433,9 @@ function classMechHTML(id, color){
   if ((d.saves||[]).length) out += mechRow('Saving Throws', d.saves.map(a=>a.toUpperCase()).join(', '), 'saves', color);
   if ((d.skillSuggest||[]).length) out += mechRow('Suggested Skills', d.skillSuggest.join(', '), 'skills', color);
   if (d.casterAbility) out += mechRow('Spellcasting', d.casterAbility.toUpperCase(), 'caster', color);
-  out += (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest', 'resource', color, r.img, r.nameHe)).join('');
+  if ((d.subclasses||[]).length) out += mechRow('Subclasses', (d.subclassLevel ? 'Choose at level ' + d.subclassLevel + ': ' : '') + d.subclasses.join(', '), 'subclass', color);
+  if (d.subclassBeginnerPick) out += mechRow('Easiest to start with', d.subclassBeginnerPick + (d.subclassBeginnerNote ? ' — ' + d.subclassBeginnerNote : ''), 'subclass', color, undefined, undefined, d.subclassBeginnerNoteHe);
+  out += (d.resources||[]).map(r => mechRow(r.name, totalLabel(r.total) + ', ' + r.recharge + ' rest' + (r.notes ? ' — ' + r.notes : ''), 'resource', color, r.img, r.nameHe, r.notesHe)).join('');
   return out;
 }
 function bgMechHTML(id, color){

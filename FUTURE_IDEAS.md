@@ -46,3 +46,15 @@ Raised during the usability-plan interview (see `USABILITY_PLAN.md`) as item 9, 
 - Wild-Shape-uses-per-rest tracking reuses the existing generic Resources panel (dots) — no new tracker mechanism needed.
 
 **Why not now:** deferred by explicit request to scope the current usability pass down — it's the largest single item (new character-linking concept, switcher UI changes) among a batch of much smaller, more self-contained fixes. Pick it up as its own pass; the design above is ready to build against without re-interviewing.
+
+## Field Guide: reorder races by fit once a class is picked
+
+Raised while rewriting the Barbarian class blurb (see `content/classes/*.md`). Once a user has picked a class in the Field Guide, reorder (or otherwise highlight) the race roster so races that suit that class well are easier to find, instead of the current fixed/alphabetical-ish order that's identical no matter what class is selected.
+
+**Why not now:** needs a definition of "suits well" first — likely driven by each class's `combos[]` list (which already tags specific race/class pairings with a counter-stereotype blurb), but `combos[]` today is sparse (a handful of races per class, picked for narrative variety, not exhaustive coverage) and was never designed to double as a completeness ranking. Turning it into a sort/highlight signal risks implying the *other* races are somehow worse fits for that class, which cuts against the Field Guide's whole reason for existing (avoiding race/class stereotyping — see `docs/adr/0008-field-guide-shares-data-with-sheet.md`). Needs its own design pass on what "preferred" should even mean here before touching `field-guide.src.html`.
+
+## Field Guide: English/Hebrew language toggle instead of showing both
+
+Raised while adding resource `notes`/`notesHe` to class/race mech rows (see `content/classes/Barbarian.md`, `field-guide.src.html`'s `mechRow()`). Right now every bilingual bit of Field Guide text (`.he` spans on names/notes/blurbs/combo tags) renders English and Hebrew stacked together, always both, all the time — there's no per-language toggle the way the main sheet has (`lang` state, `T.en`/`T.he`). As more fields grow real notes (like Rage's new description), the doubled text makes each mech-row noticeably taller and busier.
+
+**Why not now:** this is a real UI feature (a toggle control, state to remember the choice, deciding whether it's global or per-row, whether it persists across sessions) layered onto a page that currently has zero language-selection state of its own — everything today is rendered unconditionally from content, no `render()`-style re-render loop keyed on a language flag exists yet in `field-guide.src.html`. Worth doing once enough classes have real bilingual notes that the stacked layout is clearly a problem, not before.

@@ -83,6 +83,7 @@ function validate(RACES, CLASSES, BACKGROUNDS) {
         err(file, `resources[${i}] ("${r.name}") has recharge "${r.recharge}" — must be one of: ${RECHARGES.join(", ")}`);
       }
       checkOptionalHe(file, r, "nameHe", `resources[${i}] ("${r.name || "?"}")`);
+      checkOptionalHe(file, r, "notesHe", `resources[${i}] ("${r.name || "?"}")`);
     });
   }
 
