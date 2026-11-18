@@ -6228,6 +6228,10 @@ window.addEventListener('resize', trimDiceHistories);
   }
   render();
 })();
+
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
 </script>
 </body>
 </html>
