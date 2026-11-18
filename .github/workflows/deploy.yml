@@ -41,6 +41,7 @@ jobs:
           cp dnd_character_sheet.html site/index.html
           cp dnd_character_sheet.html site/dnd_character_sheet.html
           cp field-guide.html site/field-guide.html
+          cp manifest.json sw.js icon-192.png icon-512.png icon-512-maskable.png site/
           mkdir -p site/content/images
           cp -r content/images/. site/content/images/
           DEPLOY_TIME="$(date -u '+%Y-%m-%d %H:%M UTC')"
